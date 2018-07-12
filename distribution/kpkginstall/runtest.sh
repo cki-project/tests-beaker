@@ -38,7 +38,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   case ${ARCH} in
-    ppc64|ppc64le|s390x)
+    ppc64|ppc64le|s390x|aarch64)
       for xname in $(ls /boot/vmlinux-*${KVER}); do
         zname=$(echo "${xname}" | sed "s/x-/z-/")
         ln -sv $(basename ${xname}) ${zname}
