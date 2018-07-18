@@ -38,12 +38,29 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   case ${ARCH} in
-    ppc64|ppc64le|s390x|aarch64)
+    ppc64|ppc64le|s390x)
       for xname in $(ls /boot/vmlinux-*${KVER}); do
         zname=$(echo "${xname}" | sed "s/x-/z-/")
         ln -sv $(basename ${xname}) ${zname}
       done
       ;;
+    aarch64)
+      # These steps are required until the following patch is backported into
+      # the kernel trees: https://patchwork.kernel.org/patch/10532993/
+
+      # Skip these steps if the vmlinuz is already present
+      if [ ! -f "/boot/vmlinuz-${KVER}" ]; then
+
+        # Strip the vmlinux binary as required for aarch64
+        objcopy  -O binary -R .note -R .note.gnu.build-id -R .comment -S /boot/vmlinux-${KVER} /tmp/vmlinux-${KVER}
+
+        # Compress the stripped vmlinux
+        cat /tmp/vmlinux-${KVER} | gzip -n -f -9 > /boot/vmlinuz-${KVER}
+
+        # Clean up temporary stripped vmlinux and the generic vmlinux in /boot
+        rm -f /tmp/vmlinux-${KVER} /boot/vmlinux-${KVER}
+
+      fi
   esac
 
   new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
