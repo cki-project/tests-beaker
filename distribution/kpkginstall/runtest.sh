@@ -63,6 +63,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
         # Clean up temporary stripped vmlinux and the generic vmlinux in /boot
         rm -f /tmp/vmlinux-${KVER} /boot/vmlinux-${KVER}
       fi
+      ;;
     s390x)
       # These steps are required until the following patch is backported into
       # the kernel trees: https://patchwork.kernel.org/patch/10534813/
