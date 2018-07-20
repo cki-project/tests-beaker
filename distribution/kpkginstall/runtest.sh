@@ -38,7 +38,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   case ${ARCH} in
-    ppc64|ppc64le|s390x)
+    ppc64|ppc64le)
       for xname in $(ls /boot/vmlinux-*${KVER}); do
         zname=$(echo "${xname}" | sed "s/x-/z-/")
         ln -sv $(basename ${xname}) ${zname}
@@ -63,6 +63,21 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
         # Clean up temporary stripped vmlinux and the generic vmlinux in /boot
         rm -f /tmp/vmlinux-${KVER} /boot/vmlinux-${KVER}
       fi
+    s390x)
+      # These steps are required until the following patch is backported into
+      # the kernel trees: https://patchwork.kernel.org/patch/10534813/
+
+      # Check to see if vmlinuz is present (it's a sign that upstream patch)
+      # has merged)
+      if [ -f "/boot/vmlinuz-${KVER}" ]; then
+        # Remove the vmlinux from /boot and use only the vmlinuz
+        rm -f /boot/vmlinux-${KVER}
+      else
+        # Strip the vmlinux binary as required for s390
+        objcopy -O binary /boot/vmlinux-${KVER} /tmp/vmlinux-${KVER}
+        mv -f /tmp/vmlinux-${KVER} /boot/vmlinux-${KVER}
+      fi
+      ;;
   esac
 
   new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
