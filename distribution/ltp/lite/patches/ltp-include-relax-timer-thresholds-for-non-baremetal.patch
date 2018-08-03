@@ -1,0 +1,13 @@
+diff --git a/lib/tst_timer_test.c b/lib/tst_timer_test.c
+index cd4ebcaa89e0..c08b7cadb385 100644
+--- a/lib/tst_timer_test.c
++++ b/lib/tst_timer_test.c
+@@ -194,7 +194,7 @@ static int cmp(const void *a, const void *b)
+ static long long compute_threshold(long long requested_us,
+ 				   unsigned int nsamples)
+ {
+-	unsigned int slack_per_scall = MIN(100000, requested_us / 1000);
++	unsigned int slack_per_scall = requested_us / 100;
+ 
+ 	slack_per_scall = MAX(slack_per_scall, timerslack);
+ 

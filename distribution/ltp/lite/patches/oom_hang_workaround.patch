@@ -1,0 +1,37 @@
+diff --git a/testcases/kernel/mem/lib/mem.c b/testcases/kernel/mem/lib/mem.c
+index 118b6c0..b4b1349 100644
+--- a/testcases/kernel/mem/lib/mem.c
++++ b/testcases/kernel/mem/lib/mem.c
+@@ -4,6 +4,7 @@
+ #include <sys/mount.h>
+ #include <sys/stat.h>
+ #include <sys/wait.h>
++#include <sys/sysinfo.h>
+ #include <errno.h>
+ #include <fcntl.h>
+ #if HAVE_NUMA_H
+@@ -120,12 +121,24 @@ void oom(int testcase, int lite, int retcode, int allow_sigkill)
+ {
+ 	pid_t pid;
+ 	int status, threads;
++	struct sysinfo sstats;
++
++	TEST(sysinfo(&sstats));
++	if (TEST_RETURN)
++		tst_brkm(TBROK | TTERRNO, NULL, "sysinfo");
++
+ 
+ 	switch (pid = fork()) {
+ 	case -1:
+ 		tst_brkm(TBROK | TERRNO, cleanup, "fork");
+ 	case 0:
+ 		threads = MAX(1, tst_ncpus() - 1);
++		if ((sstats.totalram / 1024) * sstats.mem_unit < 64UL * 1024 * 1024) {
++			tst_resm(TINFO, "Less than 64G RAM, use single thread");
++			tst_resm(TINFO, "ltp/oom1 cause the system hang");
++			threads = 1;
++		}
++
+ 		child_alloc(testcase, lite, threads);
+ 	default:
+ 		break;
