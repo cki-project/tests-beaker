@@ -1,0 +1,5 @@
+This script can be used to run a subset the tests in the LTP test suite,
+this script is typically used as a quick test to check an install base.
+
+For more details:
+https://github.com/linux-test-project/ltp
