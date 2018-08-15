@@ -93,7 +93,7 @@ else ifeq ($(TESTVERSION),20170929)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround2.patch
 	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
 	cp -vf RHELKT1LITE.20170929 RHELKT1LITE
-else
+else ifeq ($(TESTVERSION),2018018)
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/oom_hang_workaround2.patch
 	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
@@ -102,6 +102,14 @@ else
 	# RHEL5 doesn't have timeout
 	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
 	cp -vf RHELKT1LITE.20180118 RHELKT1LITE
+else
+	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
+	# RHEL5 gcc has trouble with this test
+	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
+	# RHEL5 doesn't have timeout
+	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
+	cp -vf RHELKT1LITE.20180515 RHELKT1LITE
 endif
 
 build: $(TARGET) build-all
@@ -131,5 +139,5 @@ $(METADATA):
 	@echo "Requires:        gcc wget ntpdate kernel-headers redhat-lsb bc numactl" >> $(METADATA)
 	@echo "Requires:        kernel-devel libaio-devel libcap-devel numactl-devel libcgroup strace hexdump virt-what" >> $(METADATA)
 	@echo "Owner:           Kernel General Test Team <kernel-general-test-team@redhat.com>" >>$(METADATA)
-	@echo "Releases:        RHEL6 RHEL7 RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7 Fedora25 Fedora26 Fedorarawhide" >>$(METADATA)
+	@echo "Releases:        RHEL6 RHEL7 RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7 RedHatEnterpriseLinux8 Fedora25 Fedora26 Fedorarawhide" >>$(METADATA)
 	@echo "Type:            KernelTier0 KernelTier1" >>$(METADATA)

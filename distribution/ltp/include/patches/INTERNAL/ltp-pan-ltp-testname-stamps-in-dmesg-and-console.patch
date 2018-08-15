@@ -1,0 +1,30 @@
+From 906c0687dc963eb8a2a01bad38e75af807273692 Mon Sep 17 00:00:00 2001
+From: Li Wang <liwang@redhat.com>
+Date: Wed, 12 Aug 2015 17:49:30 +0800
+Subject: [PATCH] ltp-pan: ltp testname stamps in dmesg and console
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+---
+ pan/ltp-pan.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/pan/ltp-pan.c b/pan/ltp-pan.c
+index cee71aa..79dc3fa 100644
+--- a/pan/ltp-pan.c
++++ b/pan/ltp-pan.c
+@@ -1360,6 +1360,12 @@ static void write_test_start(struct tag_pgrp *running)
+ 		     running->cmd->cmdline, "", "exit", "<<<test_output>>>");
+ 	}
+ 	fflush(stdout);
++
++	FILE *f = fopen("/dev/kmsg", "w");
++	if (f) {
++		fprintf(f, "ltptest %s start\n", running->cmd->name);
++		fclose(f);
++	}
+ }
+ 
+ static void
+-- 
+1.8.3.1
+

@@ -1,0 +1,25 @@
+From 98f87bd26b7c3288643e35a46286188793507e23 Mon Sep 17 00:00:00 2001
+From: Madper Xie <cxie@redhat.com>
+Date: Thu, 13 Feb 2014 14:06:58 +0800
+Subject: [PATCH] Skip firmware tests.
+
+Skip them before fixing.
+---
+ testcases/kernel/Makefile | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/testcases/kernel/Makefile b/testcases/kernel/Makefile
+index 6bffe79..cf91ddb 100644
+--- a/testcases/kernel/Makefile
++++ b/testcases/kernel/Makefile
+@@ -39,7 +39,6 @@ SUBDIRS			+= connectors \
+ 			   containers \
+ 			   controllers \
+ 			   device-drivers \
+-			   firmware \
+ 			   fs \
+ 			   hotplug \
+ 			   io \
+-- 
+1.8.5.4
+

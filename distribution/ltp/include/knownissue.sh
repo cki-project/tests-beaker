@@ -1,0 +1,389 @@
+#!/bin/bash
+
+# Added-by:  Li Wang <liwang@redhat.com>
+
+. ../include/kvercmp.sh  || exit 1
+
+cver=$(uname -r)
+arch=$(uname -m)
+
+# Identify OS release
+if [ -r /etc/system-release-cpe ]; then
+	# If system-release-cpe exists, we're on Fedora or RHEL6 or newer
+	cpe=$(cat /etc/system-release-cpe)
+	osflav=$(echo $cpe | cut -d: -f4)
+
+	case $osflav in
+		  fedora)
+			osver=$(echo $cpe | cut -d: -f5)
+			;;
+
+	enterprise_linux)
+			osver=$(echo $cpe | awk -F: '{print int(substr($5, 1,1))*100 + (int(substr($5,3,2)))}')
+			;;
+	esac
+else
+	# if we don't have system-release-cpe, use the old mechanism
+	osver=0
+fi
+
+kn_fatal=${LTPDIR}/KNOWNISSUE_FATAL
+kn_unfix=${LTPDIR}/KNOWNISSUE_UNFIX
+kn_fixed=${LTPDIR}/KNOWNISSUE_FIXED
+kn_issue=${LTPDIR}/KNOWNISSUE
+
+function is_rhel5() { grep -q "release 5" /etc/redhat-release; }
+function is_rhel6() { grep -q "release 6" /etc/redhat-release; }
+function is_rhel7() { grep -q "release 7" /etc/redhat-release; }
+function is_rhel_alt() { rpm -q --qf "%{sourcerpm}\n" -f /boot/vmlinuz-$(uname -r) | grep -q "alt"; }
+function is_upstream() { uname -r | grep -q -v 'el\|fc'; }
+function is_arch() { [ "$(uname -m)" == "$1" ]; }
+# osver_low <= $osver < osver_high
+function osver_in_range() { [ "$1" -le "$osver" -a "$osver" -lt "$2" ]; }
+
+# kernel_low <= $cver < kernel_high
+function kernel_in_range()
+{
+	kvercmp "$1" "$cver"
+	if [ $kver_ret -le 0 ]; then
+		kvercmp "$cver" "$2"
+		if [ $kver_ret -lt 0 ]; then
+			return 0
+		fi
+	fi
+	return 1
+}
+
+# pkg_low <= $pkgver < pkg_high
+function pkg_in_range()
+{
+	pkgver=$(rpm -qa $1 | head -1 | sed 's/\(\w\+-\)//')
+	kvercmp "$2" "$pkgver"
+	if [ $kver_ret -le 0 ]; then
+		kvercmp "$pkgver" "$3"
+		if [ $kver_ret -lt 0 ]; then
+			return 0
+		fi
+	fi
+	return 1
+}
+
+# Usage: tskip "case1 case2 case3 ... caseN" fixed
+function tskip()
+{
+	if echo "|fatal|fixed|unfix|" | grep -q "|$2|"; then
+		for tcase in $1; do
+			echo "$tcase" >> $(eval echo '${kn_'$2'}')
+		done
+	else
+		echo "Error: parameter \"$2\" is incorrect."
+		exit 1
+	fi
+}
+
+# Keep in mind that all known issues should have finite exclusion range, that
+# will end in near future. So that these issues pop up again, once we move to
+# new minor/upstream release. And we have chance to re-evaluate.
+# For example:
+# - kernel_in_range "0" "2.6.32-600.el6" -> FINE
+# - kernel_in_range "0" "9999.9999.9999" -> PROBLEM, will be excluded forever
+# - osver_in_range "600" "609" -> FINE
+# - osver_in_range "600" "99999" -> PROBLEM, will be excluded forever
+function knownissue_filter()
+{
+	# skip OOM tests on large boxes since it takes too long
+	[ $(free -g | grep "^Mem:" | awk '{print $2}') -gt 8 ] && tskip "oom0.*" fatal
+
+	# this case always make the beaker task abort with 'incrementing stop' msg
+	tskip "min_free_kbytes" fatal
+	# msgctl10 -> keeps triggerring OOM..., msgctl11 -> too many pids
+	tskip "msgctl10 msgctl11" fatal
+	# read_all_dev can trigger accidental reboots when reading /dev/watchdog
+	# https://github.com/linux-test-project/ltp/issues/377
+	tskip "read_all_dev" fatal
+
+	if is_upstream; then
+		# ------- unfix ---------
+		# http://lists.linux.it/pipermail/ltp/2017-January/003424.html
+		kernel_in_range "4.8.0-rc6" "4.12" && tskip "utimensat01.*" unfix
+	fi
+
+	if is_rhel_alt; then
+		# ------- fatal ---------
+		# kernel panic on split_huge_page_to_list() on Pegas
+		# WARNING: CPU: 4 PID: 33 at arch/x86/kernel/smp.c:125 native_smp_send_reschedule+0x3f/0x50
+		# [Pegas-7.4-20161213.n.2][PANIC] Kernel panic - not syncing: Out of memory and no killable processes...
+		# kernel 4.8.0, 4.9.0, 4.10.0 and 4.11.0
+		kernel_in_range "4.8.0-0.5.el7" "4.12.0-0.0.el7" && tskip "oom0.*" fatal
+		# Pegas1.0 Alpha [ P9 ZZ DD2 ]: machine crashes while running runltp.
+		kernel_in_range "4.8.0-0.5.el7" "4.11.0-32.el7" && tskip "keyctl05" fatal
+		# WARNING: possible circular locking dependency detected
+		is_arch "aarch64" && kernel_in_range "4.14.0-0.el7" "4.14.0-53.el7" && tskip "dynamic_debug01" fatal
+		# kernel-alt: kernel: Missing length check of payload in net/sctp
+		kernel_in_range "0" "4.14.0-58.el7" && tskip "cve-2018-5803" fatal
+
+		# ------- unfix ---------
+		# http://lists.linux.it/pipermail/ltp/2017-January/003424.html
+		kernel_in_range "4.8.0-rc6" "4.12" && tskip "utimensat01.*" unfix
+		# sysfs syscall is deprecated and not implemented for aarch64 kernels
+		# NOTE: sysfs syscall is unrelated to the sysfs filesystem, i.e., /sys
+		is_arch "aarch64" && tskip "sysfs" unfix
+		# ustat syscall is deprecated and not implemented for aarch64 kernels
+		is_arch "aarch64" && tskip "ustat" unfix
+		# disable futex_wake04
+		osver_in_range "700" "705" && is_arch "aarch64" && tskip "futex_wake04" unfix
+		# kernel-alt: kernel: Missing permissions check for request_key()
+		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" unfix
+		# ovl: hash directory inodes for fsnotify
+		osver_in_range "700" "707" && tskip "inotify07" unfix
+		# ovl: hash non-dir by lower inode for fsnotify
+		osver_in_range "700" "707" && tskip "inotify08" unfix
+	fi
+
+	if is_rhel7; then
+		# ------- fatal ---------
+		# kernel: Missing length check of payload in net/sctp
+		kernel_in_range "0" "3.10.0-871.el7" && tskip "cve-2018-5803" fatal
+		# kernel: NULL pointer dereference due to KEYCTL_READ
+		kernel_in_range "0" "3.10.0-794.el7" && tskip "keyctl07 cve-2017-12192" fatal
+		# kernel: ping socket / AF_LLC connect() sin_family race
+		kernel_in_range "0" "3.10.0-647.el7" && tskip "cve-2017-2671" fatal
+		# kernel: Null pointer dereference due to incorrect node-splitting
+		kernel_in_range "0" "3.10.0-794.el7" && tskip "cve-2017-12193 add_key04" fatal
+		# sched/sysctl: Check user input value of sysctl_sched_time_avg
+		osver_in_range "700" "707" && tskip "sysctl01.*" fatal
+		# kernel panic when ran ltp syscalls add_key02 on RHEL7.4
+		osver_in_range "700" "706" && tskip "add_key02" fatal
+		# [ltp/msgctl10] BUG: unable to handle kernel paging request at ffff8800abe4a5a0
+		osver_in_range "700" "706" && tskip "msgctl10" fatal
+		# [s390x] ltp/futex_wake04.c cause system hang
+		osver_in_range "700" "706" && is_arch "s390x" && tskip "futex_wake04" fatal
+		# futex_wake04 hangs 7.0z
+		osver_in_range "700" "701" && tskip "futex_wake04" fatal
+		#  parallel memory allocation with numa balancing...
+		[ $(free -g | grep Mem | awk '{print $2}') -gt 512 ] && \
+			kernel_in_range "0" "3.10.0-436.el7" && tskip "mtest0.*" fatal
+		# Unable to handle kernel paging request for data in vmem_map
+		kernel_in_range "0" "3.10.0-323.el7" && tskip "rwtest03.*" fatal
+		# soft lockup - CPU#3 stuck for 22s! [inotify06:51229]
+		kernel_in_range "0" "3.10.0-320.el7" && tskip "inotify06.*" fatal
+		# kernel: User triggerable crash from race between key read and rey revoke [RHEL-7]
+		kernel_in_range "0" "3.10.0-343.el7" && tskip "keyctl02.*" fatal
+		# BUG: Bad page state in process msgctl11  pfn:3940e
+		osver_in_range "701" "703" && tskip "msgctl11" fatal
+		# [LTP fanotify07] kernel hangs while testing fanotify permission event destruction
+		osver_in_range "700" "706" && tskip "fanotify07" fatal
+		# kernel: Missing permissions check for request_key()
+		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fatal
+
+		# ------- unfix ---------
+		# ppc64: kt1lite getrandom02 test failure reported
+		osver_in_range "705" "707" && is_arch "ppc64" && tskip "getrandom02" unfix
+		# ppc64: kt1lite getrandom02 test failure reported
+		osver_in_range "705" "707" && is_arch "ppc64le" && tskip "getrandom02" unfix
+		# Corruption with O_DIRECT and unaligned user buffers
+		tskip "dma_thread_diotest" unfix
+		# disable sysctl tests -> RHEL7 does not support these
+		tskip "sysctl" unfix
+		# kernel: aio_mount function does not properly restrict execute access
+		tskip "cve-2016-10044" unfix
+		# [LTP fcntl35] unprivileged user exceeds fs.pipe-max-size
+		osver_in_range "700" "706" && tskip "fcntl35" unfix
+		# [LTP keyctl04] fix keyctl_set_reqkey_keyring() to not leak thread keyrings
+		osver_in_range "700" "706" && tskip "keyctl04" unfix
+		# [LTP cve-2017-5669] test for "Fix shmat mmap nil-page protection" fails
+		osver_in_range "700" "706" && tskip "cve-2017-5669" unfix
+		# kernel: keyctl_set_reqkey_keyring() leaks thread keyrings
+		osver_in_range "700" "706" && tskip "cve-2017-7472" unfix
+
+		# ------- fixed ---------
+		# spurious EMFILE errors from inotify_init
+		kernel_in_range "0" "3.10.0-593.el7" && tskip "inotify06.*" fixed
+		# [FJ7.3 Bug]: The [X]GETNEXTQUOTA subcommand on quotactl systemcall returns a wrong value
+		kernel_in_range "0" "3.10.0-592.el7" && tskip "quotactl03" fixed
+		# xfs: getxattr spuriously returns -ENOATTR due to setxattr race
+		kernel_in_range "0" "3.10.0-561.el7" && tskip "getxattr04" fixed
+		# rsyslog restart pulls lots of older log entries again...
+		osver_in_range "701" "704" && tskip "syslog01" fixed
+		# kernel: Privilege escalation via MAP_PRIVATE
+		kernel_in_range "0" "3.10.0-514.el7" && tskip "dirtyc0w" fixed
+		# fanotify: fix notification of groups with inode...
+		kernel_in_range "0" "3.10.0-449.el7" && tskip "fanotify06" fixed
+		# Page fault is not avoidable by using madvise...
+		osver_in_range "700" "703" && tskip "madvise06" fixed
+		# x38_edac polluting logs: dmesg / systemd's journal
+		kernel_in_range "0" "3.10.0-285.el7" && tskip "kmsg01" fixed
+		# Kernel panic - not syncing: Out of memory and no killable processes...
+		kernel_in_range "0" "3.10.0-219.el7" && tskip "msgctl10" fixed
+		# Failed RT Signal delivery can corrupt FP registers
+		kernel_in_range "0" "3.10.0-201.el7" && tskip "signal06" fixed
+		# ext4: rest of the update for rhel7.1
+		kernel_in_range "0" "3.10.0-200.el7" && tskip "mmap16" fixed
+		# powerpc: 64bit sendfile is capped at 2GB
+		kernel_in_range "0" "3.10.0-152.el7" && is_arch "ppc64" && tskip "sendfile09" fixed
+		# trinity hit BUG: unable to handle kernel...
+		kernel_in_range "0" "3.10.0-148.el7" && tskip "madvise05" fixed
+		# system calls including getcwd and files in...
+		kernel_in_range "0" "3.10.0-125.el7" && tskip "getcwd04" fixed
+		# [RHELSA-7.3] ltptest hits EWD at mtest01w
+		kernel_in_range "0" "4.5.0-0.45.el7" && is_arch "aarch64" && tskip "mtest0.*" fixed
+		# [RHELSA-7.3] ltptest hits EWD at madvise06
+		kernel_in_range "0" "4.5.0-0.45.el7" && is_arch "aarch64" && tskip "madvise06" fixed
+		# read() return -1 ENOMEM (Cannot allocate memory))...
+		kernel_in_range "0" "4.5.0-0.rc3.27.el7" && is_arch "aarch64" && tskip "dio04 dio10" fixed
+		# disable gethostbyname_r01, GHOST glibc CVE-2015-0235
+		osver_in_range "700" "701" && tskip "gethostbyname_r01" fixed
+		# LTP profil01 test fails on RHELSA aarch64
+		pkg_in_range "glibc" "0" "2.17-165.el7" && is_arch "aarch64" && tskip "profil01" fixed
+		# open() and openat() ignore 'mode' with O_TMPFILE
+		pkg_in_range "glibc" "0" "2.17-159.el7.1" && tskip "open14 openat03"  fixed
+		# kernel: NULL pointer dereference in keyring_search_aux function [rhel-7.4]
+		kernel_in_range "0" "3.10.0-686.el7" && tskip "cve-2017-6951" fixed
+		# kernel: Using request_key() or keyctl request2 to get a kernel causes the key garbage collector to crash
+		kernel_in_range "0" "3.10.0-332.el7" && tskip "keyctl03" fixed
+	fi
+
+	if is_rhel6; then
+		# ------- fatal ---------
+		# kernel: Missing length check of payload in net/sctp
+		kernel_in_range "0" "2.6.32-751.el6" && tskip "cve-2018-5803" fatal
+		# kernel: ping socket / AF_LLC connect() sin_family race [rhel-6.10]
+		kernel_in_range "0" "2.6.32-702.el6" && tskip "cve-2017-2671" fatal
+		# kernel: User triggerable crash from race between key read and ...
+		kernel_in_range "0" "2.6.32-600.el6" && tskip "cve-2015-7550 keyctl02.*" fatal
+		# kernel: Using request_key() or keyctl request2 ...
+		kernel_in_range "0" "2.6.32-585.el6" && tskip "keyctl03.*" fatal
+		# kernel BUG at kernel/cred.c:97!
+		osver_in_range "600" "609" && tskip "cve-2015-3290" fatal
+		# NULL ptr deref at follow_huge_addr+0x78/0x100
+		osver_in_range "600" "611" && tskip "move_pages12.*" fatal
+		# kernel: NULL pointer dereference in keyring_search_aux function [rhel-6.10]
+		osver_in_range "600" "611" && tskip "cve-2017-6951" fatal
+		# kernel: NULL pointer dereference due to KEYCTL_READ
+		osver_in_range "600" "611" && tskip "keyctl07 cve-2017-12192" fatal
+		# kernel: security: The built-in keyrings for security tokens can be joined as
+		osver_in_range "600" "611" && tskip "cve-2016-9604" fatal
+		# kernel: keyctl_set_reqkey_keyring() leaks thread keyrings [rhel-6.10]
+		osver_in_range "600" "611" && tskip "cve-2017-7472" fatal
+		# kernel: dereferencing NULL payload with nonzero length [rhel-6.10]
+		osver_in_range "600" "611" && tskip "cve-2017-15274" fatal
+		# LTP fork05 reports 'BUG: unable to handle kernel paging request at XXX
+		osver_in_range "600" "611" && tskip "fork05.*" fatal
+		# LTP modify_ldt02 causes panic 'BUG: unable to handle kernel paging request at XXX'
+		osver_in_range "600" "611" && tskip "modify_ldt02.*" fatal
+		# kernel: Missing permissions check for request_key()
+		osver_in_range "600" "611" && tskip "request_key04 cve-2017-17807" fatal
+		# sched/sysctl: Check user input value of sysctl_sched_time_avg
+		osver_in_range "600" "611" && tskip "sysctl01.*" fatal
+
+		# ------- unfix ---------
+		# KEYS: Disallow keyrings beginning with '.' to be joined as session keyrings
+		osver_in_range "600" "611" && tskip "keyctl08" unfix
+		# KEYS: prevent creating a different user's keyrings
+		osver_in_range "600" "611" && tskip "add_key03" unfix
+		# add_key02.c:99: FAIL: unexpected error with key type 'user': EINVAL
+		osver_in_range "600" "610" && tskip "add_key02" unfix
+		# Page fault is not avoidable by using madvise...
+		osver_in_range "600" "610" && tskip "madvise06" unfix
+		# disable signal06 until we backport df24fb859a4e200d, 66463db4fc5605d51c7bb
+		osver_in_range "600" "610" && tskip "signal06" unfix
+		# avc: denied { write } for pid=11089
+		osver_in_range "600" "610" && tskip "quotactl01" unfix
+		# sctp: fix -ENOMEM result with invalid
+		osver_in_range "600" "610" && tskip "sendto02" unfix
+		# [RHEL6.9][kernel] LTP recvmsg03 test hangs
+		osver_in_range "600" "611" && tskip "recvmsg03.*" unfix
+		# [LTP keyctl04] fix keyctl_set_reqkey_keyring() to not leak thread keyrings
+		osver_in_range "600" "611" && tskip "keyctl04" unfix
+		# [LTP cve-2017-5669] test for "Fix shmat mmap nil-page protection" fails
+		osver_in_range "600" "611" && tskip "cve-2017-5669" unfix
+
+		# ------- fixed ---------
+		# disable mlock03, it has been marked as broken on RHEL6
+		tskip "mlock03" fixed
+		# FUTEX_WAKE may fail to wake waiters on...
+		kernel_in_range "0" "2.6.32-555.el6" && tskip "futex_wake04" fixed
+		# [hugetblfs]Attempt to mmap into highmem...
+		kernel_in_range "0" "2.6.32-449.el6" && is_arch "ppc64" && tskip "mmap15" fixed
+		# vfs: fix data corruption when blocksize...
+		kernel_in_range "0" "2.6.32-622.el6" && tskip "mmap16" fixed
+		# [RHEL6] readahead not behaving as expected
+		kernel_in_range "0" "2.6.32-465.el6" && tskip "readahead02.*" fixed
+		# fork incorrectly succeeds when virtual...
+		kernel_in_range "0" "2.6.32-304.el6" && tskip "fork14" fixed
+		# disable vma testcases RHEL6.4
+		kernel_in_range "0" "2.6.32-279.el6" && tskip "vma0.*" fixed
+		# disable gethostbyname_r01, GHOST glibc CVE-2015-0235
+		osver_in_range "600" "608" && tskip "gethostbyname_r01" fixed
+		# kernel: recv{from,msg}() on an rds socket can leak kernel memory [rhel-6.4]
+		kernel_in_range "0" "2.6.32-294.el6" && tskip "recvmsg03.*" fixed
+		# disable getrusage04 because bug 690998 is not in RHEL 6.0-z
+		kernel_in_range "0" "2.6.32-131.0.5.el6" && tskip "getrusage04.*" fixed
+	        # [FJ6.2 Bug]: malloc() deadlock in case of allocation...
+		pkg_in_range "glibc" "0" "2.12-1.68.el6" && tskip "mallocstress" fixed
+	fi
+
+	if is_rhel5; then
+		tskip "keyctl02 proc01 cve-2017-5669 \
+			cve-2017-6951 cve-2017-2671 \
+			request_key04 cve-2017-17807 \
+			cve-2018-5803" \
+		fatal
+
+		tskip "mmap16 fork14 gethostbyname_r01 \
+			add_key02 keyctl04 sendto02 \
+			signal06 vma05 dynamic_debug01 \
+			poll02 select04" \
+		unfix
+	fi
+}
+
+function tcase_exclude()
+{
+	local config="$*"
+
+	while read skip; do
+		echo "Excluding $skip form LTP runtest file"
+		sed -i 's/^\('$skip'\)/#disabled, \1/g' ${config}
+	done
+}
+
+# Usage:    knownissue_exclude "all" "RHELKT1LITE"
+#
+# Parameter explanation:
+#  "all"    - skip all of the knownissues on test system
+#  "fatal"  - only skip the fatal knownissues, and mark the others
+#             from 'FAIL' to 'KNOW' in test log
+#  "none"   - none of the knownissues will be skiped, only change
+#             from 'FAIL' to 'KNOW' in test log
+function knownissue_exclude()
+{
+	local param=$1
+	shift
+	local runtest="$*"
+
+	rm -f ${kn_fatal} ${kn_unfix} ${kn_fixed} ${kn_issue}
+
+	knownissue_filter
+
+	case $param in
+	  "all")
+		[ -f ${kn_fatal} ] && cat ${kn_fatal} | tcase_exclude ${runtest}
+		[ -f ${kn_unfix} ] && cat ${kn_unfix} | tcase_exclude ${runtest}
+		[ -f ${kn_fixed} ] && cat ${kn_fixed} | tcase_exclude ${runtest}
+		;;
+	"fatal")
+		[ -f ${kn_fatal} ] && cat ${kn_fatal} | tcase_exclude ${runtest}
+		[ -f ${kn_unfix} ] && cat ${kn_unfix} >> ${kn_issue}
+		[ -f ${kn_fixed} ] && cat ${kn_fixed} >> ${kn_issue}
+		;;
+	 "none")
+		[ -f ${kn_fatal} ] && cat ${kn_fatal} >> ${kn_issue}
+		[ -f ${kn_unfix} ] && cat ${kn_unfix} >> ${kn_issue}
+		[ -f ${kn_fixed} ] && cat ${kn_fixed} >> ${kn_issue}
+		;;
+	      *)
+		echo "Error, parameter "$1" is incorrect."
+		;;
+	esac
+}

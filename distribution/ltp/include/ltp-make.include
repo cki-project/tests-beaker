@@ -1,0 +1,309 @@
+# Beaker parameter TEST_VERSION can override the default
+TESTVERSION   = $(shell echo $$TEST_VERSION)
+ifeq (,$(TESTVERSION))
+TESTVERSION   = 20180515
+endif
+export TESTVERSION
+# the task path may be different under the restraint harness if the task
+# is fetched directly from git, so use a relative path to the include task
+ABS_DIR      := $(dir $(lastword $(MAKEFILE_LIST)))patches
+TARGET_DIR    = /mnt/testarea/ltp
+TARGET        = ltp-full-$(TESTVERSION)
+
+SYSENV       := $(shell uname -i)
+ARCH         := $(SYSENV)
+KVER         := $(shell uname -r | cut -d'-' -f 1 | cut -d'.' -f 3)
+KREV         := $(shell uname -r | cut -d'-' -f 2 | cut -d'.' -f 1)
+OS_MAJOR_RELEASE := $(shell grep -Go 'release [0-9]\+' /etc/redhat-release | sed 's/release //')
+
+# Whether NXBIT is Set in /proc/cpuinfo
+NXBIT        := $(shell grep '^flags' /proc/cpuinfo 2>/dev/null | grep -q " nx " \
+				&& echo TRUE || echo FALSE)
+NR_CPUS      := $(shell getconf _NPROCESSORS_ONLN || echo 1)
+# Allow lab sites to use their local $LOOKASIDE domain
+DOWNLOAD_URL := $(shell echo $${LOOKASIDE:-http:\/\/linux-test-project\/ltp\/releases\/download\/})
+https://github.com/linux-test-project/ltp/releases/download/$(TESTVERSION)/$(TARGET).tar.bz2 
+IS_DEVEL := $(shell echo ${DOWNLOAD_URL} | grep -o devel)
+#gloabl sync seems not working properly for now, use reverse proxy
+#RELPATH      := $(shell hostname | grep -v nay | grep -qv brq \
+#				&& echo / || echo /pub/rhel)
+RELPATH      := /
+
+MAKE          = make -j$(NR_CPUS)
+# if TEST_VERSION is set, use the --forward flag so patches which are
+# already applied do not cause the entire job to fail, and ignore
+# the exit status (which will be 1 for an error even with --forward)
+ifeq (,$(shell echo $$TEST_VERSION))
+PATCH         = patch -p1 -d $(TARGET)
+else
+PATCH         = -patch --forward -p1 -d $(TARGET)
+endif
+
+$(TARGET).bz2:
+	@echo "============ Download package ============"
+	wget -q $(DOWNLOAD_URL)/$(TARGET).bz2; \
+        if [ $$? -ne 0 ]; then \
+                echo "global sync seems not working correctly, using upstream location" ;\
+                wget https://github.com/linux-test-project/ltp/releases/download/$(TESTVERSION)/$(TARGET).tar.bz2 -O $(TARGET).bz2 ;\
+	fi
+
+$(TARGET): $(TARGET).bz2 clean
+	@echo "============ Unzip package ============"
+	tar xjf $(TARGET).bz2
+
+# Critical patches
+# 1. If a patch fixes installation issue
+# 2. a patch fixes critical issues (causing deadlock, crash, etc), no
+#	matter the test will be executed or not, it should be applied here.
+patch-critical:
+	@echo "============ Critical Patch ============"
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/rhel-scrashme-remove-fork12-test.patch
+
+patch-generic:
+	@echo "============ General Patch ============"
+	@echo " === applying general upstream fixes. ==="
+	@echo " === applying general internal fixes. ==="
+ifeq ($(TESTVERSION),20150903)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/disable-testcases.patch
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/rhel-fs-quota_remount-solve-SELinux-issue.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-mem.c-handle-mlock-returning-EAGAIN.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mtest01-sigchld.patch
+endif
+ifeq ($(TESTVERSION),20160126)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-add-SAFE_PFUNC-macro.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-use-SAFE_PFUNC.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-remove-useless-waiting.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-remove-duplicit-setsched.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-remove-signal-handlers.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/syscalls-readahead02-use-bdi-max-readahead-limit.patch
+	@# Tips: this patch should be applied in single on ltp-next(version > 20160126)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/readahead02-use-per-device-readahead-limit-in-RHEL7.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mm-ksm-extend-max_page_sharing-before-ksm-testing.patch
+endif
+ifeq ($(TESTVERSION),20160510)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/readahead02-use-per-device-readahead-limit-in-RHEL7.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/creat05-don-t-assume-number-of-opened-fds.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mem-oom-fork-may-fail-before-test.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/handle-EOPNOTSUPP-if-hugepages_supported.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mem-lib-skip-oom-KSM-for-lite-1-single-TESTMEM-MB-al.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/fanotify06-create-a-mount-for-test.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-add-SAFE_-FILE_LINES_SCANF.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/syscalls-madvise06-Convert-to-new-test-API.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/zram01-extend-the-zram3-disksize-to-40MB.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/madvise06-make-bug-detection-more-reliable.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/swapping01-replace-mem_free-by-mem_available.patch
+endif
+ifeq ($(TESTVERSION),20160920)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-Add-optional-minimal-size-for-test-device.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/utimensat-fix-immutable-file-retcodes-for-4.8.0-and-.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/move_pages04-fix-zero-page-status-code-for-kernels-4.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-add-tst_res_hexd-for-newlib.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/syscalls-new-test-writev07.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/writev-remove-writev03-and-writev04.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/writev01-rewrite-and-drop-partially-valid-iovec-test.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/kernel-zram-Fix-testcase-for-kernels-v4.7.patch
+endif
+ifeq ($(TESTVERSION),20170116)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-quotactl02-flags-for-Q_XQUOTA-ON-OFF-is-32bit-int.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-getrandom02-relax-check-for-returned-data.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-checkpoints-Add-TST_SAFE_CHECKPOINT_WAIT2.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mmap16-extend-checkpoint-wait-time-during-fs-fill.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-kmsg01-fix-race-in-SEEK_SET-0-test.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-sem_post-8-1-improve-child-blocked-on-semaphore-dete.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-syslog02-fix-typo.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-syslog-added-debugging-and-message-loss-che.patch
+endif
+ifeq ($(TESTVERSION),20170516)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pipeio-avoid-SAFE-macros-in-cleanup.patch
+	@$(PATCH) < $(ABS_DIR)/20170116/0001-syscalls-syslog-added-debugging-and-message-loss-che.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-memfd_create-test-memfd-flags-separately.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-move_pages12-replace-memset-with-mlock.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-recvmsg03-avoid-close-and-recvmsg-racing.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-configure.ac-Generate-linux_syscall_headers.h.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-dio-reduce-the-number-of-cycles.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-kmsg01-convert-to-newlib.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-add_key02-update-to-test-fix-for-nonempty-N.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-add_key02-add-the-logon-key-type.patch
+endif
+ifeq ($(TESTVERSION),20170929)
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-kmsg01-set-restore-console-log-level.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-kmsg01-specify-read-timeout-in-usec.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0003-kmsg01-use-lower-timeout-for-test_read_block.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-clone08-don-t-treat-EWOULDBLOCK-as-failure.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-lib-fix-kernel-bit-detection-on-s390-platform.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mm-raise-mmap-HIGH_ADDR-value-for-s390-arch.patch
+endif
+ifeq ($(TESTVERSION),20180118)
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-safe_macros-make-is_fuse-return-zero-if-fs_type-is-N.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mallocstress-extend-test-time.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-times03-don-t-assume-process-initial-us-time-is-0.patch
+endif
+ifeq ($(TESTVERSION),20180515)
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-cve-2017-5669-shmat-for-0-or-PAGESIZE-with-RND-flag-.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pthread_cancel_3-1-rewrite.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-open_posix-add-LTP_ATTRIBUTE-macros-to-supress-warni.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-cve-meltdown-read-saved_command_line.patch
+endif
+	@# The following ones are for specific hardware/release
+ifneq (,$(filter 4 5 s390 s390x, $(OS_MAJOR_RELEASE) $(ARCH)))
+	@echo " - remove cfs sched hacbench in RHEL[45] and s390x"
+	$(PATCH) < $(ABS_DIR)/INTERNAL/rhel345-sched-remove-cfs-sched-hackbench.patch
+endif
+ifneq (,$(filter ppc ppc64 s390 s390x, $(ARCH)))
+	@echo " - remove kernel/firmware tests in s390/ppc64 arch"
+	$(PATCH) < $(ABS_DIR)/INTERNAL/skip-firmware-tests.patch
+endif
+ifeq ($(shell test $(TESTVERSION) -ge 20170516; echo $$?), 0)
+	@echo " - cron_tests.sh has been rewritten since ltp-20170516"
+else ifeq ($(OS_MAJOR_RELEASE), 6)
+	@echo " - fix cron01 in RHEL6"
+	$(PATCH) < $(ABS_DIR)/INTERNAL/rhel6-commands-cron-ensure-syslog-enabled.patch
+endif
+ifeq ($(NXBIT), TRUE)
+	@echo " - fix crashme testcase on systems with NX flag."
+	$(PATCH) < $(ABS_DIR)/INTERNAL/rhel-scrashme-remove-f00f-test-on-system-with-NX-bit.patch
+endif
+ifeq ($(ARCH), aarch64)
+	@echo " - no aarch64 patches needed at this time"
+endif
+
+patch-newcase:
+	@echo "============ Applying for new testcases. ============"
+
+patch-hugetlb:
+	@echo "============ Applying ltp-hugetlb patches. ============"
+ifeq ($(TESTVERSION),20150903)
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mem-hugetlb-Find-an-empty-region-to-use-in-hugemmap0.patch
+endif
+ifeq ($(TESTVERSION),20160126)
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/hugemmap02.c-don-t-skip-cleanup-in-the-loop.patch
+endif
+
+patch-cgroups:
+	@echo "============ Applying ltp-cgroups patches. ============"
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/cgroup-debug-check-cgroups.patch
+
+patch-inc: patch-critical patch-generic
+
+AUTOCONFIGVER=$(shell rpm -qa autoconf |cut -f 2 -d "-")
+AUTOMAKEVER=$(shell rpm -qa automake |cut -f 2 -d "-"|cut -f 1,2 -d ".")
+AUTOCONFIGVER_1=$(shell echo $(AUTOCONFIGVER) |cut -f 1 -d ".")
+AUTOCONFIGVER_2=$(shell echo $(AUTOCONFIGVER) |cut -f 2 -d ".")
+
+# Setup desired filesystem mounted at /mnt/testarea
+# TEST_DEV or TEST_MNT can be set, this useful when testing filesystems in beaker
+#
+# If TEST_DEV is set, mkfs on TEST_DEV and mount it at /mnt/testarea
+# If TEST_MNT is set, grab device mounted at TEST_MNT first and mkfs & mount at
+# /mnt/testarea
+#
+# Also MKFS_OPTS and MOUNT_OPTS can be set to specify mkfs and mount options, e.g.
+# FSTYP=xfs MKFS_OPTS="-m crc=1" MOUNT_OPTS="-o relatime" make run
+setup-testarea:
+	@if [ "$(TEST_DEV)" != "" ] || [ "$(TEST_MNT)" != "" ]; then \
+		echo "============ Setup /mnt/testarea ============"; \
+		if [ "$(FSTYP)" == "" ]; then \
+			echo " - Having TEST_DEV or TEST_MNT set but not FSTYP"; \
+			exit 1; \
+		fi; \
+		if [ "$(TEST_MNT)" != "" ]; then \
+			dev=`grep "$(TEST_MNT)" /proc/mounts | awk '{print $$1}'`; \
+			if [ -z $$dev ]; then \
+				echo " - TEST_MNT set to $(TEST_MNT) but no partition mounted there"; \
+				exit 1; \
+			fi; \
+			cp /etc/fstab{,.bak}; \
+			grep -v $(TEST_MNT) /etc/fstab.bak >/etc/fstab; \
+			umount $(TEST_MNT); \
+		fi; \
+		if [ "$$dev" == "" ] && [ "$(TEST_DEV)" != "" ]; then \
+			dev=$(TEST_DEV); \
+		fi; \
+		if [ "$$dev" == "" ]; then \
+			echo " - No suitable test device found"; \
+			exit 1; \
+		fi; \
+		if [ "$(FSTYP)" == "xfs" ] || [ "$(FSTYP)" == "btrfs" ]; then \
+			mkfs -t $(FSTYP) $(MKFS_OPTS) -f $$dev; \
+		elif [ "$(FSTYP)" == "overlayfs" ]; then \
+			mkfs -t xfs -n ftype=1 -f $$dev; \
+		else \
+			mkfs -t $(FSTYP) $(MKFS_OPTS) $$dev; \
+		fi; \
+		if [ $$? -ne 0 ]; then \
+			echo " - mkfs failed"; \
+			exit 1; \
+		fi; \
+		if [ "$(FSTYP)" == "overlayfs" ]; then \
+			mkdir -p /mnt/ltp-overlay; \
+			mount $(MOUNT_OPTS) $$dev /mnt/ltp-overlay; \
+			mkdir -p /mnt/ltp-overlay/lower; \
+			mkdir -p /mnt/ltp-overlay/upper; \
+			mkdir -p /mnt/ltp-overlay/workdir; \
+			mount -t overlay overlay -olowerdir=/mnt/ltp-overlay/lower,upperdir=/mnt/ltp-overlay/upper,workdir=/mnt/ltp-overlay/workdir /mnt/testarea; \
+		else \
+			mount $(MOUNT_OPTS) $$dev /mnt/testarea; \
+		fi; \
+		if [ $$? -ne 0 ]; then \
+			echo " - mount $$dev at /mnt/testarea failed"; \
+			exit 1; \
+		fi; \
+	fi
+
+configure: setup-testarea $(TARGET)
+	@echo "============ Start configure ============"
+	if [ $(AUTOCONFIGVER_1) -lt 1 -o $(AUTOCONFIGVER_1) -eq 2 -a $(AUTOCONFIGVER_2) -lt 69 ]; then \
+            wget -q $(DOWNLOAD_URL)/m4-1.4.16.tar.gz ; \
+            tar xzf m4-1.4.16.tar.gz; \
+            pushd  m4-1.4.16; \
+            ./configure --prefix=/usr 2>&1 >/dev/null; \
+            make 2>&1 >/dev/null && make install 2>&1 >/dev/null; \
+            popd ; \
+            wget -q $(DOWNLOAD_URL)/autoconf-2.69.tar.gz ; \
+            tar xzf autoconf-2.69.tar.gz; \
+            pushd autoconf-2.69; \
+            ./configure --prefix=/usr 2>&1 >/dev/null ; \
+            make 2>&1 >/dev/null && make install 2>&1 >/dev/null ;  \
+            popd ; \
+        fi 
+	pushd $(TARGET); make autotools; ./configure --prefix=$(TARGET_DIR) &> configlog.txt || cat configlog.txt; popd
+
+build-basic: $(METADATA) configure
+	@echo "============ Start make and install ============"
+	$(MAKE) -C $(TARGET)/pan all
+	$(MAKE) -C $(TARGET)/pan install
+	$(MAKE) -C $(TARGET)/runtest install
+	$(MAKE) -C $(TARGET)/tools all
+	$(MAKE) -C $(TARGET)/tools install
+	$(MAKE) -C $(TARGET) Version
+	(cd $(TARGET); cp -f ver_linux Version runltp IDcheck.sh $(TARGET_DIR)/)
+
+build-all: $(METADATA) configure
+	@echo "============ Start $(MAKE) and install ============"
+	$(MAKE) -C $(TARGET) all &> buildlog.txt || (cat buildlog.txt && false)
+	$(MAKE) -C $(TARGET) install &> buildlog.txt || (cat buildlog.txt && false)
+
+clean:
+	rm -f *~ $(METADATA)
+	rm -rf $(TARGET)
+	rm -rf m4-1.4.16
+	rm -rf autoconf-2.69
+	rm -rf *.rpm
+
+# For manual testing
+testpatch: $(TARGET) patch
+
+testconfigure: $(TARGET) patch configure
+
+testfullbuild: $(TARGET) patch build-all
+
+showmeta: $(METADATA)
+	@cat $(METADATA)
+
+# vim: syntax=make shiftwidth=8 tabstop=8 noexpandtab
