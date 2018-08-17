@@ -1,0 +1,25 @@
+fork12 is a fork bomb test. Not very realistic for running as user root
+in automated environment.
+
+Signed-off-by: Caspar Zhang <czhang@redhat.com>
+---
+ runtest/crashme |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/runtest/crashme b/runtest/crashme
+index a4c5b41..432b660 100644
+--- a/runtest/crashme
++++ b/runtest/crashme
+@@ -13,6 +13,8 @@ crash02 crash02
+ mem01 mem01 -r
+ # Memory eater. Loves to be run in parallel with other programs.
+ # May panic on buggy systems if the OOM killer was not fast enough :-)
+-fork12 fork12
++## Removed by Jeff Burke: This is a fork bomb test. Not very realistic
++## for running as user root in automated environment.
++#fork12 fork12
+ # Fork as many children as possible.  On systems with lots of memory
+ # and kernels prior to 2.4.19, this can hang the system by using up all pids
+-- 
+1.7.4.1
+

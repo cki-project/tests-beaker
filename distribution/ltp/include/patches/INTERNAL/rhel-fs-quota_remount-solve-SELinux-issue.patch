@@ -1,0 +1,14 @@
+diff --git a/testcases/kernel/fs/quota_remount/quota_remount_test01.sh b/testcases/kernel/fs/quota_remount/quota_remount_test01.sh
+index f8b4848..d413ecf 100755
+--- a/testcases/kernel/fs/quota_remount/quota_remount_test01.sh
++++ b/testcases/kernel/fs/quota_remount/quota_remount_test01.sh
+@@ -83,6 +83,9 @@ mkdir $MNTDIR || die 2 "Could not create the mountpoint"
+ mount -t ext3 -o loop,usrquota,grpquota $IMAGE $MNTDIR || die 2 "Could not mount the filesystem"
+ tst_resm TINFO "Successfully mounted the File System"
+ 
++# added by Caspar Zhang
++# see RHBZ#703871 for more information
++chcon --reference=/var $MNTDIR
+ quotacheck -cug $MNTDIR || die 2 "Could not create quota files"
+ tst_resm TINFO "Successfully Created Quota Files"
+ 

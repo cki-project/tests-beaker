@@ -1,0 +1,55 @@
+From 773c0b3867b0b7b6dd6e3bc96e9bec7a5f697e29 Mon Sep 17 00:00:00 2001
+Message-Id: <773c0b3867b0b7b6dd6e3bc96e9bec7a5f697e29.1458566225.git.jstancek@redhat.com>
+From: Jan Stancek <jstancek@redhat.com>
+Date: Mon, 21 Mar 2016 14:13:40 +0100
+Subject: [PATCH] readhead02: use per-device readahead limit in RHEL7
+
+Since following RHEL7 commit:
+  commit 14f0e6d631f98be270f7b8d38d0b967f68df8262
+  Author: Eric Sandeen <sandeen@redhat.com>
+  Date:   Wed Nov 25 21:06:09 2015 -0500
+    [mm] use only per-device readahead limit
+
+also RHEL7 respects per-device readahead limit. This has been
+backported from upstream 4.4, but there isn't a good way to
+detect presence of the patch. Therefore our ltp needs a RHEL
+only patch to adjust kernel version check.
+
+To make things simpler, we use MIN(bdi max, 2M). This way we don't
+need to match kernel version exactly, since this should work for
+all RHEL7 kernels (not just the ones with the patch).
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+---
+ testcases/kernel/syscalls/readahead/readahead02.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/testcases/kernel/syscalls/readahead/readahead02.c b/testcases/kernel/syscalls/readahead/readahead02.c
+index 7dc308c03e5d..3935a3c8f9e5 100644
+--- a/testcases/kernel/syscalls/readahead/readahead02.c
++++ b/testcases/kernel/syscalls/readahead/readahead02.c
+@@ -194,9 +194,11 @@ static long get_device_readahead(const char *fname)
+ 		tst_brkm(TBROK | TERRNO, cleanup, "stat");
+ 	snprintf(buf, sizeof(buf), "/sys/dev/block/%d:%d/queue/read_ahead_kb",
+ 		 major(st.st_dev), minor(st.st_dev));
++	if (access(buf, F_OK) != 0)
++		return 2 * 1024 * 1024;
+ 	SAFE_FILE_SCANF(cleanup, buf, "%ld", &ra_kb);
+ 
+-	return ra_kb * 1024;
++	return MIN(2 * 1024 * 1024, ra_kb * 1024);
+ }
+ 
+ /* read_testfile - mmap testfile and read every page.
+@@ -224,7 +226,7 @@ static void read_testfile(int do_readahead, const char *fname, size_t fsize,
+ 	long readahead_size;
+ 
+ 	/* use bdi limit for 4.4 and older, otherwise default to 2M */
+-	if ((tst_kvercmp(4, 4, 0)) >= 0)
++	if ((tst_kvercmp(3, 10, 0)) >= 0)
+ 		readahead_size = get_device_readahead(fname);
+ 	else
+ 		readahead_size = 2 * 1024 * 1024;
+-- 
+1.8.3.1
+

@@ -1,0 +1,63 @@
+Ensure the syslog service enabled before executing any cron tests, else
+the tests would fail in RHEL6. This patch would be never sent to
+upstream.
+
+Signed-off-by: Caspar Zhang <czhang@redhat.com>
+---
+ testcases/commands/cron/cron_tests.sh |   34 +++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+), 0 deletions(-)
+
+diff --git a/testcases/commands/cron/cron_tests.sh b/testcases/commands/cron/cron_tests.sh
+index a627ddb..dff0085 100644
+--- a/testcases/commands/cron/cron_tests.sh
++++ b/testcases/commands/cron/cron_tests.sh
+@@ -57,12 +57,46 @@ else
+     LTPBIN=$LTPROOT/testcases/bin
+ fi
+ 
++cleanup()
++{
++	export TCID=cleanup
++	$LTPBIN/tst_resm TCONF "restore service to initial status"
++	if [ $IS_RSYSLOG_RUNNING -eq 0 ];
++	then
++		service rsyslog stop
++	fi
++}
++
+ # Set return code RC variable to 0, it will be set with a non-zero return code
+ # in case of error. Set TFAILCNT to 0, increment if there occures a failure.
+ 
+ LOCTMP=${PWD}/tmp
+ TFAILCNT=0
+ RC=0
++IS_RSYSLOG_RUNNING=0
++
++# Setup the syslog service to record cron log.
++trap 'trap "" EXIT; cleanup' EXIT
++
++export TCID=setup
++$LTPBIN/tst_resm TCONF "make sure corresponding syslog service running first"
++if [ -f /var/run/syslogd.pid ] && 
++	[ "`cat /var/run/syslogd.pid`" = "`pidof rsyslogd`" ];
++then
++	IS_RSYSLOG_RUNNING=1
++	service rsyslog restart
++	RC=$?
++else
++	IS_RSYSLOG_RUNNING=0
++	service rsyslog start
++	RC=$?
++fi
++
++if [ $RC -ne 0 ];
++then
++	$LTPBIN/tst_resm TFAIL "start service failed, exiting."
++	exit $RC
++fi
+ 
+ # Test #1
+ # Test if crontab <filename> installs the crontab file and cron schedules the 
+-- 
+1.7.4.1
+

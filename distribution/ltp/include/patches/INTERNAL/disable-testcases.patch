@@ -1,0 +1,23 @@
+diff --git a/runtest/crashme b/runtest/crashme
+index a4c5b41..4726c21 100644
+--- a/runtest/crashme
++++ b/runtest/crashme
+@@ -7,7 +7,7 @@ f00f f00f
+ crash01 crash01
+ # Generate random code and execute it. Read f00f comment,
+ # this test lockup SunOS,WindowsNT,etc. in seconds..
+-crash02 crash02
++#crash02 crash02
+ # Generate random syscalls and execute them, less probability
+ # to hose your system, but still.
+ mem01 mem01 -r
+diff --git a/runtest/mm b/runtest/mm
+index 2dd66f0..79db143 100644
+--- a/runtest/mm
++++ b/runtest/mm
+@@ -99,4 +99,4 @@ overcommit_memory overcommit_memory -R 200
+ 
+ max_map_count max_map_count -i 10
+ 
+-min_free_kbytes min_free_kbytes
++#min_free_kbytes min_free_kbytes

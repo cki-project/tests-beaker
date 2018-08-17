@@ -1,0 +1,43 @@
+diff --git a/testcases/kernel/fs/proc/proc01.c b/testcases/kernel/fs/proc/proc01.c
+index f513110..39c4d8d 100644
+--- a/testcases/kernel/fs/proc/proc01.c
++++ b/testcases/kernel/fs/proc/proc01.c
+@@ -138,6 +138,7 @@ static const char lsm_should_work[][PATH_MAX] = {
+    the test while being read. */
+ static const char error_nonblock[][PATH_MAX] = {
+ 	"/proc/xen/xenbus",
++	"/proc/bus/usb",
+ 	""
+ };
+ 
+@@ -243,6 +244,15 @@ static long readproc(const char *obj)
+ 	static char buf[MAX_BUFF_SIZE];	/* static kills reentrancy, but we don't care about the contents */
+ 	unsigned long long file_total_read = 0;
+ 
++	/* Skip files does not honor O_NONBLOCK. */
++	for (i = 0; error_nonblock[i][0] != '\0'; i++) {
++		if (!strcmp(obj, error_nonblock[i])) {
++			tst_resm(TINFO, "%s: does not honor "
++					"O_NONBLOCK", obj);
++			return 0;
++		}
++	}
++
+ 	/* Determine the file type */
+ 	if (lstat(obj, &statbuf) < 0) {
+ 
+@@ -361,14 +371,6 @@ static long readproc(const char *obj)
+ 			return 0;
+ 		}
+ 
+-		/* Skip files does not honor O_NONBLOCK. */
+-		for (i = 0; error_nonblock[i][0] != '\0'; i++) {
+-			if (!strcmp(obj, error_nonblock[i])) {
+-				tst_resm(TINFO, "%s: does not honor "
+-					 "O_NONBLOCK", obj);
+-				return 0;
+-			}
+-		}
+ 
+ 		file_total_read = 0;
+ 		do {
