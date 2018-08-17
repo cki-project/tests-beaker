@@ -1,0 +1,71 @@
+From 784f90fe59469fe02f555573349d613143ee45d8 Mon Sep 17 00:00:00 2001
+From: Jan Stancek <jstancek@redhat.com>
+Date: Thu, 14 Apr 2011 10:07:49 +0200
+Subject: [PATCH] check cgroups (and cleanup)
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+---
+ .../kernel/controllers/cgroup/check_cgroups.sh     |   51 ++++++++++++++++++++
+ 1 files changed, 51 insertions(+), 0 deletions(-)
+ create mode 100644 testcases/kernel/controllers/cgroup/check_cgroups.sh
+
+diff --git a/testcases/kernel/controllers/cgroup/check_cgroups.sh b/testcases/kernel/controllers/cgroup/check_cgroups.sh
+new file mode 100644
+index 0000000..c6d1414
+--- /dev/null
++++ b/testcases/kernel/controllers/cgroup/check_cgroups.sh
+@@ -0,0 +1,51 @@
++checkcg()
++{
++    echo "Checking cgroups $1"
++    rm -rf /tmp/check
++    mkdir /tmp/check
++
++    echo "Checking whole"
++    mount -t cgroup none /tmp/check
++    if [ $? -ne 0 ]; then
++        echo "HERE: Failed to mount $s"
++    else
++        groups=`find /tmp/check -type d | wc -l`
++        if [ $groups -gt 1 ]; then
++            echo "CRITICAL: Problem with whole, found some dirs"
++            find /tmp/check -type d
++            echo "Cleaning up:"
++            find /tmp/check -type d -exec rmdir {} \;
++            find /tmp/check -type d -exec rmdir {} \;
++            find /tmp/check -type d -exec rmdir {} \;
++            echo "After cleanup:"
++            find /tmp/check -type d
++        fi
++    fi
++    umount /tmp/check
++
++    subsys=`cat /proc/cgroups | grep -v ^# | awk '{print $1}'`
++    for s in $subsys; do
++        echo "Checking $s"
++        mount -t cgroup -o $s none /tmp/check
++        if [ $? -ne 0 ]; then
++            echo "HERE: Failed to mount $s"
++        else
++            groups=`find /tmp/check -type d | wc -l`
++            if [ $groups -gt 1 ]; then
++                echo "CRITICAL: Problem with $s, found some dirs"
++                find /tmp/check -type d
++                echo "All files:"
++                find /tmp/check
++                echo "Cleaning up:"
++                find /tmp/check -type d -exec rmdir {} \;
++                find /tmp/check -type d -exec rmdir {} \;
++                find /tmp/check -type d -exec rmdir {} \;
++                echo "After cleanup:"
++                find /tmp/check -type d
++            fi
++            umount /tmp/check
++        fi
++    done
++    echo ""
++}
++
+-- 
+1.7.1
+

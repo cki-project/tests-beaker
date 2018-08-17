@@ -1,0 +1,30 @@
+From 15726e12ba9725f4a6d36a8cbb159bc5a4c7d093 Mon Sep 17 00:00:00 2001
+From: Caspar Zhang <czhang@redhat.com>
+Date: Thu, 3 Mar 2011 17:35:39 +0800
+Subject: [PATCH 10/10] scrashme: remove f00f test on system with NX bit
+
+On systems with the NX bit set it fails. sigkill is not returned as
+expected.
+
+Signed-off-by: Caspar Zhang <czhang@redhat.com>
+---
+ runtest/crashme |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/runtest/crashme b/runtest/crashme
+index 432b660..c9a1523 100644
+--- a/runtest/crashme
++++ b/runtest/crashme
+@@ -1,6 +1,8 @@
+ #DESCRIPTION:Utility to crash your machine
+ # Before running these: BACKUP YOUR SYSTEM!  you've been warned!
+-f00f f00f
++## Removed by Jeff Burke: On systems with the NX bit set it fails.
++## sigkill is not returned as expected.
++#f00f f00f
+ # This is a simple test for handling of the pentium f00f bug.
+ # It is an example of a catistrophic test case.  If the system
+ # doesn't correctly handle this test, it will likely lockup.
+-- 
+1.7.4.1
+

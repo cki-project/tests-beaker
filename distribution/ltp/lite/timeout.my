@@ -1,0 +1,5 @@
+#!/bin/sh
+time=$1
+shift
+perl -e "alarm $time; exec @ARGV" "$@"
+

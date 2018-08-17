@@ -1,0 +1,63 @@
+STATUS OF THE PATCHES
+=====================
+
+PATCH_STATUS.txt
+
+# --------------------------ltp-redhat----------------------------------
+ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch		INTERNAL [0]
+rhel6-commands-ar01-a-strange-dot.patch				INTERNAL [1]
+rhel-scrashme-remove-fork12-test.patch				INTERNAL
+rhel-syscalls-swapon03-fix-failed-swapon.patch			INTERNAL [2]
+cgroup-debug-check-cgroups.patch				INTERNAL [0]
+
+rhel345-sched-remove-cfs-sched-hackbench.patch			INTERNAL [3]
+skip-firmware-tests.patch					INTERNAL [3]
+rhel6-commands-cron-ensure-syslog-enabled.patch			INTERNAL [3]
+rhel-scrashme-remove-f00f-test-on-system-with-nx-bit.patch	INTERNAL [3]
+
+# --------------------------ltp-20150903--------------------------------
+disable-testcases.patch						INTERNAL
+rhel-fs-quota_remount-solve-SELinux-issue.patch			INTERNAL [1]
+lib-mem.c-handle-mlock-returning-EAGAIN.patch			UPSTREAM
+mem-hugetlb-Find-an-empty-region-to-use-in-hugemmap0.patch	UPSTREAM
+mtest01-sigchld.patch						UPSTREAM
+
+# --------------------------ltp-20160126--------------------------------
+hugemmap02.c-don-t-skip-cleanup-in-the-loop.patch		UPSTREAM
+open_posix-add-SAFE_PFUNC-macro.patch				UPSTREAM
+open_posix-condvar-schedule-remove-duplicit-setsched.patch	UPSTREAM
+open_posix-condvar-schedule-remove-signal-handlers.patch	UPSTREAM
+open_posix-condvar-schedule-remove-useless-waiting.patch 	UPSTREAM
+open_posix-condvar-schedule-use-SAFE_PFUNC.patch 		UPSTREAM
+syscalls-readahead02-use-bdi-max-readahead-limit.patch		UPSTREAM
+readahead02-use-per-device-readahead-limit-in-RHEL7.patch	INTERNAL [2]
+mm-ksm-extend-max_page_sharing-before-ksm-testing.patch		UPSTREAM
+
+# --------------------------ltp-20160510--------------------------------
+creat05-don-t-assume-number-of-opened-fds.patch			UPSTREAM
+mem-oom-fork-may-fail-before-test.patch				UPSTREAM
+handle-EOPNOTSUPP-if-hugepages_supported.patch			UPSTREAM
+mem-lib-skip-oom-KSM-for-lite-1-single-TESTMEM-MB-al.patch	UPSTREAM
+fanotify06-create-a-mount-for-test.patch			UPSTREAM
+lib-add-SAFE_-FILE_LINES_SCANF.patch				INTERNAL
+syscalls-madvise06-Convert-to-new-test-API.patch		UPSTREAM
+zram01-extend-the-zram3-disksize-to-40MB.patch			UPSTREAM
+madvise06-make-bug-detection-more-reliable.patch		UPSTREAM
+swapping01-replace-mem_free-by-mem_available.patch		UPSTREAM
+
+# --------------------------ltp-20160920--------------------------------
+lib-Add-optional-minimal-size-for-test-device.patch 		UPSTREAM
+utimensat-fix-immutable-file-retcodes-for-4.8.0-and-.patch	UPSTREAM
+move_pages04-fix-zero-page-status-code-for-kernels-4.patch	UPSTREAM
+lib-add-tst_res_hexd-for-newlib.patch				UPSTREAM
+syscalls-new-test-writev07.patch				UPSTREAM
+writev-remove-writev03-and-writev04.patch			UPSTREAM
+writev01-rewrite-and-drop-partially-valid-iovec-test.patch	UPSTREAM
+kernel-zram-Fix-testcase-for-kernels-v4.7.patch			UPSTREAM
+
+
+# Notes:
+[0] used for debugging
+[1] the failure is related to SELinux, patch is temporary and dirty hack.
+[2] it depends on kernel config options, so patch for internal use only
+[3] patch for specific hardware/release
