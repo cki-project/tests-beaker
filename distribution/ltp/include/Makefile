@@ -47,8 +47,6 @@ $(METADATA): Makefile
 	@echo "Description:  Linux Test Project - include">> $(METADATA)
 	@echo "TestTime:     5h" >> $(METADATA)
 	@echo "RunFor:       kernel glibc" >> $(METADATA)
-	@echo "Requires:     @development " >> $(METADATA)
-	@echo "Requires:     procmail rsyslog sysklogd ntpdate util-linux util-linux-ng redhat-lsb bc wget" >> $(METADATA)
 	#@echo "Releases:     RHELServer5 RHEL6" >>$(METADATA)
 	@echo "Destructive:  no" >>$(METADATA)
 	@echo "Confidential: no" >>$(METADATA)
