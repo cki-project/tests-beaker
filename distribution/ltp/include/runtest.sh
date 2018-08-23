@@ -152,12 +152,7 @@ RprtRslt ()
 SubmitLog ()
 {
     LOG=$1
-
-    if [ -z "$TESTPATH" ]; then
-        echo "Running in developer mode"
-    else
-        rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
-    fi
+    rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
 }
 
 CleanUp ()
