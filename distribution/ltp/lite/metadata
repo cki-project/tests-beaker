@@ -8,7 +8,7 @@ destructive=no
 
 [restraint]
 entry_point=make run
-max_time=180m
+max_time=300m
 dependencies=automake;autoconf;procmail;flex;bison;rsyslog;util-linux;rpm-build;gcc;wget;kernel-headers;bc;kernel-devel;libaio-devel;libcap-devel;libcgroup;strace
 softDependencies=numactl;numactl-devel;redhat-lsb;ntpdate
 repoRequires=distribution/ltp/include
