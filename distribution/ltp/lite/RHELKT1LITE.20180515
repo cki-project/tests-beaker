@@ -694,7 +694,11 @@ move_pages07 move_pages.sh 07
 #TODO: move_pages09 move_pages.sh 09
 move_pages10 move_pages.sh 10
 move_pages11 cd $LTPROOT/testcases/bin && chown root move_pages11 && chmod 04755 move_pages11 && move_pages.sh 11
-move_pages12 move_pages12
+# NOTE(mhayden): Allow the timeout to be 15 minutes (instead of the default
+# of 5). Slower aarch64 machines with large hugepages will fail on this test
+# because it takes a little bit more time to move these big chunks of memory
+# around.
+move_pages12 export LTP_TIMEOUT_MUL=3 move_pages12
 
 mprotect01 mprotect01
 mprotect02 mprotect02
