@@ -74,13 +74,11 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
         # Remove the vmlinux from /boot and use only the vmlinuz
         rm -f /boot/vmlinux-${KVER}
       else
-        # Strip the vmlinux binary as required for s390
-        # NOTE(mhayden): The vmlinuz we make here is not compressed. However,
-        # s390 boxes will happily boot an uncompressed kernel image that is
-        # named vmlinuz. The upstream kernel patch provides the best fix for
-        # this situation. The `new-kernel-pkg` command only looks for vmlinuz
-        # files and ignores all vmlinux files.
-        objcopy -O binary /boot/vmlinux-${KVER} /boot/vmlinuz-${KVER}
+        # Copy over the vmlinux-kbuild binary as a temporary workaround. With
+        # newer kernels, this is identical to the missing bzImage. With older
+        # (3.10) kernels, the vmlinux-kbuild marks built "image" instead of
+        # "bzImage", which is still bootable by s390x.
+        mv /boot/vmlinux-kbuild-${KVER} /boot/vmlinuz-${KVER}
       fi
       ;;
   esac
