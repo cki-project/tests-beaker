@@ -1520,7 +1520,9 @@ mmapstress06 mmapstress06 20
 mmapstress07 TMPFILE=`mktemp /tmp/example.XXXXXXXXXXXX`; mmapstress07 $TMPFILE
 mmapstress08 mmapstress08
 mmapstress09 mmapstress09 -p 20 -t 0.2
-mmapstress10 mmapstress10 -p 20 -t 0.2
+# There's a test issue with the signal handler, skip the test until the fix is
+# propagated to both upstream and our codebase
+# mmapstress10 mmapstress10 -p 20 -t 0.2
 
 vma01 vma01
 vma02 vma02
