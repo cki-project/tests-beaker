@@ -104,6 +104,7 @@ else ifeq ($(TESTVERSION),2018018)
 	cp -vf RHELKT1LITE.20180118 RHELKT1LITE
 else
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
+	patch -d $(TARGET) -p1 < $(PATCHDIR)/0001-mem-mmapstress10-fix-hangs-with-recent-glibc.patch
 	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
 	# RHEL5 gcc has trouble with this test
 	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
