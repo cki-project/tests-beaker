@@ -5,6 +5,12 @@
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
 
+# Some RHEL deployments may be missing the new-kernel-pkg script
+if [ ! -x /sbin/new-kernel-pkg ]; then
+  cp -af new-kernel-pkg /sbin/new-kernel-pkg
+  chmod +x /sbin/new-kernel-pkg
+fi
+
 if [ ${REBOOTCOUNT} -eq 0 ]; then
   if [ -z ${KPKG_URL} ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
