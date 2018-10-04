@@ -7,7 +7,7 @@ index cd4ebcaa89e0..c08b7cadb385 100644
  				   unsigned int nsamples)
  {
 -	unsigned int slack_per_scall = MIN(100000, requested_us / 1000);
-+	unsigned int slack_per_scall = requested_us / 100;
++	unsigned int slack_per_scall = requested_us / 50;
  
  	slack_per_scall = MAX(slack_per_scall, timerslack);
  
