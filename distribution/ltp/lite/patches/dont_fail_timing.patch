@@ -1,0 +1,18 @@
+diff --git a/lib/tst_timer_test.c b/lib/tst_timer_test.c
+index 2aa27920e..fed71a9bf 100644
+--- a/lib/tst_timer_test.c
++++ b/lib/tst_timer_test.c
+@@ -318,12 +318,10 @@ void do_timer_test(long long usec, unsigned int nsamples)
+ 		1.00 * trunc_mean / keep_samples, discard);
+ 
+ 	if (trunc_mean > (nsamples - discard) * usec + threshold) {
+-		tst_res(TFAIL, "%s slept for too long", scall);
++		tst_res(TINFO, "%s slept for too long", scall);
+ 
+ 		if (!print_frequency_plot)
+ 			frequency_plot();
+-
+-		failed = 1;
+ 	}
+ 
+ 	if (print_frequency_plot)

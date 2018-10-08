@@ -91,12 +91,12 @@ else ifeq ($(TESTVERSION),20170516)
 else ifeq ($(TESTVERSION),20170929)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround2.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
 	cp -vf RHELKT1LITE.20170929 RHELKT1LITE
 else ifeq ($(TESTVERSION),2018018)
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/oom_hang_workaround2.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/dont_fail_timing.patch; fi
 	# RHEL5 gcc has trouble with this test
 	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
 	# RHEL5 doesn't have timeout
@@ -105,7 +105,7 @@ else ifeq ($(TESTVERSION),2018018)
 else
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/0001-mem-mmapstress10-fix-hangs-with-recent-glibc.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/ltp-include-relax-timer-thresholds-for-non-baremetal.patch; fi
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/dont_fail_timing.patch; fi
 	# RHEL5 gcc has trouble with this test
 	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
 	# RHEL5 doesn't have timeout
