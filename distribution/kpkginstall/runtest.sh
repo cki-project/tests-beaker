@@ -5,12 +5,6 @@
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
 
-# Some RHEL deployments may be missing the new-kernel-pkg script
-if [ ! -x /sbin/new-kernel-pkg ]; then
-  cp -af new-kernel-pkg /sbin/new-kernel-pkg
-  chmod +x /sbin/new-kernel-pkg
-fi
-
 if [ ${REBOOTCOUNT} -eq 0 ]; then
   if [ -z ${KPKG_URL} ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
@@ -89,7 +83,16 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
       ;;
   esac
 
-  new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
+  if [ ! -x /sbin/new-kernel-pkg ]; then
+    kernel-install add ${KVER} /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
+    # FIXME we should use the below because grubby is getting deprecated but
+    # there's a bug in grub2-set-default or kernel-install right now
+    # see BZ 1638103 and related 1638117
+    #grub2-set-default 0
+    grubby --set-default /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
+  else
+    new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
+  fi
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
