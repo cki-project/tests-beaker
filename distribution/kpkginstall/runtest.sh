@@ -85,11 +85,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   if [ ! -x /sbin/new-kernel-pkg ]; then
     kernel-install add ${KVER} /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
-    # FIXME we should use the below because grubby is getting deprecated but
-    # there's a bug in grub2-set-default or kernel-install right now
-    # see BZ 1638103 and related 1638117
-    #grub2-set-default 0
-    grubby --set-default /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
+    grub2-set-default 0 >>${OUTPUTFILE} 2>&1
   else
     new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
   fi
