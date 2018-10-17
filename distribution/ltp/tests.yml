@@ -1,0 +1,11 @@
+---
+# Tests that run in classic context
+- hosts: localhost
+  roles:
+  - role: standard-test-basic
+    tags:
+    - classic
+    tests:
+    - ltp-lite:
+        dir: "lite"
+        run: make run
