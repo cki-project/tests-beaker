@@ -8,13 +8,13 @@ REBOOTCOUNT=${REBOOTCOUNT:-0}
 if [ ${REBOOTCOUNT} -eq 0 ]; then
   if [ -z ${KPKG_URL} ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} FAIL 1
+    rhts-abort -t recipe
     exit 1
   fi
 
   if [ -z ${KVER} ]; then
     echo "No KVER specified" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} FAIL 2
+    rhts-abort -t recipe
     exit 1
   fi
 
@@ -23,7 +23,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   if [ $? -ne 0 ]; then
     echo "Failed to fetch package from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} FAIL 3
+    rhts-abort -t recipe
     exit 1
   fi
 
@@ -101,7 +101,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   echo "Installed kernel ${KVER}, rebooting" | tee -a ${OUTPUTFILE}
-  report_result ${TEST}/install PASS 0
+  report_result ${TEST}/kernel-in-place PASS 0
   rhts-reboot
 else
   ckver=$(uname -r)
