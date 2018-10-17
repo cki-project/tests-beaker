@@ -205,4 +205,8 @@ ltp_lite_run
 
 ltp_lite_end
 
-exit 0
+if [ "$result_r" = "PASS" ]; then
+       exit 0
+else
+       exit 1
+fi
