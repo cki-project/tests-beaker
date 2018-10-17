@@ -191,7 +191,7 @@ fi
 # report patch errors from ltp/include
 grep -i -e "FAIL" -e "ERROR" patchinc.log > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-	report_result "ltp-include-patch-errors" "WARN"
+    rhts-abort -t recipe
 fi
 
 # Sometimes it takes too long to waiting for syscalls
