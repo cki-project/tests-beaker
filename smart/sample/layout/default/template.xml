@@ -1,0 +1,3 @@
+<task name="foo" role="STANDALONE">
+	<fetch url="https://github.com/FOO/archive/BAR.zip#distribution/ABC"/>
+</task>

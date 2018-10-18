@@ -1,0 +1,20 @@
+{
+    "description": "default layout for smart testing",
+    "patterns": [
+        {
+            "pattern": ".*",
+            "case": "default/foo"
+        }
+    ],
+    "cases": [
+        {
+            "case": "default/foo",
+            "template": "default/template.xml",
+            "handler": null
+        }
+    ],
+    "maintainers": [
+        "David <david@foo.com>"
+    ],
+    "version": "1.0"
+}
