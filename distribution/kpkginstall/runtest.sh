@@ -5,15 +5,20 @@
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
 
+# Output version of the kernel contained in the specified kernel package
+# tarball.
+#
+# Args: tarball
+# Output: kernel version, nothing if not found
+# Status: zero if version is found, non-zero on failure
+function get_kpkg_ver()
+{
+  tar tf "$1" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+}
+
 if [ ${REBOOTCOUNT} -eq 0 ]; then
   if [ -z ${KPKG_URL} ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
-    rhts-abort -t recipe
-    exit 1
-  fi
-
-  if [ -z ${KVER} ]; then
-    echo "No KVER specified" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
   fi
@@ -28,6 +33,14 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   KPKG=${KPKG_URL##*/}
+
+  echo "Extracting kernel version from package ${KPKG}" | tee -a ${OUTPUTFILE}
+  KVER=$(get_kpkg_ver "$KPKG")
+  if [ -z ${KVER} ]; then
+    echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
 
   tar xfh ${KPKG} -C / >>${OUTPUTFILE} 2>&1
 
@@ -100,6 +113,16 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   report_result ${TEST}/kernel-in-place PASS 0
   rhts-reboot
 else
+  KPKG=${KPKG_URL##*/}
+
+  echo "Extracting kernel version from package ${KPKG}" | tee -a ${OUTPUTFILE}
+  KVER=$(get_kpkg_ver "$KPKG")
+  if [ -z ${KVER} ]; then
+    echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
+
   ckver=$(uname -r)
   uname -a | tee -a ${OUTPUTFILE}
   if [ "${KVER}" = "${ckver}" ]; then
