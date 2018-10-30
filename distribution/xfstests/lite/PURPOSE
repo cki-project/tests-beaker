@@ -1,0 +1,97 @@
+Wrapper for xfstests test suite.
+See http://git.kernel.org/?p=fs/xfs/xfstests-dev.git;a=summary
+
+Parameters can be set from workflow/recipe
+
+TEST_PARAM_TEST_DEV		# device containing TEST PARTITION
+TEST_PARAM_SCRATCH_DEV          # device containing SCRATCH PARTITION
+TEST_PARAM_SCRATCH_LOGDEV       # optional external log for SCRATCH PARTITION
+TEST_PARAM_SCRATCH_RTDEV        # optional realtime device for SCRATCH PARTITION
+TEST_PARAM_LOGWRITES_DEV	# optional device for tests using dm-log-writes target to simulate power failure tests,
+				# specify a special "loop" to let test create a new loop device as LOGWRITES_DEV
+TEST_PARAM_FSTYPE               # list of file system types to be tested, can be ext4/ext3/ext2/xfs/btrfs/nfs3/nfs4/cifs/tmpfs/gfs2, case sensitive
+TEST_PARAM_SKIPTESTS		# list of tests that will be skipped, e.g. "generic/232 ext4/306 300"
+				# tests with the same seq number in all subdirs will be skipped if there's no fstype prefix
+TEST_PARAM_RUNTESTS		# only these tests will be run, eg. "generic/068 xfs/297"
+TEST_PARAM_BLKSIZE		# list of block sizes to use for tests
+TEST_PARAM_CHECK_OPTS		# additional options to the xfstests check script
+TEST_PARAM_CHECK_GROUPS		# specify test groups of xfstests. "auto" by default, or please specify group names, e.g: "fuzzers,rw"
+TEST_PARAM_MOUNT_OPTS		# this will be supplied to MOUNT_OPTIONS xfstests variable
+TEST_PARAM_TEST_FS_MOUNT_OPTS	# this will be supplied to TEST_FS_MOUNT_OPTS xfstests variable
+TEST_PARAM_LOOP			# tests will run until one of them fails if 0, otherwise N times if N
+TEST_PARAM_MKFS_OPTS		# options to mkfs
+TEST_PARAM_REPORT_PASS		# do not report passed tests if non-1, 0 is default
+TEST_PARAM_REPORT_FAIL		# report fail only if it's an unknown issue if set to 0, 0 is default
+TEST_PARAM_GITDATE		# test alternative xfstests snapshot, format: YYYYMMDD-N
+TEST_PARAM_GITREPO		# git repo to clone xfstests, default to internal xfstests git repo if TEST_PARAM_GITBRANCH set and GITREPO not set
+TEST_PARAM_GITBRANCH		# test specified branch from internal xfstests git repo
+TEST_PARAM_SKIP_LEVEL		# defines skip level (0 - noskip, 1 - medium, 2 - full)
+TEST_PARAM_FORCE_FSTYPE		# skip the rhel <-> fsytpe compatibility checks
+TEST_PARAM_OVERLAY_BASE_FSTYPE	# fstyp of overlayfs based on
+TEST_PARAM_TEST_DIR		# mount point of test device, useful when testing in beaker, see note below
+TEST_PARAM_SCRATCH_MNT		# mount point of scratch device, useful when testing in beaker, see note below
+TEST_PARAM_SCRATCH_DEV_POOL	# list of devices used as SCRATCH_DEV_POOL
+TEST_PARAM_SCRATCH_DEV_POOL_MNT	# list of mount points of devices used as SCRATCH_DEV_POOL, useful when testing in beaker, see not below
+TEST_PARAM_LOGWRITES_MNT	# mount point of logwrites device, useful when testing in beaker
+TEST_PARAM_CIFS_MOUNT_OPTS	# mount options for cifs, e.g. TEST_PARAM_CIFS_MOUNT_OPTS="-o vers=2.0"
+TEST_PARAM_KNOWN_ISSUE		# specify which known issue to lookup at, used by "-r" option of parse.py, useful when testing upstream kernel,
+				# RHEL kernel testing doesn't need this param. e.g. TEST_PARAM_KNOWN_ISSUE="upstream_xfs__4k_crc"
+TEST_PARAM_TEST_ID		# Test identifier when reporting test result, e.g. "TEST_PARAM_TEST_ID=xfs_2k_finobt", default to TEST_PARAM_FSTYPE
+TEST_PARAM_FIO_VERSION		# fio verison parameter to run tests with different fio versions
+
+Supported filesystems (these are known to work but any standard fs might work):
+xfs
+ext2
+ext3
+ext4
+btrfs
+nfs3
+nfs4
+gfs2  # with lock_nolock
+cifs
+overlay
+
+Note:
+When TEST_PARAM_TEST_DIR and/or TEST_PARAM_SCRATCH_MNT is set,
+<partitions> might be provided in job xml and xfstests will
+auto-detect TEST_DEV and SCRATCH_DEV.  TEST_DEV and/or SCRATCH_DEV
+will be set to the block device mounted at TEST_PARAM_TEST_DIR and/or
+TEST_PARAM_SCRATCH_MNT
+
+eg.
+<partitions>
+	<partition fs="ext3" name="/mnt/xfstests-test-dev" size="10" type="part"/>
+	<partition fs="ext4" name="/mnt/xfstests-scratch-dev" size="10" type="lvm"/>
+</partitions>
+
+And set TEST_PARAM_TEST_DIR TEST_PARAM_SCRATCH_MNT in task parameter in job xml
+
+<task name="/kernel/filesystems/xfs/xfstests role="STANDALONE">
+	<params>
+		<param name="TEST_PARAM_FSTYPE" value="ext4"/>
+		<param name="TEST_PARAM_TEST_DIR" value="/mnt/xfstests-test-dev"/>
+		<param name="TEST_PARAM_SCRATCH_MNT" value="/mnt/xfstests-scratch-dev"/>
+	</params>
+</task>
+
+Similarly, you can specify SCRATCH_DEV_POOL the same way.
+
+e.g.
+<partitions>
+	<partition fs="ext3" name="/mnt/xfstests/mnt1" size="10" type="part"/>
+	<partition fs="ext4" name="/mnt/xfstests/mnt2" size="10" type="part"/>
+	<partition fs="ext3" name="/mnt/xfstests/mnt3" size="10" type="part"/>
+	<partition fs="ext4" name="/mnt/xfstests/mnt4" size="10" type="part"/>
+	<partition fs="ext3" name="/mnt/xfstests/mnt5" size="10" type="part"/>
+	<partition fs="ext4" name="/mnt/xfstests/mnt6" size="10" type="part"/>
+</partitions>
+
+And set TEST_PARAM_SCRATCH_DEV_POOL_MNT in job xml
+<task name="/kernel/filesystems/xfs/xfstests role="STANDALONE">
+	<params>
+		<param name="TEST_PARAM_FSTYPE" value="btrfs"/>
+		<param name="TEST_PARAM_TEST_DIR" value="/mnt/xfstests/mnt1"/>
+		<param name="TEST_PARAM_SCRATCH_MNT" value="/mnt/xfstests/mnt2"/>
+		<param name="TEST_PARAM_SCRATCH_DEV_POOL_MNT" value="/mnt/xfstests/mnt3 /mnt/xfstests/mnt4 /mnt/xfstests/mnt5 /mnt/xfstests/mnt6"/>
+	</params>
+</task>
