@@ -167,7 +167,7 @@ function install_dbench()
 		patch -p1 < ../0001-dbench-fix-build-error-on-RHEL8.patch
 		./autogen.sh
 		./configure > /dev/null 2>&1
-		make > /dev/null 2>&1
+		make > ../dbench.build 2>&1
 		make install > /dev/null 2>&1
 		cd ..
 	fi
@@ -176,6 +176,7 @@ function install_dbench()
 		return 0
 	else
 		report install_dbench FAIL 0
+		cat dbench.build
 		return 1
 	fi
 }
