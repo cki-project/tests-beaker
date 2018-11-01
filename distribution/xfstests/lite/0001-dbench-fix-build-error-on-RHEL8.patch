@@ -1,0 +1,103 @@
+From ae342e617e28e64b5403fd49ebe941217520fc1f Mon Sep 17 00:00:00 2001
+From: Xiong Zhou <xzhou@redhat.com>
+Date: Thu, 1 Nov 2018 16:28:03 +0800
+Subject: [PATCH] dbench: fix build error on RHEL8
+
+Signed-off-by: Xiong Zhou <xzhou@redhat.com>
+---
+ Makefile.in  | 14 +++++++-------
+ configure.in |  2 +-
+ libnfs.c     |  1 +
+ 3 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 00af80e..535a53a 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -11,7 +11,7 @@ datadir=@datadir@
+ docdir=@datadir@/doc/dbench
+ XSLTPROC = /usr/bin/xsltproc
+ INSTALLCMD=@INSTALL@
+-LIBS=@LIBS@ -lpopt -lz @LIBSMBCLIENT@ @LIBISCSI@
++LIBS=@LIBS@ -lpopt -lz @LIBSMBCLIENT@ @LIBISCSI@ -ltirpc
+ DESTDIR=/
+ CC=@CC@
+ CFLAGS=@CFLAGS@ -I. -DVERSION=\"$(VERSION)\" -DDATADIR=\"$(datadir)\"
+@@ -40,11 +40,11 @@ libnfs.a: $(LIBNFS_OBJ)
+ 
+ nfsio.o: nfsio.c mount.h nfs.h
+ 	@echo Compiling $@
+-	gcc -g -c nfsio.c -o $@
++	gcc $(CFLAGS) -g -c nfsio.c -o $@
+ 
+ libnfs.o: libnfs.c libnfs.h mount.h nfs.h
+ 	@echo Compiling $@
+-	gcc -g -c libnfs.c -o $@
++	gcc $(CFLAGS) -g -c libnfs.c -o $@
+ 
+ mount.h: mount.x
+ 	@echo Generating $@
+@@ -56,7 +56,7 @@ nfs.h: nfs.x
+ 
+ mount_xdr.o: mount_xdr.c mount.h
+ 	@echo Compiling $@
+-	gcc -g -c mount_xdr.c -o $@
++	gcc $(CFLAGS) -g -c mount_xdr.c -o $@
+ 
+ mount_xdr.c: mount.x
+ 	@echo Generating $@
+@@ -64,7 +64,7 @@ mount_xdr.c: mount.x
+ 
+ mount_client.o: mount_client.c mount.h
+ 	@echo Compiling $@
+-	gcc -g -c mount_client.c -o $@
++	gcc $(CFLAGS) -g -c mount_client.c -o $@
+ 
+ mount_client.c: mount.x
+ 	@echo Generating $@
+@@ -72,7 +72,7 @@ mount_client.c: mount.x
+ 
+ nfs_xdr.o: nfs_xdr.c nfs.h
+ 	@echo Compiling $@
+-	gcc -g -c nfs_xdr.c -o $@
++	gcc $(CFLAGS) -g -c nfs_xdr.c -o $@
+ 
+ nfs_xdr.c: nfs.x
+ 	@echo Generating $@
+@@ -80,7 +80,7 @@ nfs_xdr.c: nfs.x
+ 
+ nfs_client.o: nfs_client.c nfs.h
+ 	@echo Compiling $@
+-	gcc -g -c nfs_client.c -o $@
++	gcc $(CFLAGS) -g -c nfs_client.c -o $@
+ 
+ nfs_client.c: nfs.x
+ 	@echo Generating $@
+diff --git a/configure.in b/configure.in
+index 14e0d32..54e1ff8 100644
+--- a/configure.in
++++ b/configure.in
+@@ -18,7 +18,7 @@ AC_DEFINE([_GNU_SOURCE], 1,
+ # If GCC, turn on warnings.
+ if test "x$GCC" = "xyes"
+ then
+-	CFLAGS="$CFLAGS -Wall -W"
++	CFLAGS="$CFLAGS -Wall -W $(pkg-config --cflags libtirpc)"
+ else
+ 	CFLAGS="$CFLAGS -O"
+ fi
+diff --git a/libnfs.c b/libnfs.c
+index 1f60ef0..3b926c6 100644
+--- a/libnfs.c
++++ b/libnfs.c
+@@ -23,6 +23,7 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
++#include <stdint.h>
+ 
+ #define discard_const(ptr) ((void *)((intptr_t)(ptr)))
+ 
+-- 
+2.18.1
+
