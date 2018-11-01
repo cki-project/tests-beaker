@@ -164,6 +164,7 @@ function install_dbench()
 	else
 		git clone git://git.samba.org/sahlberg/dbench.git dbench
 		cd dbench
+		patch -p1 < ../0001-dbench-fix-build-error-on-RHEL8.patch
 		./autogen.sh
 		./configure > /dev/null 2>&1
 		make > /dev/null 2>&1
