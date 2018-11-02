@@ -42,10 +42,7 @@ ifndef SYSENV
 endif
 PYTHON_VERSION	:=$(shell which python3 &>/dev/null && echo python3)
 
-LOOKASIDE=$(shell echo $$LOOKASIDE)
-ifeq (,$(LOOKASIDE))
-	LOOKASIDE=https://github.com/libhugetlbfs/libhugetlbfs/releases/download/
-endif
+LOOKASIDE=https://github.com/libhugetlbfs/libhugetlbfs/releases/download/
 
 FILES=$(METADATA) runtest.sh Makefile PURPOSE KnownIssueList $(PATCH_DIR) kvercmp.sh
 
