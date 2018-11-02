@@ -1,0 +1,42 @@
+commit f008e0d18a4ba8ac26b67c5989efde3406bce535
+Author: Jan Stancek <jstancek@redhat.com>
+Date:   Fri Dec 5 13:57:04 2014 +0100
+
+    lower mmap size of map_high_truncate_2 on 32bit s390
+    
+    The low and high limit passed to vm_unmapped_area() in
+    hugetlb_get_unmapped_area() is (TASK_UNMAPPED_BASE, TASK_SIZE).
+    
+    On 64-bit kernel this is defined as:
+      #define TASK_UNMAPPED_BASE (test_thread_flag(TIF_31BIT) ? \
+                                 (1UL << 30) : (1UL << 41))
+      #define TASK_SIZE_OF(tsk)  ((tsk)->mm->context.asce_limit)
+    
+    For 32-bit (-m31) process, this can be as small as
+    (0x40000000, 0x80000000), which is 0x40000000 bytes long area.
+    This testcase however is trying to allocate 0x60000000 and fails:
+      FAIL mmap() 1: Cannot allocate memory
+    
+    Lower mmap size to ~0x20000000, which is more likely to suit
+    address space constraints of 32-bit s390.
+    
+    Signed-off-by: Jan Stancek <jstancek@redhat.com>
+    Signed-off-by: Eric B Munson <emunson@mgebm.net>
+
+diff --git a/tests/map_high_truncate_2.c b/tests/map_high_truncate_2.c
+index daabd00..2a2560b 100644
+--- a/tests/map_high_truncate_2.c
++++ b/tests/map_high_truncate_2.c
+@@ -50,7 +50,11 @@
+  * 856fc29505556cf263f3dcda2533cf3766c14ab6.
+  */
+ #define MAP_LENGTH	(4 * hpage_size)
+-#define TRUNCATE_POINT	0x60000000UL
++#if defined(__s390__) && __WORDSIZE == 32
++#define TRUNCATE_POINT 0x20000000UL
++#else
++#define TRUNCATE_POINT 0x60000000UL
++#endif
+ #define HIGH_ADDR	0xa0000000UL
+ 
+ int main(int argc, char *argv[])

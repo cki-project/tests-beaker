@@ -1,0 +1,30 @@
+From b6843d7bdac2d0c4c663b0200393e33c8dd079e2 Mon Sep 17 00:00:00 2001
+From: Rui Teng <rui.teng@linux.vnet.ibm.com>
+Date: Tue, 13 Dec 2016 15:36:44 +0800
+Subject: [PATCH 2/5] runtests.py: Change R"" to "R" in elflink_rw_test
+ function
+
+I think it should be "R" rather than an empty string.
+
+Signed-off-by: Rui Teng <rui.teng@linux.vnet.ibm.com>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ tests/run_tests.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/run_tests.py b/tests/run_tests.py
+index 0238c99..617ed93 100755
+--- a/tests/run_tests.py
++++ b/tests/run_tests.py
+@@ -409,7 +409,7 @@ def elflink_rw_test(cmd, **env):
+     do_test(cmd, HUGETLB_ELFMAP="no", **env)
+ 
+     # Test we don't blow up if HUGETLB_MINIMAL_COPY is disabled
+-    do_test(cmd, HUGETLB_MINIMAL_COPY="no", HUGETLB_ELFMAP=R"", **env)
++    do_test(cmd, HUGETLB_MINIMAL_COPY="no", HUGETLB_ELFMAP="R", **env)
+     do_test(cmd, HUGETLB_MINIMAL_COPY="no", HUGETLB_ELFMAP="W", **env)
+     do_test(cmd, HUGETLB_MINIMAL_COPY="no", HUGETLB_ELFMAP="RW", **env)
+ 
+-- 
+1.8.3.1
+

@@ -1,0 +1,67 @@
+From b944192e928555b47170f60a01c4c22373b9be68 Mon Sep 17 00:00:00 2001
+From: Jan Stancek <jstancek@redhat.com>
+Date: Wed, 15 Feb 2017 14:10:20 +0100
+Subject: [PATCH 4/5] tests/heapshrink: allocate enough to expand heap
+
+This test failed on aarch64 with 512M pages, because allocating
+32M is possible without expanding heap. Make sure we allocate
+enough, so that free has something to shrink.
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ tests/heapshrink.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/tests/heapshrink.c b/tests/heapshrink.c
+index 0644c78..16f233b 100644
+--- a/tests/heapshrink.c
++++ b/tests/heapshrink.c
+@@ -29,14 +29,14 @@
+  * the mapping page size is larger than this.
+  */
+ #define MIN_PAGE_SIZE 65536
+-
+-#define	SIZE	(32 * 1024 * 1024)
++#define MAX(a, b) a > b ? a : b
+ 
+ int main(int argc, char **argv)
+ {
+ 	int is_huge, have_env, shrink_ok, have_helper;
+ 	unsigned long long mapping_size;
+ 	void *p;
++	long size = MAX(32*1024*1024, kernel_default_hugepage_size());
+ 
+ 	test_init(argc, argv);
+ 
+@@ -45,15 +45,15 @@ int main(int argc, char **argv)
+ 	p = getenv("LD_PRELOAD");
+ 	have_helper = p != NULL && strstr(p, "heapshrink") != NULL;
+ 
+-	p = malloc(SIZE);
++	p = malloc(size);
+ 	if (!p) {
+ 		if (shrink_ok && have_helper) {
+ 			/* Hitting unexpected behavior in malloc() */
+ 			PASS_INCONCLUSIVE();
+ 		} else
+-			FAIL("malloc(%d) failed\n", SIZE);
++			FAIL("malloc(%ld) failed\n", size);
+ 	}
+-	memset(p, 0, SIZE);
++	memset(p, 0, size);
+ 	mapping_size = get_mapping_page_size(p);
+ 	is_huge = (mapping_size > MIN_PAGE_SIZE);
+ 	if (have_env && !is_huge) {
+@@ -67,7 +67,7 @@ int main(int argc, char **argv)
+ 		FAIL("Heap unexpectedly on hugepages");
+ 
+ 	free(p);
+-	mapping_size = get_mapping_page_size(p+SIZE-1);
++	mapping_size = get_mapping_page_size(p+size-1);
+ 	if (shrink_ok && mapping_size > MIN_PAGE_SIZE)
+ 		FAIL("Heap did not shrink");
+ 	PASS();
+-- 
+1.8.3.1
+

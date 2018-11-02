@@ -1,0 +1,44 @@
+From ff12744922d0b13ef0373fb00ca057bb4424da23 Mon Sep 17 00:00:00 2001
+From: Jan Stancek <jstancek@redhat.com>
+Date: Wed, 15 Feb 2017 14:10:19 +0100
+Subject: [PATCH 5/5] ld.hugetlbfs: support 512M hugepages on aarch64
+
+aarch64 supports multiple hugepage sizes, if default is 512M,
+then all linkhuge_rw tests segfault. This patch detects
+default huge page size from /proc/meminfo output, rather than
+using hardcoded value of 2M.
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ ld.hugetlbfs | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/ld.hugetlbfs b/ld.hugetlbfs
+index 8ee917b..388f7b4 100755
+--- a/ld.hugetlbfs
++++ b/ld.hugetlbfs
+@@ -109,7 +109,10 @@ elf32ppclinux|elf64ppc)	HPAGE_SIZE=$((16*$MB)) SLICE_SIZE=$((256*$MB)) ;;
+ elf64lppc)		HPAGE_SIZE=$((16*$MB)) SLICE_SIZE=$((256*$MB)) ;;
+ elf_i386|elf_x86_64)	HPAGE_SIZE=$((4*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+ elf_s390|elf64_s390)	HPAGE_SIZE=$((1*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+-armelf*_linux_eabi|aarch64elf*|aarch64linux*)	HPAGE_SIZE=$((2*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
++armelf*_linux_eabi|aarch64elf*|aarch64linux*)
++	hpage_kb=$(cat /proc/meminfo  | grep Hugepagesize: | awk '{print $2}')
++	HPAGE_SIZE=$((hpage_kb * 1024))
++	SLICE_SIZE=$HPAGE_SIZE ;;
+ esac
+ 
+ if [ "$HTLB_ALIGN" == "slice" ]; then
+@@ -119,7 +122,7 @@ if [ "$HTLB_ALIGN" == "slice" ]; then
+ 	# targeting the ARM platform one needs to explicitly set the text segment offset
+ 	# otherwise it will be NULL.
+ 	case "$EMU" in
+-	armelf*_linux_eabi)	HTLBOPTS="$HTLBOPTS -Ttext-segment=$SLICE_SIZE" ;;
++	armelf*_linux_eabi|aarch64elf*|aarch64linux*)	HTLBOPTS="$HTLBOPTS -Ttext-segment=$SLICE_SIZE" ;;
+ 	elf_i386)		HTLBOPTS="$HTLBOPTS -Ttext-segment=0x08000000" ;;
+ 	esac
+ fi
+-- 
+1.8.3.1
+

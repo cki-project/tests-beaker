@@ -1,0 +1,57 @@
+From 4fd817fcb5c89bacac0dd26fe6ca6ac517a01630 Mon Sep 17 00:00:00 2001
+Message-Id: <4fd817fcb5c89bacac0dd26fe6ca6ac517a01630.1487151469.git.jstancek@redhat.com>
+From: "Gary S. Robertson" <gary.robertson@linaro.org>
+Date: Thu, 6 Nov 2014 11:14:21 -0600
+Subject: [PATCH] ld.hugetlbfs: arm arches - fix page size and text offset
+ setup
+
+There's 3 issues fixed:
+* typo on MB variable (MB -> $MB)
+* some linker variants are missing (linux and big endian)
+  - armelfb_linux_eabi
+  - aarch64elfb
+  - aarch64linux
+  - aarch64linuxb
+* text segment offset was not specified for armv7 BE
+
+NOTE: This patch replaces and makes obsolete the following previously
+      submitted patch:
+
+      aarch64: fix page size not properly computed
+      by: Fathi Boudra <fathi.boudra@linaro.org>
+
+Signed-off-by: Gary S. Robertson <gary.robertson@linaro.org>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ ld.hugetlbfs | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/ld.hugetlbfs b/ld.hugetlbfs
+index 655354770349..4417442b1c27 100755
+--- a/ld.hugetlbfs
++++ b/ld.hugetlbfs
+@@ -87,7 +87,7 @@ elf32ppclinux|elf64ppc)	HPAGE_SIZE=$((16*$MB)) SLICE_SIZE=$((256*$MB)) ;;
+ elf64lppc)		HPAGE_SIZE=$((16*$MB)) SLICE_SIZE=$((256*$MB)) ;;
+ elf_i386|elf_x86_64)	HPAGE_SIZE=$((4*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+ elf_s390|elf64_s390)	HPAGE_SIZE=$((1*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+-armelf_linux_eabi|aarch64elf*|aarch64linux*)	HPAGE_SIZE=$((2*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
++armelf*_linux_eabi|aarch64elf*|aarch64linux*)	HPAGE_SIZE=$((2*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+ esac
+ 
+ if [ "$HTLB_ALIGN" == "slice" ]; then
+@@ -96,9 +96,9 @@ if [ "$HTLB_ALIGN" == "slice" ]; then
+ 
+ 	# targeting the ARM platform one needs to explicitly set the text segment offset
+ 	# otherwise it will be NULL.
+-	if [ "$EMU" == "armelf_linux_eabi" ]; then
+-		HTLBOPTS="$HTLBOPTS -Ttext-segment=$SLICE_SIZE"
+-	fi
++	case "$EMU" in
++	armelf*_linux_eabi)	HTLBOPTS="$HTLBOPTS -Ttext-segment=$SLICE_SIZE" ;;
++	esac
+ fi
+ 
+ ${LD} "${args[@]}" ${HTLBOPTS}
+-- 
+1.8.3.1
+

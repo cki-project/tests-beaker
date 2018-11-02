@@ -1,0 +1,35 @@
+From fff4d1a40b26632f29136b0270cd60f2be786ab2 Mon Sep 17 00:00:00 2001
+Message-Id: <fff4d1a40b26632f29136b0270cd60f2be786ab2.1487151625.git.jstancek@redhat.com>
+From: Fathi Boudra <fathi.boudra@linaro.org>
+Date: Sat, 3 May 2014 14:06:38 +0300
+Subject: [PATCH] aarch64: fix page size not properly computed
+
+There's 2 issues fixed:
+* typo on MB variable (MB -> $MB)
+* some linker variants are missing (linux and big endian)
+  - aarch64elfb
+  - aarch64linux
+  - aarch64linuxb
+
+Signed-off-by: Fathi Boudra <fathi.boudra@linaro.org>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ ld.hugetlbfs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ld.hugetlbfs b/ld.hugetlbfs
+index df446dd436d6..655354770349 100755
+--- a/ld.hugetlbfs
++++ b/ld.hugetlbfs
+@@ -87,7 +87,7 @@ elf32ppclinux|elf64ppc)	HPAGE_SIZE=$((16*$MB)) SLICE_SIZE=$((256*$MB)) ;;
+ elf64lppc)		HPAGE_SIZE=$((16*$MB)) SLICE_SIZE=$((256*$MB)) ;;
+ elf_i386|elf_x86_64)	HPAGE_SIZE=$((4*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+ elf_s390|elf64_s390)	HPAGE_SIZE=$((1*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+-armelf_linux_eabi|aarch64elf)	HPAGE_SIZE=$((2*MB)) SLICE_SIZE=$HPAGE_SIZE ;;
++armelf_linux_eabi|aarch64elf*|aarch64linux*)	HPAGE_SIZE=$((2*$MB)) SLICE_SIZE=$HPAGE_SIZE ;;
+ esac
+ 
+ if [ "$HTLB_ALIGN" == "slice" ]; then
+-- 
+1.8.3.1
+

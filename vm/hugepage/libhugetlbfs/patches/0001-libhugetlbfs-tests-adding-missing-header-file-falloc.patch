@@ -1,0 +1,71 @@
+From 027f9595e15863533dfe1a17ca9bc82020dc0e0a Mon Sep 17 00:00:00 2001
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Mon, 28 Nov 2016 15:42:10 +0530
+Subject: [PATCH] libhugetlbfs: tests: adding missing header file falloc.h
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Building libhugetlbfs failed on CentOS due below error.
+Adding missing header file linux/falloc.h will fix this build error.
+
+Error log:
+	 CC64 obj64/fallocate_basic.o
+fallocate_basic.c: In function ‘main’:
+fallocate_basic.c:78:22: error: ‘FALLOC_FL_PUNCH_HOLE’ undeclared (first use in this function)
+  err = fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+                      ^
+fallocate_basic.c:78:22: note: each undeclared identifier is reported only once for each function it appears in
+fallocate_basic.c:78:45: error: ‘FALLOC_FL_KEEP_SIZE’ undeclared (first use in this function)
+  err = fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+                                             ^
+make[1]: *** [obj64/fallocate_basic.o] Error 1
+make: *** [tests/all] Error 2
+
+Signed-off-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ tests/fallocate_align.c  | 1 +
+ tests/fallocate_basic.c  | 1 +
+ tests/fallocate_stress.c | 1 +
+ 3 files changed, 3 insertions(+)
+
+diff --git a/tests/fallocate_align.c b/tests/fallocate_align.c
+index b758069..1ab2e94 100644
+--- a/tests/fallocate_align.c
++++ b/tests/fallocate_align.c
+@@ -18,6 +18,7 @@
+  */
+ #define _GNU_SOURCE
+ 
++#include <linux/falloc.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+diff --git a/tests/fallocate_basic.c b/tests/fallocate_basic.c
+index 2d766dc..3e7bb7b 100644
+--- a/tests/fallocate_basic.c
++++ b/tests/fallocate_basic.c
+@@ -18,6 +18,7 @@
+  */
+ #define _GNU_SOURCE
+ 
++#include <linux/falloc.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+diff --git a/tests/fallocate_stress.c b/tests/fallocate_stress.c
+index 0603f3f..121a2ca 100644
+--- a/tests/fallocate_stress.c
++++ b/tests/fallocate_stress.c
+@@ -19,6 +19,7 @@
+ #define _GNU_SOURCE
+ 
+ #include <stdio.h>
++#include <linux/falloc.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <signal.h>
+-- 
+2.9.5
+
