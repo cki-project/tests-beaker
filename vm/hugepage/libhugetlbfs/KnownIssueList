@@ -1,0 +1,4 @@
+Bug 1066866 - xBDT.linkshare testcase failures in libhugetlbfs-2.17 with 32 huge pages
+  powerpc setup with 32 huge pages is not enough for xBDT.linkshare testcases,
+  the test runs fine with 64 huge pages
+  see https://bugzilla.redhat.com/show_bug.cgi?id=1066866#c3

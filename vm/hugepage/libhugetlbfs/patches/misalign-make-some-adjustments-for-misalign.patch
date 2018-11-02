@@ -1,0 +1,52 @@
+From 599e585b37966a85671d96a71b0c5716733db423 Mon Sep 17 00:00:00 2001
+From: Li Wang <liwang@redhat.com>
+Date: Thu, 2 Jun 2016 18:28:56 +0800
+Subject: [PATCH] misalign: make some adjustments for misalign
+
+Signed-off-by: Li Wang <liwang@redhat.com>
+---
+ tests/misalign.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
+
+diff --git a/tests/misalign.c b/tests/misalign.c
+index de1bf98..52342fc 100644
+--- a/tests/misalign.c
++++ b/tests/misalign.c
+@@ -102,30 +102,16 @@ int main(int argc, char *argv[])
+ 
+ 	/* 3) Try a misaligned length */
+ 	q = mmap(NULL, page_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+-
+-	if (test_compare_kver(buf.release, "3.10.0") < 0) {
+-		if (q != MAP_FAILED)
+-			FAIL("mmap() with misaligned length 0x%lx succeeded",
+-				page_size);
+-	} else {
+-		if (q == MAP_FAILED)
+-			FAIL("mmap() with misaligned length 0x%lx failed",
++	if (q == MAP_FAILED)
++		FAIL("mmap() with misaligned length 0x%lx failed",
+ 				page_size);
+-	}
+ 
+ 	/* 4) Try a misaligned length with MAP_FIXED */
+ 	q = mmap(p, page_size, PROT_READ|PROT_WRITE,
+ 		 MAP_PRIVATE|MAP_FIXED, fd, 0);
+-
+-	if (test_compare_kver(buf.release, "3.10.0") < 0) {
+-		if (q != MAP_FAILED)
+-			FAIL("mmap() MAP_FIXED with misaligned length 0x%lx "
+-				"succeeded", page_size);
+-	} else {
+-		if (q == MAP_FAILED)
+-			FAIL("mmap() MAP_FIXED with misaligned length 0x%lx "
++	if (q == MAP_FAILED)
++		FAIL("mmap() MAP_FIXED with misaligned length 0x%lx "
+ 				"failed", page_size);
+-	}
+ 
+ 	/* 5) Try a misaligned offset */
+ 	q = mmap(NULL, hpage_size, PROT_READ|PROT_WRITE,
+-- 
+1.8.3.1
+

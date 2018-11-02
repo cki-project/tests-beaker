@@ -1,0 +1,7 @@
+PURPOSE of /kernel/vm/hugepage/libhugetlbfs 
+Description: Test libhugetlbfs with upstream testsuite
+Author: Caspar Zhang <czhang@redhat.com>
+
+This testcase contains two parts:
+  - Function Test
+  - Stress Test

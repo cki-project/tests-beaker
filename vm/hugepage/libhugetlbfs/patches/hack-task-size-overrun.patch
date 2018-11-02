@@ -1,0 +1,20 @@
+diff --git a/tests/task-size-overrun.c b/tests/task-size-overrun.c
+index dc9ce0e..f0b661d 100644
+--- a/tests/task-size-overrun.c
++++ b/tests/task-size-overrun.c
+@@ -82,9 +82,12 @@ static unsigned long find_task_size(void)
+ 		}
+ 		munmap(p, getpagesize());
+ 		addr += getpagesize();
+-#if defined(__powerpc64__)
+-		if (addr > (1UL << 46) && addr < (1UL << 49))
+-			addr = 1UL << 49;
++#if defined(__powerpc64__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
++                if (addr > (1UL << 46) && addr < (1UL << 49))
++                        addr = 1UL << 49;
++#elif defined(__powerpc64__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
++               if (addr > (1UL << 46) && addr < (1UL << 52))
++                       addr = 1UL << 52;
+ #endif
+ #if defined(__s390x__)
+ 		if (addr > (1UL << 42) && addr < (1UL << 53))

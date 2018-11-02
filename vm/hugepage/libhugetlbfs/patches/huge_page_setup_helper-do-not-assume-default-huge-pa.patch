@@ -1,0 +1,48 @@
+From 77cf8bdf8f523c1417e5dc54db72fb74c8c15f56 Mon Sep 17 00:00:00 2001
+From: Nishanth Aravamudan <nacc@linux.vnet.ibm.com>
+Date: Tue, 1 Sep 2015 12:26:59 -0700
+Subject: [PATCH] huge_page_setup_helper: do not assume default huge page size
+ is first
+
+The helper script currently implicitly assumes that `hugeadm
+--pool-list` will emit the default size first, as it assumes every line
+has 5 fields in it. But only the default field does, and if `hugeadm
+--pool-list` were to output:
+
+hugeadm --pool-list
+      Size  Minimum  Current  Maximum  Default
+   1048576        0        0        0
+  16777216        0        0        0        *
+17179869184        0        0        0
+
+we receive an error from the script:
+ # ./huge_page_setup_helper.py
+Traceback (most recent call last):
+  File "./huge_page_setup_helper.py", line 51, in <module>
+    if line.split()[4] == '*':
+IndexError: list index out of range
+
+Just check for the '*' character to determine the default line.
+
+Signed-off-by: Nishanth Aravamudan <nacc@linux.vnet.ibm.com>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ huge_page_setup_helper.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/huge_page_setup_helper.py b/huge_page_setup_helper.py
+index 8bfef14..43c9916 100755
+--- a/huge_page_setup_helper.py
++++ b/huge_page_setup_helper.py
+@@ -48,7 +48,7 @@ if memTotal == 0:
+ # Pick the default huge page size and see how many pages are allocated
+ poolList = os.popen("/usr/bin/hugeadm --pool-list").readlines()
+ for line in poolList:
+-    if line.split()[4] == '*':
++    if '*' in line:
+         hugePageSize = int(line.split()[0])
+         hugePages = int(line.split()[2])
+         break
+-- 
+1.9.3
+

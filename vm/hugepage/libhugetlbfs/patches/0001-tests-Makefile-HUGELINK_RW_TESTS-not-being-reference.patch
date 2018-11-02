@@ -1,0 +1,96 @@
+From ec96e893f40ce117887bc20ee1183e76c1b25a24 Mon Sep 17 00:00:00 2001
+From: Victor Aoqui <victora@br.ibm.com>
+Date: Thu, 22 Jun 2017 19:18:23 -0300
+Subject: [PATCH] tests/Makefile: HUGELINK_RW_TESTS not being referenced in
+ TESTS for PC64 big endian
+
+in Makefile, ppc64 has CUSTOM_LDSCRIPTS = yes,
+
+    CUSTOM_LDSCRIPTS = yes
+
+    ifeq ($(ARCH),ppc64)
+    <...>
+    ifeq ($(ARCH),ppc64le)
+    <...>
+    CUSTOM_LDSCRIPTS = no
+
+in tests/Makefile, CUSTOM_LDSCRIPTS == yes does not include HUGELINK_RW_TESTS in TESTS:
+
+    ifdef ELF64
+    ifeq ($(CUSTOM_LDSCRIPTS),yes)
+    TESTS += $(LDSCRIPT_TESTS) $(HUGELINK_TESTS) $(HUGELINK_TESTS:%=xB.%) \
+            $(HUGELINK_TESTS:%=xBDT.%)
+    else
+    TESTS += $(LDSCRIPT_TESTS) $(HUGELINK_TESTS) $(HUGELINK_RW_TESTS)
+    endif
+
+For this reason, linkhuge_rw.c was not being compiled and linkhuge_rw tests were being killed without execution.
+
+Results before patch:
+
+linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=R linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=W linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=no linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=R HUGETLB_MINIMAL_COPY=no linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=W HUGETLB_MINIMAL_COPY=no linkhuge_rw (16M: 64):
+HUGETLB_ELFMAP=RW HUGETLB_MINIMAL_COPY=no linkhuge_rw (16M: 64):
+HUGETLB_SHARE=0 HUGETLB_ELFMAP=R linkhuge_rw (16M: 64):
+HUGETLB_SHARE=1 HUGETLB_ELFMAP=R linkhuge_rw (16M: 64):
+HUGETLB_SHARE=0 HUGETLB_ELFMAP=W linkhuge_rw (16M: 64):
+HUGETLB_SHARE=1 HUGETLB_ELFMAP=W linkhuge_rw (16M: 64):
+HUGETLB_SHARE=0 HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):
+HUGETLB_SHARE=1 HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):
+
+********** TEST SUMMARY
+<...>
+*    Killed by signal:     0      14
+<...>
+**********
+
+Results after patch:
+
+linkhuge_rw (16M: 64):  PASS
+HUGETLB_ELFMAP=R linkhuge_rw (16M: 64): PASS
+HUGETLB_ELFMAP=W linkhuge_rw (16M: 64): PASS
+HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):        PASS
+HUGETLB_ELFMAP=no linkhuge_rw (16M: 64):        PASS
+HUGETLB_ELFMAP=R HUGETLB_MINIMAL_COPY=no linkhuge_rw (16M: 64): PASS
+HUGETLB_ELFMAP=W HUGETLB_MINIMAL_COPY=no linkhuge_rw (16M: 64): PASS
+HUGETLB_ELFMAP=RW HUGETLB_MINIMAL_COPY=no linkhuge_rw (16M: 64):        PASS
+HUGETLB_SHARE=0 HUGETLB_ELFMAP=R linkhuge_rw (16M: 64): PASS
+HUGETLB_SHARE=1 HUGETLB_ELFMAP=R linkhuge_rw (16M: 64): PASS
+HUGETLB_SHARE=0 HUGETLB_ELFMAP=W linkhuge_rw (16M: 64): PASS
+HUGETLB_SHARE=1 HUGETLB_ELFMAP=W linkhuge_rw (16M: 64): PASS
+HUGETLB_SHARE=0 HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):        PASS
+HUGETLB_SHARE=1 HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):        PASS
+
+********** TEST SUMMARY
+<...>
+*    Killed by signal:     0      0
+<...>
+**********
+
+Signed-off-by: Victor Aoqui <victora@br.ibm.com>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ tests/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tests/Makefile b/tests/Makefile
+index cddc7c9..073df96 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -55,7 +55,7 @@ else
+ ifdef ELF64
+ ifeq ($(CUSTOM_LDSCRIPTS),yes)
+ TESTS += $(LDSCRIPT_TESTS) $(HUGELINK_TESTS) $(HUGELINK_TESTS:%=xB.%) \
+-	$(HUGELINK_TESTS:%=xBDT.%)
++	$(HUGELINK_TESTS:%=xBDT.%) $(HUGELINK_RW_TESTS)
+ else
+ TESTS += $(LDSCRIPT_TESTS) $(HUGELINK_TESTS) $(HUGELINK_RW_TESTS)
+ endif
+-- 
+2.9.3
+

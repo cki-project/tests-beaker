@@ -1,0 +1,45 @@
+From 60bc89c9c7e112a23213f4d15f05480800500e81 Mon Sep 17 00:00:00 2001
+Message-Id: <60bc89c9c7e112a23213f4d15f05480800500e81.1415362741.git.jstancek@redhat.com>
+From: Jan Stancek <jstancek@redhat.com>
+Date: Wed, 5 Nov 2014 11:00:23 +0100
+Subject: [PATCH] fix plt_extrasz() always returning 0 on ppc64le
+
+libhugetlbfs.so is not linked with elf64lppc.o on ppc64le,
+which makes plt_extrasz() always return 0.
+
+This is causing failures (SIGSEGV) in these tests:
+  HUGETLB_ELFMAP=W linkhuge_rw (16M: 64):
+  HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):
+  HUGETLB_SHARE=0 HUGETLB_ELFMAP=W linkhuge_rw (16M: 64):
+  HUGETLB_SHARE=1 HUGETLB_ELFMAP=W linkhuge_rw (16M: 64):
+  HUGETLB_SHARE=0 HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):
+  HUGETLB_SHARE=1 HUGETLB_ELFMAP=RW linkhuge_rw (16M: 64):
+as they miss some already initialized data when performing
+"minimal copy" in get_extracopy().
+
+This patch links also elf64lppc.o, which defines powerpc
+specific version of plt_extrasz().
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Eric B Munson <emunson@mgebm.net>
+---
+ Makefile |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index b24bd0f..8cf469f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -142,6 +142,9 @@ endif
+ ifeq ($(ELF64),elf64ppc)
+ LIBOBJS64 += obj64/$(ELF64).o
+ endif
++ifeq ($(ELF64),elf64lppc)
++LIBOBJS64 += obj64/$(ELF64).o
++endif
+ LIBOBJS32 += $(LIBOBJS:%=obj32/%)
+ LIBOBJS64 += $(LIBOBJS:%=obj64/%)
+
+--
+1.7.1
+

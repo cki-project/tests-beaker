@@ -1,0 +1,36 @@
+diff -Naur libhugetlbfs-2.12.orig/tests/mremap-expand-slice-collision.sh libhugetlbfs-2.12/tests/mremap-expand-slice-collision.sh
+--- libhugetlbfs-2.12.orig/tests/mremap-expand-slice-collision.sh	2011-11-10 21:15:27.395300083 +0800
++++ libhugetlbfs-2.12/tests/mremap-expand-slice-collision.sh	2011-11-10 21:20:02.087865954 +0800
+@@ -4,7 +4,7 @@
+ 
+ # mremap-expand-slice-collision is known broken before 2.6.33
+ compare_kvers `uname -r` "2.6.33"
+-if [ $? -eq 1 ]; then
++if [ $? -eq 1 ] && ! lsb_release -c | grep -q Santiago; then
+ 	echo "FAIL (assumed) kernel bug"
+ 	exit $RC_FAIL
+ else
+diff -Naur libhugetlbfs-2.12.orig/tests/mremap-fixed-huge-near-normal.sh libhugetlbfs-2.12/tests/mremap-fixed-huge-near-normal.sh
+--- libhugetlbfs-2.12.orig/tests/mremap-fixed-huge-near-normal.sh	2011-11-10 21:15:27.394300096 +0800
++++ libhugetlbfs-2.12/tests/mremap-fixed-huge-near-normal.sh	2011-11-10 21:20:30.818506770 +0800
+@@ -4,7 +4,7 @@
+ 
+ # mremap-fixed-huge-near-normal is known broken before 2.6.33
+ compare_kvers `uname -r` "2.6.33"
+-if [ $? -eq 1 ]; then
++if [ $? -eq 1 ] && ! lsb_release -c | grep -q Santiago; then
+ 	echo "FAIL (assumed) kernel bug"
+ 	exit $RC_FAIL
+ else
+diff -Naur libhugetlbfs-2.12.orig/tests/mremap-fixed-normal-near-huge.sh libhugetlbfs-2.12/tests/mremap-fixed-normal-near-huge.sh
+--- libhugetlbfs-2.12.orig/tests/mremap-fixed-normal-near-huge.sh	2011-11-10 21:15:27.395300083 +0800
++++ libhugetlbfs-2.12/tests/mremap-fixed-normal-near-huge.sh	2011-11-10 21:20:13.467723685 +0800
+@@ -4,7 +4,7 @@
+ 
+ # mremap-fixed-normal-near-huge is known broken before 2.6.33
+ compare_kvers `uname -r` "2.6.33"
+-if [ $? -eq 1 ]; then
++if [ $? -eq 1 ] && ! lsb_release -c | grep -q Santiago; then
+ 	echo "FAIL (assumed) kernel bug"
+ 	exit $RC_FAIL
+ else
