@@ -1,0 +1,18 @@
+Index: cthon04/server
+===================================================================
+--- cthon04.orig/server
++++ cthon04/server
+@@ -185,6 +185,13 @@ then
+ fi
+ 
+ eval $UMOUNTCMD
++
++if [ $? -ne 0 ]
++then
++	echo umount failed, leaving $MNTPOINT mounted
++	exit 1
++fi
++
+ if test x$dormdir = xyes
+ then
+ 	rmdir $MNTPOINT
