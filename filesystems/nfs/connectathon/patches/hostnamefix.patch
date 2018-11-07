@@ -1,0 +1,39 @@
+Index: cthon04/server
+===================================================================
+--- cthon04.orig/server
++++ cthon04/server
+@@ -125,8 +125,32 @@ esac
+ 
+ # mount doesn't always return error code if it fails, so lets
+ # ask here just in case
+-HOSTNAME=`hostname`
+-HOSTNAME=`expr $HOSTNAME : '\([^.]*\)'`
++#HOSTNAME=`hostname`
++#HOSTNAME=`expr $HOSTNAME : '\([^.]*\)'`
++
++my_hostname=`hostname --fqdn`
++fqdn_dots=`echo $my_hostname | grep -o "\." | wc -l`
++
++if [ "$fqdn_dots" -eq 0 ]; then
++    echo dots: $fqdn_dots
++    # borrowed this from virtinstall
++    def_line=$(ip route list | grep ^default)
++    defnum=$(perl -e 'for ($i=0; $i<$#ARGV; $i++ ) { if ($ARGV[$i] eq "dev" ) { $_ = $ARGV[ $i + 1 ]; if ( /^(\w*)(\d+)/ ) { print "$_ $2"; } } }' ${def_line} )
++    actnum=$(echo ${defnum} | awk '{print $2}')
++    netdev=$(echo ${defnum} | awk '{print $1}')
++
++    random=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8`
++    mac=`ip link show ${netdev} | grep 'link\/ether' | head -1 | sed -e 's/.*ether \(..:..:..:..:..:..\).*/\1/'`
++    if [ -n "mac" ]; then
++        my_hostname=`echo "mac-$mac-$random" | sed 's/:/-/g'`
++    else
++        my_hostname="random-$random"
++    fi
++fi
++
++HOSTNAME="$my_hostname"
++
++
+ NFSTESTDIR=$MNTPOINT/$HOSTNAME.test
+ export NFSTESTDIR
+ if test "$ask2mnt" = "yes" 

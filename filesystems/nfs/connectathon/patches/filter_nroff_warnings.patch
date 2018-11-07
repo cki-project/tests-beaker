@@ -1,0 +1,25 @@
+Index: cthon04/general/runtests.wrk
+===================================================================
+--- cthon04.orig/general/runtests.wrk
++++ cthon04/general/runtests.wrk
+@@ -82,11 +82,15 @@ set +e
+ echo ""
+ echo "Nroff"
+ rm -f nroff.time
+-$TIME nroff < nroff.tbl > nroff.out 2>> nroff.time || cat nroff.time
+-$TIME nroff < nroff.tbl > nroff.out 2>> nroff.time || cat nroff.time
+-$TIME nroff < nroff.tbl > nroff.out 2>> nroff.time || cat nroff.time
+-$TIME nroff < nroff.tbl > nroff.out 2>> nroff.time || cat nroff.time
+-$TIME nroff < nroff.tbl > nroff.out 2>> nroff.time || cat nroff.time
++rm -f nroff.stderr
++$TIME -a -o nroff.time nroff < nroff.tbl > nroff.out 2>> nroff.stderr || cat nroff.time
++$TIME -a -o nroff.time nroff < nroff.tbl > nroff.out 2>> nroff.stderr || cat nroff.time
++$TIME -a -o nroff.time nroff < nroff.tbl > nroff.out 2>> nroff.stderr || cat nroff.time
++$TIME -a -o nroff.time nroff < nroff.tbl > nroff.out 2>> nroff.stderr || cat nroff.time
++$TIME -a -o nroff.time nroff < nroff.tbl > nroff.out 2>> nroff.stderr || cat nroff.time
++echo "nroff.stderr:"
++cat nroff.stderr
++echo "nroff.stderr END"
+ rm nroff.out nroff.tbl
+ set -e
+ ./stat nroff.time

@@ -1,0 +1,145 @@
+
+# ===========================================================
+#
+# PURPOSE file for:
+#   /kernel/filesystems/nfs/connectathon
+#
+# Description:
+#   This is the NFS Connectathon test suite from the Linux 
+# Test Project (LTP) it is configured to test NFS versions 
+# 2, 3, and 4 on all applicable releases. The Connectathon 
+# tests run on top of an NFS mount, and therefore test the 
+# behavior of a real (kernel) NFS client against a server. 
+#
+# Connectathon NFS Testsuite is used to test directories that 
+# contain programs that can be used to test an implementation 
+# of the NFS Protocol. The tests run on a LINUX client and test 
+# server and client functions. They are divided into four 
+# groups:
+#  * basic   – basic file system operations tests
+#  * general – general file system tests
+#  * special – tests that poke certain common problem areas
+#  * lock    – tests that exercise network locking
+#
+# April 2013:
+#   Parallel NFS (pNFS) was added to connectathon testing in 
+# April of 2013, following a presentation of the process by 
+# Steve Dickson. pNFS is a part of the NFS v4.1 standard 
+# that allows computer clients to access storage devices 
+# directly and in parallel. The pNFS architecture eliminates 
+# the scalability and performance issues associated with NFS 
+# servers deployed today. This is achieved by the separation 
+# of data and metadata, and moving the metadata server out 
+# of the data path. 
+#
+# Author(s):
+#   Bill Peck <bpeck@redhat.com>
+#   Gurhan Ozen <gozen@redhat.com>
+#
+# ===========================================================
+# This test takes optional parameters:
+# [] CTHONSERVERS - define the actual server(s) to test against
+#      rhel3-nfs:/export/home 
+#      rhel4-nfs:/export/home 
+#      rhel5-nfs:/export/home 
+#      rhel6-nfs:/export/home 
+#      netapp-v41:/export/kernel-test
+#      netapp-nfs:/vol/vol0/home/cthon 
+#      sol10-nfs:/export/home 
+#
+# [] CTHONTESTS - define the actual tests you wish to run
+#      -b:base 
+#      -g:general 
+#      -s:special 
+#      -l:lock
+#
+# [] CTHONPROTOCOL - define the transport protocol to use 
+#      udp
+#      tcp
+#      udp6
+#      tcp6
+#
+# [] CTHONPOVERRIDE - override protocol filtering, without this udp(6) is only
+#                     tested on rhel6-nfs and ipv6 only on rhel6/7.
+#
+# [] PROFILE - making this non-null invokes set -x 
+#      on      (printing a trace of simple commands)
+# 
+#
+# Note: 
+# You can use one or any combination of optional params.
+# Example parameter usuage xml snippet:
+# <task name="/kernel/filesystems/nfs/connectathon" role="STANDALONE">
+#   <params>
+#      <param name="CTHONSERVERS" value="rhel6-nfs:/export/home"/>
+#      <param name="CTHONTESTS" value="-b:base"/>
+#      <param name="CTHONPROTOCOL" value="tcp tcp6"/>
+#      <param name="CTHONPOVERRIDE" value="1"/>
+#      <param name="PROFILE" value="on"/>
+#   </params>
+# </task>
+#
+# ===========================================================
+# Test Coverage:
+# This is the default test coverage for the Connectathon NFS Testsuite.
+#
+# Note: 
+# See emails dated ~04-12-13 with subject: NFS UDP testing. The decision 
+# to move to this "test coverage" was a democratic decision based on the 
+# feedback from email correspondence. Thank you to the members of the 
+# NFS-Team, Kernel-QE-Team, and the Kernel-General-Test-Team for their input.
+#
+#         | rhel4 | rhel5 | rhel6 | rhel7 | netapp | netapp-v41 |
+# ---------------------------------------------------------------
+# v2 tcp  |  yes  |  yes  |  yes  |  no   |  yes   |     no     |
+# ---------------------------------------------------------------
+# v2 udp  |  no   |  no   |  no   |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# v2 tcp6 |  no   |  no   |  yes  |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# v2 udp6 |  no   |  no   |  no   |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# v3 tcp  |  yes  |  yes  |  yes  |  yes  |  yes   |     yes    |
+# ---------------------------------------------------------------
+# v3 udp  |  no   |  no   |  yes  |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# v3 tcp6 |  no   |  no   |  yes  |  yes  |  no    |     no     |
+# ---------------------------------------------------------------
+# v3 udp6 |  no   |  no   |  yes  |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# v4 tcp  |  yes  |  yes  |  yes  |  yes  |  yes   |     yes    |
+# ---------------------------------------------------------------
+# v4 udp  |  no   |  no   |  no   |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# v4 tcp6 |  no   |  no   |  yes  |  yes  |  no    |     no     |
+# ---------------------------------------------------------------
+# v4 udp6 |  no   |  no   |  no   |  no   |  no    |     no     |
+# ---------------------------------------------------------------
+# pnfs    |  no   |  no   |  no   |  no   |  no    |     yes    |
+# ---------------------------------------------------------------
+#
+# RHEL7 note:
+# Some RHEL7 kernels do not support NFSv2
+#  Bug 989238 - Remove NFS v2 support from RHEL 7 - kernel
+#
+# ===========================================================
+# Other:
+# Jian Li<jiali@redhat.com>
+# Sat Apr 21 16:07:58 CST 2012
+
+OBSOLETE(N):        NO
+DISTRO(N):          RHEL5, RHEL6, RHEL7
+NFSVERSION(N):      ALL
+TESTVERSION(O):     ALL
+TESTWRAPPED(N):     YES
+MULTIHOST(N):       1
+TESTTYPE(N):        TIER1
+TESTTRANSPORT(O):
+TESTPLAN(N):        5.1.2.1
+TCMS(O):
+IMPORTANCE(O):      HIGH
+EXPANSIBILITY(O):
+BUG(O):             NO
+NEEDMODIFY(O):      NO
+
+# EndFile

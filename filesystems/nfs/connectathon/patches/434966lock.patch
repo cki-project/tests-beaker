@@ -1,0 +1,54 @@
+Index: cthon04/lock/tlock.c
+===================================================================
+--- cthon04.orig/lock/tlock.c
++++ cthon04/lock/tlock.c
+@@ -1406,7 +1406,6 @@ test12()
+ 		childfree(0);
+ 
+ 		parentwait();
+-		(void) lseek(testfd, (off_t)0, 0);
+ 		if (read(pidpipe[0], &target, sizeof (target)) !=
+ 		    sizeof (target)) {
+ 			perror("can't read pid to kill");
+@@ -1414,7 +1413,7 @@ test12()
+ 		}
+ 		kill(target, SIGINT);
+ 		comment("Killed child process.");
+-		sleep(wait_time);
++		parentwait();
+ 		test(12, 1, F_TLOCK, (off_t)0, (off_t)0, PASS, FATAL);
+ 		childfree(0);
+ 		close_testfile(DO_UNLINK);
+@@ -1444,14 +1443,8 @@ test12()
+ 		 */
+ 		if (subchild > 0) {
+ 			/* original child */
+-			sleep(wait_time);
+-			(void) lseek(testfd, (off_t)0, 0);
+-			if (write(pidpipe[1], &subchild, sizeof (subchild)) !=
+-			    sizeof (subchild)) {
+-				perror("can't record pid to kill");
+-				kill(subchild, SIGINT);
+-				testexit(1);
+-			}
++			parentfree(0);
++			wait((int *)0);
+ 			parentfree(0);
+ 			childwait();
+ 			close_testfile(DO_UNLINK);
+@@ -1461,8 +1454,14 @@ test12()
+ 			act.sa_handler = SIG_DFL;
+ 			sigaction(SIGINT, &act, NULL);
+ 			test(12, 0, F_TLOCK, (off_t)0, (off_t)0, PASS, FATAL);
++			subchild = getpid();
++			if (write(pidpipe[1], &subchild, sizeof (subchild)) !=
++			    sizeof (subchild)) {
++				perror("can't record pid to kill");
++				testexit(1);
++			}
+ 			for (;;)
+-				sleep(1);
++				pause();
+ 			/* NOTREACHED */
+ 		}
+ 	}
