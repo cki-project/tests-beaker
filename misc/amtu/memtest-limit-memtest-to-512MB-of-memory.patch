@@ -1,0 +1,476 @@
+From 07541c31d13894af4eab0783eca5fbca685627c0 Mon Sep 17 00:00:00 2001
+From: Jan Stancek <jstancek@redhat.com>
+Date: Wed, 10 Oct 2018 12:22:23 +0200
+Subject: [PATCH] memtest: limit memtest to 512MB of memory
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+---
+ src/memory.c | 461 ++++++++++++++++++++++++++-------------------------
+ 1 file changed, 232 insertions(+), 229 deletions(-)
+
+diff --git a/src/memory.c b/src/memory.c
+index dc91267..692ce20 100644
+--- a/src/memory.c
++++ b/src/memory.c
+@@ -1,229 +1,232 @@
+-//----------------------------------------------------------------------
+-//
+-// Module Name:  memory.c
+-//
+-// Include File:  none
+-//
+-// Description:   Code for Abstract Machine Test Utility - Memory Test
+-//
+-// Notes:  This module performs the memory test for the Abstract
+-//         Machine Test Utility (AMTU).  The return codes are 
+-//         as follows:
+-//         -1 = failure occurred
+-//          0 = success
+-// -----------------------------------------------------------------
+-// LANGUAGE:     C
+-//
+-// (C) Copyright International Businesses Machine Corp. 2003-2007
+-// Licensed under the Common Public License v. 1.0
+-// -----------------------------------------------------------------
+-//
+-// Change Activity:
+-// DATE     PGMR      COMMENTS
+-// ------- --------- ----------------------
+-// 06/02/03 K.Simon    Initial Creation
+-// 07/29/03 K.Simon    Added LAUS logging and
+-//		       debug messages
+-// 08/12/03 K.Simon    Updated debug messages
+-// 08/19/03 K.Simon    Version # on CPL + comment stanzas for functions,
+-//		       aligned code with tabs, aligned to 80 chars per
+-//		       line, reduced chunk size, specified random as 
+-//		       pseudo random, changed printfs to fprintfs
+-// 08/25/03 K.Simon    Added NO_TAG to LAUS_LOG 
+-// 08/26/03 K.Simon    Added printf to display test name
+-// 10/15/03 K.Weidner, Code cleaned up per AMTU evaluation, changed NO_TAG 
+-//          K.Simon    to ADMIN_amtu
+-// 10/17/03 K.Simon    Removed ADMIN_amtu
+-// 10/21/03 K.Simon    Converted mem_amount_kb to bytes for malloc, added
+-//		       check to avoid overflow of integer or address-space
+-//	   	       on 32-bit machines, moved mem_limit declaration,
+-//		       used MemFree value in /proc/meminfo
+-// 10/26/03 K.Simon    Revised code to use MemTotal value in /proc/meminfo
+-//		       instead of MemFree
+-// 10/28/03 K.Simon    Allocate 10% of physical memory, then 1/2 if first
+-// 		       allocation fails
+-// 03/15/05 D.Velarde  Added AUDIT_LOG statements to be used if we're
+-//                     using libaudit instead of liblaus
+-// 12/08/05 D.Velarde  Add new-records patch from RedHat
+-// 11/27/07 EJR	       Patch for >4 GB mem from Steve Grubb
+-//
+-//----------------------------------------------------------------------
+-
+-#include "config.h"
+-#include <stdlib.h>
+-#include <stdio.h>
+-#include <errno.h>
+-#include <string.h>
+-#include <syslog.h>
+-#include <time.h>
+-#include <unistd.h>
+-#include "amtu.h"
+-
+-/************************************************************************/
+-/*                                                                      */
+-/* FUNCTION: get_meminfo                                                */
+-/*                                                                      */
+-/* PURPOSE: Parse /proc/meminfo file and read value for specified tag   */
+-/*                                                                      */
+-/************************************************************************/
+-long long get_meminfo(char *tag)
+-{
+-	FILE *mem_info;
+-	char line[500];
+-	long long val = 0;
+-	
+-	// Determine how much physical memory is on the machine
+-	// by parsing the /proc/meminfo file
+-	mem_info = fopen("/proc/meminfo", "r");
+-	if (mem_info == NULL) {
+-		fprintf(stderr, "File /proc/meminfo could not be opened");
+-#ifdef HAVE_LIBLAUS
+-		LAUS_LOG(("amtu memory test: file /proc/meminfo could not be opened"))
+-#else
+-		AUDIT_LOG("amtu memory test: file /proc/meminfo could not be opened", 0)
+-#endif
+-		return 0;
+-	}
+-
+-	while (!feof(mem_info)) {
+-		fgets(line, sizeof line, mem_info);
+-
+-		if (!strncmp(line, tag, strlen(tag))) {
+-			sscanf(line, "%*s %lld %*s", &val);
+-		}
+-	}
+-
+-	fclose(mem_info);
+-	return val;
+-}
+-
+-/************************************************************************/
+-/*                                                                      */
+-/* FUNCTION: memory                                                     */
+-/*                                                                      */
+-/* PURPOSE: Execute Memory Test that pseudo randomly writes to areas of */
+-/*          memory, then reads the memory back to ensure the values     */
+-/*          written remain unchanged.                                   */
+-/*                                                                      */
+-/************************************************************************/
+-int memory(int argc, char *argv[])
+-{
+-	int *mem_addr = NULL;
+-	int retval = -1;
+-	unsigned int seed;
+-	long long mem_total;
+-	long long mem_amount_kb;
+-	int mem_maxidx;
+-	int i;
+-	long long mem_limit;
+-
+-	printf("Executing Memory Test...\n");
+-
+-	// Determine how much physical memory is on the machine
+-	mem_total = get_meminfo("MemTotal:");
+-
+-	if (!mem_total) {
+-		fprintf(stderr, "Could not determine amount of physical memory\n");
+-#ifdef HAVE_LIBLAUS
+-		LAUS_LOG(("amtu memory test - could not determine amount of"
+-			" physical memory"))
+-#else
+-		AUDIT_LOG("amtu memory test - could not determine amount of"
+-			" physical memory", 0)
+-#endif
+-		goto cleanup;
+-	} else {
+-		if (debug) {
+-			fprintf(stderr, "Total amount of physical memory in kB:" 
+-				" %lld\n", mem_total); 
+-		}
+-	}
+-
+-	// Calculate 10% of physical memory
+-	mem_amount_kb = mem_total / 10;
+-	if (debug) {
+-		fprintf(stderr, "Amount of memory in kB we can allocate:"
+-						" %lld\n", mem_amount_kb); 
+-	}
+-
+-	mem_limit = 1 * 1024 * 1024;
+-	if ((sizeof (int *) == 4) && (mem_amount_kb >= mem_limit)) {
+-		// Do not allocate more than 1 GB on 32-bit machines
+-		// to avoid integer or address-space overflow
+-		mem_amount_kb = mem_limit;
+-	}
+-
+-	// Allocate memory
+-	mem_addr = malloc(mem_amount_kb * 1024);
+-	mem_maxidx = (mem_amount_kb * 1024) / sizeof(int *);
+-
+-	if (!mem_addr) {    // Error occurred
+-		fprintf(stderr, "Could not allocate memory\n");
+-		// Try to allocate 1/2 of memory amount since malloc failed
+-		mem_amount_kb = mem_amount_kb / 2;
+-		mem_addr = malloc(mem_amount_kb * 1024);
+-		mem_maxidx = (mem_amount_kb * 1024) / sizeof(int *);
+-		
+-		if (!mem_addr) {    // Error occurred
+-			fprintf(stderr, "Could not allocate memory\n");
+-#ifdef HAVE_LIBLAUS
+-			LAUS_LOG(("amtu memory test - could not allocate memory"))
+-#else
+-			AUDIT_LOG("amtu memory test - could not allocate memory", 0)
+-#endif
+-			goto cleanup;
+-		} else {
+-			if (debug) {
+-				fprintf(stderr, "Successfully allocated memory"
+-					" amount in kB: %lld\n", mem_amount_kb);
+-			}
+-		}
+-	} else {
+-		if (debug) {
+-			fprintf(stderr, "Successfully allocated memory amount"
+-				" in kB: %lld\n", mem_amount_kb);
+-		}
+-	}
+-
+-	if (debug) {
+-		fprintf(stderr, "Writing random values to memory...\n");
+-	}
+-
+-	seed = (unsigned) time(NULL);	
+-	srand(seed);
+-
+-	for (i=0; i < mem_maxidx; ++i) {
+-		mem_addr[i] = rand();
+-	}
+-
+-	if (debug) {
+-		fprintf(stderr, "Verifying memory values...\n");
+-	}
+-
+-	srand(seed);
+-	for (i=0; i < mem_maxidx; ++i) {
+-		if (mem_addr[i] != rand()) {
+-			fprintf(stderr, "Memory Test FAILED!\n");
+-#ifdef HAVE_LIBLAUS
+-			LAUS_LOG(("amtu failed memory test"))
+-#else
+-			AUDIT_LOG("amtu failed memory test", 0)
+-#endif
+-			goto cleanup;
+-		}
+-	} 
+-
+-	fprintf(stderr, "Memory Test SUCCESS!\n");
+-#ifdef HAVE_LIBLAUS
+-	LAUS_LOG(("amtu - Memory Test succeeded"))
+-#else
+-	AUDIT_LOG("amtu - Memory Test succeeded", 1)
+-#endif
+-	retval = 0;
+-
+-cleanup:
+-	if (mem_addr) {
+-		free(mem_addr);
+-	}
+-	return retval;
+-}
++//----------------------------------------------------------------------
++//
++// Module Name:  memory.c
++//
++// Include File:  none
++//
++// Description:   Code for Abstract Machine Test Utility - Memory Test
++//
++// Notes:  This module performs the memory test for the Abstract
++//         Machine Test Utility (AMTU).  The return codes are
++//         as follows:
++//         -1 = failure occurred
++//          0 = success
++// -----------------------------------------------------------------
++// LANGUAGE:     C
++//
++// (C) Copyright International Businesses Machine Corp. 2003-2007
++// Licensed under the Common Public License v. 1.0
++// -----------------------------------------------------------------
++//
++// Change Activity:
++// DATE     PGMR      COMMENTS
++// ------- --------- ----------------------
++// 06/02/03 K.Simon    Initial Creation
++// 07/29/03 K.Simon    Added LAUS logging and
++//		       debug messages
++// 08/12/03 K.Simon    Updated debug messages
++// 08/19/03 K.Simon    Version # on CPL + comment stanzas for functions,
++//		       aligned code with tabs, aligned to 80 chars per
++//		       line, reduced chunk size, specified random as
++//		       pseudo random, changed printfs to fprintfs
++// 08/25/03 K.Simon    Added NO_TAG to LAUS_LOG
++// 08/26/03 K.Simon    Added printf to display test name
++// 10/15/03 K.Weidner, Code cleaned up per AMTU evaluation, changed NO_TAG
++//          K.Simon    to ADMIN_amtu
++// 10/17/03 K.Simon    Removed ADMIN_amtu
++// 10/21/03 K.Simon    Converted mem_amount_kb to bytes for malloc, added
++//		       check to avoid overflow of integer or address-space
++//	   	       on 32-bit machines, moved mem_limit declaration,
++//		       used MemFree value in /proc/meminfo
++// 10/26/03 K.Simon    Revised code to use MemTotal value in /proc/meminfo
++//		       instead of MemFree
++// 10/28/03 K.Simon    Allocate 10% of physical memory, then 1/2 if first
++// 		       allocation fails
++// 03/15/05 D.Velarde  Added AUDIT_LOG statements to be used if we're
++//                     using libaudit instead of liblaus
++// 12/08/05 D.Velarde  Add new-records patch from RedHat
++// 11/27/07 EJR	       Patch for >4 GB mem from Steve Grubb
++//
++//----------------------------------------------------------------------
++
++#include "config.h"
++#include <stdlib.h>
++#include <stdio.h>
++#include <errno.h>
++#include <string.h>
++#include <syslog.h>
++#include <time.h>
++#include <unistd.h>
++#include "amtu.h"
++
++/************************************************************************/
++/*                                                                      */
++/* FUNCTION: get_meminfo                                                */
++/*                                                                      */
++/* PURPOSE: Parse /proc/meminfo file and read value for specified tag   */
++/*                                                                      */
++/************************************************************************/
++long long get_meminfo(char *tag)
++{
++	FILE *mem_info;
++	char line[500];
++	long long val = 0;
++
++	// Determine how much physical memory is on the machine
++	// by parsing the /proc/meminfo file
++	mem_info = fopen("/proc/meminfo", "r");
++	if (mem_info == NULL) {
++		fprintf(stderr, "File /proc/meminfo could not be opened");
++#ifdef HAVE_LIBLAUS
++		LAUS_LOG(("amtu memory test: file /proc/meminfo could not be opened"))
++#else
++		AUDIT_LOG("amtu memory test: file /proc/meminfo could not be opened", 0)
++#endif
++		return 0;
++	}
++
++	while (!feof(mem_info)) {
++		fgets(line, sizeof line, mem_info);
++
++		if (!strncmp(line, tag, strlen(tag))) {
++			sscanf(line, "%*s %lld %*s", &val);
++		}
++	}
++
++	fclose(mem_info);
++	return val;
++}
++
++/************************************************************************/
++/*                                                                      */
++/* FUNCTION: memory                                                     */
++/*                                                                      */
++/* PURPOSE: Execute Memory Test that pseudo randomly writes to areas of */
++/*          memory, then reads the memory back to ensure the values     */
++/*          written remain unchanged.                                   */
++/*                                                                      */
++/************************************************************************/
++int memory(int argc, char *argv[])
++{
++	int *mem_addr = NULL;
++	int retval = -1;
++	unsigned int seed;
++	long long mem_total;
++	long long mem_amount_kb;
++	int mem_maxidx;
++	int i;
++	long long mem_limit;
++
++	printf("Executing Memory Test...\n");
++
++	// Determine how much physical memory is on the machine
++	mem_total = get_meminfo("MemTotal:");
++
++	if (!mem_total) {
++		fprintf(stderr, "Could not determine amount of physical memory\n");
++#ifdef HAVE_LIBLAUS
++		LAUS_LOG(("amtu memory test - could not determine amount of"
++			" physical memory"))
++#else
++		AUDIT_LOG("amtu memory test - could not determine amount of"
++			" physical memory", 0)
++#endif
++		goto cleanup;
++	} else {
++		if (debug) {
++			fprintf(stderr, "Total amount of physical memory in kB:"
++				" %lld\n", mem_total);
++		}
++	}
++
++	// Calculate 10% of physical memory
++	mem_amount_kb = mem_total / 10;
++	if (debug) {
++		fprintf(stderr, "Amount of memory in kB we can allocate:"
++						" %lld\n", mem_amount_kb);
++	}
++
++	mem_limit = 512 * 1024;
++	if (mem_amount_kb >= mem_limit) {
++		/*
++		 * limit memory to max 512 MB
++		 * 1. it limits amount of time for test runtime
++		 * 2. 'i' is int and could overflow if we have huge amount of memory
++		 */
++		mem_amount_kb = mem_limit;
++	}
++
++	// Allocate memory
++	mem_addr = malloc(mem_amount_kb * 1024);
++	mem_maxidx = (mem_amount_kb * 1024) / sizeof(int *);
++
++	if (!mem_addr) {    // Error occurred
++		fprintf(stderr, "Could not allocate memory\n");
++		// Try to allocate 1/2 of memory amount since malloc failed
++		mem_amount_kb = mem_amount_kb / 2;
++		mem_addr = malloc(mem_amount_kb * 1024);
++		mem_maxidx = (mem_amount_kb * 1024) / sizeof(int *);
++
++		if (!mem_addr) {    // Error occurred
++			fprintf(stderr, "Could not allocate memory\n");
++#ifdef HAVE_LIBLAUS
++			LAUS_LOG(("amtu memory test - could not allocate memory"))
++#else
++			AUDIT_LOG("amtu memory test - could not allocate memory", 0)
++#endif
++			goto cleanup;
++		} else {
++			if (debug) {
++				fprintf(stderr, "Successfully allocated memory"
++					" amount in kB: %lld\n", mem_amount_kb);
++			}
++		}
++	} else {
++		if (debug) {
++			fprintf(stderr, "Successfully allocated memory amount"
++				" in kB: %lld\n", mem_amount_kb);
++		}
++	}
++
++	if (debug) {
++		fprintf(stderr, "Writing random values to memory...\n");
++	}
++
++	seed = (unsigned) time(NULL);
++	srand(seed);
++
++	for (i=0; i < mem_maxidx; ++i) {
++		mem_addr[i] = rand();
++	}
++
++	if (debug) {
++		fprintf(stderr, "Verifying memory values...\n");
++	}
++
++	srand(seed);
++	for (i=0; i < mem_maxidx; ++i) {
++		if (mem_addr[i] != rand()) {
++			fprintf(stderr, "Memory Test FAILED!\n");
++#ifdef HAVE_LIBLAUS
++			LAUS_LOG(("amtu failed memory test"))
++#else
++			AUDIT_LOG("amtu failed memory test", 0)
++#endif
++			goto cleanup;
++		}
++	}
++
++	fprintf(stderr, "Memory Test SUCCESS!\n");
++#ifdef HAVE_LIBLAUS
++	LAUS_LOG(("amtu - Memory Test succeeded"))
++#else
++	AUDIT_LOG("amtu - Memory Test succeeded", 1)
++#endif
++	retval = 0;
++
++cleanup:
++	if (mem_addr) {
++		free(mem_addr);
++	}
++	return retval;
++}

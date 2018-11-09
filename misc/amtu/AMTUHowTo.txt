@@ -1,0 +1,105 @@
+ABSTRACT MACHINE TEST UTILITY HOWTO
+
+
+OVERVIEW
+
+Abstract Machine Test Utility (AMTU) is an administrative utility to check 
+whether the underlying protection mechanism of the hardware are still being 
+enforced. This is a requirement of the Controlled Access Protection Profile 
+(CAPP) FTP_AMT.1, see http://www.radium.ncsc.mil/tpep/library/protection_profiles/CAPP-1.d.pdf.
+AMTU executes the following tests:
+
+* Memory 
+
+Randomly writes to areas of memory and then reading the memory back to 
+ensure the values written remain unchanged.  
+	  
+* Memory Separation 
+
+Ensures that user space programs cannot read and write to areas of memory 
+utilized by the likes of Video RAM, kernel code, etc.
+
+* I/O Controller - Network
+
+Verifies random data transmitted is also the data received for each configured 
+network device. Only ethernet and token ring devices that are configured and 
+up are checked. Async devices are not checked.
+
+* I/O Controller - Disk
+
+Verifies that information written to disks remains unchanged.  Only SCSI and IDE
+controllers associated with mounted filesystems are checked.
+
+* Supervisor Mode Instructions
+
+Ensures that the enforcement of the property that privileged instructions 
+should only be in supervisor mode is still in effect. The set privileged 
+instructions tested to confirm this is architecture dependant.
+
+
+
+TESTED VERSIONS
+
+AMTU has been tested on the following:
+
+* SuSE SLES 8
+* pSeries (32-bit and 64-bit)
+* iSeries (64-bit)
+* zSeries (31-bit)
+* xSeries (32-bit)
+
+
+
+INSTALLING AMTU
+
+VERIFYING SYSTEM REQUIREMENTS AND PREREQUISITES
+
+Before installing AMTU, verify that your system meets the following 
+requirements and prerequisites:
+
+* The system is running the Common Criteria evaluated configuration of 
+SuSE SLES 8. 
+
+
+COMPILING AND INSTALLING AMTU
+
+Untar the AMTU source tarball.  Then issue the following commands:
+	./bootstrap
+	./configure
+	make
+	make install
+
+Only the last step must be run as root. During the ./configure stage
+you may opt to change various options including default install directory.
+
+When compiling AMTU as a 64-bit application on a PPC64 architecture (with the
+exception of Squadron pSeries), specify
+ 
+	./configure CC=/opt/cross/bin/powerpc64-linux-gcc
+
+where /opt/cross/bin/powerpc64-linux-gcc is the 64-bit gcc compiler.
+
+To compile as a 64-bit application on X86_64 architecture or Squadron pSeries, 
+
+	./configure CC="gcc -m64" 
+
+
+
+RUNNING AMTU
+
+AMTU installs to /usr/bin/amtu by default. You can add optional command line 
+arguments (see the AMTU man page (amtu.8) for more details).
+
+
+
+INTERPRETING RESULTS
+
+AMTU issues the following return codes when executed:
+
+	* -1 - Program abort error
+	*  0 - Successful program completion
+
+If the error is repeatable, you can re-run amtu with the -d option to get 
+more information about the failure. The success or failure of AMTU is logged
+in the audit log files (see auditd.8).
+
