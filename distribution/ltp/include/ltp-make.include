@@ -1,7 +1,7 @@
 # Beaker parameter TEST_VERSION can override the default
 TESTVERSION   = $(shell echo $$TEST_VERSION)
 ifeq (,$(TESTVERSION))
-TESTVERSION   = 20180515
+TESTVERSION   = 20180926
 endif
 export TESTVERSION
 # the task path may be different under the restraint harness if the task
@@ -41,10 +41,10 @@ endif
 $(TARGET).bz2:
 	@echo "============ Download package ============"
 	wget -q $(DOWNLOAD_URL)/$(TARGET).bz2; \
-        if [ $$? -ne 0 ]; then \
-                echo "global sync seems not working correctly, using upstream location" ;\
+	if [ $$? -ne 0 -a x$(IS_DEVEL) = x ]; then \
+		echo "global sync seems not working correctly, using default location" ;\
                 wget https://github.com/linux-test-project/ltp/releases/download/$(TESTVERSION)/$(TARGET).tar.bz2 -O $(TARGET).bz2 ;\
-        fi
+	fi
 
 $(TARGET): $(TARGET).bz2 clean
 	@echo "============ Unzip package ============"
@@ -148,6 +148,12 @@ ifeq ($(TESTVERSION),20180515)
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pthread_cancel_3-1-rewrite.patch
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-open_posix-add-LTP_ATTRIBUTE-macros-to-supress-warni.patch
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-cve-meltdown-read-saved_command_line.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-fs-read_all-Clear-suplementary-groups-before-droping.patch
+endif
+ifeq ($(TESTVERSION),20180926)
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-statx-fix-compile-errors.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-sigwaitinfo01-recent-glibc-calls-syscall-directly.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-keyctl02-wait-for-last-key-to-be-garbage-co.patch
 endif
 	@# The following ones are for specific hardware/release
 ifneq (,$(filter 4 5 s390 s390x, $(OS_MAJOR_RELEASE) $(ARCH)))

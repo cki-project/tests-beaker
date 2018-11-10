@@ -28,7 +28,7 @@ index 118b6c0..b4b1349 100644
  		threads = MAX(1, tst_ncpus() - 1);
 +		if ((sstats.totalram / 1024) * sstats.mem_unit < 64UL * 1024 * 1024) {
 +			tst_resm(TINFO, "Less than 64G RAM, use single thread");
-+			tst_resm(TINFO, "ltp/oom1 cause the system hang");
++			tst_resm(TINFO, "see Bug 1261799 - ltp/oom1 cause the system hang");
 +			threads = 1;
 +		}
 +

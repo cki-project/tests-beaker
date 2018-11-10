@@ -1,7 +1,7 @@
 #logging
 kmsg01 kmsg01
 
-#Math library tests - CPU tests
+#DESCRIPTION:Math library tests - CPU tests
 abs01 abs01
 
 atof01 atof01
@@ -17,43 +17,43 @@ fptest02 fptest02
 
 nextafter01 nextafter01
 
-#fsx filesystem stress tests
+#DESCRIPTION:fsx filesystem stress tests
 fsx-linux export TCbin=$LTPROOT/testcases/bin;fsxtest02 10000
 
-#Interprocess communication stress
+#DESCRIPTION:Interprocess communication stress
 # These tests use tests/pipeio to put pipes (named or unnamed) through a workout
 #
 pipeio_1 pipeio -T pipeio_1 -c 5 -s 4090 -i 100 -b -f x80
-# spawns 5 children to write 100 chunks of 4090 bytes to a named pipe 
+# spawns 5 children to write 100 chunks of 4090 bytes to a named pipe
 # using blocking I/O
 #pipeio_2 pipeio -T pipeio_2 -c 5 -s 4090 -i 100 -f x80
-# spawns 5 children to write 100 chunks of 4090 bytes to a named pipe 
+# spawns 5 children to write 100 chunks of 4090 bytes to a named pipe
 # using non-blocking I/O
 # This test hits EAGAIN, which pipeio doesn't handle at the moment
 pipeio_3 pipeio -T pipeio_3 -c 5 -s 4090 -i 100 -u -b -f x80
-# spawns 5 children to write 100 chunks of 4090 bytes to an unnamed pipe 
+# spawns 5 children to write 100 chunks of 4090 bytes to an unnamed pipe
 # using blocking I/O
 pipeio_4 pipeio -T pipeio_4 -c 5 -s 4090 -i 100 -u -f x80
-# spawns 5 children to write 100 chunks of 4090 bytes to an unnamed pipe 
+# spawns 5 children to write 100 chunks of 4090 bytes to an unnamed pipe
 # using non-blocking I/O
 pipeio_5 pipeio -T pipeio_5 -c 5 -s 5000 -i 10 -b -f x80
-# spawns 5 children to write 10 chunks of 5000 bytes to a named pipe 
+# spawns 5 children to write 10 chunks of 5000 bytes to a named pipe
 # using blocking I/O
 pipeio_6 pipeio -T pipeio_6 -c 5 -s 5000 -i 10 -b -u -f x80
-# spawns 5 children to write 10 chunks of 5000 bytes to an unnamed pipe 
+# spawns 5 children to write 10 chunks of 5000 bytes to an unnamed pipe
 # using blocking I/O
 #pipeio_7 pipeio -T pipeio_7 -c 5 -s 5000 -i 10 -f x80
-# spawns 5 children to write 10 chunks of 5000 bytes to a named pipe 
+# spawns 5 children to write 10 chunks of 5000 bytes to a named pipe
 # using non-blocking I/O
 # This test hits EAGAIN, which pipeio doesn't handle at the moment
 pipeio_8 pipeio -T pipeio_8 -c 5 -s 5000 -i 10 -u -f x80
-# spawns 5 children to write 10 chunks of 5000 bytes to an unnamed pipe 
+# spawns 5 children to write 10 chunks of 5000 bytes to an unnamed pipe
 # using non-blocking I/O
 
 sem01 sem01
 sem02 sem02
 
-#Kernel system calls
+#DESCRIPTION:Kernel system calls
 abort01 abort01
 
 accept01 accept01
@@ -68,6 +68,8 @@ acct01 acct01
 
 add_key01 add_key01
 add_key02 add_key02
+add_key03 add_key03
+add_key04 add_key04
 
 adjtimex01 adjtimex01
 adjtimex02 adjtimex02
@@ -82,6 +84,7 @@ asyncio02 asyncio02
 
 bind01 bind01
 bind02 bind02
+bind03 bind03
 
 bdflush01 bdflush01
 
@@ -198,21 +201,29 @@ execve01 execve01
 execve02 execve02
 execve03 execve03
 execve04 execve04
-execve05 execve05 20 $LTPROOT/testcases/bin/execve05 $LTPROOT/testcases/bin/execve05 4
+execve05 execve05 -i 5 -n 32
 execvp01 execvp01
+execveat03 execveat03
 
 exit01 exit01
 exit02 exit02
 
 exit_group01 exit_group01
 
+#faccessat test cases
 faccessat01 faccessat01
 
+#fallocate test cases
 fallocate01 fallocate01
 fallocate02 fallocate02
 fallocate03 fallocate03
 fallocate04 fallocate04
+fallocate05 fallocate05
 
+fsetxattr01 fsetxattr01
+fsetxattr02 fsetxattr02
+
+#posix_fadvise test cases
 posix_fadvise01                      posix_fadvise01
 posix_fadvise01_64                posix_fadvise01_64
 posix_fadvise02                      posix_fadvise02
@@ -232,8 +243,8 @@ fchmod03 fchmod03
 fchmod04 fchmod04
 fchmod05 fchmod05
 fchmod06 fchmod06
-fchmod07 fchmod07
 
+#fchmodat test cases
 fchmodat01 fchmodat01
 
 fchown01 fchown01
@@ -247,6 +258,7 @@ fchown04_16 fchown04_16
 fchown05 fchown05
 fchown05_16 fchown05_16
 
+#fchownat test case
 fchownat01 fchownat01
 fchownat02 fchownat02
 
@@ -326,6 +338,10 @@ fcntl36_64 fcntl36_64
 fdatasync01 fdatasync01
 fdatasync02 fdatasync02
 
+fgetxattr01 fgetxattr01
+fgetxattr02 fgetxattr02
+fgetxattr03 fgetxattr03
+
 flistxattr01 flistxattr01
 flistxattr02 flistxattr02
 flistxattr03 flistxattr03
@@ -334,7 +350,6 @@ flock01 flock01
 flock02 flock02
 flock03 flock03
 flock04 flock04
-flock05 flock05
 flock06 flock06
 
 fmtmsg01 fmtmsg01
@@ -350,7 +365,7 @@ fork08 fork08
 fork09 fork09
 fork10 fork10
 fork11 fork11
-fork13 fork13 -i 10000
+fork13 fork13 -i 1000000
 fork14 fork14
 
 fpathconf01 fpathconf01
@@ -364,6 +379,7 @@ fstat03_64 fstat03_64
 fstat05 fstat05
 fstat05_64 fstat05_64
 
+#fstatat64/newfstatat test cases
 fstatat01 fstatat01
 
 fstatfs01 fstatfs01
@@ -384,6 +400,7 @@ ftruncate03_64 ftruncate03_64
 ftruncate04 ftruncate04
 ftruncate04_64 ftruncate04_64
 
+#futimesat test cases
 futimesat01 futimesat01
 
 getcontext01 getcontext01
@@ -501,11 +518,14 @@ getxattr02 getxattr02
 getxattr03 getxattr03
 getxattr04 getxattr04
 
+# Introducing ioctl tests for all /dev/tty* devices
 ioctl01_02   test_ioctl
 ioctl03      ioctl03
 ioctl04      ioctl04
 ioctl05      ioctl05
 ioctl06      ioctl06
+
+ioctl07      ioctl07
 
 inotify_init1_01 inotify_init1_01
 inotify_init1_02 inotify_init1_02
@@ -516,6 +536,9 @@ inotify03 inotify03
 inotify04 inotify04
 inotify05 inotify05
 inotify06 inotify06
+inotify07 inotify07
+inotify08 inotify08
+inotify09 inotify09
 
 fanotify01 fanotify01
 fanotify02 fanotify02
@@ -525,6 +548,7 @@ fanotify05 fanotify05
 fanotify06 fanotify06
 fanotify07 fanotify07
 fanotify08 fanotify08
+fanotify09 fanotify09
 
 ioperm01 ioperm01
 ioperm02 ioperm02
@@ -539,10 +563,13 @@ io_setup01 io_setup01
 io_submit01 io_submit01
 
 keyctl01 keyctl01
-#keyctl02 keyctl02
+keyctl02 keyctl02
 keyctl03 keyctl03
 keyctl04 keyctl04
 keyctl05 keyctl05
+keyctl06 keyctl06
+keyctl07 keyctl07
+keyctl08 keyctl08
 
 kcmp01 kcmp01
 kcmp02 kcmp02
@@ -563,9 +590,9 @@ kill12 kill12
 
 lchown01 lchown01
 lchown01_16 lchown01_16
-lchown02 lchown02
+lchown02  lchown02
+lchown03  lchown03
 lchown02_16 lchown02_16
-lchown03 lchown03
 lchown03_16 lchown03_16
 
 lgetxattr01 lgetxattr01
@@ -580,6 +607,7 @@ link06 link06
 link07 link07
 link08 link08
 
+#linkat test cases
 linkat01 linkat01
 linkat02 linkat02
 
@@ -620,8 +648,8 @@ memcmp01 memcmp01
 memcpy01 memcpy01
 
 migrate_pages01 migrate_pages01
-# See https://github.com/linux-test-project/ltp/issues/407
 #migrate_pages02 migrate_pages02
+migrate_pages03 migrate_pages03
 
 mlockall01 mlockall01
 mlockall02 mlockall02
@@ -634,6 +662,7 @@ mkdir05 mkdir05
 mkdir05A symlink01 -T mkdir05
 mkdir09 mkdir09
 
+#mkdirat test cases
 mkdirat01 mkdirat01
 mkdirat02 mkdirat02
 
@@ -647,6 +676,7 @@ mknod07 mknod07
 mknod08 mknod08
 mknod09 mknod09
 
+#mknodat test cases
 mknodat01 mknodat01
 mknodat02 mknodat02
 
@@ -654,6 +684,10 @@ mlock01 mlock01
 mlock02 mlock02
 mlock03 mlock03 -i 20
 mlock04 mlock04
+
+mlock201 mlock201
+mlock202 mlock202
+mlock203 mlock203
 
 qmm01 mmap001 -m 1
 mmap01 mmap01
@@ -683,22 +717,19 @@ mount04 mount04
 mount05 mount05
 mount06 mount06
 
-move_pages01 move_pages.sh 01
-move_pages02 move_pages.sh 02
-move_pages03 cd $LTPROOT/testcases/bin && chown root move_pages03 && chmod 04755 move_pages03 && move_pages.sh 03
-move_pages04 move_pages.sh 04
-move_pages05 move_pages.sh 05
-move_pages06 move_pages.sh 06
-move_pages07 move_pages.sh 07
+move_pages01 move_pages01
+move_pages02 move_pages02
+move_pages03 move_pages03
+move_pages04 move_pages04
+move_pages05 move_pages05
+move_pages06 move_pages06
+move_pages07 move_pages07
 #TODO: move_pages0[89] makes sense only kernel < 2.6.29
-#TODO: move_pages08 move_pages.sh 08
-#TODO: move_pages09 move_pages.sh 09
-move_pages10 move_pages.sh 10
-move_pages11 cd $LTPROOT/testcases/bin && chown root move_pages11 && chmod 04755 move_pages11 && move_pages.sh 11
-# NOTE(mhayden): move_pages12 is disabled temporarily due to two issues:
-# https://github.com/linux-test-project/ltp/issues/388 - ppc64le transient failures
-# https://github.com/linux-test-project/ltp/issues/387 - aarch64 timeout due to large hugepages + slow CPU
-#move_pages12 move_pages12
+#TODO: move_pages08 move_pages08
+#TODO: move_pages09 move_pages09
+move_pages10 move_pages10
+move_pages11 move_pages11
+move_pages12 move_pages12
 
 mprotect01 mprotect01
 mprotect02 mprotect02
@@ -722,15 +753,14 @@ msgctl01 msgctl01
 msgctl02 msgctl02
 msgctl03 msgctl03
 msgctl04 msgctl04
-msgctl05 msgctl05
-msgctl06 msgctl06
-msgctl07 msgctl07
-msgctl08 msgctl08
-msgctl09 msgctl09
-#TODO: msgctl10 msgctl10 -> keeps triggerring OOM until there are no more processes to kill
-#TODO: msgctl11 msgctl11 -> too many pids
+# msgstress{01-04} used to be msgctl{08-11}, see upstream commit 3e882e3e4c2d
+msgstress01 msgstress01
+msgstress02 msgstress02
+# msgctl10 and msgctl11 were commented out in previous releases of LTP/lite,
+# so comment out msgstress03 and msgstress04 now too
+#TODO: msgstress03 msgstress03 -> keeps triggerring OOM until there are no more processes to kill (Bug 1162965?)
+#TODO: msgstress04 msgstress04 -> too many pids
 msgctl12 msgctl12
-msgctl13 msgctl13
 
 msgget01 msgget01
 msgget02 msgget02
@@ -759,7 +789,6 @@ munlock01 munlock01
 munlock02 munlock02
 
 munlockall01 munlockall01
-munlockall02 munlockall02
 
 munmap01 munmap01
 munmap02 munmap02
@@ -794,6 +823,7 @@ open12 open12
 open13 open13
 open14 open14
 
+#openat test cases
 openat01 openat01
 openat02 openat02
 openat03 openat03
@@ -808,6 +838,7 @@ madvise06 madvise06
 madvise07 madvise07
 madvise08 madvise08
 madvise09 madvise09
+madvise10 madvise10
 
 newuname01 newuname01
 
@@ -842,6 +873,7 @@ ppoll01 ppoll01
 
 prctl01 prctl01
 prctl02 prctl02
+prctl03 prctl03
 
 pread01 pread01
 pread01_64 pread01_64
@@ -854,6 +886,8 @@ preadv01 preadv01
 preadv01_64 preadv01_64
 preadv02 preadv02
 preadv02_64 preadv02_64
+preadv03 preadv03
+preadv03_64 preadv03_64
 
 profil01 profil01
 
@@ -881,19 +915,26 @@ ptrace02 ptrace02
 ptrace03 ptrace03
 ptrace04 ptrace04
 ptrace05 ptrace05
+# Broken test; See: testcases/kernel/syscalls/ptrace/Makefile for more details.
+#ptrace06 ptrace06
+ptrace07 ptrace07
 
 pwrite01 pwrite01
 pwrite02 pwrite02
+pwrite03 pwrite03
 pwrite04 pwrite04
 
 pwrite01_64 pwrite01_64
 pwrite02_64 pwrite02_64
+pwrite03_64 pwrite03_64
 pwrite04_64 pwrite04_64
 
 pwritev01 pwritev01
 pwritev01_64 pwritev01_64
 pwritev02 pwritev02
 pwritev02_64 pwritev02_64
+pwritev03 pwritev03
+pwritev03_64 pwritev03_64
 
 quotactl01 quotactl01
 quotactl02 quotactl02
@@ -915,12 +956,15 @@ readlink01A symlink01 -T readlink01
 readlink01 readlink01
 readlink03 readlink03
 
+#readlinkat test cases
 readlinkat01 readlinkat01
 readlinkat02 readlinkat02
 
 readv01 readv01
 readv02 readv02
 readv03 readv03
+
+realpath01 realpath01
 
 reboot01 reboot01
 reboot02 reboot02
@@ -955,6 +999,7 @@ rename12 rename12
 rename13 rename13
 rename14 rename14
 
+#renameat test cases
 renameat01 renameat01
 
 renameat201 renameat201
@@ -962,7 +1007,9 @@ renameat202 renameat202 -i 10
 
 request_key01 request_key01
 request_key02 request_key02
+request_key03 request_key03
 cve-2017-6951 cve-2017-6951
+request_key04 request_key04
 
 rmdir01 rmdir01
 rmdir02 rmdir02
@@ -1061,15 +1108,16 @@ sendfile08_64 sendfile08_64
 sendfile09 sendfile09
 sendfile09_64 sendfile09_64
 
+
 sendmsg01 sendmsg01
 sendmsg02 sendmsg02
 
 sendto01 sendto01
 sendto02 sendto02
 
-setdomainname01 setdomainname01
-setdomainname02 setdomainname02
-setdomainname03 setdomainname03
+setdomainname01	setdomainname01
+setdomainname02	setdomainname02
+setdomainname03	setdomainname03
 
 setfsgid01 setfsgid01
 setfsgid01_16 setfsgid01_16
@@ -1176,6 +1224,8 @@ setreuid07_16 setreuid07_16
 setrlimit01 setrlimit01
 setrlimit02 setrlimit02
 setrlimit03 setrlimit03
+setrlimit04 setrlimit04
+setrlimit05 setrlimit05
 
 set_robust_list01 set_robust_list01
 set_thread_area01 set_thread_area01
@@ -1184,6 +1234,7 @@ set_tid_address01 set_tid_address01
 setsid01 setsid01
 
 setsockopt01 setsockopt01
+setsockopt02 setsockopt02
 cve-2016-4997 cve-2016-4997
 
 settimeofday01 settimeofday01
@@ -1208,6 +1259,7 @@ shmctl01 shmctl01
 shmctl02 shmctl02
 shmctl03 shmctl03
 shmctl04 shmctl04
+shmctl05 shmctl05
 
 shmdt01 shmdt01
 shmdt02 shmdt02
@@ -1223,6 +1275,7 @@ sigaction02 sigaction02
 
 sigaltstack01 sigaltstack01
 sigaltstack02 sigaltstack02
+
 
 sighold02 sighold02
 
@@ -1245,6 +1298,8 @@ sigprocmask01 sigprocmask01
 sigrelse01 sigrelse01
 
 sigsuspend01 sigsuspend01
+
+sigwaitinfo01 sigwaitinfo01
 
 socket01 socket01
 socket02 socket02
@@ -1314,11 +1369,13 @@ symlink03 symlink03
 symlink04 symlink04
 symlink05 symlink05
 
+#symlinkat test cases
 symlinkat01 symlinkat01
 
 sync01 sync01
 sync02 sync02
 
+#testcases for sync_file_range
 sync_file_range01 sync_file_range01
 
 syscall01 syscall01
@@ -1353,12 +1410,13 @@ syslog10 syslog10
 syslog11 syslog11
 syslog12 syslog12
 
-
 time01 time01
 time02 time02
 
 times01 times01
 times03 times03
+
+# New syscall support from 2.6.25 kernel onwards
 
 timerfd01 timerfd01
 timerfd02 timerfd02
@@ -1410,6 +1468,7 @@ utime06 utime06
 
 utimes01 utimes01
 
+# Introduced from Kernel 2.6.22 onwards
 utimensat01 utimensat_tests.sh
 
 vfork01 vfork01
@@ -1418,6 +1477,7 @@ vfork02 vfork02
 vhangup01 vhangup01
 vhangup02 vhangup02
 
+#vmsplice test cases
 vmsplice01 vmsplice01
 vmsplice02 vmsplice02
 
@@ -1445,6 +1505,7 @@ waitid01 waitid01
 waitid02 waitid02
 
 write01 write01
+write02 write02
 write03 write03
 write04 write04
 write05 write05
@@ -1472,8 +1533,18 @@ futex_wait_bitset02 futex_wait_bitset02
 
 memfd_create01 memfd_create01
 memfd_create02 memfd_create02
+memfd_create03 memfd_create03
+memfd_create04 memfd_create04
 
-#Memory Mgmt tests
+copy_file_range01 copy_file_range01
+
+statx01 statx01
+statx02 statx02
+statx03 statx03
+statx04 statx04
+# statx05 requires ext4 encryption support which is excluded in RHEL
+#statx05 statx05
+#DESCRIPTION:Memory Mgmt tests
 mm01 mmap001 -m 10000
 # 40 Mb mmap() test.
 # Creates a 10000 page mmap, touches all of the map, sync's it, and
@@ -1487,13 +1558,18 @@ mm02 mmap001
 mtest01 mtest01 -p80
 mtest01w mtest01 -p80 -w
 
-mtest05 mmstress
-
+#test for race conditions
+mtest05   mmstress
 # See https://github.com/linux-test-project/ltp/issues/165
 #mtest06 mmap1 -x 0.05
+mtest06_2 mmap2 -x 0.002 -a -p
+mtest06_3 mmap3 -x 0.002 -p
+# Remains diabled till the infinite loop problem is solved
+#mtest-6_4 shmat1 -x 0.00005
 
 #TODO: mem01 mem01 -> sometimes fails to allocate memory or hits OOM
 mem02 mem02
+mem03 mem03
 
 page01 page01
 page02 page02
@@ -1511,7 +1587,8 @@ shmt08 shmt08
 shmt09 shmt09
 shmt10 shmt10
 
-mallocstress01  mallocstress
+shm_test01	shm_test -l 10 -t 2
+mallocstress01	mallocstress
 
 mmapstress01 mmapstress01 -p 20 -t 0.2
 mmapstress02 mmapstress02
@@ -1530,50 +1607,60 @@ vma03 vma03
 vma04 vma04
 vma05 vma05.sh
 
-#Scheduler Stress Tests
+#DESCRIPTION:Scheduler Stress Tests
 pth_str01 pth_str01
 pth_str02 pth_str02 -n1000
 pth_str03 pth_str03
 
-#Native POSIX Thread Library (NPTL) Tests
+#DESCRIPTION:Native POSIX Thread Library (NPTL) Tests
 nptl01 nptl01
 
-#Terminal type stress
+#DESCRIPTION:Terminal type stress
 pty01 pty01
+pty02 pty02
 ptem01 ptem01
 hangup01 hangup01
 
 #Misc
-dynamic_debug01                dynamic_debug01.sh
+dynamic_debug01		dynamic_debug01.sh
 gdb01 gdb01.sh
 
-#Filesystem stress tests
-gf01 growfiles -W gf01 -b -e 1 -u -i 0 -L 20 -w -C 1 -l -I r -T 10 glseek20 glseek20.2
-gf02 growfiles -W gf02 -b -e 1 -L 10 -i 100 -I p -S 2 -u -f gf03_
-gf03 growfiles -W gf03 -b -e 1 -g 1 -i 1 -S 150 -u -f gf05_
-gf06 growfiles -W gf06 -b -e 1 -u -r 1-5000 -R 0--1 -i 0 -L 30 -C 1 g_rand10 g_rand10.2
-gf07 growfiles -W gf07 -b -e 1 -u -r 1-5000 -R 0--2 -i 0 -L 30 -C 1 -I p g_rand13 g_rand13.2
-gf10 growfiles -W gf10 -b -e 1 -u -r 1-5000 -i 0 -L 30 -C 1 -I l g_lio14 g_lio14.2
-gf11 growfiles -W gf11 -b -e 1 -u -r 1-5000 -i 0 -L 30 -C 1 -I L g_lio15 g_lio15.2
-gf12 mkfifo gffifo17; growfiles -b -W gf12 -e 1 -u -i 0 -L 30 gffifo17
-gf13 mkfifo gffifo18; growfiles -b -W gf13 -e 1 -u -i 0 -L 30 -I r -r 1-4096 gffifo18
-gf14 growfiles -W gf14 -b -e 1 -u -i 0 -L 20 -w -l -C 1 -T 10 glseek19 glseek19.2
-gf15 growfiles -W gf15 -b -e 1 -u -r 1-49600 -I r -u -i 0 -L 120 -B 1073741824 Lgfile1
-gf17 growfiles -W gf17 -b -e 1 -i 0 -L 120 -u -g 5000 -T 101 -t 499998 -l -C 10 -c 1000 -S 10 -B 1073741824 -f Lgf03_
-gf18 growfiles -W gf18 -b -e 1 -i 0 -L 120 -w -u -r 10-5000 -I r -l -S 2 -B 1073741824 -f Lgf04_
-gf19 growfiles -W gf19 -b -e 1 -g 5000 -i 500 -t 49900 -T10 -c9 -I p -o O_RDWR,O_CREAT,O_TRUNC -u -f gf08i_
-gf20 growfiles -W gf20 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 1-256000:512 -R 512-256000 -T 4 gfbigio-$$
-gf23 growfiles -W gf23 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 512-64000:1024 -R 1-384000 -T 4 gf-inf-$$
-gf24 growfiles -W gf24 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 gf-jbld-$$
-gf25 growfiles -W gf25 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 1024000-2048000:2048 -R 4095-2048000 -T 1 gf-large-gs-$$
-gf26 growfiles -W gf26 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 128-32768:128 -R 512-64000 -T 4 gfsmallio-$$
-gf27 growfiles -W gf27 -b -D 0 -w -g 8b -C 1 -b -i 1000 -u gfsparse-1-$$
-gf30 growfiles -W gf30 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -o O_RDWR,O_CREAT,O_SYNC -g 20480 -T 10 -t 20480 gf-sync-$$
-rwtest01 export LTPROOT; rwtest -N rwtest01 -c -q -i 60s  -f sync 10%25000:rw-sync-$$
-rwtest02 export LTPROOT; rwtest -N rwtest02 -c -q -i 60s  -f buffered 10%25000:rw-buffered-$$
-rwtest03 export LTPROOT; rwtest -N rwtest03 -c -q -i 60s -n 2  -f buffered -s mmread,mmwrite -m random -Dv 10%25000:mm-buff-$$
-rwtest04 export LTPROOT; rwtest -N rwtest04 -c -q -i 60s -n 2  -f sync -s mmread,mmwrite -m random -Dv 10%25000:mm-sync-$$
-rwtest05 export LTPROOT; rwtest -N rwtest05 -c -q -i 50 -T 64b 500b:/tmp/rwtest01%f
+#DESCRIPTION:Filesystem stress tests
+gf01 growfiles -W gf01 -b -e 1 -u -i 0 -L 20 -w -C 1 -l -I r -T 10 -f glseek20 -S 2 -d $TMPDIR
+gf02 growfiles -W gf02 -b -e 1 -L 10 -i 100 -I p -S 2 -u -f gf03_ -d $TMPDIR
+gf03 growfiles -W gf03 -b -e 1 -g 1 -i 1 -S 150 -u -f gf05_ -d $TMPDIR
+gf04 growfiles -W gf04 -b -e 1 -g 4090 -i 500 -t 39000 -u -f gf06_ -d $TMPDIR
+gf05 growfiles -W gf05 -b -e 1 -g 5000 -i 500 -t 49900 -T10 -c9 -I p -u -f gf07_ -d $TMPDIR
+gf06 growfiles -W gf06 -b -e 1 -u -r 1-5000 -R 0--1 -i 0 -L 30 -C 1 -f g_rand10 -S 2 -d $TMPDIR
+gf07 growfiles -W gf07 -b -e 1 -u -r 1-5000 -R 0--2 -i 0 -L 30 -C 1 -I p -f g_rand13 -S 2 -d $TMPDIR
+gf08 growfiles -W gf08 -b -e 1 -u -r 1-5000 -R 0--2 -i 0 -L 30 -C 1 -f g_rand11 -S 2 -d $TMPDIR
+gf09 growfiles -W gf09 -b -e 1 -u -r 1-5000 -R 0--1 -i 0 -L 30 -C 1 -I p -f g_rand12 -S 2 -d $TMPDIR
+gf10 growfiles -W gf10 -b -e 1 -u -r 1-5000 -i 0 -L 30 -C 1 -I l -f g_lio14 -S 2 -d $TMPDIR
+gf11 growfiles -W gf11 -b -e 1 -u -r 1-5000 -i 0 -L 30 -C 1 -I L -f g_lio15 -S 2 -d $TMPDIR
+gf12 mkfifo $TMPDIR/gffifo17; growfiles -b -W gf12 -e 1 -u -i 0 -L 30 $TMPDIR/gffifo17
+gf13 mkfifo $TMPDIR/gffifo18; growfiles -b -W gf13 -e 1 -u -i 0 -L 30 -I r -r 1-4096 $TMPDIR/gffifo18
+gf14 growfiles -W gf14 -b -e 1 -u -i 0 -L 20 -w -l -C 1 -T 10 -f glseek19 -S 2 -d $TMPDIR
+gf15 growfiles -W gf15 -b -e 1 -u -r 1-49600 -I r -u -i 0 -L 120 -f Lgfile1 -d $TMPDIR
+gf16 growfiles -W gf16 -b -e 1 -i 0 -L 120 -u -g 4090 -T 101 -t 408990 -l -C 10 -c 1000 -S 10 -f Lgf02_ -d $TMPDIR
+gf17 growfiles -W gf17 -b -e 1 -i 0 -L 120 -u -g 5000 -T 101 -t 499990 -l -C 10 -c 1000 -S 10 -f Lgf03_ -d $TMPDIR
+gf18 growfiles -W gf18 -b -e 1 -i 0 -L 120 -w -u -r 10-5000 -I r -l -S 2 -f Lgf04_ -d $TMPDIR
+gf19 growfiles -W gf19 -b -e 1 -g 5000 -i 500 -t 49900 -T10 -c9 -I p -o O_RDWR,O_CREAT,O_TRUNC -u -f gf08i_ -d $TMPDIR
+gf20 growfiles -W gf20 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 1-256000:512 -R 512-256000 -T 4 -f gfbigio-$$ -d $TMPDIR
+gf21 growfiles -W gf21 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 -T 10 -t 20480 -f gf-bld-$$ -d $TMPDIR
+gf22 growfiles -W gf22 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 -T 10 -t 20480 -f gf-bldf-$$ -d $TMPDIR
+gf23 growfiles -W gf23 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 512-64000:1024 -R 1-384000 -T 4 -f gf-inf-$$ -d $TMPDIR
+gf24 growfiles -W gf24 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 -f gf-jbld-$$ -d $TMPDIR
+gf25 growfiles -W gf25 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 1024000-2048000:2048 -R 4095-2048000 -T 1 -f gf-large-gs-$$ -d $TMPDIR
+gf26 growfiles -W gf26 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 128-32768:128 -R 512-64000 -T 4 -f gfsmallio-$$ -d $TMPDIR
+gf27 growfiles -W gf27 -b -D 0 -w -g 8b -C 1 -b -i 1000 -u -f gfsparse-1-$$ -d $TMPDIR
+gf28 growfiles -W gf28 -b -D 0 -w -g 16b -C 1 -b -i 1000 -u -f gfsparse-2-$$ -d $TMPDIR
+gf29 growfiles -W gf29 -b -D 0 -r 1-4096 -R 0-33554432 -i 0 -L 60 -C 1 -u -f gfsparse-3-$$ -d $TMPDIR
+gf30 growfiles -W gf30 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -o O_RDWR,O_CREAT,O_SYNC -g 20480 -T 10 -t 20480 -f gf-sync-$$ -d $TMPDIR
+rwtest01 export LTPROOT; rwtest -N rwtest01 -c -q -i 60s  -f sync 10%25000:$TMPDIR/rw-sync-$$
+rwtest02 export LTPROOT; rwtest -N rwtest02 -c -q -i 60s  -f buffered 10%25000:$TMPDIR/rw-buffered-$$
+rwtest03 export LTPROOT; rwtest -N rwtest03 -c -q -i 60s -n 2  -f buffered -s mmread,mmwrite -m random -Dv 10%25000:$TMPDIR/mm-buff-$$
+rwtest04 export LTPROOT; rwtest -N rwtest04 -c -q -i 60s -n 2  -f sync -s mmread,mmwrite -m random -Dv 10%25000:$TMPDIR/mm-sync-$$
+rwtest05 export LTPROOT; rwtest -N rwtest05 -c -q -i 50 -T 64b 500b:$TMPDIR/rwtest01%f
 
 #aio/dio tests
 # setup scratch space
@@ -1649,9 +1736,7 @@ FSX032 fsx-linux -d  -l 500000 -r 4096 -t 4096 -w 4096 -N 1000 $SCRATCH_MNT/aiod
 FSX042 fsx-linux -N 1000 -o 4096                               $SCRATCH_MNT/aiodio/junkfile
 
 #proc
+# Read every file in /proc. Not likely to crash, but does enough
+# to disturb the kernel. A good kernel latency killer too.
+# Was not sure why it should reside in runtest/crashme and won´t get tested ever
 proc01 proc01 -m 128
-
-#oom
-#meminfo cat /proc/meminfo
-#oom01 oom01
-#oom02 oom02

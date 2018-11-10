@@ -5,3 +5,4 @@ mmap16
 waitpid05
 clock_getres01
 endian_switch01
+sigwaitinfo01

@@ -77,11 +77,11 @@ function exclude_disruptive_for_kt1()
 
 	if is_rhel7; then
 		if [ "$osver" -le 705 ]; then
-			# ltp/oom1 cause the system hang
+			# Bug 1261799 - ltp/oom1 cause the system hang
 			sed -i 's/oom01 oom01/#DISABLED oom01 oom01/' "$runtest"
 			sed -i 's/oom02 oom02/#DISABLED oom02 oom02/' "$runtest"
 
-			# OOM sporadically triggers when process tries to malloc and dirty 80% of RAM+swap
+			# Bug 1223391 OOM sporadically triggers when process tries to malloc and dirty 80% of RAM+swap
 			sed -i 's/mtest01w mtest01 -p80 -w/mtest01w sh -c "mtest01 -p80 -w || true"/' "$runtest"
 		fi
 	fi
@@ -191,7 +191,7 @@ fi
 # report patch errors from ltp/include
 grep -i -e "FAIL" -e "ERROR" patchinc.log > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    rhts-abort -t recipe
+	rhts-abort -t recipe
 fi
 
 # Sometimes it takes too long to waiting for syscalls

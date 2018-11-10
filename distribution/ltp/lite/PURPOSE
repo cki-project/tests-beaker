@@ -1,5 +1,8 @@
-This script can be used to run a subset the tests in the LTP test suite,
-this script is typically used as a quick test to check an install base.
+This will include the latest LTP version in RHEL KT1 testing.
 
-For more details:
-https://github.com/linux-test-project/ltp
+NOTE:
+[] When editing this task you will need the following rpm
+   installed on your local system, in order to commit to GIT
+   and update the Beaker task rpm:
+     Linux Test Project - include
+     https://beaker.engineering.redhat.com/tasks/4941
