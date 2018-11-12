@@ -253,7 +253,7 @@ function setup_full
 	SKIPTESTS="$TEST_PARAM_SKIPTESTS"
 	[ -z "$SKIPTESTS" ] && SKIPTESTS="$(cat known_issues)"
 	RUNTESTS="$TEST_PARAM_RUNTESTS"
-	RUNTESTS="$(cat RUNTESTS)"
+	[ -z "$RUNTESTS" ] && RUNTESTS="$(cat RUNTESTS)"
 	DEV_TYPE="$TEST_PARAM_DEV_TYPE"
 	FSCK=""
 	FSCK_OPTS=""
