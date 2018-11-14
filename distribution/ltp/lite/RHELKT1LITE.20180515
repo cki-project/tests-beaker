@@ -1489,7 +1489,8 @@ mtest01w mtest01 -p80 -w
 
 mtest05 mmstress
 
-mtest06 mmap1 -x 0.05
+# See https://github.com/linux-test-project/ltp/issues/165
+#mtest06 mmap1 -x 0.05
 
 #TODO: mem01 mem01 -> sometimes fails to allocate memory or hits OOM
 mem02 mem02
