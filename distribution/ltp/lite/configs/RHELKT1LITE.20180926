@@ -647,6 +647,7 @@ memset01 memset01
 memcmp01 memcmp01
 memcpy01 memcpy01
 
+# See https://github.com/linux-test-project/ltp/issues/407
 migrate_pages01 migrate_pages01
 #migrate_pages02 migrate_pages02
 migrate_pages03 migrate_pages03
