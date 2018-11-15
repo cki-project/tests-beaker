@@ -26,7 +26,6 @@ TEST_PARAM_GITDATE		# test alternative xfstests snapshot, format: YYYYMMDD-N
 TEST_PARAM_GITREPO		# git repo to clone xfstests, default to internal xfstests git repo if TEST_PARAM_GITBRANCH set and GITREPO not set
 TEST_PARAM_GITBRANCH		# test specified branch from internal xfstests git repo
 TEST_PARAM_SKIP_LEVEL		# defines skip level (0 - noskip, 1 - medium, 2 - full)
-TEST_PARAM_FORCE_FSTYPE		# skip the rhel <-> fsytpe compatibility checks
 TEST_PARAM_OVERLAY_BASE_FSTYPE	# fstyp of overlayfs based on
 TEST_PARAM_TEST_DIR		# mount point of test device, useful when testing in beaker, see note below
 TEST_PARAM_SCRATCH_MNT		# mount point of scratch device, useful when testing in beaker, see note below

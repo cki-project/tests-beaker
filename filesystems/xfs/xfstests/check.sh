@@ -4,33 +4,6 @@
 #   This file includes commands that check for system stuff
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Check that the FSTYPE variable is valid for this platform or TEST_PARAM_FORCE_FSTYPE is set
-# Otherwise, simply stop the test
-# Needs FSTYPE
-function check_fstype()
-{
-	# Skip the fstype/version/architecture checks if forced to do so
-	if test -n "$TEST_PARAM_FORCE_FSTYPE";then
-		report check_fstype PASS 0
-		return 0
-	fi
-
-	# We currently only support xfs on x86_64 for rhel <= 6, so:
-	if [ `uname -m` != x86_64 -a $FSTYPE == 'xfs' -a $RHEL_MAJOR -le 6 ]; then
-		echoo -e "\n\nIncorrect FSTYPE ($FSTYPE) for this platform (RHEL$RHEL_MAJOR), use TEST_PARAM_FORCE_FSTYPE to override"
-		report check_fstype:unsupported_fs FAIL 0
-		return 1
-	fi
-	# We currently only support btrfs on x86_64 for rhel <= 6, so:
-	if [ `uname -m` != x86_64 -a $FSTYPE == 'btrfs' -a $RHEL_MAJOR -le 6 ]; then
-		echoo -e "\n\nIncorrect FSTYPE ($FSTYPE) for this platform (RHEL$RHEL_MAJOR), use TEST_PARAM_FORCE_FSTYPE to override"
-		report check_fstype:unsupported_fs FAIL 0
-		return 1
-	fi
-	report check_fstype PASS 0
-	return 0
-}
-
 # Check that root fs is xfs on rhel 7+
 function check_root_fs()
 {
