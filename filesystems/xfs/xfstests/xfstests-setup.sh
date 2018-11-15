@@ -257,8 +257,6 @@ function setup_full
 	DEV_TYPE="$TEST_PARAM_DEV_TYPE"
 	FSCK=""
 	FSCK_OPTS=""
-	# check the validity of FSTYPE variable
-	check_fstype
 	# Setup TEST_DEV and SCRATCH_DEV
 	# Handle nfs3/4 specific cases
 	setup_devices

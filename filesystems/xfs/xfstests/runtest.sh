@@ -22,6 +22,7 @@ dmesg -c >/dev/null
 # Source the common test script helpers
 . /usr/bin/rhts_environment.sh
 
+. ./dep-install.sh
 . ./misc.sh
 . ./check.sh
 . ./devices.sh
@@ -43,7 +44,6 @@ function cleanup ()
 	general_cleanup
 }
 
-. ./dep-install.sh
 # Just use the default run function from ./xfstests-run.sh
 run_full
 exit 0

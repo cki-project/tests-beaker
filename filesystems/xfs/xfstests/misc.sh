@@ -57,10 +57,25 @@ function set_fsck()
 function init_test_param_fstype()
 {
 	test -n "$TEST_PARAM_FSTYPE" && return 0
-	# If TEST_PARAM_FSTYPE not specified, set xfs as default for x86_64 or if RHEL_MAJOR >= 7
-	#                                     set ext4 as default otherwise
-	test "$(uname -m)" = "x86_64" -o $RHEL_MAJOR -ge 7 && TEST_PARAM_FSTYPE="xfs"
-	test -z "$TEST_PARAM_FSTYPE" && TEST_PARAM_FSTYPE="ext4"
+	# If corresponded userspace uitls is available, set
+	# default filesystem type by priority.
+	if which mkfs.xfs ; then
+		TEST_PARAM_FSTYPE="xfs"
+		return
+	fi
+	if which mkfs.ext4 ; then
+		TEST_PARAM_FSTYPE="ext4"
+		return
+	fi
+	if which mkfs.ext3 ; then
+		TEST_PARAM_FSTYPE="ext3"
+		return
+	fi
+	if which mkfs.ext2 ; then
+		TEST_PARAM_FSTYPE="ext2"
+		return
+	fi
+	test -z "$TEST_PARAM_FSTYPE" && return 1
 }
 
 # The function converts postfix to a number
