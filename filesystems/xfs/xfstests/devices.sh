@@ -4,17 +4,7 @@
 #   This file includes functions that can help setup test devices
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-case "$RHEL_MAJOR" in
-	"7")
-		MAX_SIZE="$(conv_to_num 500T)"
-		;;
-	"6")
-		MAX_SIZE="$(conv_to_num 300T)"
-		;;
-	*)
-		MAX_SIZE="$(conv_to_num 100T)"
-		;;
-esac
+MAX_SIZE="$(conv_to_num 100T)"
 
 # Transform the default layout and create xfstest, xfscratch and xfshome lvm devices
 # Vars: [FSTYPE] [XFSTEST_SIZE_G] [XFSCRATCH_SIZE_G], default as XFSTEST_SIZE_G=6, XFSCRATCH_SIZE_G=12

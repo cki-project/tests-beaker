@@ -7,12 +7,6 @@
 # Needs RUNTESTS, SKIPTESTS, MKFS_OPTS, FSCK_OPTS, CHECK_OPTS and REPORT_PASS, REPORT_FAIL, KNOWN_ISSUE
 function check_tests()
 {
-	local release="${RHEL_NAME}${RHEL_VERSION}"
-
-	if [ "$KNOWN_ISSUE" != "" ]; then
-		release=$KNOWN_ISSUE
-	fi
-
 	for XFSTEST in $RUNTESTS; do
 		ret=0
 		# Skip tests that are failing, for now.  Some need fixing, others expected
@@ -90,15 +84,7 @@ function check_tests()
 
 function create_test_report()
 {
-	local unknown=UNKNOWN_FAILURE.log
-	local release="${RHEL_NAME}${RHEL_VERSION}"
-
-	if [ "$KNOWN_ISSUE" != "" ]; then
-		release=$KNOWN_ISSUE
-	fi
-
 	RESULT=PASS
-	rm -f $unknown
 	echoo "============ TEST REPORT ============"
 
 	echoo -e "\n\n\n======== FAILED TESTS ========"
@@ -111,15 +97,7 @@ function create_test_report()
 		fi
 	done
 
-	echoo -e "\n\n\n======== PASSED TESTS ========"
-	echoo -e "These tests are reported to fail but passed:"
-	for TEST in $(echo $PASSED | tr " " "\n" | sort -u); do
-		(echo $FAILED | grep -q $TEST) && continue
-	done
 	report TEST_REPORT $RESULT 0
-	if [ "$RESULT" != "PASS" ]; then
-		rhts_submit_log -l $unknown
-	fi
 }
 
 
