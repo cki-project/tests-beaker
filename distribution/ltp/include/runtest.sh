@@ -152,6 +152,7 @@ RprtRslt ()
 SubmitLog ()
 {
     LOG=$1
+
     rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
 }
 
@@ -232,7 +233,7 @@ DisableKsmd ()
     service ksmtuned stop
 }
 
-# OOM is sporadically killing more than just expected process
+# Workaround for Bug 1263712 - OOM is sporadically killing more than just expected process
 ProtectHarnessFromOOM ()
 {
     for pid in $(pgrep beah) $(pgrep rhts) $(pgrep ltp) $(pgrep dhclient) $(pgrep NetworkManager); do

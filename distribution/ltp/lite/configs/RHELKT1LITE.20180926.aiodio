@@ -1,0 +1,220 @@
+#aio/dio tests
+#DESCRIPTION:ltp A-sync IO Stress IO tests
+#
+# aio-stress [-s size] [-r size] [-a size] [-d num] [-b num]
+#                 [-i num] [-t num] [-c num] [-C size] [-nxhlvOS ]
+#                 file1 [file2 ...]
+#       -a size in KB at which to align buffers
+#       -b max number of iocbs to give io_submit at once
+#       -c number of io contexts per file
+#       -C offset between contexts, default 2MB
+#       -s size in MB of the test file(s), default 1024MB
+#       -r record size in KB used for each io, default 64KB
+#       -d number of pending aio requests for each file, default 64
+#       -i number of ios per file sent before switching
+#          to the next file, default 8
+#       -O Use O_DIRECT (not available in 2.4 kernels),
+#       -S Use O_SYNC for writes
+#       -o add an operation to the list: write=0, read=1,
+#          random write=2, random read=3.
+#          repeat -o to specify multiple ops: -o 0 -o 1 etc.
+#       -m shm use ipc shared memory for io buffers instead of malloc
+#       -m shmfs mmap a file in /dev/shm for io buffers
+#       -n no fsyncs between write stage and read stage
+#       -l print io_submit latencies after each stage
+#       -t number of threads to run
+#       -v verification of bytes written
+#       -x turn off thread stonewalling
+#       -h this message
+#
+ADS1000 aio-stress -I500  -o2 -S -r4   $TMPDIR/file1
+ADS1001 aio-stress -I500  -o2 -S -r8   $TMPDIR/file1
+ADS1002 aio-stress -I500  -o2 -S -r16  $TMPDIR/file1
+ADS1003 aio-stress -I500  -o2 -S -r32  -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1004 aio-stress -I500  -o2 -S -r64   $TMPDIR/junkfile $TMPDIR/file2
+ADS1005 aio-stress -I500  -o3 -S -r4    $TMPDIR/junkfile $TMPDIR/file2
+ADS1006 aio-stress -I500  -o3 -S -r8   -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1007 aio-stress -I500  -o3 -S -r16  -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1008 aio-stress -I500  -o3 -S -r32  -t4  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file3  $TMPDIR/file4
+ADS1009 aio-stress -I500  -o3 -S -r64  -t4  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file3  $TMPDIR/file4
+ADS1010 aio-stress -I500  -o3 -S -r128 -t4  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file3  $TMPDIR/file4
+ADS1011 aio-stress -I500  -o3 -S -r256 -t8  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file3  $TMPDIR/file4 $TMPDIR/file5  $TMPDIR/file6 $TMPDIR/file7  $TMPDIR/file8
+ADS1012 aio-stress -I500  -o3 -S -r512 -t8  $TMPDIR/junkfile $TMPDIR/file2 $TMPDIR/file3  $TMPDIR/file4 $TMPDIR/file5  $TMPDIR/file6 $TMPDIR/file7  $TMPDIR/file8
+ADS1013 aio-stress -I500  -o2 -O -r4    -t8  $TMPDIR/junkfile $TMPDIR/file2 $TMPDIR/file3  $TMPDIR/file4 $TMPDIR/file5  $TMPDIR/file6 $TMPDIR/file7  $TMPDIR/file8
+ADS1014 aio-stress -I500  -o2 -O -r8         $TMPDIR/file1 $TMPDIR/file2
+ADS1015 aio-stress -I500  -o2 -O -r16        $TMPDIR/file1 $TMPDIR/file2
+ADS1016 aio-stress -I500  -o2 -O -r32   -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1017 aio-stress -I500  -o2 -O -r64   -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1018 aio-stress -I500  -o3 -O -r4    -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1019 aio-stress -I500  -o3 -O -r8    -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1020 aio-stress -I500  -o3 -O -r16   -t2  $TMPDIR/junkfile $TMPDIR/file2
+ADS1021 aio-stress -I500  -o3 -O -r32   -t4  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8
+ADS1022 aio-stress -I500  -o3 -O -r64   -t4  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8
+ADS1023 aio-stress -I500  -o3 -O -r128  -t4  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8
+ADS1024 aio-stress -I500  -o3 -O -r256  -t8  $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file4  $TMPDIR/file3  $TMPDIR/file5  $TMPDIR/file6
+ADS1025 aio-stress -I500  -o3 -O -r512  -t8  $TMPDIR/junkfile $TMPDIR/file2 $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file3  $TMPDIR/file4  $TMPDIR/file5  $TMPDIR/file6
+ADS1026 aio-stress -I500  -o0 -S -r4    -t8  $TMPDIR/junkfile $TMPDIR/file2       $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file3  $TMPDIR/file4  $TMPDIR/file5  $TMPDIR/file6
+ADS1027 aio-stress -I500  -o0 -S -r8           $TMPDIR/file2
+ADS1028 aio-stress -I500  -o0 -S -r16          $TMPDIR/file2
+ADS1029 aio-stress -I500  -o0 -S -r32   -t2    $TMPDIR/junkfile $TMPDIR/file2
+ADS1030 aio-stress -I500  -o0 -S -r64   -t2    $TMPDIR/junkfile $TMPDIR/file2
+ADS1031 aio-stress -I500  -o1 -S -r4    -t2    $TMPDIR/junkfile $TMPDIR/file2
+ADS1032 aio-stress -I500  -o1 -S -r8    -t2    $TMPDIR/junkfile $TMPDIR/file2
+ADS1033 aio-stress -I500  -o1 -S -r16   -t2    $TMPDIR/junkfile $TMPDIR/file2
+ADS1034 aio-stress -I500  -o1 -S -r32   -t4    $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8
+ADS1035 aio-stress -I500  -o1 -S -r64   -t4    $TMPDIR/junkfile $TMPDIR/file2     $TMPDIR/file7  $TMPDIR/file8
+ADS1036 aio-stress -I500  -o1 -S -r128  -t4    $TMPDIR/junkfile $TMPDIR/file2     $TMPDIR/file7  $TMPDIR/file8
+ADS1037 aio-stress -I500  -o1 -S -r256  -t8  $TMPDIR/junkfile $TMPDIR/file2     $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file4  $TMPDIR/file3  $TMPDIR/file5  $TMPDIR/file6
+ADS1038 aio-stress -I500  -o1 -S -r512  -t8  -x $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file3  $TMPDIR/file4  $TMPDIR/file5  $TMPDIR/file6
+ADS1039 aio-stress -I500  -o1 -O -r4    -t8  -x  $TMPDIR/junkfile $TMPDIR/file2        $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file3  $TMPDIR/file4  $TMPDIR/file5  $TMPDIR/file6
+ADS1040 aio-stress -I500  -o1 -O -r8    -t2  -x $TMPDIR/junkfile $TMPDIR/file2
+ADS1041 aio-stress -I500  -o1 -O -r16   -t2  -x  $TMPDIR/junkfile $TMPDIR/file2
+ADS1042 aio-stress -I500  -o1 -O -r32   -t2   $TMPDIR/junkfile $TMPDIR/file2
+ADS1043 aio-stress -I500  -o1 -O -r64   -t2   $TMPDIR/junkfile $TMPDIR/file2
+ADS1044 aio-stress -I500  -o1 -O -r4    -t4   $TMPDIR/junkfile $TMPDIR/file2        $TMPDIR/file7  $TMPDIR/file8
+ADS1045 aio-stress -I500  -o1 -O -r8    -t4   $TMPDIR/junkfile $TMPDIR/file2     $TMPDIR/file7  $TMPDIR/file8
+ADS1046 aio-stress -I500  -o1 -O -r16   -t4   $TMPDIR/junkfile $TMPDIR/file2     $TMPDIR/file7  $TMPDIR/file8
+ADS1047 aio-stress -I500  -o1 -O -r32   -t8   $TMPDIR/junkfile $TMPDIR/file2     $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file4  $TMPDIR/file3  $TMPDIR/file5  $TMPDIR/file6
+ADS1048 aio-stress -I500  -o1 -O -r64   -t8   $TMPDIR/junkfile $TMPDIR/file2  $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file3  $TMPDIR/file4  $TMPDIR/file5  $TMPDIR/file6
+ADS1049 aio-stress -I500  -o1 -O -r128  -t8   $TMPDIR/junkfile $TMPDIR/file2        $TMPDIR/file7  $TMPDIR/file8 $TMPDIR/file3  $TMPDIR/file4  $TMPDIR/file5  $TMPDIR/file6
+ADS1050 aio-stress -I500  -o1 -O -r256  -t2   $TMPDIR/junkfile $TMPDIR/file2
+ADSP000 aiodio_sparse
+ADSP001 aiodio_sparse -s 180k
+ADSP002 aiodio_sparse -dd -s 1751k -w 11k
+ADSP003 aiodio_sparse -i 9 -d -s 180k -w 18k
+ADSP004 aiodio_sparse -i 2 -a 2k -w 2k -s 4k -n 2
+ADSP005 aiodio_sparse -i 2 -a 4k -w 4k -s 8k -n 2
+ADSP006 aiodio_sparse -i 2 -a 4k -w 4k -s 8k -n 2
+ADSP007 aiodio_sparse -i 4 -a 8k -w 8k -s 32k -n 2
+ADSP008 aiodio_sparse -i 4 -a 8k -w 16k -s 64k -n 2
+ADSP009 aiodio_sparse -i 4 -a 8k -w 32k -s 128k -n 2
+ADSP010 aiodio_sparse -i 4 -a 8k -w 64k -s 256k -n 2
+ADSP011 aiodio_sparse -i 4 -a 8k -w 128k -s 512k -n 2
+ADSP012 aiodio_sparse -i 4 -a 8k -w 256k -s 1024k -n 2
+ADSP013 aiodio_sparse -i 4 -a 8k -w 512k -s 2048k -n 2
+ADSP014 aiodio_sparse -i 4 -a 8k -w 1024k -s 4096k -n 2
+ADSP015 aiodio_sparse -i 4 -a 8k -w 2048k -s 8192k -n 2
+ADSP016 aiodio_sparse -i 4 -a 8k -w 4096k -s 16384k -n 2
+ADSP017 aiodio_sparse -i 4 -a 8k -w 8192k -s 32768k -n 2
+ADSP018 aiodio_sparse -i 4 -a 8k -w 16384k -s 65536k -n 2
+ADSP019 aiodio_sparse -i 4 -a 8k -w 16384k -s 65536k -n 4
+ADSP020 aiodio_sparse -i 4 -a 8k -w 16384k -s 65536k -n 6
+ADSP021 aiodio_sparse -i 4 -a 8k -w 128k -s 512k -n 6
+ADSP022 aiodio_sparse -i 4 -a 8k -w 256k -s 1024k -n 6
+ADSP023 aiodio_sparse -i 4 -a 8k -w 512k -s 2048k -n 6
+ADSP024 aiodio_sparse -i 4 -a 8k -w 1024k -s 4096k -n 6
+ADSP025 aiodio_sparse -i 4 -a 8k -w 2048k -s 8192k -n 6
+ADSP026 aiodio_sparse -i 4 -a 8k -w 4096k -s 16384k -n 6
+ADSP027 aiodio_sparse -i 4 -a 8k -w 18192k -s 72768k -n 6
+ADSP028 aiodio_sparse -i 4 -a 8k -w 18192k -s 518192k -n 6
+ADSP029 aiodio_sparse -i 4 -a 8k -w 65536k -s 262144k -n 6
+ADSP030 aiodio_sparse -i 6 -a 8k -w 65536k -n 6
+ADSP031 aiodio_sparse -i 8 -a 8k -w 128k -s 1024k -n 6
+ADSP032 aiodio_sparse -i 16 -a 8k -w 256k -s 4096k -n 6
+ADSP033 aiodio_sparse -i 32 -a 8k -w 512k -s 16384k -n 6
+ADSP034 aiodio_sparse -i 64 -a 8k -w 1024k -s 65536k -n 6
+ADSP035 aiodio_sparse -i 4 -a 8k -w 4096k -s 16384k -n 32
+ADSP036 aiodio_sparse -i 4 -a 8k -w 4096k -s 16384k -n 64
+ADSP037 aiodio_sparse -i 4 -a 8k -w 18192k -s 72768k -n 128
+ADSP038 aiodio_sparse -i 4 -a 8k -w 18192k -n 512
+ADSP039 aiodio_sparse -i 4 -a 8k -w 18192k -n 1000
+ADSP040 dio_sparse
+ADSP041 dio_sparse -s 180k
+ADSP042 dio_sparse -dd -s 1751k -w 11k
+ADSP043 dio_sparse  -d -s 180k -w 18k
+ADSP044 dio_sparse  -a 2k -w 2k -s 2k -n 2
+ADSP045 dio_sparse  -a 4k -w 4k -s 2k -n 2
+ADSP046 dio_sparse  -a 4k -w 4k -s 4k -n 2
+ADSP047 dio_sparse  -a 8k -w 16k -s 16k -n 2
+ADSP048 dio_sparse  -a 8k -w 32k -s 32k -n 2
+ADSP049 dio_sparse  -a 8k -w 64k -s 64k -n 2
+ADSP050 dio_sparse  -a 8k -w 128k -s 128k -n 2
+ADSP051 dio_sparse  -a 8k -w 256k -s 256k -n 2
+ADSP052 dio_sparse  -a 8k -w 512k -s 512k -n 2
+ADSP053 dio_sparse  -a 8k -w 1024k -s 1024k -n 2
+ADSP054 dio_sparse  -a 8k -w 2048k -s 2048k -n 2
+ADSP055 dio_sparse  -a 8k -w 4096k -s 4096k -n 2
+ADSP056 dio_sparse  -a 8k -w 8192k -s 8192k -n 2
+ADSP057 dio_sparse  -a 8k -w 18192k -s 18192k -n 2
+ADSP058 dio_sparse  -a 8k -w 518192k -s 518192k -n 2
+ADSP059 dio_sparse  -a 8k -w 58192k -s 58192k -n 4
+ADSP060 dio_sparse  -a 8k -w 58192k -s 58192k -n 6
+ADSP061 dio_sparse  -a 8k -w 256k -s 256k -n 6
+ADSP062 dio_sparse  -a 8k -w 512k -s 512k -n 6
+ADSP063 dio_sparse  -a 8k -w 1024k -s 1024k -n 6
+ADSP064 dio_sparse  -a 8k -w 2048k -s 2048k -n 6
+ADSP065 dio_sparse  -a 8k -w 2048k -s 4096k -n 6
+ADSP066 dio_sparse  -a 8k -w 8192k -s 8192k -n 6
+ADSP067 dio_sparse  -a 8k -w 18192k -s 18192k -n 6
+ADSP068 dio_sparse  -a 8k -w 58192k -s 518192k -n 6
+ADSP069 dio_sparse  -a 8k -w 58192k -s 58192k -n 6
+ADSP070 dio_sparse  -a 8k -w 518192k -s 518192k -n 6
+ADSP071 dio_sparse  -a 8k -w 256k -s 256k -n 6
+ADSP072 dio_sparse  -a 8k -w 512k -s 512k -n 6
+ADSP073 dio_sparse  -a 8k -w 1024k -s 1024k -n 6
+ADSP074 dio_sparse  -a 8k -w 1024k -s 2048k -n 6
+ADSP075 dio_sparse  -a 8k -w 4096k -s 4096k -n 32
+ADSP076 dio_sparse  -a 8k -w 8192k -s 8192k -n 64
+ADSP077 dio_sparse  -a 8k -w 518192k -s 18192k -n 128
+ADSP078 dio_sparse  -a 8k -w 518192k -s 518192k -n 512
+ADSP079 dio_sparse  -a 8k -w 518192k -s 518192k -n 1000
+ADSP080 dio_sparse  -a 4k -w 4k -s 2k -o 2k -n 2
+ADSP081 dio_sparse  -a 2k -w 2k -s 1k -o 1k -n 2
+ADSP082 dio_sparse  -a 1k -w 1k -s 512 -o 512 -n 2
+ADSP083 dio_sparse  -a 4k -w 4k -s 2k -o 3k -n 2
+ADSP084 dio_sparse  -a 4k -w 4k -s 4k -o 4k -n 2
+ADSP085 dio_sparse  -a 4k -w 4k -s 4k -o 6k -n 2
+ADSP086 dio_sparse  -a 4k -w 4k -s 4k -o 8k -n 2
+ADSP087 dio_sparse  -a 4k -w 16k -s 8k -o 8k -n 2
+#           fname:  this filename is Required (no default)
+#
+#
+FSX032 fsx-linux -l 500000 -r 4096 -t 4096 -w 4096 -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX033 fsx-linux -l 500000 -r 4096 -t 2048 -w 2048 -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX034 fsx-linux -l 500000 -r 4096 -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX035 fsx-linux -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX036 fsx-linux -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX037 fsx-linux -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX038 fsx-linux -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX039 fsx-linux -N 10000 $TMPDIR/aiodio.$$/junkfile
+FSX040 fsx-linux -N 10000 -o 1024 $TMPDIR/aiodio.$$/junkfile
+FSX041 fsx-linux -N 10000 -o 2048 $TMPDIR/aiodio.$$/junkfile
+FSX042 fsx-linux -N 10000 -o 4096 $TMPDIR/aiodio.$$/junkfile
+FSX043 fsx-linux -N 10000 -o 8192 $TMPDIR/aiodio.$$/junkfile
+FSX044 fsx-linux -N 10000 -o 16384 $TMPDIR/aiodio.$$/junkfile
+FSX045 fsx-linux -N 10000 -o 32768 $TMPDIR/aiodio.$$/junkfile
+FSX046 fsx-linux -N 10000 -o 128000 $TMPDIR/aiodio.$$/junkfile
+FSX047 fsx-linux -N 10000 -o 1024 $TMPDIR/aiodio.$$/junkfile
+FSX048 fsx-linux -N 10000 -o 2048 $TMPDIR/aiodio.$$/junkfile
+FSX049 fsx-linux -N 10000 -o 4096 $TMPDIR/aiodio.$$/junkfile
+FSX050 fsx-linux -N 10000 -o 8192 $TMPDIR/aiodio.$$/junkfile
+FSX051 fsx-linux -N 10000 -o 16384 $TMPDIR/aiodio.$$/junkfile
+FSX052 fsx-linux -N 10000 -o 32768 $TMPDIR/aiodio.$$/junkfile
+FSX053 fsx-linux -N 10000 -o 128000 $TMPDIR/aiodio.$$/junkfile
+FSX054 fsx-linux -N 10000  -o 1024 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX055 fsx-linux -N 10000  -o 2048 -l 500000 -r 4096 -t 2048 -w 2048 $TMPDIR/aiodio.$$/junkfile
+FSX056 fsx-linux -N 10000  -o 4096 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX057 fsx-linux -N 10000  -o 8192 -l 500000 -r 4096 -t 2048 -w 2048 $TMPDIR/aiodio.$$/junkfile
+FSX058 fsx-linux -N 10000  -o 16384 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX059 fsx-linux -N 10000  -o 32768 -l 500000 -r 4096 -t 2048 -w 2048 $TMPDIR/aiodio.$$/junkfile
+FSX060 fsx-linux -N 10000  -o 128000 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX061 fsx-linux -N 10000 -o 32768 $TMPDIR/aiodio.$$/junkfile
+FSX062 fsx-linux -N 10000 -o 128000 $TMPDIR/aiodio.$$/junkfile
+FSX063 fsx-linux -N 10000  -o 1024  -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX064 fsx-linux -N 10000  -o 2048 -l 500000 -r 4096 -t 2048 -w 2048 $TMPDIR/aiodio.$$/junkfile
+FSX065 fsx-linux -N 10000  -o 4096 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX066 fsx-linux -N 10000  -o 8192  -l 500000 -r 4096 -t 2048 -w 2048 $TMPDIR/aiodio.$$/junkfile
+FSX067 fsx-linux -N 10000  -o 16384 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX068 fsx-linux -N 10000  -o 32768 -l 500000 -r 4096 -t 2048 -w 2048 $TMPDIR/aiodio.$$/junkfile
+FSX069 fsx-linux -N 10000  -o 128000 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX070 fsx-linux -N 10000  -o 128000 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile
+FSX071 fsx-linux -N 10000  -o 16384 -l 500000 -r 4096 -t 4096 -w 4096   $TMPDIR/aiodio.$$/junkfile1
+FSX072 fsx-linux -N 10000  -o 32768 -l 500000 -r 4096 -t 2048 -w 2048   $TMPDIR/aiodio.$$/junkfile2
+FSX073 fsx-linux -N 10000  -o 128000 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile3
+FSX074 fsx-linux -N 10000  -o 16384 -l 500000 -r 4096 -t 4096 -w 4096   $TMPDIR/aiodio.$$/junkfile4
+FSX075 fsx-linux -N 10000  -o 32768 -l 500000 -r 4096 -t 2048 -w 2048   $TMPDIR/aiodio.$$/junkfile5
+FSX076 fsx-linux -N 10000  -o 128000 -l 500000 -r 4096 -t 4096 -w 4096 $TMPDIR/aiodio.$$/junkfile6
+FSX077 fsx-linux -N 10000   $TMPDIR/aiodio.$$/junkfile7
+FSX078 fsx-linux -N 100000  $TMPDIR/aiodio.$$/junkfile8
+FSX079 fsx-linux -N 100000  $TMPDIR/aiodio.$$/junkfile9
+

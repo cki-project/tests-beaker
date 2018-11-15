@@ -30,8 +30,7 @@ endif
 PATCHES=$(PATCHDIR)
 
 # All files you want in your rpm.
-FILES=	$(METADATA) runtest.sh Makefile PURPOSE \
-	RHELKT1LITE.* \
+FILES=$(METADATA) runtest.sh Makefile PURPOSE configs/ \
 	grab_corefiles.sh grab_corefiles_excluded_bins \
 	is_baremetal.sh timeout.my \
 	$(PATCHES)
@@ -63,54 +62,61 @@ else ifeq ($(TESTVERSION),20130904)
 else ifeq ($(TESTVERSION),20140115)
 	cp -vf $(PATCHDIR)/$(TESTVERSION)/readahead02.c $(TARGET)/testcases/kernel/syscalls/readahead/
 else ifeq ($(TESTVERSION),20150119)
-	cp -vf RHELKT1LITE.20150119 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20150119 RHELKT1LITE
 	cp -vf $(PATCHDIR)/$(TESTVERSION)/proc01.c $(TARGET)/testcases/kernel/fs/proc/
 else ifeq ($(TESTVERSION),20150420)
 	cp -vf $(PATCHDIR)/20150420/proc01.c $(TARGET)/testcases/kernel/fs/proc/
-	cp -vf RHELKT1LITE.20150420 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20150420 RHELKT1LITE
 else ifeq ($(TESTVERSION),20160126)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf RHELKT1LITE.20150903 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20150903 RHELKT1LITE
 else ifeq ($(TESTVERSION),20160510)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf RHELKT1LITE.20160510 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20160510 RHELKT1LITE
 else ifeq ($(TESTVERSION),20160920)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf RHELKT1LITE.20160920 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20160920 RHELKT1LITE
 else ifeq ($(TESTVERSION),20170116)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf RHELKT1LITE.20170116 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20170116 RHELKT1LITE
 else ifeq ($(TESTVERSION),20170516)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf RHELKT1LITE.20170516 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20170516 RHELKT1LITE
 else ifeq ($(TESTVERSION),20170929)
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround2.patch
 	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
-	cp -vf RHELKT1LITE.20170929 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20170929 RHELKT1LITE
 else ifeq ($(TESTVERSION),2018018)
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/oom_hang_workaround2.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/dont_fail_timing.patch; fi
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
 	# RHEL5 gcc has trouble with this test
 	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
 	# RHEL5 doesn't have timeout
 	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
-	cp -vf RHELKT1LITE.20180118 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20180118 RHELKT1LITE
+else ifeq ($(TESTVERSION),20180515)
+	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
+	# RHEL5 gcc has trouble with this test
+	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
+	# RHEL5 doesn't have timeout
+	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
+	cp -vf configs/RHELKT1LITE.20180515 RHELKT1LITE
 else
 	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 < $(PATCHDIR)/0001-mem-mmapstress10-fix-hangs-with-recent-glibc.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 < $(PATCHDIR)/dont_fail_timing.patch; fi
+	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
 	# RHEL5 gcc has trouble with this test
 	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
 	# RHEL5 doesn't have timeout
 	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
-	cp -vf RHELKT1LITE.20180515 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20180926 RHELKT1LITE
 endif
 
 build: $(TARGET) build-all
@@ -135,6 +141,10 @@ $(METADATA):
 	@echo "TestTime:        180m" >>$(METADATA)
 	@echo "TestVersion:     $(TESTVERSION)" >>$(METADATA)
 	@echo "License:         GPLv3" >>$(METADATA)
+	@echo "RhtsRequires:    kernel-kernel-distribution-ltp-include" >> $(METADATA)
+	@echo "Requires:        automake autoconf procmail flex bison rsyslog sysklogd util-linux-ng rpm-build" >> $(METADATA)
+	@echo "Requires:        gcc wget ntpdate kernel-headers redhat-lsb bc numactl" >> $(METADATA)
+	@echo "Requires:        kernel-devel libaio-devel libcap-devel numactl-devel libcgroup strace hexdump virt-what" >> $(METADATA)
 	@echo "Owner:           Kernel General Test Team <kernel-general-test-team@redhat.com>" >>$(METADATA)
 	@echo "Releases:        RHEL6 RHEL7 RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7 RedHatEnterpriseLinux8 Fedora25 Fedora26 Fedorarawhide" >>$(METADATA)
 	@echo "Type:            KernelTier0 KernelTier1" >>$(METADATA)
