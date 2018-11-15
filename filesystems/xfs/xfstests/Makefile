@@ -46,7 +46,6 @@ $(METADATA): Makefile
 	@echo "RunFor:       xfsdump"           >> $(METADATA)
 	@echo "RunFor:       acl"               >> $(METADATA)
 	@echo "RunFor:       attr"              >> $(METADATA)
-#	@echo "Releases:     RHELServer5 RHEL6" >> $(METADATA)
 	@echo "Type:         Regression"        >> $(METADATA)
 	@echo "Type:         KernelTier2"       >> $(METADATA)
 	@echo "Requires:     vdo kmod-kvdo"     >> $(METADATA)
