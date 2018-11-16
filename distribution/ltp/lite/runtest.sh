@@ -6,6 +6,8 @@
 
 #export AVC_ERROR=+no_avc_check
 #export RHTS_OPTION_STRONGER_AVC=
+# See https://github.com/linux-test-project/ltp/issues/429
+export LTP_TIMEOUT_MUL=10
 
 core_pattern="$(cat /proc/sys/kernel/core_pattern)"
 core_pattern_ltp_dir="/mnt/testarea/ltp/cores"
