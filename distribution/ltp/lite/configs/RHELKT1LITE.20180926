@@ -538,7 +538,8 @@ inotify05 inotify05
 inotify06 inotify06
 inotify07 inotify07
 inotify08 inotify08
-inotify09 inotify09
+# See https://github.com/linux-test-project/ltp/issues/429
+#inotify09 inotify09
 
 fanotify01 fanotify01
 fanotify02 fanotify02
