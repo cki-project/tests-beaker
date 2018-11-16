@@ -46,7 +46,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   if [ $? -ne 0 ]; then
     echo "Failed to extract package ${KPKG}" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} FAIL 4
+    rhts-abort -t recipe
     exit 1
   fi
 
@@ -105,7 +105,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} FAIL 5
+    rhts-abort -t recipe
     exit 1
   fi
 
@@ -139,6 +139,6 @@ else
     fi
   else
     echo "Kernel version after reboot is not '${KVER}': '${ckver}'" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} FAIL 6
+    rhts-abort -t recipe
   fi
 fi
