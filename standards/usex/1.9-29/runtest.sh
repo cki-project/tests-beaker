@@ -49,74 +49,75 @@ function VerboseCupsLog()
 # verify to not run on s390x
 if [ "$(uname -i)" = "s390x" ]; then
     rhts-report-result $TEST SKIP $OUTPUTFILE
-else
-    RHELVER=""
-    cat /etc/redhat-release | grep "^Fedora"
-    if [ $? -ne 0 ]; then
-        RHELVER=$(cat /etc/redhat-release |sed 's/.*\(release [0-9]\).*/\1/')
-    fi
-
-    if [ -z "$RHELVER" ]; then
-        kernel_rhelver=$(uname -r | grep -o el[0-9])
-        echo "Taking release from kernel version: $kernel_rhelver" | tee -a $OUTPUTFILE
-
-        if [ "$kernel_rhelver" == "el6" ]; then
-            RHELVER="release 6"
-        fi
-
-        if [ "$kernel_rhelver" == "el7" ]; then
-            RHELVER="release 7"
-        fi
-    fi
-
-    echo "RHELVER is $RHELVER" | tee -a $OUTPUTFILE
-
-    INFILE=rhtsusex.tcf
-    MYARCH=`uname -m`
-    if [ "$MYARCH" = "x86_64" -o "$MYARCH" = "s390x" ]; then
-        ln -s /usr/lib64/libc.a /usr/lib/libc.a
-    fi
-
-    if [ -z "$OUTPUTDIR" ]; then                                                                                                                                 
-        OUTPUTDIR=/mnt/testarea                                                                                                                                  
-    fi
-
-    #if ppc64 has less than or equal to 1 GB of memory don't run the vm tests
-    ONE_GB=1048576
-    if [ "$MYARCH" = "ppc64" ]; then
-        mem=`cat /proc/meminfo |grep MemTotal|sed -e 's/[^0-9]*\([0-9]*\).*/\1/'`
-        test "$mem" -le "$ONE_GB" && INFILE=rhtsusex_lowmem.tcf
-        logger -s "Running the rhtsusex_lowmem.tcf file"
-    fi
-
-    SysStats
-
-    USEX_LOG="usex_log.txt"
-
-    if [ "x$RHELVER" == "xrelease 6" ]; then
-        logger -s "Running $RHELVER configuration"
-        ./usex --rhts hang-trace --exclude=ar,strace,clear -i $INFILE -l $USEX_LOG --nodisplay -R $OUTPUTDIR/report.out
-    elif [ "x$RHELVER" == "xrelease 7" ]; then
-        logger -s "Running $RHELVER configuration"
-        ./usex --rhts hang-trace --exclude=ar,as,strace,clear -i $INFILE -l $USEX_LOG --nodisplay -R $OUTPUTDIR/report.out
-    else
-        logger -s "Running default configuration"
-        ./usex --rhts hang-trace --exclude=clear -i $INFILE -l $USEX_LOG --nodisplay -R $OUTPUTDIR/report.out
-    fi
-
-    # Default result to FAIL
-    export result="FAIL"
-
-    # Then post-process the results to find the regressions
-    export fail=`cat $OUTPUTDIR/report.out | grep "USEX TEST RESULT: FAIL" | wc -l`
-
-    if [ "$fail" -gt "0" ]; then
-        export result="FAIL"
-        rhts_submit_log -l $OUTPUTDIR/report.out
-        rhts_submit_log -l $USEX_LOG
-    else
-        export result="PASS"
-    fi
-
-    report_result $TEST $result $fail
+    exit 0
 fi
+
+RHELVER=""
+cat /etc/redhat-release | grep "^Fedora"
+if [ $? -ne 0 ]; then
+    RHELVER=$(cat /etc/redhat-release |sed 's/.*\(release [0-9]\).*/\1/')
+fi
+
+if [ -z "$RHELVER" ]; then
+    kernel_rhelver=$(uname -r | grep -o el[0-9])
+    echo "Taking release from kernel version: $kernel_rhelver" | tee -a $OUTPUTFILE
+
+    if [ "$kernel_rhelver" == "el6" ]; then
+        RHELVER="release 6"
+    fi
+
+    if [ "$kernel_rhelver" == "el7" ]; then
+        RHELVER="release 7"
+    fi
+fi
+
+echo "RHELVER is $RHELVER" | tee -a $OUTPUTFILE
+
+INFILE=rhtsusex.tcf
+MYARCH=`uname -m`
+if [ "$MYARCH" = "x86_64" -o "$MYARCH" = "s390x" ]; then
+    ln -s /usr/lib64/libc.a /usr/lib/libc.a
+fi
+
+if [ -z "$OUTPUTDIR" ]; then                                                                                                                                 
+    OUTPUTDIR=/mnt/testarea                                                                                                                                  
+fi
+
+#if ppc64 has less than or equal to 1 GB of memory don't run the vm tests
+ONE_GB=1048576
+if [ "$MYARCH" = "ppc64" ]; then
+    mem=`cat /proc/meminfo |grep MemTotal|sed -e 's/[^0-9]*\([0-9]*\).*/\1/'`
+    test "$mem" -le "$ONE_GB" && INFILE=rhtsusex_lowmem.tcf
+    logger -s "Running the rhtsusex_lowmem.tcf file"
+fi
+
+SysStats
+
+USEX_LOG="usex_log.txt"
+
+if [ "x$RHELVER" == "xrelease 6" ]; then
+    logger -s "Running $RHELVER configuration"
+    ./usex --rhts hang-trace --exclude=ar,strace,clear -i $INFILE -l $USEX_LOG --nodisplay -R $OUTPUTDIR/report.out
+elif [ "x$RHELVER" == "xrelease 7" ]; then
+    logger -s "Running $RHELVER configuration"
+    ./usex --rhts hang-trace --exclude=ar,as,strace,clear -i $INFILE -l $USEX_LOG --nodisplay -R $OUTPUTDIR/report.out
+else
+    logger -s "Running default configuration"
+    ./usex --rhts hang-trace --exclude=clear -i $INFILE -l $USEX_LOG --nodisplay -R $OUTPUTDIR/report.out
+fi
+
+# Default result to FAIL
+export result="FAIL"
+
+# Then post-process the results to find the regressions
+export fail=`cat $OUTPUTDIR/report.out | grep "USEX TEST RESULT: FAIL" | wc -l`
+
+if [ "$fail" -gt "0" ]; then
+    export result="FAIL"
+    rhts_submit_log -l $OUTPUTDIR/report.out
+    rhts_submit_log -l $USEX_LOG
+else
+    export result="PASS"
+fi
+
+report_result $TEST $result $fail
