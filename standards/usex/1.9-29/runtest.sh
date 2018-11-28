@@ -49,7 +49,7 @@ function VerboseCupsLog()
 # verify to not run on s390x
 if [ "$(uname -i)" = "s390x" ]; then
     rhts-report-result $TEST SKIP $OUTPUTFILE
-    exit 0
+    exit $?
 fi
 
 RHELVER=""
