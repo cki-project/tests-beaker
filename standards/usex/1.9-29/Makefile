@@ -233,5 +233,8 @@ $(METADATA): Makefile
 	@echo "Requires:	xorg-x11-devel"	>> $(METADATA)
 	@echo "Requires:	glibc-kernheaders" >> $(METADATA)
 	@echo "Requires:	ncurses-devel"	>> $(METADATA)
+	@echo "Requires:	xorg-x11-server-devel"	>> $(METADATA)
+	@echo "Requires:	kernel-headers" >> $(METADATA)
+	@echo "Requires:	glibc-static"	>> $(METADATA)
 	@echo "License:		Red Hat Internal" >> $(METADATA)
 
