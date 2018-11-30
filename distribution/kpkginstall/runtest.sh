@@ -16,13 +16,8 @@ function get_kpkg_ver()
   tar tf "$1" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
 }
 
-if [ ${REBOOTCOUNT} -eq 0 ]; then
-  if [ -z ${KPKG_URL} ]; then
-    echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
-    rhts-abort -t recipe
-    exit 1
-  fi
-
+function targz_install()
+{
   echo "Fetching kpkg from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   curl -OL "${KPKG_URL}" >>${OUTPUTFILE} 2>&1
 
@@ -31,8 +26,6 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
     rhts-abort -t recipe
     exit 1
   fi
-
-  KPKG=${KPKG_URL##*/}
 
   echo "Extracting kernel version from package ${KPKG}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver "$KPKG")
@@ -102,6 +95,18 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   else
     new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
   fi
+}
+
+if [ ${REBOOTCOUNT} -eq 0 ]; then
+  if [ -z ${KPKG_URL} ]; then
+    echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
+
+  KPKG=${KPKG_URL##*/}
+
+  targz_install
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
