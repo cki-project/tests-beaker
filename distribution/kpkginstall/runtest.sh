@@ -13,7 +13,22 @@ REBOOTCOUNT=${REBOOTCOUNT:-0}
 # Status: zero if version is found, non-zero on failure
 function get_kpkg_ver()
 {
-  tar tf "$1" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+  case "$KPKG" in
+    *.tar.gz)
+            tar tf "$1" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+            ;;
+    *)
+            # replace '-' with ' ' and use natural IFS to split into an array
+            karray=(${1//-/ })
+            if [ "${#karray[@]}" == "3" ]; then
+              echo "${karray[1]}-${karray[2]}.$ARCH"
+            elif [ "${#karray[@]}" == "4" ]; then
+              # uname -r have variants at the end
+              KVAR="${karray[1]}"
+              echo "${karray[2]}-${karray[3]}$KVAR.$ARCH"
+            fi
+            ;;
+  esac
 }
 
 function targz_install()
@@ -97,6 +112,45 @@ function targz_install()
   fi
 }
 
+function rpm_install()
+{
+  echo "Extracting kernel version from package ${KPKG}" | tee -a ${OUTPUTFILE}
+  KVER=$(get_kpkg_ver "$KPKG")
+  if [ -z ${KVER} ]; then
+    echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
+
+  # setup yum repo based on url
+  URL=${KPKG_URL%/*}
+  cat > /etc/yum.repos.d/new-kernel.repo << EOF
+[new-kernel]
+name=kernel $KVER
+baseurl=${URL}/\$basearch/
+enabled=1
+gpgcheck=0
+skip_if_unavailable=1
+EOF
+  echo "Setup kernel repo file" >> ${OUTPUTFILE}
+  cat /etc/yum.repos.d/new-kernel.repo >> ${OUTPUTFILE}
+
+  if [ -x /usr/bin/yum ]; then
+    YUM=/usr/bin/yum
+  elif [ -x /usr/bin/dnf ]; then
+    YUM=/usr/bin/dnf
+  else
+    echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
+
+  $YUM install -y kernel-firmware kernel-$KVER kernel-headers-$KVER >>${OUTPUTFILE} 2>&1
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+}
+
 if [ ${REBOOTCOUNT} -eq 0 ]; then
   if [ -z ${KPKG_URL} ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
@@ -106,7 +160,12 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   KPKG=${KPKG_URL##*/}
 
-  targz_install
+  case "$KPKG" in
+    *.tar.gz)
+             targz_install ;;
+    *)
+             rpm_install ;;
+  esac
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
