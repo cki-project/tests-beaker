@@ -2,21 +2,7 @@
 # vim: sts=8 sw=8 noexpandtab:
 # This is for network operations
 
-trap 'cleanup_swcfg' HUP TERM KILL EXIT
-
 # ---------------------- Global variables  ------------------
-
-# variable for configuration files
-SWCFG_UNDO="/mnt/testarea/swcfg_undo.sh"
-if uname -r | grep 4.14
-then
-		NIC_INFO_URL=${NIC_INFO_URL:-http://pkgs.devel.redhat.com/cgit/tests/kernel/plain/networking/inventory/nic_info-alt}
-elif uname -r | grep "^4"
-then
-		NIC_INFO_URL=${NIC_INFO_URL:-http://pkgs.devel.redhat.com/cgit/tests/kernel/plain/networking/inventory/nic_info-rhel8}
-else
-		NIC_INFO_URL=${NIC_INFO_URL:-http://pkgs.devel.redhat.com/cgit/tests/kernel/plain/networking/inventory/nic_info}
-fi
 NIC_INFO="/tmp/nic_info"; export NIC_INFO=$NIC_INFO
 
 # variables for choosing required interfaces
@@ -31,11 +17,6 @@ NIC_NUM=${NIC_NUM:-1}
 TOPO=${TOPO:-"nic"}
 MTU_VAL=${MTU_VAL:-1500}
 VLAN_ID=${VLAN_ID:-3}
-SWCFG_AUTO=${SWCFG_AUTO:-"yes"}
-BOND_OPTS=${BOND_OPTS:-"mode=1 miimon=100"}
-TEAM_OPTS=${TEAM_OPTS:-"runner=activebackup"}
-BOND_NAME=${BOND_NAME:-"bond0"}
-TEAM_NAME=${TEAM_NAME:-"team0"}
 BRIDGE_NAME=${BRIDGE_NAME:-"br0"}
 OVS_NAME=${OVS_NAME:-"ovsbr0"}
 
@@ -77,8 +58,6 @@ reset_network_env()
 	echo "Starting reset_network_env ..."
 	local exitcode=0
 	local i
-
-	cleanup_swcfg
 
 	# remove bonding vlan bridge tunnel
 	local modules="bonding 8021q bridge ipip gre sit vxlan veth"
@@ -192,16 +171,6 @@ get_iface_and_addr()
 get_test_iface_and_addr() { get_iface_and_addr; }
 
 # ---------------------- NICs  -----------------------------
-
-# get nic_info files for NAY NICs
-# Parameter:
-#   NIC_INFO_URL: specify URL to download nic_info
-get_netqe_nic_info()
-{
-	unlink $NIC_INFO 2>/dev/null
-	wget $NIC_INFO_URL -O $NIC_INFO
-	sed -i '/^#/d' $NIC_INFO
-}
 
 # Get interface's name by MAC address
 # @arg1: interface' MAC address (format: 00:c0:dd:1a:44:8c)
@@ -470,30 +439,6 @@ get_netqe_iface()
 	return $exitcode
 }
 
-# choose required NIC(s), save to $TEST_IFACE
-get_required_iface()
-{
-	local exitcode=0
-	local iface
-	local sw
-	local port
-	if [ "$NAY" = yes ]; then
-		get_netqe_iface TEST_IFACE  || let exitcode++
-		for iface in $TEST_IFACE
-		do
-			get_iface_sw_port "$iface" sw port
-			swcfg port_up $sw "$port" &> /dev/null || let exitcode++
-			swcfg cleanup_port_channel $sw "$port" &> /dev/null
-		done
-	elif [ "$PVT" = yes ]; then
-		get_pvt_iface "$NIC_DRIVER" "$NIC_NUM" TEST_IFACE  || let exitcode++
-	else
-		TEST_IFACE=$(get_default_iface)
-	fi
-	echo $TEST_IFACE
-	return $exitcode
-}
-
 report_interface()
 {
 	iface="$1"
@@ -551,164 +496,7 @@ link_up()
 	ip link set $input up || return 1
 }
 
-# Setup team
-# @arg1 enslave NIC names
-# @arg2 team name
-# @arg3: (optional) variable to save the result
-# Use variable $TEAM_OPTS or $TEAM_JSON to setting team parameters
-# return 0 for pass
-setup_team()
-{
-	local exitcode=0
-	local handle="$1"
-	local option="$2" #team name
-	local _output="$3"
-	local slave=""
-	topo_ret=$option
 
-	# parse team options
-	team_json=${TEAM_JSON}
-	[ -z "$TEAM_JSON" -a -n "$TEAM_OPTS" ] && {
-		local v_runner=$(echo $TEAM_OPTS | \
-			awk '/runner/{match($0,"runner=([^ ]+)",M); print M[1]}')
-		local v_link_watch=$(echo $TEAM_OPTS | \
-			awk '/link_watch/{match($0,"link_watch=([^ ]+)",M); print M[1]}')
-
-		case $v_runner in
-			# map samilar number compare with bonding
-			0) v_runner=roundrobin;;
-			1) v_runner=activebackup;;
-			2) v_runner=loadbalance;;
-			3) v_runner=broadcast;;
-			4) v_runner=lacp;;
-		esac
-
-		v_runner=${v_runner:-activebackup}
-		v_link_watch=${v_link_watch:-ethtool}
-
-		team_json='{ "runner" : { "name": "'$v_runner'" },  "link_watch" : { "name": "'$v_link_watch'" } }'
-	}
-	team_json=${team_json:-'{"runner":{"name":"activebackup"}}'}
-	echo TEAM_NAME=\'$TEAM_NAME\'
-	echo TEAM_JSON=\'$team_json\'
-
-	# config port-channel on switch
-	#if [ "$SWCFG_AUTO" = yes ] && [ "$NAY" = yes ] && echo "$team_json" | \egrep -q -w \
-	#	"runner.*:.*(roundrobin|loadbalance|lacp)"; then
-	if [ "$SWCFG_AUTO" = yes ] && [ "$NAY" = yes ] && echo "$team_json" | \egrep -q -w "runner.*:.*(lacp)"; then	
-		if echo "$team_json" | \egrep -q -w "runner.*:.*lacp"; then
-			port_channel_mode=active
-		else
-			port_channel_mode=on
-		fi
-
-		get_iface_sw_port "$handle" switch_name port_list kick_list || let exitcode++
-		swcfg_port_channel $switch_name "$port_list" $port_channel_mode || let exitcode++
-	fi
-
-	# create team interface
-	teamd -t $topo_ret -rd -c "$team_json"       || let exitcode++
-	link_up $topo_ret                            || let exitcode++
-
-	# add port dev
-	for port in $handle; do
-		ip link set $port down               || let exitcode++
-		teamdctl $topo_ret  port add $port   || let exitcode++
-		link_up $port                        || let exitcode++
-	done
-	for port in $kick_list; do
-		ifenslave -d $topo_ret $kick_list
-	done
-	sleep 3
-
-	[[ "$_output" ]] && eval $_output="'$topo_ret'" || echo $topo_ret
-	return $exitcode
-}
-
-# Setup bonding
-# @arg1 enslave NIC names
-# @arg2 bonding name
-# @arg3: (optional) variable to save the result
-# Use variable $BOND_OPTS to setting bonding parameters
-# return 0 for pass
-setup_bond()
-{
-	local exitcode=0
-	local handle="$1"
-	local option="$2" #bond name
-	local _output="$3"
-	local slave=""
-	topo_ret=$option
-
-	echo BOND_NAME=\'$BOND_NAME\'
-	echo BOND_OPTS=\'$BOND_OPTS\'
-	# config port-channel on switch
-	#if [ "$SWCFG_AUTO" = yes ] && [ "$NAY" = yes ] && echo "$BOND_OPTS" | \egrep -q -w \
-	#	"mode=(0|2|4|balance-rr|balance-xor|802.3ad)"; then
-	if [ "$SWCFG_AUTO" = yes ] && [ "$NAY" = yes ] && echo "$BOND_OPTS" | \egrep -q -w \
-                "mode=(4|802.3ad)"; then
-		if echo "$BOND_OPTS" | \egrep -q -w "mode=(4|802.3ad)"; then
-			port_channel_mode=active
-		else
-			port_channel_mode=on
-		fi
-
-		get_iface_sw_port "$handle" switch_name port_list kick_list || let exitcode++
-		swcfg_port_channel $switch_name "$port_list" $port_channel_mode || let exitcode++
-	fi
-
-	# add bonding interface
-	test -f /sys/class/net/bonding_masters || {
-		if [ $(GetDistroRelease) = 8 ];then 
-			modprobe -nv bonding | grep 'max_bonds=0' > /dev/null && spare_param='Y'
-			if [ $spare_param = 'Y' ]
-			then
-				modprobe bonding max_bonds=1; sleep 2;
-				echo "bonding spare param max_bonds exist"
-			else
-				modprobe bonding; sleep 2
-			fi
-			#modprobe bonding max_bonds=1; sleep 2
-		else
-			modprobe bonding; sleep 2
-		fi
-		echo -bond0 > /sys/class/net/bonding_masters
-	}
-	echo +$topo_ret > /sys/class/net/bonding_masters || let exitcode++
-
-	# enslave NICs
-	link_up $topo_ret             || let exitcode++
-	ifenslave $topo_ret $handle   || let exitcode++
-	[ -n "$kick_list" ] && ifenslave -d $topo_ret $kick_list
-	sleep 3
-
-	# setting bonding parameters
-	if [ -n "$BOND_OPTS" ]; then
-		change_bond_opts $topo_ret "$BOND_OPTS" || let exitcode++
-	fi
-
-	[[ "$_output" ]] && eval $_output="'$topo_ret'" || echo $topo_ret
-	return $exitcode
-}
-
-# Set "modprobe bonding" command according to RHEL version and params available.
-# Starting with RHEL 8, "modprobe bonding" must also include "max_bonds=1" in order
-# for the bond0 interface to get automatically created.
-set_modprobe_bond_cmd()
-{
-	local exitcode=0
-	if [[ $(GetDistroRelease) -ge 8 ]]; then
-		modprobe -nv bonding | grep 'max_bonds=0' > /dev/null && spare_param='Y'
-		if [[ $spare_param == "Y" ]]; then
-			modprobe_bond_cmd="modprobe bonding max_bonds=1"
-		else
-			modprobe_bond_cmd="modprobe bonding"
-		fi
-	else
-		modprobe_bond_cmd="modprobe bonding"
-	fi
-	return $exitcode
-}
 
 # Setup vlan
 # @arg1 which interface to add vlan
@@ -981,15 +769,6 @@ setup_topo()
 			nic)
 				truncate_topo_input $topo "$topo_ret" || let exitcode++
 				link_up "$topo_ret"                   || let exitcode++
-				;;
-			bond)
-				setup_bond "$topo_ret" "$BOND_NAME"   || let exitcode++
-				cat /proc/net/bonding/$topo_ret
-				;;
-			team)
-				setup_team "$topo_ret" "$TEAM_NAME"   || let exitcode++
-				teamdctl $topo_ret config dump actual
-				teamdctl $topo_ret state dump
 				;;
 			vlan)
 				truncate_topo_input $topo "$topo_ret" || let exitcode++
@@ -1639,49 +1418,6 @@ get_iface_sw_port()
 	[[ "$_switch_name" ]] && eval $_switch_name="'$switch_name'" || echo $switch_name
 	[[ "$_port_list" ]] && eval $_port_list="'$port_list'" || echo \"$port_list\"
 	[[ "$_kick_list" ]] && eval $_kick_list="'$kick_list'"
-	return $exitcode
-}
-
-swcfg_port_channel()
-{
-	local switch_name="$1"
-	local port_list="$2"
-	local mode="$3"
-	local exitcode=0
-
-	local cmd="swcfg setup_port_channel $switch_name '$port_list' $mode"
-	local cmd_undo="swcfg cleanup_port_channel $switch_name '$port_list'"
-
-	echo "$cmd"
-	sleep $((RANDOM%25))
-	echo "$cmd" | sh && {
-		echo "$cmd_undo" >> $SWCFG_UNDO
-		sleep 10
-	} || {
-		test_fail "Warning: setup switch port-channel fail "
-		exitcode=1
-	}
-	return $exitcode
-}
-
-cleanup_swcfg()
-{
-	local exitcode=0
-	test -f $SWCFG_UNDO || {
-		return $exitcode
-	}
-
-	cat $SWCFG_UNDO
-	sh $SWCFG_UNDO && {
-		\rm $SWCFG_UNDO
-	} || {
-		test_fail "Warning: cleanup switch config error"
-		local fail_cfg=${SWCFG_UNDO}_fail_$(date +%Y%m%d_%H%M)
-		mv $SWCFG_UNDO $fail_cfg
-		submit_log $fail_cfg
-		let exitcode++;
-	}
-	sleep 5
 	return $exitcode
 }
 

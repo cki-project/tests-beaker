@@ -88,18 +88,6 @@ test_fail()
 	fi
 }
 
-test_warn()
-{
-	#echo ":: [  WARN  ] :: RESULT: $1" | tee -a $OUTPUTFILE
-	echo -e "\n:: [  WARN  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
-	if [ $JOBID ]; then
-		report_result "${TEST}/$1" "WARN"
-	else
-		echo -e "\n:::::::::::::::::"
-		echo -e ":: [  ${YEL}WARN${RES}  ] :: Test '"${TEST}/$1"'"
-		echo -e ":::::::::::::::::\n"
-	fi
-}
 
 test_pass_exit()
 {
@@ -113,11 +101,6 @@ test_fail_exit()
 	exit 1
 }
 
-test_warn_exit()
-{
-	test_fail $1
-	exit 1
-}
 
 i_am_server() {
 	echo $SERVERS | grep -q $HOSTNAME
@@ -343,7 +326,7 @@ rhts-sync-set()
 		sleep 5
 		let timeout=timeout-5
 	done
-	if [ $timeout -le 0 ]; then test_warn "rhts-sync-set $HOSTNAME $message failed"; fi
+	if [ $timeout -le 0 ]; then test_fail "rhts-sync-set $HOSTNAME $message failed"; fi
 	echo "rhts-sync-set -s $message DONE"
 }
 
