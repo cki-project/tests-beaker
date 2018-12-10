@@ -1,0 +1,472 @@
+#!/bin/bash
+
+basic_pmtu()
+{
+rlPhaseStartTest "basic_pmtu_$DO_SEC"
+	#ipv4
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 2000"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec .*mtu 1400\""
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec mtu 1400\"" "1"
+	[ x"$DO_SEC" != x"ipsec" ] && rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do | grep \"Frag needed and DF set (mtu = 1400)\"" || rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do &>ping.log" "1"
+	[ x"$DO_SEC" == x"ipsec" ] || rlAssertGrep "Message too long, mtu=1400" ping.log
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1300 -M do"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do"
+
+    if  [ -z "$TESTMASK" ]; then 
+	#ipv6
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 2000"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\"" "1"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]}"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do | grep \"Packet too big: mtu=1400\""
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\""
+#	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do &>ping6.log" "1"
+#	rlAssertGrep "Packet too big: mtu=1400" ping6.log
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1300 -M do"
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do"
+    fi
+rlPhaseEnd
+}
+
+mtu_expire()
+{
+rlPhaseStartTest "mtu_expire_$DO_SEC"
+	#ipv4
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "default_mtu_expire=$(cat /proc/sys/net/ipv4/route/mtu_expires)"
+	rlAssertEquals "default ipv4 mtu expire:$default_mtu_expire should equal 600" $default_mtu_expire 600
+	rlRun "echo 30 > /proc/sys/net/ipv4/route/mtu_expires"
+	rlRun "echo 30 > /proc/sys/net/ipv4/route/gc_timeout"
+	rlRun "default_mtu_expire=$(cat /proc/sys/net/ipv4/route/mtu_expires)"
+	rlAssertEquals "ipv4 mtu expire:$default_mtu_expire become 30" $default_mtu_expire 30
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "sleep 100"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec mtu 1400\"" "1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M dont"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do"
+	rlRun "$CLIENTNS echo 600 > /proc/sys/net/ipv4/route/mtu_expires"
+	rlRun "echo 60 > /proc/sys/net/ipv4/route/gc_timeout"
+
+    if  [ -z "$TESTMASK" ]; then
+	#ipv6
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "default_mtu_expire=$($CLIENTNS sysctl -n net.ipv6.route.mtu_expires)"
+	rlAssertEquals "default ipv6 mtu expire:$default_mtu_expire should equal 600" $default_mtu_expire 600
+	rlRun "$CLIENTNS sysctl -w net.ipv6.route.mtu_expires=30"
+	rlRun "default_mtu_expire=$($CLIENTNS sysctl -n net.ipv6.route.mtu_expires)"
+	rlAssertEquals "ipv6 mtu expire:$default_mtu_expire become 30" $default_mtu_expire 30
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "sleep 90"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\"" "1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M dont"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do"
+	rlRun "$CLIENTNS echo 600 > /proc/sys/net/ipv6/route/mtu_expires"
+    fi
+
+rlPhaseEnd
+}
+
+
+ip_mtu_lock()
+{
+rlPhaseStartTest "ip_mtu_lock_$DO_SEC"
+	#ipv4
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "$CLIENTNS ip route add ${veth0_server_ip[4]} via ${veth0_client_r_ip[4]} mtu lock 1500"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu lock 1500\""
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu lock 1500\""
+	rlRun "$CLIENTNS ip route del ${veth0_server_ip[4]} via ${veth0_client_r_ip[4]} mtu lock 1500"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu lock 1500\"" "1"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+
+    if  [ -z "$TESTMASK" ]; then
+	#ipv6
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "$CLIENTNS ip -6 route add ${veth0_server_ip[6]} via ${veth0_client_r_ip[6]} mtu lock 1500"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[6]} | grep \"mtu lock 1500\""
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[6]} | grep \"mtu lock 1500\""
+	rlRun "$CLIENTNS ip -6 route del ${veth0_server_ip[6]} via ${veth0_client_r_ip[6]} mtu lock 1500"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[6]} | grep \"mtu lock 1500\"" "1"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1"
+    fi
+
+rlPhaseEnd
+}
+
+multi_pmtu()
+{
+rlPhaseStartTest "multi_pmtu_$DO_SEC"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1300"
+	#ipv4
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -s 1400 -M do -c 1" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec .*mtu 1400\""
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -s 1300 -M do -c 1" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec .*mtu 1300\""
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -s 1200 -M do -c 1"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+
+    if  [ -z "$TESTMASK" ]; then
+	#ipv6
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 2"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -s 1400 -M do -c 1" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1400\""
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -s 1300 -M do -c 1" "1"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[6]} | grep -E \"expires [0-9]*sec mtu 1300\""
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -s 1200 -M do -c 1"
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1"
+    fi
+
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1500"
+rlPhaseEnd
+}
+
+del_route_while_pmtu()
+{
+rlPhaseStartTest "del_route_while_pmtu_$DO_SEC"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	#ipv4
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1300 -M do"
+	rlRun "$CLIENTNS ip route del default"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1" "2"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} 2>&1 | grep \"Network is unreachable\""
+	rlRun "$CLIENTNS ip route add default via ${veth0_client_r_ip[4]}"
+
+    if ! [ -z "$TESTMASK" ]; then
+	#ipv6
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 2"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1400 -M do" "1,2"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 1300 -M do"
+	rlRun "$CLIENTNS ip -6 route del default"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1" "1,2"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} 2>&1 | grep \"unreachable\""
+	rlRun "$CLIENTNS ip -6 route add default via ${veth0_client_r_ip[6]}"
+    fi
+
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+rlPhaseEnd
+}
+
+pmtu_traffic()
+{
+rlPhaseStartTest "pmtu_traffic_$DO_SEC"
+	rlRun "$SERVERNS netserver -d"
+	rlRun "$CLIENTNS netperf -4 -L ${veth0_client_ip[4]} -H ${veth0_server_ip[4]} -t TCP_STREAM -l 30 -- -m 16480 &"
+	ipv4_pid=$!
+	rlRun "$CLIENTNS netperf -6 -L ${veth0_client_ip[6]} -H ${veth0_server_ip[6]} -t TCP_STREAM -l 40 -- -m 16480 &"
+	ipv6_pid=$!
+	sleep 5
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	sleep 5
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1300"
+	wait $ipv4_pid
+	[ $? -ne 0 ] && rlFail "netperf tcp_stream ipv4"
+	wait $ipv6_pid
+	[ $? -ne 0 ] && rlFail "netperf tcp_stream ipv6"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1500"
+
+	uname -r | grep "2.6.32" || rlRun "$CLIENTNS netperf -4 -L ${veth0_client_ip[4]} -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 30 -- -m 16480 &"
+	ipv4_pid=$!
+	uname -r | grep "2.6.32" || rlRun "$CLIENTNS netperf -6 -L ${veth0_client_ip[6]} -H ${veth0_server_ip[6]} -t SCTP_STREAM -l 40 -- -m 16480 &"
+	ipv6_pid=$!
+	sleep 5
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	sleep 5
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1300"
+	wait $ipv4_pid
+#	[ $? -ne 0 ] && rlFail "netperf sctp_stream ipv4"
+	wait $ipv6_pid
+#	[ $? -ne 0 ] && rlFail "netperf sctp_stream ipv6"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1500"
+
+	rlRun "$CLIENTNS netperf -4 -L ${veth0_client_ip[4]} -H ${veth0_server_ip[4]} -t TCP_STREAM -l 120 -- -m 16384 &"
+	rlRun "$CLIENTNS netperf -6 -L ${veth0_client_ip[6]} -H ${veth0_server_ip[6]} -t TCP_STREAM -l 120 -- -m 16384 &"
+	rlRun "$CLIENTNS netperf -4 -L ${veth0_client_ip[4]} -H ${veth0_server_ip[4]} -t UDP_STREAM -l 120 -- -R 1 &"
+	rlRun "$CLIENTNS netperf -6 -L ${veth0_client_ip[6]} -H ${veth0_server_ip[6]} -t UDP_STREAM -l 120 -- -R 1 &"
+	uname -r | grep "2.6.32" || rlRun "$CLIENTNS netperf -4 -L ${veth0_client_ip[4]} -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 120 -- -m 16480 &"
+	uname -r | grep "2.6.32" || rlRun "$CLIENTNS netperf -6 -L ${veth0_client_ip[6]} -H ${veth0_server_ip[6]} -t SCTP_STREAM -l 120 -- -m 16480 &"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} &"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} &"
+	for i in `seq 1 6`
+	do
+		sleep 5
+		rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+		sleep 5
+		rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1300"
+		sleep 5
+		rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+		rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1500"
+		rlRun "$CLIENTNS ip route flush cache"
+		rlRun "$CLIENTNS ip -6 route flush cache"
+	done
+	rlRun "$CLIENTNS pkill netperf" "0,1"
+	rlRun "$CLIENTNS pkill netserver"
+	rlRun "$CLIENTNS pkill ping"
+	rlRun "$CLIENTNS pkill ping6" "0,1"
+rlPhaseEnd
+}
+
+ip_no_pmtu_disc_test()
+{
+rlPhaseStartTest "ip_no_pmtu_disc_test_$DO_SEC"
+	rlRun "default_no_pmtu_disc=`$CLIENTNS sysctl net.ipv4.ip_no_pmtu_disc | awk '{print $3}'`"
+	rlRun "default_min_pmtu=`sysctl net.ipv4.route.min_pmtu | awk '{print $3}'`"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1400"
+	rlRun "$SERVERNS netserver -d"
+
+	if rlRun "$CLIENTNS sysctl -w net.ipv4.ip_no_pmtu_disc=-1"
+	then
+		rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1-255"
+		rlRun "sleep 5"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*$default_min_pmtu\""
+		[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS ip route flush cache"
+		rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 1 -- -m 16k"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 1 -- -m 16k"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*$default_min_pmtu\""
+		[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS ip route flush cache"
+	fi
+
+	rlRun "$CLIENTNS sysctl -w net.ipv4.ip_no_pmtu_disc=1"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1-255"
+	rlRun "sleep 5"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*$default_min_pmtu\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 1 -- -m 16k"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 1 -- -m 16k"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*$default_min_pmtu\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route flush cache"
+
+	if rlRun "$CLIENTNS sysctl -w net.ipv4.ip_no_pmtu_disc=100"
+	then
+		rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1-255"
+		rlRun "sleep 5"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*$default_min_pmtu\""
+		[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS ip route flush cache"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 1 -- -m 16k"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 1 -- -m 16k"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*$default_min_pmtu\""
+		[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS ip route flush cache"
+	fi
+
+	rlRun "$CLIENTNS sysctl -w net.ipv4.ip_no_pmtu_disc=2"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1-255"
+	rlRun "sleep 5"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"expires\"" "1"
+	[ $? -ne 1 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 1 -- -m 16k &"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 1 -- -m 16k &"
+	rlRun "sleep 5"
+	rlRun "pkill -9 netperf" "0-255"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"expires\"" "1"
+	[ $? -ne 1 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route flush cache"
+
+	rlRun "$CLIENTNS sysctl -w net.ipv4.ip_no_pmtu_disc=$default_no_pmtu_disc"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 1 -- -m 16k"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 1 -- -m 16k"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+
+	rlRun "$SERVERNS pkill -9 netserver" "0-255"
+
+rlPhaseEnd
+}
+min_pmtu_test()
+{
+rlPhaseStartTest "min_pmtu_test_$DO_SEC"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1300"
+	rlRun "$SERVERNS ip link set veth0_server mtu 1300"
+	rlRun "$SERVERNS netserver -d" "0-255"
+	# default min_pmtu is 552
+	rlRun "default_min_pmtu=`sysctl net.ipv4.route.min_pmtu | awk '{print $3}'`"
+	rlRun "sysctl -w net.ipv4.route.min_pmtu=1400"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "0-255"
+#	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*1400\""
+#	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 2 -- -m 16k &"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 2 -- -m 16k &"
+	rlRun "sleep 5"
+	rlRun "pkill netperf" "0-255"
+	rlRun "$CLIENTNS ip route flush cache"
+
+	if rlRun "sysctl -w net.ipv4.route.min_pmtu=-1"
+	then
+		rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "0-255"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS ip route flush cache"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 2 -- -m 16k &"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 2 -- -m 16k &"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "sleep 5"
+		rlRun "pkill netperf" "0-255"
+		rlRun "$CLIENTNS ip route flush cache"
+	fi
+
+	if rlRun "sysctl -w net.ipv4.route.min_pmtu=0"
+	then
+		rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "0-255"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "$CLIENTNS ip route flush cache"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 2 -- -m 16k &"
+		rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 2 -- -m 16k &"
+		rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+		rlRun "sleep 5"
+		rlRun "pkill netperf" "0-255"
+		rlRun "$CLIENTNS ip route flush cache"
+	fi
+
+	rlRun "sysctl -w net.ipv4.route.min_pmtu=11111111111111111" "0-255"
+	rlRun "sysctl -w net.ipv4.route.min_pmtu=$default_min_pmtu"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "0-255"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 2 -- -m 16k "
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 2 -- -m 16k "
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "pkill netperf" "0-255"
+	rlRun "$ROUTE0NS ip link set veth0_route0 mtu 1500"
+	rlRun "$SERVERNS ip link set veth0_server mtu 1500"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "pkill netserver" "0-255"
+rlPhaseEnd
+}
+
+mtu_firsthop()
+{
+rlPhaseStartTest "mtu_firsthop_$DO_SEC"
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1541270
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1601814
+	# when mtu for the first hop decreased, the pmtu should update to the
+	# mtu of the first hop, and if pmtu is the mtu of the first hop, after
+	# increase mtu for first hop, pmtu should be udpated to mtu of the first hop
+	#ipv4
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 2000"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 1 -s 2000"
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1400"
+	rlRun "$SERVERNS ip link set veth0_server mtu 1400"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 2 -s 1400 -M do" "0-255"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 2 -s 1400 -M do" "0-255"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*1400\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep \"mtu.*1400\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip -6 route get ${veth0_server_ip[6]}"
+
+	rlRun "$CLIENTNS ip link set veth0_client mtu 1300"
+	rlRun "sleep 2"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*1300\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep \"mtu.*1300\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip -6 route get ${veth0_server_ip[6]}"
+
+	rlRun "$CLIENTNS ip link set veth0_client mtu 1600"
+	rlRun "sleep 2"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*1600\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep \"mtu.*1600\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip -6 route get ${veth0_server_ip[6]}"
+	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 2 -s 1400 -M do" "0-255"
+	rlRun "$CLIENTNS ping6 ${veth0_server_ip[6]} -c 2 -s 1400 -M do" "0-255"
+	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep \"mtu.*1400\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip route get ${veth0_server_ip[4]}"
+	rlRun "$CLIENTNS ip -6 route get ${veth0_server_ip[6]} | grep \"mtu.*1400\""
+	[ $? -ne 0 ] && rlRun -l "$CLIENTNS ip -6 route get ${veth0_server_ip[6]}"
+
+	rlRun "$SERVERNS netserver -d"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t TCP_STREAM -l 20 -- -m 16k &"
+	rlRun "tcp4_pid=$!"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t SCTP_STREAM -l 25 -- -m 16k &"
+	rlRun "sctp4_pid=$!"
+	rlRun "$CLIENTNS netperf -4 -H ${veth0_server_ip[4]} -t UDP_STREAM -l 30 -- -R 1 &"
+	rlRun "udp4_pid=$!"
+	rlRun "$CLIENTNS netperf -6 -H ${veth0_server_ip[6]} -t TCP_STREAM -l 35 -- -m 16k &"
+	rlRun "tcp6_pid=$!"
+	rlRun "$CLIENTNS netperf -6 -H ${veth0_server_ip[6]} -t SCTP_STREAM -l 40 -- -m 16k &"
+	rlRun "sctp6_pid=$!"
+	rlRun "$CLIENTNS netperf -6 -H ${veth0_server_ip[6]} -t UDP_STREAM -l 45 -- -R 1 &"
+	rlRun "udp6_pid=$!"
+
+	for i in `seq 1 5`
+	do
+		$CLIENTNS ip link set veth0_client mtu 1300
+		sleep 1
+		$CLIENTNS ip link set veth0_client mtu 1600
+		sleep 1
+	done
+
+	for tmppid in $tcp4_pid $sctp4_pid $udp4_pid $tcp6_pid $sctp6_pid $udp6_pid
+	do
+		rlRun "wait $tmppid"
+	done
+
+	rlRun "$ROUTE1NS ip link set veth0_server_r mtu 1500"
+	rlRun "$SERVERNS ip link set veth0_server mtu 1500"
+	rlRun "$CLIENTNS ip link set veth0_client mtu 1500"
+	rlRun "$CLIENTNS ip route flush cache"
+	rlRun "$CLIENTNS ip -6 route flush cache"
+	rlRun "$ROUTE0NS ip route flush cache"
+	rlRun "$ROUTE0NS ip -6 route flush cache"
+	rlRun "$ROUTE1NS ip route flush cache"
+	rlRun "$ROUTE1NS ip -6 route flush cache"
+	rlRun "$SERVERNS ip route flush cache"
+	rlRun "$SERVERNS ip -6 route flush cache"
+	rlRun "$SERVERNS pkill -9 netserver" "0-255"
+
+rlPhaseEnd
+}

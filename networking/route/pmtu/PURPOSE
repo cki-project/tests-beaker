@@ -1,0 +1,120 @@
+PURPOSE of kernel/networking/route/pmtu
+== Description ==
+test case for pmtu: path max transmit unit
+
+== Relateds bug ==
+
+== Test Items ==
+
+topo as followed;
+
++----------+      +----------+      +-----------+       +-----------+
+|          |      |          |      |           |       |           |
+|  Client  |------| Router0  |------| Router1   |-------|  Server   |
+|          |      |          |      |           |       |           |
++----------+      +----------+      +-----------+       +-----------+
+
+# basic_pmtu
+
+Steps:
+1. set the same mtu A on Client, Router1 and Server
+2. set lower mtu B on right side of Router0
+3. ping Server on client with packet size C(B<C<A),and with DF flag
+4. check route to server on client
+5. repeat 3
+6. ping server with packet size less than B
+7. wait for 10 minutes, and check route again
+
+Expected result:
+
+3. ping get message:message too long, DF flag set
+4. mtu of route from client to server changed to B
+5. get message: local message too long
+6. ping sucessfully
+7. route has been reverted to normal(mtu is not B any more)
+
+# setting of ip_nopmtu_disc
+
+Steps:
+1. create topo and set ip_nopmtu_disc to 1
+2. repeat 1 and 2 in basic_pmtu
+3. repeat 3 in basic_pmtu
+4. change ip_nopmtu_disc to 0
+5. repeat 3
+6. check route
+
+Expected result:
+
+3. ping failed with no message
+5. ping get message:message too long, DF flag set
+6. mtu of route to server become B
+
+# setting of mtu_expires
+
+Steps:
+
+1. repeat 1 and 2 in basic_pmtu
+2. set mtu_expires to 60
+3. repeat 3 in basic_pmtu
+4. check route
+5. wait for 60s and check route
+
+Expected result:
+
+4. mtu of route become B
+5. route revert to normal
+
+# ip route mtu lock
+
+Steps:
+
+1. repeat 1 and 2 in basic_pmtu
+2. add route to server with mtu lock
+3. repeat 3 in basic_pmtu
+
+Expected result:
+
+3. ping succeesfully
+
+# different mtu for each route
+
+Steps:
+1. set MTU A for Client and Server
+2. set MTU B to Router0, set MTU D to Router1, D<B<A
+3. ping server with packet size C(B<C<A) with DF flag
+4. check route
+5. ping server with packet size E(D<E<C) with DF flag
+6. check route
+7. ping server with packet size F(F<D) with DF flag
+
+Expected result:
+
+3. ping get message:message too long, DF flag set
+4. mtu of route becomes B
+5. ping get message:message too long, DF flag set
+6. mtu of route becomes D
+7. ping sucessfully
+
+# delete route
+
+Steps:
+1. repeat 1,2,3 in basic_pmtu
+2. delete route to server
+3. check route to server
+
+Expected result:
+
+3. no route found to server
+
+# Tcp traffic
+
+Steps:
+
+1. start tcp connection
+2. change route mtu
+3. check connection status
+
+Expected result:
+
+3. connection is still on and file transmitted completely
+
