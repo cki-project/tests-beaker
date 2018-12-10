@@ -34,7 +34,7 @@ lksctp_install()
 }
 
 
-lksctp-tools_install()
+ctp-tools_install()
 {
     [ -a /usr/local/bin/bindx_test ] && return 0
 
@@ -64,7 +64,7 @@ lksctp-tools_install()
 
     if ! [ -a /usr/local/bin/bindx_test ];then
        echo "WARN : lksctp-tools install fail"
-       test_warn "lksctp-tools_install_fail"
+       test_fail "lksctp-tools_install_fail"
        return 1
     fi
 
@@ -83,10 +83,9 @@ netperf_install()
         lksctp_install
 
         local OUTPUTFILE=`mktemp /mnt/testarea/tmp.XXXXXX`
-        SRC_NETPERF=${SRC_NETPERF:-"http://people.redhat.com/ctrautma/netperf-20160222.tar.bz2"}
+        SRC_NETPERF="netperf-20160222.tar.bz2"
         pushd ${NETWORK_COMMONLIB_DIR} 1>/dev/null
-        #wget -nv -N $SRC_NETPERF
-        tar xjvf $(basename $SRC_NETPERF)
+        tar xjvf $SRC_NETPERF
         cd netperf-20160222
         check_arch
         if checksctp; then
@@ -98,7 +97,7 @@ netperf_install()
 
         if ! netperf -V;then
                 echo "WARN : Netperf install fail" | tee -a $OUTPUTFILE
-                test_warn "Netperf_install_fail"
+                test_fail "Netperf_install_fail"
                 return 1
         fi
 
