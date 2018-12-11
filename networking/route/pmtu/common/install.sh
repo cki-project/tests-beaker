@@ -64,7 +64,7 @@ ctp-tools_install()
 
     if ! [ -a /usr/local/bin/bindx_test ];then
        echo "WARN : lksctp-tools install fail"
-       test_fail "lksctp-tools_install_fail"
+       test_warn "lksctp-tools_install_fail"
        return 1
     fi
 
