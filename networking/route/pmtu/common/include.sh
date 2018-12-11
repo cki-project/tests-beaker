@@ -88,6 +88,18 @@ test_fail()
 	fi
 }
 
+test_warn()
+{
+	#echo ":: [  WARN  ] :: RESULT: $1" | tee -a $OUTPUTFILE
+	echo -e "\n:: [  WARN  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
+	if [ $JOBID ]; then
+		report_result "${TEST}/$1" "WARN"
+	else
+		echo -e "\n:::::::::::::::::"
+		echo -e ":: [  ${YEL}WARN${RES}  ] :: Test '"${TEST}/$1"'"
+		echo -e ":::::::::::::::::\n"
+	fi
+}
 
 test_pass_exit()
 {
