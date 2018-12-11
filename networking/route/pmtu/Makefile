@@ -78,6 +78,7 @@ $(METADATA): Makefile
 	@echo "Requires:     expect pexpect python3-pexpect" >> $(METADATA)
 	@echo "Requires:     bc wget bzip2 gcc" >> $(METADATA)
 	@echo "Requires:     git patch rsync" >> $(METADATA)
+	@echo "Requires:     texinfo" >> $(METADATA)
 	@echo "RhtsRequires: beakerlib-redhat" >> $(METADATA)
 	@echo "RhtsRequires: kernel-kernel-networking-common" >> $(METADATA)
 	@echo "RhtsRequires: library(kernel/network)" >> $(METADATA)
