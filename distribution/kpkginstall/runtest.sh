@@ -54,7 +54,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
     ppc64|ppc64le)
       for xname in $(ls /boot/vmlinux-*${KVER}); do
         zname=$(echo "${xname}" | sed "s/x-/z-/")
-        ln -sv $(basename ${xname}) ${zname}
+        mv ${xname} ${zname}
       done
       ;;
     aarch64)
@@ -98,7 +98,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   if [ ! -x /sbin/new-kernel-pkg ]; then
     kernel-install add ${KVER} /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
-    grub2-set-default 0 >>${OUTPUTFILE} 2>&1
+    grubby --set-default /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
   else
     new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
   fi
