@@ -338,7 +338,10 @@ rhts-sync-set()
 		sleep 5
 		let timeout=timeout-5
 	done
-	if [ $timeout -le 0 ]; then test_fail "rhts-sync-set $HOSTNAME $message failed"; fi
+	if [ $timeout -le 0 ]; then
+		test_warn "rhts-sync-set $HOSTNAME $message failed"
+		rhts-abort -t recipe
+	fi
 	echo "rhts-sync-set -s $message DONE"
 }
 
