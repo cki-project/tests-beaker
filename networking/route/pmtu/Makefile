@@ -31,7 +31,7 @@ export TEST=/$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 BUILT_FILES= 
 
 # data files, .c files, scripts anything needed to either compile the test and/or run it.
-FILES=$(METADATA) runtest.sh Makefile PURPOSE  *.sh func common
+FILES=$(METADATA) runtest.sh Makefile PURPOSE  *.sh func common patch
 
 run: $(FILES) build
 	./runtest.sh
