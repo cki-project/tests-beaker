@@ -31,7 +31,7 @@ export TEST=/$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 BUILT_FILES= 
 
 # data files, .c files, scripts anything needed to either compile the test and/or run it.
-FILES=$(METADATA) runtest.sh Makefile PURPOSE  *.sh func common patch
+FILES=$(METADATA) runtest.sh Makefile PURPOSE  *.sh func common
 
 run: $(FILES) build
 	./runtest.sh
@@ -79,6 +79,7 @@ $(METADATA): Makefile
 	@echo "Requires:     bc wget bzip2 gcc" >> $(METADATA)
 	@echo "Requires:     git patch rsync" >> $(METADATA)
 	@echo "Requires:     texinfo" >> $(METADATA)
+	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "RhtsRequires: beakerlib-redhat" >> $(METADATA)
 	@echo "RhtsRequires: kernel-kernel-networking-common" >> $(METADATA)
 	@echo "RhtsRequires: library(kernel/network)" >> $(METADATA)
