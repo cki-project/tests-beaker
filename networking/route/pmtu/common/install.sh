@@ -98,7 +98,7 @@ netperf_install()
 
         if ! netperf -V;then
                 echo "WARN : Netperf install fail" | tee -a $OUTPUTFILE
-                test_fail "Netperf_install_fail"
+                test_warn "Netperf_install_fail"
                 rhts-abort -t recipe
         fi
 
