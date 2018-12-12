@@ -34,7 +34,7 @@ lksctp_install()
 }
 
 
-ctp-tools_install()
+lksctp-tools_install()
 {
     [ -a /usr/local/bin/bindx_test ] && return 0
 
