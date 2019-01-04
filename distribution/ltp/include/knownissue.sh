@@ -104,6 +104,11 @@ function knownissue_filter()
 	tskip "read_all_dev" fatal
 	# Bug TBD - needs investigation: msgstress0* fails/aborts on s390x on all RHEL versions
 	is_arch "s390x" && tskip "msgstress0*" fatal
+	# Bug 1657032 - fallocate05 intermittently failing in ltp lite
+	is_arch "ppc64" && tskip "fallocate05" fatal
+	is_arch "ppc64le" && tskip "fallocate05" fatal
+	is_arch "s390x" && tskip "fallocate05" fatal
+
 
 	if is_upstream; then
 		# ------- unfix ---------
@@ -203,10 +208,6 @@ function knownissue_filter()
 		osver_in_range "700" "706" && tskip "fanotify07" fatal
 		# Bug 1543262 - CVE-2017-17807 kernel: Missing permissions check for request_key()
 		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fatal
-		# Bug 1657032 - fallocate05 intermittently failing in ltp lite
-		is_arch "ppc64" && tskip "fallocate05" fatal
-		is_arch "ppc64le" && tskip "fallocate05" fatal
-		is_arch "s390x" && tskip "fallocate05" fatal
 
 		# ------- unfix ---------
 		# Bug 1593435 - ppc64: kt1lite getrandom02 test failure reported
