@@ -1,6 +1,12 @@
 # Beaker tasks used with [skt](https://github.com/RH-FMK/skt) runner
 
-
+## How to run tests
+Here is a list of common prerequisites for all beaker tests. Test-specific dependencies and steps can be found in the README.md within each test's directory.
+~~~
+$ sudo wget -O /etc/yum.repos.d/beaker-client.repo https://beaker-project.org/yum/beaker-client-Fedora.repo
+$ sudo wget -O /etc/yum.repos.d/beaker-harness.repo https://beaker-project.org/yum/beaker-harness-Fedora.repo
+$ sudo dnf install -y beaker-client beakerlib restraint-rhts
+~~~
 ## Test onboarding
 
 Currently, all onboarded tests must use the following combinations of
