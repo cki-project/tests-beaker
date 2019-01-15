@@ -1,0 +1,7 @@
+This is sanity test for lvm thinp for Kernel Tier1 testing.
+This test should reveal fatal problems like Bug 1175282.
+
+Setup 2 loop devices, create LVM volgroup and thin pool on top.
+Create couple thin volumes, snapshots and snapshot of snapshots.
+Mount each, format with xfs, run iozone for a bit. Umount and
+destroy all.
