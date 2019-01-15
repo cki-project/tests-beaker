@@ -24,11 +24,11 @@ else
     exit
 fi
 
-# test is only supported on x86_64
-if [ "$(uname -i)" == "x86_64" ]; then
-    echo "Running on x86_64 arch" | tee -a $OUTPUTFILE
+# test is only supported on x86_64 and aarch64
+if [ "$(uname -i)" == "x86_64" ] || [ "$(uname -i)" == "aarch64" ] ; then
+    echo "Running on supported arch (x86_64 or aarch64)" | tee -a $OUTPUTFILE
 else
-    echo "Skipping test, test is only supported on x86_64" | tee -a $OUTPUTFILE
+    echo "Skipping test, test is only supported on x86_64 and aarch64" | tee -a $OUTPUTFILE
     rhts-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
@@ -75,7 +75,7 @@ echo 0 > /proc/sys/kernel/nmi_watchdog
 # clone the upstream kvm-unit-tests
 git clone git://git.kernel.org/pub/scm/virt/kvm/kvm-unit-tests.git
 cd kvm-unit-tests
-git checkout 47cc3d85c2fe6fe4618e513b39046abe73f2803c
+git checkout d481ff76642365cb8605c27224bcb771e639b6ee
 if [ $? -ne 0 ]; then
     echo "Failed to clone and checkout commit from kvm-unit-tests" | tee -a $OUTPUTFILE
     report_result $TEST WARN
