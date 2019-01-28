@@ -6,11 +6,45 @@ unset ARCH
 unset STANDALONE
 cpus=$(grep -c ^processor /proc/cpuinfo)
 
-# test can only run on hardware that supports virtualization 
-if egrep -q '(vmx|svm)' /proc/cpuinfo; then
-    echo "Hardware supports virtualization, proceeding" | tee -a $OUTPUTFILE
+function check_platform_support
+{
+    typeset hwpf=${1?"*** what hardware-platform?, e.g. x86_64"}
+    [[ $hwpf == "x86_64" ]] && return 0
+    [[ $hwpf == "aarch64" ]] && return 0
+    return 1
+}
+
+function check_virt_support
+{
+    typeset hwpf=${1?"*** what hardware-platform?, e.g. x86_64"}
+    if [[ $hwpf == "x86_64" ]]; then
+        egrep -q '(vmx|svm)' /proc/cpuinfo
+        return $?
+    elif [[ $hwpf == "aarch64" ]]; then
+        dmesg | egrep -iq "kvm.*: Hyp mode initialized successfully"
+        return $?
+    else
+        return 1
+    fi
+}
+
+# test is only supported on x86_64 and aarch64
+hwpf=$(uname -i)
+check_platform_support $hwpf
+if (( $? == 0 )); then
+    echo "Running on supported arch (x86_64 or aarch64)" | tee -a $OUTPUTFILE
+
+    # test can only run on hardware that supports virtualization
+    check_virt_support $hwpf
+    if (( $? == 0 )); then
+        echo "Hardware supports virtualization, proceeding" | tee -a $OUTPUTFILE
+    else
+        echo "Skipping test, CPU doesn't support virtualization" | tee -a $OUTPUTFILE
+        rhts-report-result $TEST SKIP $OUTPUTFILE
+        exit
+    fi
 else
-    echo "Skipping test, CPU doesn't support virtualization" | tee -a $OUTPUTFILE
+    echo "Skipping test, test is only supported on x86_64 and aarch64" | tee -a $OUTPUTFILE
     rhts-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
@@ -20,15 +54,6 @@ if [ "$cpus" > 1 ]; then
     echo "You have sufficient CPU's to run the test" | tee -a $OUTPUTFILE
 else
     echo "Skipping test, system requires > 1 CPU" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
-    exit
-fi
-
-# test is only supported on x86_64 and aarch64
-if [ "$(uname -i)" == "x86_64" ] || [ "$(uname -i)" == "aarch64" ] ; then
-    echo "Running on supported arch (x86_64 or aarch64)" | tee -a $OUTPUTFILE
-else
-    echo "Skipping test, test is only supported on x86_64 and aarch64" | tee -a $OUTPUTFILE
     rhts-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
@@ -88,7 +113,7 @@ cp ../unittests.cfg x86/unittests.cfg
 # run the tests
 ./configure
 make
-./run_tests.sh -v > test.log 2>&1 
+./run_tests.sh -v > test.log 2>&1
 cat test.log | tee -a $OUTPUTFILE
 
 # check for any new failures
