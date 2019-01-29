@@ -1,0 +1,5 @@
+This is sanity test for loop device, which will mount
+various filesystems and stress them lightly with iozone.
+
+This test should reveal fatal problems before we see them
+in Anaconda (like Bug 948251).
