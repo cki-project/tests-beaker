@@ -21,7 +21,18 @@ function check_virt_support
         egrep -q '(vmx|svm)' /proc/cpuinfo
         return $?
     elif [[ $hwpf == "aarch64" ]]; then
-        dmesg | egrep -iq "kvm.*: Hyp mode initialized successfully"
+        dmesg | egrep -iq "kvm"
+        if (( $? == 0 )); then
+            dmesg | egrep -iq "kvm.*: Hyp mode initialized successfully"
+        else
+            #
+            # XXX: Note that the harness (i.e. beaker) does clear dmesg, hence
+            #      we have to fetch the output of kernel buffer from
+            #      "journalctl -k"
+            #
+            journalctl -k | \
+                egrep -iq "kvm.*: Hyp mode initialized successfully"
+        fi
         return $?
     else
         return 1
