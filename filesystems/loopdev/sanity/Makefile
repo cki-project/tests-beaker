@@ -14,11 +14,7 @@ RELATIVE_PATH=filesystems/loopdev/sanity
 # The relative path name to the test
 export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 
-LOOKASIDE=$(shell echo $$LOOKASIDE)
-LOOKASIDE_UPSTREAM=http://www.iozone.org/src/current
-ifeq (,$(LOOKASIDE))
-	LOOKASIDE=$(LOOKASIDE_UPSTREAM)
-endif
+LOOKASIDE=http://www.iozone.org/src/current
 
 # Name of the tar file that will be bundled
 TARGET=iozone3_487
