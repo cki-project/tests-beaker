@@ -38,8 +38,9 @@ fi
 # run acpidump, which should succeed and write tables to stdout
 # (requires being run as root)
 acpidump
-[ $? != 0 ] && report_result $TEST FAIL 1
-
-# all is well
-#exit 0
-report_result $TEST PASS 0
+if [ $? != 0 ] ; then
+    report_result $TEST FAIL 1
+else
+    # all is well
+    report_result $TEST PASS 0
+fi
