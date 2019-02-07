@@ -30,12 +30,16 @@
 
 # make sure acpica-tools are installed
 pkg=$(rpm -qa | grep acpica-tools)
-[ -z "$pkg" ] && exit 1
+if [ -z "$pkg" ] ; then
+    report_result $TEST WARN
+    rhts-abort -t recipe
+fi 
 
 # run acpidump, which should succeed and write tables to stdout
 # (requires being run as root)
 acpidump
-[ $? != 0 ] && exit 1
+[ $? != 0 ] && report_result $TEST FAIL 1
 
 # all is well
-exit 0
+#exit 0
+report_result $TEST PASS 0
