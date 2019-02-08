@@ -28,6 +28,9 @@
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+# Global variables
+ret=0
+
 # make sure acpica-tools are installed
 pkg=$(rpm -qa | grep acpica-tools)
 if [ -z "$pkg" ] ; then
@@ -37,9 +40,13 @@ fi
 
 # run acpidump, which should succeed and write tables to stdout
 # (requires being run as root)
-acpidump
-if [ $? != 0 ] ; then
-    report_result $TEST FAIL 1
+acpidump >> $OUTPUTFILE 2>&1 
+ret=$?
+
+echo "Test finished" | tee -a $OUTPUTFILE
+
+if [ $ret != 0 ] ; then
+    report_result $TEST FAIL $ret
 else
     # all is well
     report_result $TEST PASS 0
