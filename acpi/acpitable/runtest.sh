@@ -38,10 +38,22 @@ if [ -z "$pkg" ] ; then
     rhts-abort -t recipe
 fi 
 
-# run acpidump, which should succeed and write tables to stdout
-# (requires being run as root)
-acpidump >> $OUTPUTFILE 2>&1 
-ret=$?
+# verify  ACPI is enabled in the kernel
+msg=$(journalctl -b 0 -o short-monotonic | grep "ACPI: Interpreter enabled")
+
+# no message found, so fail
+if [ -z "$msg" ] ; then
+    ret=1
+    echo "ACPI: Intepreter disabled in the kernel!" | tee -a $OUTPUTFILE
+fi
+
+if [ $ret = 0 ] ; then
+    # try to read  ACPI tables from sysfs
+    # run acpidump, which should succeed and write tables to stdout
+    # (requires being run as root)
+    acpidump >> $OUTPUTFILE 2>&1 
+    ret=$?
+fi
 
 echo "Test finished" | tee -a $OUTPUTFILE
 
