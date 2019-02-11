@@ -145,9 +145,13 @@ EOF
     exit 1
   fi
 
-  $YUM install -y kernel-firmware kernel-$KVER kernel-headers-$KVER >>${OUTPUTFILE} 2>&1
+  $YUM install -y kernel-$KVER kernel-headers-$KVER >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     return 1
+  fi
+  $YUM install -y kernel-firmware >>${OUTPUTFILE} 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Unable to install kernel-firmware, skipping" | tee -a ${OUTPUTFILE}
   fi
 }
 
