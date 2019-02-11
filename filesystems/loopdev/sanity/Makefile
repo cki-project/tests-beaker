@@ -41,10 +41,7 @@ build: $(METADATA) $(TARGET) runtest
 	cp -f $(TARGET)/src/current/iozone ./
 
 $(TARGET).tar:
-	wget $(LOOKASIDE)/$(TARGET).tar || true
-	if [ ! -e $(TARGET).tar ]; then \
-		wget $(LOOKASIDE_BOS)/$(TARGET).tar; \
-	fi
+	wget $(LOOKASIDE)/$(TARGET).tar
 
 $(TARGET): $(TARGET).tar
 	tar -xvf $(TARGET).tar
