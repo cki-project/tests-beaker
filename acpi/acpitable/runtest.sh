@@ -52,9 +52,9 @@ if [ $ret = 0 ] ; then
     # run acpidump, which should succeed and write tables to stdout
     # (requires being run as root)
     mkdir -p /mnt/redhat/user/acpi/
-    acpidump > /mnt/redhat/user/acpi/acpitable.out 2>&1
+    acpidump > /mnt/redhat/user/acpi/acpitable.log 2>&1
     ret=$?
-    cat /mnt/redhat/user/acpi/acpitable.out | tee -a $OUTPUTFILE
+    rhts_submit_log -l /mnt/redhat/user/acpi/acpitable.log
 fi
 
 echo "Test finished" | tee -a $OUTPUTFILE
