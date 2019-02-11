@@ -51,8 +51,10 @@ if [ $ret = 0 ] ; then
     # try to read  ACPI tables from sysfs
     # run acpidump, which should succeed and write tables to stdout
     # (requires being run as root)
-    acpidump >> $OUTPUTFILE 2>&1 
+    mkdir -p /mnt/redhat/users/acpi/
+    acpidump > /mnt/redhat/user/acpi/acpitable.out 2>&1
     ret=$?
+    cat /mnt/redhat/user/acpi/acpitable.out | tee -a $OUTPUTFILE
 fi
 
 echo "Test finished" | tee -a $OUTPUTFILE
