@@ -154,6 +154,8 @@ EOF
   if [ $? -ne 0 ]; then
     echo "Unable to install kernel-firmware, skipping" | tee -a ${OUTPUTFILE}
   fi
+
+  return 0
 }
 
 if [ ${REBOOTCOUNT} -eq 0 ]; then
