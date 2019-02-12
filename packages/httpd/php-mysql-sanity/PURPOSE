@@ -1,0 +1,3 @@
+PURPOSE of /CoreOS/httpd/Sanity/httpd-php-mysql-sanity-test
+Description: test fetching data from mysqldb/mariadb through php
+Author: Karel Srot <ksrot@redhat.com>
