@@ -150,9 +150,12 @@ EOF
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
   fi
-  $YUM install -y kernel-firmware >>${OUTPUTFILE} 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Unable to install kernel-firmware, skipping" | tee -a ${OUTPUTFILE}
+
+  # The package was renamed (and temporarily aliased) in Fedora/RHEL
+  if $YUM search kernel-firmware | grep kernel-firmware ; then
+      $YUM install -y kernel-firmware >>${OUTPUTFILE} 2>&1
+  else
+      $YUM install -y linux-firmware >>${OUTPUTFILE} 2>&1
   fi
 
   return 0
