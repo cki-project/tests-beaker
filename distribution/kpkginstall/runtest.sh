@@ -7,7 +7,6 @@ REBOOTCOUNT=${REBOOTCOUNT:-0}
 
 function get_kpkg_ver()
 {
-  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
 
   case "${KPKG_URL}" in
     *.tar.gz)
@@ -33,6 +32,7 @@ function targz_install()
     exit 1
   fi
 
+  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
   if [ -z ${KVER} ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
@@ -126,6 +126,7 @@ EOF
     exit 1
   fi
 
+  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
   if [ -z ${KVER} ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
@@ -173,6 +174,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   report_result ${TEST}/kernel-in-place PASS 0
   rhts-reboot
 else
+  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
   if [ -z ${KVER} ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
