@@ -1,0 +1,5 @@
+PURPOSE of /CoreOS/redhat-rpm-config/Sanity/bz1004930-detect-kabi-provides
+Description: Test for BZ#1004930 (kernel-tools-3.10.0-11.el7.x86_64 requires)
+Author: Karel Srot <ksrot@redhat.com>
+Bug summary: kernel-tools-3.10.0-11.el7.x86_64 requires libcpupower.so.0()(64bit)
+Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1004930
