@@ -15,7 +15,7 @@ function get_kpkg_ver()
             ;;
     *)
             # Grab the kernel version from the provided repo directly
-            dnf --disablerepo="*" --enablerepo="kernel-cki" list kernel | awk '/kernel-cki/ {print $2}'
+            ${YUM} --disablerepo="*" --enablerepo="kernel-cki" list kernel | awk '/kernel-cki/ {print $2}'
             ;;
   esac
 }
