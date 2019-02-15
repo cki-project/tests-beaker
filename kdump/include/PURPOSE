@@ -1,0 +1,9 @@
+This is the Shell library including all common functions for Kdump test
+cases. There is no need to run this test. In each test case, add one
+line to the main script,
+
+ . /mnt/tests/kernel/kdump/include/runtest.sh
+
+and also to the Makefile,
+
+ RhtsRequires: kernel-kernel-kdump-include

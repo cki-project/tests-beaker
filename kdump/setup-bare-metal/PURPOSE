@@ -1,0 +1,7 @@
+It setups main kernel parameters and installs necessary Kdump
+and debuginfo packages for later exercise of Kdump and crash-utility.
+
+Accepted Parameters
+- KER1ARGS: a series of additional main kernel boot parameters separated by
+  white spaces.
+  E.g. 'crashkernel=64M@16M intel_iommu=on'
