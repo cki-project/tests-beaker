@@ -1,0 +1,10 @@
+Tests for 
+- crashkernel memory reservation
+- kdump service startup
+- Vmcore saving after system panic
+
+
+Accepted Parameters
+- KER1ARGS: a series of additional main kernel boot parameters separated by
+  white spaces.
+  E.g. 'crashkernel=64M@16M intel_iommu=on'
