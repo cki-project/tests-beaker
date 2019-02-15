@@ -111,7 +111,6 @@ name=kernel-cki
 baseurl=${KPKG_URL}
 enabled=1
 gpgcheck=0
-skip_if_unavailable=1
 EOF
   echo "Setup kernel repo file" >> ${OUTPUTFILE}
   cat /etc/yum.repos.d/kernel-cki.repo >> ${OUTPUTFILE}
