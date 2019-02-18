@@ -34,7 +34,7 @@ function targz_install()
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
-  if [ -z ${KVER} ]; then
+  if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
@@ -127,7 +127,7 @@ EOF
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
-  if [ -z ${KVER} ]; then
+  if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
@@ -150,7 +150,7 @@ EOF
 }
 
 if [ ${REBOOTCOUNT} -eq 0 ]; then
-  if [ -z ${KPKG_URL} ]; then
+  if [ -z "${KPKG_URL}" ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
@@ -175,7 +175,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 else
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
-  if [ -z ${KVER} ]; then
+  if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
