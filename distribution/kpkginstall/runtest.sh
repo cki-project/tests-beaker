@@ -193,7 +193,7 @@ else
 
   ckver=$(uname -r)
   uname -a | tee -a ${OUTPUTFILE}
-  if [ "${KVER}" = "${ckver}" ]; then
+  if [ "${KVER}.${ARCH}" = "${ckver}" ]; then
     dmesg | grep -qi 'Call Trace:'
     dmesgret=$?
     if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
@@ -206,7 +206,7 @@ else
       report_result ${TEST}/reboot PASS 0
     fi
   else
-    echo "Kernel version after reboot is not '${KVER}': '${ckver}'" | tee -a ${OUTPUTFILE}
+    echo "Kernel version after reboot is not '${KVER}.${ARCH}': '${ckver}'" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
   fi
 fi
