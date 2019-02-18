@@ -4,6 +4,7 @@
 
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
+YUM=""
 
 function get_kpkg_ver()
 {
@@ -102,6 +103,19 @@ function targz_install()
   fi
 }
 
+function select_yum_tool()
+{
+  if [ -x /usr/bin/yum ]; then
+    YUM=/usr/bin/yum
+  elif [ -x /usr/bin/dnf ]; then
+    YUM=/usr/bin/dnf
+  else
+    echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
+}
+
 function rpm_install()
 {
   # setup yum repo based on url
@@ -115,15 +129,8 @@ EOF
   echo "Setup kernel repo file" >> ${OUTPUTFILE}
   cat /etc/yum.repos.d/kernel-cki.repo >> ${OUTPUTFILE}
 
-  if [ -x /usr/bin/yum ]; then
-    YUM=/usr/bin/yum
-  elif [ -x /usr/bin/dnf ]; then
-    YUM=/usr/bin/dnf
-  else
-    echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
-    rhts-abort -t recipe
-    exit 1
-  fi
+  # set YUM var.
+  select_yum_tool
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
@@ -173,6 +180,9 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   report_result ${TEST}/kernel-in-place PASS 0
   rhts-reboot
 else
+  # set YUM var.
+  select_yum_tool
+
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
   if [ -z "${KVER}" ]; then
