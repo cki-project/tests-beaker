@@ -16,7 +16,7 @@ function get_kpkg_ver()
             ;;
     *)
             # Grab the kernel version from the provided repo directly
-            ${YUM} --disablerepo="*" --enablerepo="kernel-cki" list kernel --showduplicates | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+            ${YUM} --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" kernel --showduplicates | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
             ;;
   esac
 }
@@ -107,8 +107,10 @@ function select_yum_tool()
 {
   if [ -x /usr/bin/yum ]; then
     YUM=/usr/bin/yum
+    AVAILABLE="available"
   elif [ -x /usr/bin/dnf ]; then
     YUM=/usr/bin/dnf
+    AVAILABLE="--available"
   else
     echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
