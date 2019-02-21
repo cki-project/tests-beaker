@@ -1,6 +1,27 @@
 #!/bin/bash
 
-# Added-by:  Li Wang <liwang@redhat.com>
+# Description:
+#   See: https://wiki.test.redhat.com/Kernel/LTPKnownIssue
+#
+# Knownissue classification:
+#
+#   fatal: means the issue/bz caused by this testcase will block(system
+#          panic or hang) our test. we suggest to skip it directly.
+#
+#   fixed: means the issue/bz caused by this testcase has already been
+#          fixed in a specified kernel version. And the testcase only
+#          failed but no system panic/hang, we suggest to skip it when
+#          < fixed-kernel-version, or we can remark the test result as
+#          KNOWN issue in log to avoid beaker report failure.
+#
+#   unfix: means the issue/bz caused by this testcase have NOT being
+#          fixed in corresponding RHEL(BZ delay to next version) product
+#          or it'll never get a chance to be fixed(BZ close as WONTFIX).
+#          And the testcase only failed but no system panic/hang), we
+#          suggest to skip it when <= unfix-rhel-version, or we can remark
+#          the test result as KNOWN issue to avoid beaker report failure.
+#
+# Added-by: Li Wang <liwang@redhat.com>
 
 . ../include/kvercmp.sh  || exit 1
 
@@ -98,23 +119,24 @@ function knownissue_filter()
 	# this case always make the beaker task abort with 'incrementing stop' msg
 	tskip "min_free_kbytes" fatal
 	# msgctl10 -> keeps triggerring OOM...(Bug 1162965?), msgctl11 -> too many pids
+	# LTP-20180926 renamed msgctl08-11 to msgstress01-04, so skip msgstress03-04 too
+	#     https://github.com/linux-test-project/ltp/commit/3e882e3e4c2d
 	tskip "msgctl10 msgctl11" fatal
+	tskip "msgstress03 msgstress04" fatal
 	# read_all_dev can trigger accidental reboots when reading /dev/watchdog
 	# https://github.com/linux-test-project/ltp/issues/377
 	tskip "read_all_dev" fatal
-	# Bug TBD - needs investigation: msgstress0* fails/aborts on s390x on all RHEL versions
-	is_arch "s390x" && tskip "msgstress0*" fatal
+	# Bug 1534635 - CVE-2018-1000001 glibc: realpath() buffer underflow when getcwd() returns relative path allows privilege escalation
+	pkg_in_range "glibc" "0" "glibc-2.17-221.el7" && tskip "realpath01 cve-2018-1000001" fixed
 	# Bug 1657032 - fallocate05 intermittently failing in ltp lite
 	is_arch "ppc64" && tskip "fallocate05" fatal
 	is_arch "ppc64le" && tskip "fallocate05" fatal
 	is_arch "s390x" && tskip "fallocate05" fatal
 
-
 	if is_upstream; then
 		# ------- unfix ---------
 		# http://lists.linux.it/pipermail/ltp/2017-January/003424.html
 		kernel_in_range "4.8.0-rc6" "4.12" && tskip "utimensat01.*" unfix
-                tskip "keyctl02" fatal
 	fi
 
 	if is_rhel8; then
@@ -125,9 +147,19 @@ function knownissue_filter()
 			osver_in_range "800" "800" && tskip "read_all_sys" fatal
 		fi
 
+		# ------- unfix ---------
+		# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
+		osver_in_range "800" "801" && is_arch "aarch64" && tskip "mkswap01" unfix
+		# Bug 1657880 - CVE-2018-19854 kernel: Information Disclosure in crypto_report_one in crypto/crypto_user.c
+		osver_in_range "800" "801" && tskip "cve-2018-19854 crypto_user01" unfix
+		# Bug 1650597 - [RHEL8][aarch64][Huawei] ltp/lite migrate_pages failures in T2280
+		osver_in_range "800" "801" && is_arch "aarch64" && tskip "migrate_pages03" unfix
+
 		# ------- fixed ---------
 		# Bug 1638647 - ltp execveat03 failed, as missing "355139a8dba4
 		kernel_in_range "0" "4.18.0-27.el8" && tskip "execveat03" fixed
+		# Bug 1652432 - fanotify: fix handling of events on child sub-directory
+		kernel_in_range "0" "4.18.0-50.el8" && tskip "fanotify09" fixed
 	fi
 
 	if is_rhel_alt; then
@@ -170,7 +202,8 @@ function knownissue_filter()
 		kernel_in_range "0" "4.14.0-116.el7a" && tskip "fanotify09" fixed
 		# Bug 1632639 - bind03 fails
 		kernel_in_range "0" "4.14.0-115.el7a"  && tskip "bind03" fixed
-
+		# Bug 1596532 - VFS: regression in fsnotify, resulting in kernel panic or softlockup [7.6-alt]
+		kernel_in_range "0" "4.14.0-113.el7a"  && tskip "inotify09" fixed
 	fi
 
 	if is_rhel7; then
@@ -208,8 +241,17 @@ function knownissue_filter()
 		osver_in_range "700" "706" && tskip "fanotify07" fatal
 		# Bug 1543262 - CVE-2017-17807 kernel: Missing permissions check for request_key()
 		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fatal
+		# Bug TBD - needs investigation: fallocate05 fails on ppc64/ppc64le
+		is_arch "ppc64" && tskip "fallocate05" fatal
+		is_arch "ppc64le" && tskip "fallocate05" fatal
 
 		# ------- unfix ---------
+		# Bug 1639345 - [RHEL-7.7] fsnotify: fix ignore mask logic in fsnotify
+		osver_in_range "700" "708" && tskip "fanotify10" unfix
+		# Bug 1666604 - shmat returned EACCES when mapping the nil page
+		osver_in_range "700" "708" && tskip "shmat03" unfix
+		# Bug 1666588 - getrlimit03.c:121: FAIL: __NR_prlimit64(0) had rlim_cur = ffffffffffffffff but __NR_getrlimit(0) had rlim_cur = ffffffffffffffff
+		osver_in_range "700" "708" && is_arch "s390x"&& tskip "getrlimit03" unfix
 		# Bug 1593435 - ppc64: kt1lite getrandom02 test failure reported
 		osver_in_range "705" "707" && is_arch "ppc64" && tskip "getrandom02" unfix
 		# Bug 1593435 - ppc64: kt1lite getrandom02 test failure reported
@@ -220,12 +262,16 @@ function knownissue_filter()
 		tskip "sysctl" unfix
 		# Bug 1431926 - CVE-2016-10044 kernel: aio_mount function does not properly restrict execute access
 		tskip "cve-2016-10044" unfix
+		# Bug 1652436 - fanotify: fix handling of events on child sub-directory
+		osver_in_range "700" "707" && tskip "fanotify09" unfix
 
 		# ------- fixed ---------
 		# Bug 1597738 - [RHEL7.6]ltp fanotify09 test failed as missing patch of "fanotify: fix logic of events on child"
 		kernel_in_range "0" "3.10.0-951.el7" && tskip "fanotify09" fixed
 		# Bug 1633059 - [RHEL7.6]ltp syscalls/mlock203 test failed as missing patch "mm: mlock:
 		kernel_in_range "0" "3.10.0-957.el7" && tskip "mlock203" fixed
+		# Bug 1569921 - rhel7.5 regression in fsnotify, resulting in kernel panic or softlockup
+		kernel_in_range "0" "3.10.0-896.el7"  && tskip "inotify09" fixed
 		# Bug 1481118 - [LTP fcntl35] unprivileged user exceeds fs.pipe-max-size
 		osver_in_range "700" "706" && tskip "fcntl35" fixed
 		# Bug 1490308 - [LTP keyctl04] fix keyctl_set_reqkey_keyring() to not leak thread keyrings
@@ -278,6 +324,8 @@ function knownissue_filter()
 		kernel_in_range "0" "3.10.0-686.el7" && tskip "cve-2017-6951" fixed
 		# Bug 1273465 - CVE-2015-7872 kernel: Using request_key() or keyctl request2 to get a kernel causes the key garbage collector to crash
 		kernel_in_range "0" "3.10.0-332.el7" && tskip "keyctl03" fixed
+		# Bug 1503242 - Backport keyring fixes
+		kernel_in_range "0" "3.10.0-794.el7" && tskip "request_key03" fixed
 	fi
 
 	if is_rhel6; then
@@ -314,6 +362,8 @@ function knownissue_filter()
 		osver_in_range "600" "611" && tskip "sysctl01.*" fatal
 
 		# ------- unfix ---------
+		# Bug 1653138 - remap_file_pages() return success in use after free of shm file
+		osver_in_range "600" "611" && tskip "shmctl05" unfix
 		# Bug 1537384 - KEYS: Disallow keyrings beginning with '.' to be joined as session keyrings
 		osver_in_range "600" "611" && tskip "keyctl08" unfix
 		# Bug 1537371 - KEYS: prevent creating a different user's keyrings

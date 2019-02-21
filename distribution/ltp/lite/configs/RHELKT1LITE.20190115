@@ -1,6 +1,4 @@
-#logging
 kmsg01 kmsg01
-
 #DESCRIPTION:Math library tests - CPU tests
 abs01 abs01
 
@@ -16,9 +14,13 @@ fptest01 fptest01
 fptest02 fptest02
 
 nextafter01 nextafter01
-
 #DESCRIPTION:fsx filesystem stress tests
 fsx-linux export TCbin=$LTPROOT/testcases/bin;fsxtest02 10000
+#fsx-ext2 fsxtest $SCRATCHDEV ext2 10000
+#fsx-ext3 fsxtest $SCRATCHDEV ext3 10000
+#fsx-jfs fsxtest $SCRATCHDEV jfs 10000
+#fsx-xfs  fsxtest $SCRATCHDEV xfs 10000
+#fsx-reiserfs fsxtest $SCRATCHDEV reiserfs 10000
 
 #DESCRIPTION:Interprocess communication stress
 # These tests use tests/pipeio to put pipes (named or unnamed) through a workout
@@ -52,7 +54,6 @@ pipeio_8 pipeio -T pipeio_8 -c 5 -s 5000 -i 10 -u -f x80
 
 sem01 sem01
 sem02 sem02
-
 #DESCRIPTION:Kernel system calls
 abort01 abort01
 
@@ -160,6 +161,7 @@ creat06 creat06
 creat07 creat07
 creat08 creat08
 
+
 dup01 dup01
 dup02 dup02
 dup03 dup03
@@ -182,7 +184,6 @@ epoll01 epoll-ltp
 epoll_ctl01 epoll_ctl01
 epoll_ctl02 epoll_ctl02
 epoll_wait01 epoll_wait01
-#epoll_wait02 epoll_wait02 --> sporadically wakes up early, needs to be investigated
 epoll_wait03 epoll_wait03
 epoll_pwait01 epoll_pwait01
 
@@ -203,6 +204,8 @@ execve03 execve03
 execve04 execve04
 execve05 execve05 -i 5 -n 32
 execvp01 execvp01
+execveat01 execveat01
+execveat02 execveat02
 execveat03 execveat03
 
 exit01 exit01
@@ -370,6 +373,9 @@ fork14 fork14
 
 fpathconf01 fpathconf01
 
+fremovexattr01 fremovexattr01
+fremovexattr02 fremovexattr02
+
 fstat01 fstat01
 fstat01_64 fstat01_64
 fstat02 fstat02
@@ -471,7 +477,7 @@ getpriority01 getpriority01
 getpriority02 getpriority02
 
 getrandom01 getrandom01
-#getrandom02 getrandom02
+#getrandom02 getrandom02 Disable getrandom02 test seen failing on F28 
 getrandom03 getrandom03
 getrandom04 getrandom04
 
@@ -485,6 +491,7 @@ getresuid03 getresuid03
 
 getrlimit01 getrlimit01
 getrlimit02 getrlimit02
+getrlimit03 getrlimit03
 
 get_mempolicy01 get_mempolicy01
 get_robust_list01 get_robust_list01
@@ -492,7 +499,6 @@ get_robust_list01 get_robust_list01
 getrusage01 getrusage01
 getrusage02 getrusage02
 getrusage03 getrusage03
-#TODO: getrusage04 sporadicly fails
 getrusage04 sh -c "getrusage04 || true"
 
 getsid01 getsid01
@@ -518,8 +524,11 @@ getxattr02 getxattr02
 getxattr03 getxattr03
 getxattr04 getxattr04
 
+#Needs tty device.
+#ioctl01 ioctl01 -D /dev/tty0
+#ioctl02 ioctl02 -D /dev/tty0
+
 # Introducing ioctl tests for all /dev/tty* devices
-ioctl01_02   test_ioctl
 ioctl03      ioctl03
 ioctl04      ioctl04
 ioctl05      ioctl05
@@ -538,8 +547,7 @@ inotify05 inotify05
 inotify06 inotify06
 inotify07 inotify07
 inotify08 inotify08
-# See https://github.com/linux-test-project/ltp/issues/429
-#inotify09 inotify09
+inotify09 inotify09
 
 fanotify01 fanotify01
 fanotify02 fanotify02
@@ -550,6 +558,8 @@ fanotify06 fanotify06
 fanotify07 fanotify07
 fanotify08 fanotify08
 fanotify09 fanotify09
+fanotify10 fanotify10
+fanotify11 fanotify11
 
 ioperm01 ioperm01
 ioperm02 ioperm02
@@ -626,6 +636,8 @@ llseek01 llseek01
 llseek02 llseek02
 llseek03 llseek03
 
+lremovexattr01 lremovexattr01
+
 lseek01 lseek01
 lseek02 lseek02
 lseek07 lseek07
@@ -649,10 +661,10 @@ memcmp01 memcmp01
 memcpy01 memcpy01
 
 migrate_pages01 migrate_pages01
-# See https://github.com/linux-test-project/ltp/issues/407
-#migrate_pages02 migrate_pages02
+migrate_pages02 migrate_pages02
 # (Temporarily) disable due to https://github.com/linux-test-project/ltp/issues/431
 #migrate_pages03 migrate_pages03
+
 
 mlockall01 mlockall01
 mlockall02 mlockall02
@@ -705,7 +717,8 @@ mmap09 mmap09
 mmap12 mmap12
 mmap13 mmap13
 mmap14 mmap14
-#TODO: mmap11 mmap11 -i 30000, test is masked in upstream LTP
+# test is broken, mask it for now.
+#mmap11 mmap11 -i 30000
 mmap15 mmap15
 mmap16 mmap16
 
@@ -727,9 +740,6 @@ move_pages04 move_pages04
 move_pages05 move_pages05
 move_pages06 move_pages06
 move_pages07 move_pages07
-#TODO: move_pages0[89] makes sense only kernel < 2.6.29
-#TODO: move_pages08 move_pages08
-#TODO: move_pages09 move_pages09
 move_pages10 move_pages10
 move_pages11 move_pages11
 move_pages12 move_pages12
@@ -756,13 +766,8 @@ msgctl01 msgctl01
 msgctl02 msgctl02
 msgctl03 msgctl03
 msgctl04 msgctl04
-# msgstress{01-04} used to be msgctl{08-11}, see upstream commit 3e882e3e4c2d
 msgstress01 msgstress01
 msgstress02 msgstress02
-# msgctl10 and msgctl11 were commented out in previous releases of LTP/lite,
-# so comment out msgstress03 and msgstress04 now too
-#TODO: msgstress03 msgstress03 -> keeps triggerring OOM until there are no more processes to kill (Bug 1162965?)
-#TODO: msgstress04 msgstress04 -> too many pids
 msgctl12 msgctl12
 
 msgget01 msgget01
@@ -892,6 +897,7 @@ preadv02_64 preadv02_64
 preadv03 preadv03
 preadv03_64 preadv03_64
 
+
 profil01 profil01
 
 process_vm_readv01 process_vm01 -r
@@ -903,11 +909,8 @@ process_vm_writev02 process_vm_writev02
 prot_hsymlinks prot_hsymlinks
 dirtyc0w dirtyc0w
 
-#pselect01 pselect01
-#pselect01_64 pselect01_64
 pselect01 sh -c "pselect01 || true"
 pselect01_64 sh -c "pselect01_64 || true"
-
 pselect02 pselect02
 pselect02_64 pselect02_64
 pselect03 pselect03
@@ -920,8 +923,7 @@ ptrace04 ptrace04
 ptrace05 ptrace05
 # Broken test; See: testcases/kernel/syscalls/ptrace/Makefile for more details.
 #ptrace06 ptrace06
-# Broken test; ltp/lite ptrace07 test failed on AMD system
-#ptrace07 ptrace07
+ptrace07 ptrace07
 
 pwrite01 pwrite01
 pwrite02 pwrite02
@@ -1012,7 +1014,6 @@ renameat202 renameat202 -i 10
 request_key01 request_key01
 request_key02 request_key02
 request_key03 request_key03
-cve-2017-6951 cve-2017-6951
 request_key04 request_key04
 
 rmdir01 rmdir01
@@ -1239,7 +1240,7 @@ setsid01 setsid01
 
 setsockopt01 setsockopt01
 setsockopt02 setsockopt02
-#cve-2016-4997 cve-2016-4997 disabled to work around Bug 1672242 
+setsockopt03 setsockopt03
 
 settimeofday01 settimeofday01
 settimeofday02 settimeofday02
@@ -1257,7 +1258,7 @@ setxattr03 setxattr03
 
 shmat01 shmat01
 shmat02 shmat02
-cve-2017-5669 cve-2017-5669
+shmat03 shmat03
 
 shmctl01 shmctl01
 shmctl02 shmctl02
@@ -1388,7 +1389,6 @@ sysconf01 sysconf01
 
 sysctl01 sysctl01
 sysctl03 sysctl03
-#TODO: undocumented behavior of EPERM/EACCES
 sysctl04 sysctl04
 
 sysfs01 sysfs01
@@ -1442,22 +1442,41 @@ truncate02_64 truncate02_64
 truncate03 truncate03
 truncate03_64 truncate03_64
 
+# This syscall is obsolete.  The latest glibc does not even
+# include the ulimit.h file anymore.  The test will fail
+# because the error handling has been simplified.
+#
+
 umask01 umask01
 
 uname01 uname01
 uname02 uname02
 uname03 uname03
-cve-2012-0957 cve-2012-0957
+uname04 uname04
 
 unlink01 symlink01 -T unlink01
 unlink05 unlink05
 unlink07 unlink07
 unlink08 unlink08
 
+#unlinkat test cases
 unlinkat01 unlinkat01
 
 unshare01 unshare01
 unshare02 unshare02
+
+#
+# These tests require an unmounted block device
+# to run correctly. Please see individual test
+# code for more information.
+#
+umount01 umount01
+umount02 umount02
+umount03 umount03
+
+umount2_01 umount2_01
+umount2_02 umount2_02
+umount2_03 umount2_03
 
 ustat01 ustat01
 ustat02 ustat02
@@ -1520,8 +1539,6 @@ writev05 writev05
 writev06 writev06
 writev07 writev07
 
-#TODO: perf_event_open01 perf_event_open01 -> takes too long on power7
-#TODO: perf_event_open02 perf_event_open02
 
 futex_wait01 futex_wait01
 futex_wait02 futex_wait02
@@ -1546,8 +1563,8 @@ statx01 statx01
 statx02 statx02
 statx03 statx03
 statx04 statx04
-# statx05 requires ext4 encryption support which is excluded in RHEL
-#statx05 statx05
+statx06 statx06
+
 #DESCRIPTION:Memory Mgmt tests
 mm01 mmap001 -m 10000
 # 40 Mb mmap() test.
@@ -1564,14 +1581,12 @@ mtest01w mtest01 -p80 -w
 
 #test for race conditions
 mtest05   mmstress
-# See https://github.com/linux-test-project/ltp/issues/165
-#mtest06   mmap1 -x 0.05
+mtest06   mmap1
 mtest06_2 mmap2 -x 0.002 -a -p
 mtest06_3 mmap3 -x 0.002 -p
 # Remains diabled till the infinite loop problem is solved
 #mtest-6_4 shmat1 -x 0.00005
 
-#TODO: mem01 mem01 -> sometimes fails to allocate memory or hits OOM
 mem02 mem02
 mem03 mem03
 
@@ -1605,16 +1620,27 @@ mmapstress08 mmapstress08
 mmapstress09 mmapstress09 -p 20 -t 0.2
 mmapstress10 mmapstress10 -p 20 -t 0.2
 
+
+
+
+
+
 vma01 vma01
 vma02 vma02
 vma03 vma03
 vma04 vma04
 vma05 vma05.sh
 
+
+
 #DESCRIPTION:Scheduler Stress Tests
 pth_str01 pth_str01
 pth_str02 pth_str02 -n1000
 pth_str03 pth_str03
+
+
+
+# Run this stress test for 2 minutes
 
 #DESCRIPTION:Native POSIX Thread Library (NPTL) Tests
 nptl01 nptl01
@@ -1625,10 +1651,8 @@ pty02 pty02
 ptem01 ptem01
 hangup01 hangup01
 
-#Misc
+#DESCRIPTION:Tracing testing
 dynamic_debug01		dynamic_debug01.sh
-gdb01 gdb01.sh
-
 #DESCRIPTION:Filesystem stress tests
 gf01 growfiles -W gf01 -b -e 1 -u -i 0 -L 20 -w -C 1 -l -I r -T 10 -f glseek20 -S 2 -d $TMPDIR
 gf02 growfiles -W gf02 -b -e 1 -L 10 -i 100 -I p -S 2 -u -f gf03_ -d $TMPDIR
@@ -1666,40 +1690,60 @@ rwtest03 export LTPROOT; rwtest -N rwtest03 -c -q -i 60s -n 2  -f buffered -s mm
 rwtest04 export LTPROOT; rwtest -N rwtest04 -c -q -i 60s -n 2  -f sync -s mmread,mmwrite -m random -Dv 10%25000:$TMPDIR/mm-sync-$$
 rwtest05 export LTPROOT; rwtest -N rwtest05 -c -q -i 50 -T 64b 500b:$TMPDIR/rwtest01%f
 
+#must be run as root
+#iogen01 iogen -i 120s -s read,write 500b:doio.f1.$$ 1000b:doio.f2.$$ | doio -akv -n 2
+
+
+
+#Also run the fs_di (Data Integrity tests)
+
+# Read every file in /proc. Not likely to crash, but does enough
+# to disturb the kernel. A good kernel latency killer too.
+# Was not sure why it should reside in runtest/crashme and won´t get tested ever
+proc01 proc01 -m 128
+
+
+#Run the File System Race Condition Check tests as well
+
+#Run the Quota Remount Test introduced in linux-2.6.26
+
+
+
+
 #aio/dio tests
 # setup scratch space
 SETUP01 dd if=/dev/urandom of=$BIG_FILE bs=4096 count=4096
 
 #ltp-aio-stress
 # added -s 128M, guests have limited disk space
-AIOSETUP01  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
+AIOSETUP01 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
 
-ADS1000 aio-stress -I500  -o2 -S -r4         -s 128M $SCRATCH_MNT/aiodio/file1
-ADS1005 aio-stress -I500  -o3 -S -r4         -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-ADS1008 aio-stress -I500  -o3 -S -r32   -t4  -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/file2 $SCRATCH_MNT/aiodio/file3 $SCRATCH_MNT/aiodio/file4
-ADS1014 aio-stress -I500  -o2 -O -r8         -s 128M $SCRATCH_MNT/aiodio/file1    $SCRATCH_MNT/aiodio/file2
-ADS1020 aio-stress -I500  -o3 -O -r16   -t2  -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-ADS1027 aio-stress -I500  -o0 -S -r8         -s 128M $SCRATCH_MNT/aiodio/file2
-ADS1031 aio-stress -I500  -o1 -S -r4    -t2  -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-ADS1040 aio-stress -I500  -o1 -O -r8    -t2  -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
+ADS1000 aio-stress -I500 -o2 -S -r4 -s 128M $SCRATCH_MNT/aiodio/file1
+ADS1005 aio-stress -I500 -o3 -S -r4 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
+ADS1008 aio-stress -I500 -o3 -S -r32 -t4 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/file2 $SCRATCH_MNT/aiodio/file3 $SCRATCH_MNT/aiodio/file4
+ADS1014 aio-stress -I500 -o2 -O -r8 -s 128M $SCRATCH_MNT/aiodio/file1 $SCRATCH_MNT/aiodio/file2
+ADS1020 aio-stress -I500 -o3 -O -r16 -t2 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
+ADS1027 aio-stress -I500 -o0 -S -r8 -s 128M $SCRATCH_MNT/aiodio/file2
+ADS1031 aio-stress -I500 -o1 -S -r4 -t2 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
+ADS1040 aio-stress -I500 -o1 -O -r8 -t2 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
 
 #ltp-aiodio.part1
-AIOSETUP01  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
-AIOSETUP02  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/fff      bs=4096 conv=block,sync
-AIOSETUP03  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff1      bs=2048 conv=block,sync
-AIOSETUP04  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff2      bs=1024 conv=block,sync
-AIOSETUP05  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff3      bs=512  conv=block,sync
+AIOSETUP01 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
+AIOSETUP02 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/fff bs=4096 conv=block,sync
+AIOSETUP03 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff1 bs=2048 conv=block,sync
+AIOSETUP04 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff2 bs=1024 conv=block,sync
+AIOSETUP05 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff3 bs=512 conv=block,sync
 
 # we have to align buffers for O_DIRECT
-AD056 time aiocp -a $BUF_ALIGN -b 4k -n 16 -f DIRECT            $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD057 time aiocp               -b 4k -n 16 -f SYNC              $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD058 time aiocp -a $BUF_ALIGN -b 4k -n 16 -f DIRECT -f SYNC    $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD130 time aiocp -a $BUF_ALIGN -b 64k -n 1 -f DIRECT            $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD131 time aiocp               -b 64k -n 1 -f SYNC              $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD132 time aiocp -a $BUF_ALIGN -b 64k -n 1 -f DIRECT -f SYNC    $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD193 time aiocp -a $BUF_ALIGN -b 512k -n 1 -f DIRECT           $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD194 time aiocp               -b 512k -n 1 -f SYNC             $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD195 time aiocp -a $BUF_ALIGN -b 512k -n 1 -f DIRECT -f SYNC   $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD056 time aiocp -a $BUF_ALIGN -b 4k -n 16 -f DIRECT $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD057 time aiocp -b 4k -n 16 -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD058 time aiocp -a $BUF_ALIGN -b 4k -n 16 -f DIRECT -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD130 time aiocp -a $BUF_ALIGN -b 64k -n 1 -f DIRECT $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD131 time aiocp -b 64k -n 1 -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD132 time aiocp -a $BUF_ALIGN -b 64k -n 1 -f DIRECT -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD193 time aiocp -a $BUF_ALIGN -b 512k -n 1 -f DIRECT $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD194 time aiocp -b 512k -n 1 -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
+AD195 time aiocp -a $BUF_ALIGN -b 512k -n 1 -f DIRECT -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
 AD301 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/fff $SCRATCH_MNT/aiodio/junkdir/fff
 AD302 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/ff1 $SCRATCH_MNT/aiodio/junkdir/ff1
 AD303 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/ff2 $SCRATCH_MNT/aiodio/junkdir/ff2
@@ -1720,24 +1764,24 @@ ADSP015 aiodio_sparse -i 4 -a 8k -w 2048k -s 8192k -n 2
 ADSP016 aiodio_sparse -i 4 -a 8k -w 4096k -s 16384k -n 2
 ADSP017 aiodio_sparse -i 4 -a 8k -w 8192k -s 32768k -n 2
 ADSP018 aiodio_sparse -i 4 -a 8k -w 16384k -s 65536k -n 2
-ADSP045 dio_sparse  -a 4k -w 4k -s 2k -n 2
-ADSP046 dio_sparse  -a 4k -w 4k -s 4k -n 2
-ADSP047 dio_sparse  -a 8k -w 16k -s 16k -n 2
-ADSP048 dio_sparse  -a 8k -w 32k -s 32k -n 2
-ADSP049 dio_sparse  -a 8k -w 64k -s 64k -n 2
-ADSP050 dio_sparse  -a 8k -w 128k -s 128k -n 2
-ADSP051 dio_sparse  -a 8k -w 256k -s 256k -n 2
-ADSP052 dio_sparse  -a 8k -w 512k -s 512k -n 2
-ADSP053 dio_sparse  -a 8k -w 1024k -s 1024k -n 2
-ADSP054 dio_sparse  -a 8k -w 2048k -s 2048k -n 2
-ADSP055 dio_sparse  -a 8k -w 4096k -s 4096k -n 2
-ADSP056 dio_sparse  -a 8k -w 8192k -s 8192k -n 2
+ADSP045 dio_sparse -a 4k -w 4k -s 2k -n 2
+ADSP046 dio_sparse -a 4k -w 4k -s 4k -n 2
+ADSP047 dio_sparse -a 8k -w 16k -s 16k -n 2
+ADSP048 dio_sparse -a 8k -w 32k -s 32k -n 2
+ADSP049 dio_sparse -a 8k -w 64k -s 64k -n 2
+ADSP050 dio_sparse -a 8k -w 128k -s 128k -n 2
+ADSP051 dio_sparse -a 8k -w 256k -s 256k -n 2
+ADSP052 dio_sparse -a 8k -w 512k -s 512k -n 2
+ADSP053 dio_sparse -a 8k -w 1024k -s 1024k -n 2
+ADSP054 dio_sparse -a 8k -w 2048k -s 2048k -n 2
+ADSP055 dio_sparse -a 8k -w 4096k -s 4096k -n 2
+ADSP056 dio_sparse -a 8k -w 8192k -s 8192k -n 2
 
 #ltp-aiodio.part3
 # lower number of ops for KT1
-AIOSETUP01  dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
-FSX032 fsx-linux -d  -l 500000 -r 4096 -t 4096 -w 4096 -N 1000 $SCRATCH_MNT/aiodio/junkfile
-FSX042 fsx-linux -N 1000 -o 4096                               $SCRATCH_MNT/aiodio/junkfile
+AIOSETUP01 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
+FSX032 fsx-linux -d -l 500000 -r 4096 -t 4096 -w 4096 -N 1000 $SCRATCH_MNT/aiodio/junkfile
+FSX042 fsx-linux -N 1000 -o 4096 $SCRATCH_MNT/aiodio/junkfile
 
 #proc
 # Read every file in /proc. Not likely to crash, but does enough

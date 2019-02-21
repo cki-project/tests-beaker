@@ -1,0 +1,28 @@
+From c28a2d56e15baa8ed5da34fd52f1207ff97133a2 Mon Sep 17 00:00:00 2001
+From: Li Wang <liwang@redhat.com>
+Date: Mon, 18 Feb 2019 10:50:19 +0800
+Subject: [PATCH] shmat03: ignore EACCES
+
+Signed-off-by: Li Wang <liwang@redhat.com>
+---
+ testcases/kernel/syscalls/ipc/shmat/shmat03.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/testcases/kernel/syscalls/ipc/shmat/shmat03.c b/testcases/kernel/syscalls/ipc/shmat/shmat03.c
+index 083462675..fc01723be 100644
+--- a/testcases/kernel/syscalls/ipc/shmat/shmat03.c
++++ b/testcases/kernel/syscalls/ipc/shmat/shmat03.c
+@@ -83,6 +83,10 @@ static void run(void)
+ 		if (errno == EINVAL) {
+ 			tst_res(TPASS, "shmat returned EINVAL");
+ 			return;
++		} else if (errno == EACCES) {
++			/* https://bugzilla.redhat.com/show_bug.cgi?id=1666604#c3 */
++			tst_res(TPASS, "shmat returned EACCES is accessible on some platform");
++			return;
+ 		}
+ 		tst_brk(TBROK | TERRNO,
+ 			"The bug was not triggered, but the shmat error is unexpected");
+-- 
+2.20.1
+

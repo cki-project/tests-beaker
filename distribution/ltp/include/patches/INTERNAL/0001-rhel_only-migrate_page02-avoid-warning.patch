@@ -1,0 +1,27 @@
+From 2a36638ca31f61b7c586aa094d20d83b46e41256 Mon Sep 17 00:00:00 2001
+From: Li Wang <liwang@redhat.com>
+Date: Fri, 14 Dec 2018 10:29:54 +0800
+Subject: [PATCH] [rhel_only]migrate_page02: avoid warning
+
+Signed-off-by: Li Wang <liwang@redhat.com>
+---
+ testcases/kernel/syscalls/migrate_pages/migrate_pages02.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/testcases/kernel/syscalls/migrate_pages/migrate_pages02.c b/testcases/kernel/syscalls/migrate_pages/migrate_pages02.c
+index f5623b12c..f698a44b7 100644
+--- a/testcases/kernel/syscalls/migrate_pages/migrate_pages02.c
++++ b/testcases/kernel/syscalls/migrate_pages/migrate_pages02.c
+@@ -300,7 +300,8 @@ static void setup(void)
+ 	else if (tst_kvercmp(2, 6, 18) < 0)
+ 		tst_brk(TCONF, "2.6.18 or greater kernel required");
+ 
+-	FILE_PRINTF("/proc/sys/kernel/numa_balancing", "0");
++	if (access("/proc/sys/kernel/numa_balancing", F_OK) == 0)
++		FILE_PRINTF("/proc/sys/kernel/numa_balancing", "0");
+ 	/*
+ 	 * find 2 nodes, which can hold NODE_MIN_FREEMEM bytes
+ 	 * The reason is that:
+-- 
+2.14.5
+

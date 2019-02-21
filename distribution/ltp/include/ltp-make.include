@@ -1,7 +1,7 @@
 # Beaker parameter TEST_VERSION can override the default
 TESTVERSION   = $(shell echo $$TEST_VERSION)
 ifeq (,$(TESTVERSION))
-TESTVERSION   = 20180926
+TESTVERSION   = 20190115
 endif
 export TESTVERSION
 # the task path may be different under the restraint harness if the task
@@ -154,6 +154,13 @@ ifeq ($(TESTVERSION),20180926)
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-statx-fix-compile-errors.patch
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-sigwaitinfo01-recent-glibc-calls-syscall-directly.patch
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-keyctl02-wait-for-last-key-to-be-garbage-co.patch
+endif
+ifeq ($(TESTVERSION),20190115)
+	@# Tips: this patch should be applied in single on ltp-next(version > 20180926)
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/0001-rhel_only-migrate_page02-avoid-warning.patch
+	@$(PATCH) < $(ABS_DIR)/INTERNAL/0001-shmat03-ignore-EACCES.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-lapi-regen.sh-Fix-s390-check.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-lapi-syscalls-s390x-Fix-u-getrlimit-syscall-numbers.patch
 endif
 	@# The following ones are for specific hardware/release
 ifneq (,$(filter 4 5 s390 s390x, $(OS_MAJOR_RELEASE) $(ARCH)))
