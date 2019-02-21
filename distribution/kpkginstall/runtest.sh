@@ -135,14 +135,14 @@ EOF
   select_yum_tool
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER=$(get_kpkg_ver)
+  KVER="$(get_kpkg_ver)"
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
   fi
 
-  $YUM install -y kernel-$KVER kernel-headers-$KVER >>${OUTPUTFILE} 2>&1
+  $YUM install -y "kernel-$KVER" "kernel-headers-$KVER" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
