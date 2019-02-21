@@ -1,0 +1,6 @@
+PURPOSE of /CoreOS/i2c-tools/sanity/i2cdetect-smoke
+
+Description: Loads i2c-dev module, tries i2cdetect -l.
+If some buses are detected probes each one for capatibilities.
+
+Author: Lukas Zachar <lzachar@redhat.com>
