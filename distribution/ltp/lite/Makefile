@@ -117,8 +117,8 @@ else
 	# RHEL5 doesn't have timeout
 	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
 	# work around Bug 1672242 - clash between linux/in.h and netinet/in.h
-	if grep -q "release 7" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-4997.c || true; fi
-	cp -vf configs/RHELKT1LITE.20180926 RHELKT1LITE
+	if grep -q "release 7" /etc/redhat-release; then rm -f $(TARGET)/testcases/kernel/syscalls/setsockopt/setsockopt03.c || true; fi
+	cp -vf configs/RHELKT1LITE.20190115 RHELKT1LITE
 endif
 
 build: $(TARGET) build-all
