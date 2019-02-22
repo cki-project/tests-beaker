@@ -1240,7 +1240,7 @@ setsid01 setsid01
 
 setsockopt01 setsockopt01
 setsockopt02 setsockopt02
-setsockopt03 setsockopt03
+# setsockopt03 setsockopt03 # work around Bug 1672242 - clash between linux/in.h and netinet/in.h
 
 settimeofday01 settimeofday01
 settimeofday02 settimeofday02
