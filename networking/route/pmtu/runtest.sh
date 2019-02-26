@@ -48,6 +48,8 @@ TEST_ITEMS=${TEST_ITEMS:-$TEST_ITEMS_ALL}
 rlJournalStart
 
 rlPhaseStartSetup
+
+    rlRun "lsmod | grep sctp || modprobe sctp" "0-255"
     rlRun "iproute_upstream_install"
 
     rlRun "netperf_install"
