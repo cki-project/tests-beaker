@@ -50,8 +50,8 @@ rlJournalStart
 	    if [ -e "/etc/system-fips" ] && grep -q 1 /proc/sys/crypto/fips_enabled; then
                 rlPass "fips mode enabled"
 	    else
-		rlFail "fips mode disabled. Test requires fips mode!"
-		rlDie "Skipping the test!"
+                echo "fips mode disabled. Test requires fips mode! Skipping." | tee -a $OUTPUTFILE
+                rhts-report-result $TEST SKIP $OUTPUTFILE
 	    fi
         fi
         rlAssertRpm --all
