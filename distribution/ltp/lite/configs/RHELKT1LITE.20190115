@@ -69,8 +69,6 @@ acct01 acct01
 
 add_key01 add_key01
 add_key02 add_key02
-add_key03 add_key03
-add_key04 add_key04
 
 adjtimex01 adjtimex01
 adjtimex02 adjtimex02
@@ -79,7 +77,6 @@ alarm02 alarm02
 alarm03 alarm03
 alarm05 alarm05
 alarm06 alarm06
-alarm07 alarm07
 
 asyncio02 asyncio02
 
@@ -112,7 +109,6 @@ chmod03 chmod03
 chmod04 chmod04
 chmod05 chmod05
 chmod06 chmod06
-chmod07 chmod07
 
 chown01 chown01
 chown01_16 chown01_16
@@ -122,32 +118,23 @@ chown03 chown03
 chown03_16 chown03_16
 chown04 chown04
 chown04_16 chown04_16
-chown05 chown05
-chown05_16 chown05_16
 
 chroot01 chroot01
 chroot02 chroot02
 chroot03 chroot03
-chroot04 chroot04
 
 clock_getres01 clock_getres01
 clock_nanosleep01 clock_nanosleep01
 clock_nanosleep02 clock_nanosleep02
-clock_nanosleep2_01 clock_nanosleep2_01
 
 clone01 clone01
 clone02 clone02
 clone03 clone03
 clone04 clone04
 clone05 clone05
-clone06 clone06
-clone07 clone07
-clone08 clone08
-clone09 clone09
 
 close01 close01
 close02 close02
-close08 close08
 
 confstr01 confstr01
 
@@ -157,9 +144,6 @@ creat01 creat01
 creat03 creat03
 creat04 creat04
 creat05 creat05
-creat06 creat06
-creat07 creat07
-creat08 creat08
 
 
 dup01 dup01
@@ -167,14 +151,11 @@ dup02 dup02
 dup03 dup03
 dup04 dup04
 dup05 dup05
-dup06 dup06
-dup07 dup07
 
 dup201 dup201
 dup202 dup202
 dup203 dup203
 dup204 dup204
-dup205 dup205
 
 dup3_01 dup3_01
 dup3_02 dup3_02
@@ -183,9 +164,6 @@ epoll_create1_01 epoll_create1_01
 epoll01 epoll-ltp
 epoll_ctl01 epoll_ctl01
 epoll_ctl02 epoll_ctl02
-epoll_wait01 epoll_wait01
-epoll_wait03 epoll_wait03
-epoll_pwait01 epoll_pwait01
 
 eventfd01 eventfd01
 
@@ -221,7 +199,6 @@ fallocate01 fallocate01
 fallocate02 fallocate02
 fallocate03 fallocate03
 fallocate04 fallocate04
-fallocate05 fallocate05
 
 fsetxattr01 fsetxattr01
 fsetxattr02 fsetxattr02
@@ -245,7 +222,6 @@ fchmod02 fchmod02
 fchmod03 fchmod03
 fchmod04 fchmod04
 fchmod05 fchmod05
-fchmod06 fchmod06
 
 #fchmodat test cases
 fchmodat01 fchmodat01
@@ -258,8 +234,6 @@ fchown03 fchown03
 fchown03_16 fchown03_16
 fchown04 fchown04
 fchown04_16 fchown04_16
-fchown05 fchown05
-fchown05_16 fchown05_16
 
 #fchownat test case
 fchownat01 fchownat01
@@ -363,13 +337,6 @@ fork03 fork03
 fork04 fork04
 fork05 fork05
 fork06 fork06
-fork07 fork07
-fork08 fork08
-fork09 fork09
-fork10 fork10
-fork11 fork11
-fork13 fork13 -i 1000000
-fork14 fork14
 
 fpathconf01 fpathconf01
 
@@ -382,8 +349,6 @@ fstat02 fstat02
 fstat02_64 fstat02_64
 fstat03 fstat03
 fstat03_64 fstat03_64
-fstat05 fstat05
-fstat05_64 fstat05_64
 
 #fstatat64/newfstatat test cases
 fstatat01 fstatat01
@@ -477,13 +442,9 @@ getpriority01 getpriority01
 getpriority02 getpriority02
 
 getrandom01 getrandom01
-#getrandom02 getrandom02 Disable getrandom02 test seen failing on F28 
-getrandom03 getrandom03
-getrandom04 getrandom04
 
 getresgid01 getresgid01
 getresgid02 getresgid02
-getresgid03 getresgid03
 
 getresuid01 getresuid01
 getresuid02 getresuid02
@@ -524,10 +485,6 @@ getxattr02 getxattr02
 getxattr03 getxattr03
 getxattr04 getxattr04
 
-#Needs tty device.
-#ioctl01 ioctl01 -D /dev/tty0
-#ioctl02 ioctl02 -D /dev/tty0
-
 # Introducing ioctl tests for all /dev/tty* devices
 ioctl03      ioctl03
 ioctl04      ioctl04
@@ -545,21 +502,12 @@ inotify03 inotify03
 inotify04 inotify04
 inotify05 inotify05
 inotify06 inotify06
-inotify07 inotify07
-inotify08 inotify08
-inotify09 inotify09
 
 fanotify01 fanotify01
 fanotify02 fanotify02
 fanotify03 fanotify03
 fanotify04 fanotify04
 fanotify05 fanotify05
-fanotify06 fanotify06
-fanotify07 fanotify07
-fanotify08 fanotify08
-fanotify09 fanotify09
-fanotify10 fanotify10
-fanotify11 fanotify11
 
 ioperm01 ioperm01
 ioperm02 ioperm02
@@ -580,7 +528,6 @@ keyctl04 keyctl04
 keyctl05 keyctl05
 keyctl06 keyctl06
 keyctl07 keyctl07
-keyctl08 keyctl08
 
 kcmp01 kcmp01
 kcmp02 kcmp02
@@ -595,9 +542,6 @@ kill06 kill06
 kill07 kill07
 kill08 kill08
 kill09 kill09
-kill10 kill10
-kill11 kill11
-kill12 kill12
 
 lchown01 lchown01
 lchown01_16 lchown01_16
@@ -647,10 +591,6 @@ lstat01A symlink01 -T lstat01
 lstat01A_64 symlink01 -T lstat01_64
 lstat01 lstat01
 lstat01_64 lstat01_64
-lstat02 lstat02
-lstat02_64 lstat02_64
-lstat03 lstat03
-lstat03_64 lstat03_64
 
 mallopt01 mallopt01
 
@@ -662,9 +602,6 @@ memcpy01 memcpy01
 
 migrate_pages01 migrate_pages01
 migrate_pages02 migrate_pages02
-# (Temporarily) disable due to https://github.com/linux-test-project/ltp/issues/431
-#migrate_pages03 migrate_pages03
-
 
 mlockall01 mlockall01
 mlockall02 mlockall02
@@ -675,7 +612,6 @@ mkdir03 mkdir03
 mkdir04 mkdir04
 mkdir05 mkdir05
 mkdir05A symlink01 -T mkdir05
-mkdir09 mkdir09
 
 #mkdirat test cases
 mkdirat01 mkdirat01
@@ -685,11 +621,6 @@ mknod01 mknod01
 mknod02 mknod02
 mknod03 mknod03
 mknod04 mknod04
-mknod05 mknod05
-mknod06 mknod06
-mknod07 mknod07
-mknod08 mknod08
-mknod09 mknod09
 
 #mknodat test cases
 mknodat01 mknodat01
@@ -716,11 +647,6 @@ mmap08 mmap08
 mmap09 mmap09
 mmap12 mmap12
 mmap13 mmap13
-mmap14 mmap14
-# test is broken, mask it for now.
-#mmap11 mmap11 -i 30000
-mmap15 mmap15
-mmap16 mmap16
 
 modify_ldt01 modify_ldt01
 modify_ldt02 modify_ldt02
@@ -731,23 +657,15 @@ mount02 mount02
 mount03 mount03
 mount04 mount04
 mount05 mount05
-mount06 mount06
 
 move_pages01 move_pages01
 move_pages02 move_pages02
 move_pages03 move_pages03
 move_pages04 move_pages04
 move_pages05 move_pages05
-move_pages06 move_pages06
-move_pages07 move_pages07
-move_pages10 move_pages10
-move_pages11 move_pages11
-move_pages12 move_pages12
 
 mprotect01 mprotect01
 mprotect02 mprotect02
-mprotect03 mprotect03
-mprotect04 mprotect04
 
 mq_notify01 mq_notify01
 mq_notify02 mq_notify02
@@ -766,9 +684,6 @@ msgctl01 msgctl01
 msgctl02 msgctl02
 msgctl03 msgctl03
 msgctl04 msgctl04
-msgstress01 msgstress01
-msgstress02 msgstress02
-msgctl12 msgctl12
 
 msgget01 msgget01
 msgget02 msgget02
@@ -780,13 +695,10 @@ msgrcv03 msgrcv03
 msgrcv04 msgrcv04
 msgrcv05 msgrcv05
 msgrcv06 msgrcv06
-msgrcv07 msgrcv07
-msgrcv08 msgrcv08
 
 msgsnd01 msgsnd01
 msgsnd02 msgsnd02
 msgsnd05 msgsnd05
-msgsnd06 msgsnd06
 
 msync01 msync01
 msync02 msync02
@@ -805,7 +717,6 @@ munmap03 munmap03
 nanosleep01 nanosleep01
 nanosleep02 nanosleep02
 nanosleep03 nanosleep03
-nanosleep04 nanosleep04
 
 nftw01 nftw01
 nftw6401 nftw6401
@@ -822,14 +733,6 @@ open03 open03
 open04 open04
 open05 open05
 open06 open06
-open07 open07
-open08 open08
-open09 open09
-open10 open10
-open11 open11
-open12 open12
-open13 open13
-open14 open14
 
 #openat test cases
 openat01 openat01
@@ -842,11 +745,6 @@ mincore02 mincore02
 madvise01 madvise01
 madvise02 madvise02
 madvise05 madvise05
-madvise06 madvise06
-madvise07 madvise07
-madvise08 madvise08
-madvise09 madvise09
-madvise10 madvise10
 
 newuname01 newuname01
 
@@ -867,9 +765,6 @@ pipe05 pipe05
 pipe06 pipe06
 pipe07 pipe07
 pipe08 pipe08
-pipe09 pipe09
-pipe10 pipe10
-pipe11 pipe11
 
 pipe2_01 pipe2_01
 pipe2_02 pipe2_02
@@ -902,10 +797,7 @@ profil01 profil01
 
 process_vm_readv01 process_vm01 -r
 process_vm_readv02 process_vm_readv02
-#Temporarily disable due to https://lists.linux.it/pipermail/ltp/2019-February/010942.html
-#process_vm_readv03 process_vm_readv03
 process_vm_writev01 process_vm01 -w
-process_vm_writev02 process_vm_writev02
 
 prot_hsymlinks prot_hsymlinks
 dirtyc0w dirtyc0w
@@ -915,33 +807,23 @@ pselect01_64 sh -c "pselect01_64 || true"
 pselect02 pselect02
 pselect02_64 pselect02_64
 pselect03 pselect03
-pselect03_64 pselect03_64
 
 ptrace01 ptrace01
 ptrace02 ptrace02
 ptrace03 ptrace03
-ptrace04 ptrace04
-ptrace05 ptrace05
-# Broken test; See: testcases/kernel/syscalls/ptrace/Makefile for more details.
-#ptrace06 ptrace06
-ptrace07 ptrace07
 
 pwrite01 pwrite01
 pwrite02 pwrite02
 pwrite03 pwrite03
-pwrite04 pwrite04
 
 pwrite01_64 pwrite01_64
 pwrite02_64 pwrite02_64
 pwrite03_64 pwrite03_64
-pwrite04_64 pwrite04_64
 
 pwritev01 pwritev01
 pwritev01_64 pwritev01_64
 pwritev02 pwritev02
 pwritev02_64 pwritev02_64
-pwritev03 pwritev03
-pwritev03_64 pwritev03_64
 
 quotactl01 quotactl01
 quotactl02 quotactl02
@@ -971,8 +853,6 @@ readv01 readv01
 readv02 readv02
 readv03 readv03
 
-realpath01 realpath01
-
 reboot01 reboot01
 reboot02 reboot02
 
@@ -996,15 +876,6 @@ rename02 rename02
 rename03 rename03
 rename04 rename04
 rename05 rename05
-rename06 rename06
-rename07 rename07
-rename08 rename08
-rename09 rename09
-rename10 rename10
-rename11 rename11
-rename12 rename12
-rename13 rename13
-rename14 rename14
 
 #renameat test cases
 renameat01 renameat01
@@ -1027,8 +898,6 @@ rt_sigaction02 rt_sigaction02
 rt_sigaction03 rt_sigaction03
 rt_sigprocmask01 rt_sigprocmask01
 rt_sigprocmask02 rt_sigprocmask02
-rt_sigqueueinfo01 rt_sigqueueinfo01
-rt_sigsuspend01 rt_sigsuspend01
 
 sbrk01 sbrk01
 sbrk02 sbrk02
@@ -1080,20 +949,16 @@ semctl02 semctl02
 semctl03 semctl03
 semctl04 semctl04
 semctl05 semctl05
-semctl06 semctl06
-semctl07 semctl07
 
 semget01 semget01
 semget02 semget02
 semget03 semget03
 semget05 semget05
-semget06 semget06
 
 semop01 semop01
 semop02 semop02
 semop03 semop03
 semop04 semop04
-semop05 semop05
 
 send01 send01
 
@@ -1105,15 +970,6 @@ sendfile04 sendfile04
 sendfile04_64 sendfile04_64
 sendfile05 sendfile05
 sendfile05_64 sendfile05_64
-sendfile06 sendfile06
-sendfile06_64 sendfile06_64
-sendfile07 sendfile07
-sendfile07_64 sendfile07_64
-sendfile08 sendfile08
-sendfile08_64 sendfile08_64
-sendfile09 sendfile09
-sendfile09_64 sendfile09_64
-
 
 sendmsg01 sendmsg01
 sendmsg02 sendmsg02
@@ -1136,17 +992,11 @@ setfsuid01 setfsuid01
 setfsuid01_16 setfsuid01_16
 setfsuid02 setfsuid02
 setfsuid02_16 setfsuid02_16
-setfsuid03 setfsuid03
-setfsuid03_16 setfsuid03_16
-setfsuid04 setfsuid04
-setfsuid04_16 setfsuid04_16
 
 setgid01 setgid01
 setgid01_16 setgid01_16
 setgid02 setgid02
 setgid02_16 setgid02_16
-setgid03 setgid03
-setgid03_16 setgid03_16
 
 setegid01 setegid01
 setegid02 setegid02
@@ -1159,8 +1009,6 @@ setgroups02 setgroups02
 setgroups02_16 setgroups02_16
 setgroups03 setgroups03
 setgroups03_16 setgroups03_16
-setgroups04 setgroups04
-setgroups04_16 setgroups04_16
 
 sethostname01 sethostname01
 sethostname02 sethostname02
@@ -1222,16 +1070,11 @@ setreuid04 setreuid04
 setreuid04_16 setreuid04_16
 setreuid05 setreuid05
 setreuid05_16 setreuid05_16
-setreuid06 setreuid06
-setreuid06_16 setreuid06_16
-setreuid07 setreuid07
-setreuid07_16 setreuid07_16
 
 setrlimit01 setrlimit01
 setrlimit02 setrlimit02
 setrlimit03 setrlimit03
 setrlimit04 setrlimit04
-setrlimit05 setrlimit05
 
 set_robust_list01 set_robust_list01
 set_thread_area01 set_thread_area01
@@ -1241,7 +1084,6 @@ setsid01 setsid01
 
 setsockopt01 setsockopt01
 setsockopt02 setsockopt02
-# setsockopt03 setsockopt03 # work around Bug 1672242 - clash between linux/in.h and netinet/in.h
 
 settimeofday01 settimeofday01
 settimeofday02 settimeofday02
@@ -1250,8 +1092,6 @@ setuid01 setuid01
 setuid01_16 setuid01_16
 setuid03 setuid03
 setuid03_16 setuid03_16
-setuid04 setuid04
-setuid04_16 setuid04_16
 
 setxattr01 setxattr01
 setxattr02 setxattr02
@@ -1265,7 +1105,6 @@ shmctl01 shmctl01
 shmctl02 shmctl02
 shmctl03 shmctl03
 shmctl04 shmctl04
-shmctl05 shmctl05
 
 shmdt01 shmdt01
 shmdt02 shmdt02
@@ -1273,8 +1112,6 @@ shmdt02 shmdt02
 shmget01 shmget01
 shmget02 shmget02
 shmget03 shmget03
-shmget04 shmget04
-shmget05 shmget05
 
 sigaction01 sigaction01
 sigaction02 sigaction02
@@ -1290,7 +1127,6 @@ signal02 signal02
 signal03 signal03
 signal04 signal04
 signal05 signal05
-signal06 signal06
 
 signalfd01 signalfd01
 
@@ -1313,7 +1149,6 @@ socket02 socket02
 socketcall01 socketcall01
 socketcall02 socketcall02
 socketcall03 socketcall03
-socketcall04 socketcall04
 
 socketpair01 socketpair01
 socketpair02 socketpair02
@@ -1364,7 +1199,6 @@ swapoff02 swapoff02
 
 swapon01 swapon01
 swapon02 swapon02
-swapon03 swapon03
 
 #Exclusive syscall() for POWER6 machines only
 switch01 endian_switch01
@@ -1372,8 +1206,6 @@ switch01 endian_switch01
 symlink01 symlink01
 symlink02 symlink02
 symlink03 symlink03
-symlink04 symlink04
-symlink05 symlink05
 
 #symlinkat test cases
 symlinkat01 symlinkat01
@@ -1396,8 +1228,6 @@ sysfs01 sysfs01
 sysfs02 sysfs02
 sysfs03 sysfs03
 sysfs04 sysfs04
-sysfs05 sysfs05
-sysfs06 sysfs06
 
 sysinfo01 sysinfo01
 sysinfo02 sysinfo02
@@ -1409,11 +1239,6 @@ syslog04 syslog04
 syslog05 syslog05
 syslog06 syslog06
 syslog07 syslog07
-syslog08 syslog08
-syslog09 syslog09
-syslog10 syslog10
-syslog11 syslog11
-syslog12 syslog12
 
 time01 time01
 time02 time02
@@ -1477,7 +1302,6 @@ umount03 umount03
 
 umount2_01 umount2_01
 umount2_02 umount2_02
-umount2_03 umount2_03
 
 ustat01 ustat01
 ustat02 ustat02
@@ -1488,7 +1312,6 @@ utime02 utime02
 utime03 utime03
 utime04 utime04
 utime05 utime05
-utime06 utime06
 
 utimes01 utimes01
 
@@ -1518,12 +1341,6 @@ waitpid04 waitpid04
 waitpid05 waitpid05
 waitpid06 waitpid06
 waitpid07 waitpid07
-waitpid08 waitpid08
-waitpid09 waitpid09
-waitpid10 waitpid10
-waitpid11 waitpid11
-waitpid12 waitpid12
-waitpid13 waitpid13
 
 waitid01 waitid01
 waitid02 waitid02
@@ -1532,39 +1349,28 @@ write01 write01
 write02 write02
 write03 write03
 write04 write04
-write05 write05
 
 writev01 writev01
 writev02 writev02
 writev05 writev05
 writev06 writev06
-writev07 writev07
 
 
 futex_wait01 futex_wait01
 futex_wait02 futex_wait02
 futex_wait03 futex_wait03
-futex_wait04 futex_wait04
-futex_wait05 futex_wait05
 futex_wake01 futex_wake01
 futex_wake02 futex_wake02
-futex_wake03 futex_wake03
-futex_wake04 futex_wake04
-futex_wait_bitset01 futex_wait_bitset01
-futex_wait_bitset02 futex_wait_bitset02
 
 memfd_create01 memfd_create01
 memfd_create02 memfd_create02
 memfd_create03 memfd_create03
-memfd_create04 memfd_create04
 
 copy_file_range01 copy_file_range01
 
 statx01 statx01
 statx02 statx02
 statx03 statx03
-statx04 statx04
-statx06 statx06
 
 #DESCRIPTION:Memory Mgmt tests
 mm01 mmap001 -m 10000
@@ -1572,21 +1378,10 @@ mm01 mmap001 -m 10000
 # Creates a 10000 page mmap, touches all of the map, sync's it, and
 # munmap()s it.
 mm02 mmap001
-# simple mmap() test.
-#mm03 mmap001 -i 0 -I 1 -m 100
-# repetitive mmapping test.
-# Creates a one page map repetitively for one minute.
-
-mtest01 mtest01 -p80
-mtest01w mtest01 -p80 -w
 
 #test for race conditions
-mtest05   mmstress
 mtest06   mmap1
 mtest06_2 mmap2 -x 0.002 -a -p
-mtest06_3 mmap3 -x 0.002 -p
-# Remains diabled till the infinite loop problem is solved
-#mtest-6_4 shmat1 -x 0.00005
 
 mem02 mem02
 mem03 mem03
@@ -1603,189 +1398,13 @@ shmt04 shmt04
 shmt05 shmt05
 shmt06 shmt06
 shmt07 shmt07
-shmt08 shmt08
-shmt09 shmt09
-shmt10 shmt10
-
-shm_test01	shm_test -l 10 -t 2
-mallocstress01	mallocstress
-
-mmapstress01 mmapstress01 -p 20 -t 0.2
-mmapstress02 mmapstress02
-mmapstress03 mmapstress03
-mmapstress04 mmapstress04
-mmapstress05 mmapstress05
-mmapstress06 mmapstress06 20
-mmapstress07 TMPFILE=`mktemp /tmp/example.XXXXXXXXXXXX`; mmapstress07 $TMPFILE
-mmapstress08 mmapstress08
-mmapstress09 mmapstress09 -p 20 -t 0.2
-mmapstress10 mmapstress10 -p 20 -t 0.2
-
-
-
-
-
 
 vma01 vma01
 vma02 vma02
 vma03 vma03
-vma04 vma04
-vma05 vma05.sh
-
 
 
 #DESCRIPTION:Scheduler Stress Tests
 pth_str01 pth_str01
 pth_str02 pth_str02 -n1000
 pth_str03 pth_str03
-
-
-
-# Run this stress test for 2 minutes
-
-#DESCRIPTION:Native POSIX Thread Library (NPTL) Tests
-nptl01 nptl01
-
-#DESCRIPTION:Terminal type stress
-pty01 pty01
-pty02 pty02
-ptem01 ptem01
-hangup01 hangup01
-
-#DESCRIPTION:Tracing testing
-dynamic_debug01		dynamic_debug01.sh
-#DESCRIPTION:Filesystem stress tests
-gf01 growfiles -W gf01 -b -e 1 -u -i 0 -L 20 -w -C 1 -l -I r -T 10 -f glseek20 -S 2 -d $TMPDIR
-gf02 growfiles -W gf02 -b -e 1 -L 10 -i 100 -I p -S 2 -u -f gf03_ -d $TMPDIR
-gf03 growfiles -W gf03 -b -e 1 -g 1 -i 1 -S 150 -u -f gf05_ -d $TMPDIR
-gf04 growfiles -W gf04 -b -e 1 -g 4090 -i 500 -t 39000 -u -f gf06_ -d $TMPDIR
-gf05 growfiles -W gf05 -b -e 1 -g 5000 -i 500 -t 49900 -T10 -c9 -I p -u -f gf07_ -d $TMPDIR
-gf06 growfiles -W gf06 -b -e 1 -u -r 1-5000 -R 0--1 -i 0 -L 30 -C 1 -f g_rand10 -S 2 -d $TMPDIR
-gf07 growfiles -W gf07 -b -e 1 -u -r 1-5000 -R 0--2 -i 0 -L 30 -C 1 -I p -f g_rand13 -S 2 -d $TMPDIR
-gf08 growfiles -W gf08 -b -e 1 -u -r 1-5000 -R 0--2 -i 0 -L 30 -C 1 -f g_rand11 -S 2 -d $TMPDIR
-gf09 growfiles -W gf09 -b -e 1 -u -r 1-5000 -R 0--1 -i 0 -L 30 -C 1 -I p -f g_rand12 -S 2 -d $TMPDIR
-gf10 growfiles -W gf10 -b -e 1 -u -r 1-5000 -i 0 -L 30 -C 1 -I l -f g_lio14 -S 2 -d $TMPDIR
-gf11 growfiles -W gf11 -b -e 1 -u -r 1-5000 -i 0 -L 30 -C 1 -I L -f g_lio15 -S 2 -d $TMPDIR
-gf12 mkfifo $TMPDIR/gffifo17; growfiles -b -W gf12 -e 1 -u -i 0 -L 30 $TMPDIR/gffifo17
-gf13 mkfifo $TMPDIR/gffifo18; growfiles -b -W gf13 -e 1 -u -i 0 -L 30 -I r -r 1-4096 $TMPDIR/gffifo18
-gf14 growfiles -W gf14 -b -e 1 -u -i 0 -L 20 -w -l -C 1 -T 10 -f glseek19 -S 2 -d $TMPDIR
-gf15 growfiles -W gf15 -b -e 1 -u -r 1-49600 -I r -u -i 0 -L 120 -f Lgfile1 -d $TMPDIR
-gf16 growfiles -W gf16 -b -e 1 -i 0 -L 120 -u -g 4090 -T 101 -t 408990 -l -C 10 -c 1000 -S 10 -f Lgf02_ -d $TMPDIR
-gf17 growfiles -W gf17 -b -e 1 -i 0 -L 120 -u -g 5000 -T 101 -t 499990 -l -C 10 -c 1000 -S 10 -f Lgf03_ -d $TMPDIR
-gf18 growfiles -W gf18 -b -e 1 -i 0 -L 120 -w -u -r 10-5000 -I r -l -S 2 -f Lgf04_ -d $TMPDIR
-gf19 growfiles -W gf19 -b -e 1 -g 5000 -i 500 -t 49900 -T10 -c9 -I p -o O_RDWR,O_CREAT,O_TRUNC -u -f gf08i_ -d $TMPDIR
-gf20 growfiles -W gf20 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 1-256000:512 -R 512-256000 -T 4 -f gfbigio-$$ -d $TMPDIR
-gf21 growfiles -W gf21 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 -T 10 -t 20480 -f gf-bld-$$ -d $TMPDIR
-gf22 growfiles -W gf22 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 -T 10 -t 20480 -f gf-bldf-$$ -d $TMPDIR
-gf23 growfiles -W gf23 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 512-64000:1024 -R 1-384000 -T 4 -f gf-inf-$$ -d $TMPDIR
-gf24 growfiles -W gf24 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -g 20480 -f gf-jbld-$$ -d $TMPDIR
-gf25 growfiles -W gf25 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 1024000-2048000:2048 -R 4095-2048000 -T 1 -f gf-large-gs-$$ -d $TMPDIR
-gf26 growfiles -W gf26 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -r 128-32768:128 -R 512-64000 -T 4 -f gfsmallio-$$ -d $TMPDIR
-gf27 growfiles -W gf27 -b -D 0 -w -g 8b -C 1 -b -i 1000 -u -f gfsparse-1-$$ -d $TMPDIR
-gf28 growfiles -W gf28 -b -D 0 -w -g 16b -C 1 -b -i 1000 -u -f gfsparse-2-$$ -d $TMPDIR
-gf29 growfiles -W gf29 -b -D 0 -r 1-4096 -R 0-33554432 -i 0 -L 60 -C 1 -u -f gfsparse-3-$$ -d $TMPDIR
-gf30 growfiles -W gf30 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -o O_RDWR,O_CREAT,O_SYNC -g 20480 -T 10 -t 20480 -f gf-sync-$$ -d $TMPDIR
-rwtest01 export LTPROOT; rwtest -N rwtest01 -c -q -i 60s  -f sync 10%25000:$TMPDIR/rw-sync-$$
-rwtest02 export LTPROOT; rwtest -N rwtest02 -c -q -i 60s  -f buffered 10%25000:$TMPDIR/rw-buffered-$$
-rwtest03 export LTPROOT; rwtest -N rwtest03 -c -q -i 60s -n 2  -f buffered -s mmread,mmwrite -m random -Dv 10%25000:$TMPDIR/mm-buff-$$
-rwtest04 export LTPROOT; rwtest -N rwtest04 -c -q -i 60s -n 2  -f sync -s mmread,mmwrite -m random -Dv 10%25000:$TMPDIR/mm-sync-$$
-rwtest05 export LTPROOT; rwtest -N rwtest05 -c -q -i 50 -T 64b 500b:$TMPDIR/rwtest01%f
-
-#must be run as root
-#iogen01 iogen -i 120s -s read,write 500b:doio.f1.$$ 1000b:doio.f2.$$ | doio -akv -n 2
-
-
-
-#Also run the fs_di (Data Integrity tests)
-
-# Read every file in /proc. Not likely to crash, but does enough
-# to disturb the kernel. A good kernel latency killer too.
-# Was not sure why it should reside in runtest/crashme and won´t get tested ever
-proc01 proc01 -m 128
-
-
-#Run the File System Race Condition Check tests as well
-
-#Run the Quota Remount Test introduced in linux-2.6.26
-
-
-
-
-#aio/dio tests
-# setup scratch space
-SETUP01 dd if=/dev/urandom of=$BIG_FILE bs=4096 count=4096
-
-#ltp-aio-stress
-# added -s 128M, guests have limited disk space
-AIOSETUP01 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
-
-ADS1000 aio-stress -I500 -o2 -S -r4 -s 128M $SCRATCH_MNT/aiodio/file1
-ADS1005 aio-stress -I500 -o3 -S -r4 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-ADS1008 aio-stress -I500 -o3 -S -r32 -t4 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/file2 $SCRATCH_MNT/aiodio/file3 $SCRATCH_MNT/aiodio/file4
-ADS1014 aio-stress -I500 -o2 -O -r8 -s 128M $SCRATCH_MNT/aiodio/file1 $SCRATCH_MNT/aiodio/file2
-ADS1020 aio-stress -I500 -o3 -O -r16 -t2 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-ADS1027 aio-stress -I500 -o0 -S -r8 -s 128M $SCRATCH_MNT/aiodio/file2
-ADS1031 aio-stress -I500 -o1 -S -r4 -t2 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-ADS1040 aio-stress -I500 -o1 -O -r8 -t2 -s 128M $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/file2
-
-#ltp-aiodio.part1
-AIOSETUP01 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
-AIOSETUP02 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/fff bs=4096 conv=block,sync
-AIOSETUP03 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff1 bs=2048 conv=block,sync
-AIOSETUP04 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff2 bs=1024 conv=block,sync
-AIOSETUP05 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/ff3 bs=512 conv=block,sync
-
-# we have to align buffers for O_DIRECT
-AD056 time aiocp -a $BUF_ALIGN -b 4k -n 16 -f DIRECT $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD057 time aiocp -b 4k -n 16 -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD058 time aiocp -a $BUF_ALIGN -b 4k -n 16 -f DIRECT -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD130 time aiocp -a $BUF_ALIGN -b 64k -n 1 -f DIRECT $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD131 time aiocp -b 64k -n 1 -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD132 time aiocp -a $BUF_ALIGN -b 64k -n 1 -f DIRECT -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD193 time aiocp -a $BUF_ALIGN -b 512k -n 1 -f DIRECT $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD194 time aiocp -b 512k -n 1 -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD195 time aiocp -a $BUF_ALIGN -b 512k -n 1 -f DIRECT -f SYNC $SCRATCH_MNT/aiodio/junkfile $SCRATCH_MNT/aiodio/ff2
-AD301 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/fff $SCRATCH_MNT/aiodio/junkdir/fff
-AD302 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/ff1 $SCRATCH_MNT/aiodio/junkdir/ff1
-AD303 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/ff2 $SCRATCH_MNT/aiodio/junkdir/ff2
-AD304 time aiocp -a $BUF_ALIGN -b 128k -n 32 -f CREAT -f DIRECT $SCRATCH_MNT/aiodio/ff3 $SCRATCH_MNT/aiodio/junkdir/ff3
-
-#ltp-aiodio.part2
-ADSP005 aiodio_sparse -i 2 -a 4k -w 4k -s 8k -n 2
-ADSP006 aiodio_sparse -i 2 -a 4k -w 4k -s 8k -n 2
-ADSP007 aiodio_sparse -i 4 -a 8k -w 8k -s 32k -n 2
-ADSP008 aiodio_sparse -i 4 -a 8k -w 16k -s 64k -n 2
-ADSP009 aiodio_sparse -i 4 -a 8k -w 32k -s 128k -n 2
-ADSP010 aiodio_sparse -i 4 -a 8k -w 64k -s 256k -n 2
-ADSP011 aiodio_sparse -i 4 -a 8k -w 128k -s 512k -n 2
-ADSP012 aiodio_sparse -i 4 -a 8k -w 256k -s 1024k -n 2
-ADSP013 aiodio_sparse -i 4 -a 8k -w 512k -s 2048k -n 2
-ADSP014 aiodio_sparse -i 4 -a 8k -w 1024k -s 4096k -n 2
-ADSP015 aiodio_sparse -i 4 -a 8k -w 2048k -s 8192k -n 2
-ADSP016 aiodio_sparse -i 4 -a 8k -w 4096k -s 16384k -n 2
-ADSP017 aiodio_sparse -i 4 -a 8k -w 8192k -s 32768k -n 2
-ADSP018 aiodio_sparse -i 4 -a 8k -w 16384k -s 65536k -n 2
-ADSP045 dio_sparse -a 4k -w 4k -s 2k -n 2
-ADSP046 dio_sparse -a 4k -w 4k -s 4k -n 2
-ADSP047 dio_sparse -a 8k -w 16k -s 16k -n 2
-ADSP048 dio_sparse -a 8k -w 32k -s 32k -n 2
-ADSP049 dio_sparse -a 8k -w 64k -s 64k -n 2
-ADSP050 dio_sparse -a 8k -w 128k -s 128k -n 2
-ADSP051 dio_sparse -a 8k -w 256k -s 256k -n 2
-ADSP052 dio_sparse -a 8k -w 512k -s 512k -n 2
-ADSP053 dio_sparse -a 8k -w 1024k -s 1024k -n 2
-ADSP054 dio_sparse -a 8k -w 2048k -s 2048k -n 2
-ADSP055 dio_sparse -a 8k -w 4096k -s 4096k -n 2
-ADSP056 dio_sparse -a 8k -w 8192k -s 8192k -n 2
-
-#ltp-aiodio.part3
-# lower number of ops for KT1
-AIOSETUP01 dd if=$BIG_FILE of=$SCRATCH_MNT/aiodio/junkfile bs=8192 conv=block,sync
-FSX032 fsx-linux -d -l 500000 -r 4096 -t 4096 -w 4096 -N 1000 $SCRATCH_MNT/aiodio/junkfile
-FSX042 fsx-linux -N 1000 -o 4096 $SCRATCH_MNT/aiodio/junkfile
-
-#proc
-# Read every file in /proc. Not likely to crash, but does enough
-# to disturb the kernel. A good kernel latency killer too.
-# Was not sure why it should reside in runtest/crashme and won´t get tested ever
-proc01 proc01 -m 128
