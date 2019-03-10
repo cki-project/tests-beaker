@@ -55,6 +55,8 @@ $(METADATA): Makefile
 	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        qemu-kvm" >> $(METADATA)
+	@echo "Requires:        git" >> $(METADATA)
+	@echo "Requires:        gcc" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv3" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
