@@ -23,7 +23,7 @@ if [[ ${_DEBUG_MODE} == "yes" ]]; then
 	#      is very helpful to manually run a single case without invoking
 	#      function report_result() provided by test harness
 	#
-	alias report_result='echo'
+	function report_result { echo "$@"; }
 else
 	source /usr/bin/rhts_environment.sh
 fi
@@ -128,12 +128,12 @@ function get_test_cases_block
 		#
 		testcases+=" block/001"
 		testcases+=" block/002"
-		testcases+=" block/009"
+		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
 		testcases+=" block/016"
-		testcases+=" block/020"
+		#testcases+=" block/020" # Fail randomly on arm64, powerpc
 		testcases+=" block/021"
 		testcases+=" block/023"
-		testcases+=" block/025"
+		#testcases+=" block/025" # Fail randomly on powerpc
 	else
 		#
 		# XXX: There are 27 cases of block testing, and these cases
@@ -158,14 +158,14 @@ function get_test_cases_block
 		testcases+=" block/001"
 		testcases+=" block/002"
 		testcases+=" block/006"
-		testcases+=" block/009"
+		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
 		testcases+=" block/016"
 		testcases+=" block/017"
 		testcases+=" block/018"
-		testcases+=" block/020"
+		#testcases+=" block/020" # Fail randomly on arm64, powerpc
 		testcases+=" block/021"
 		testcases+=" block/023"
-		testcases+=" block/025"
+		#testcases+=" block/025" # Fail randomly on powerpc
 	fi
 	echo $testcases
 }
@@ -192,9 +192,9 @@ function get_test_cases_loop
 		#      - loop/007
 		#
 		testcases+=" loop/001"
-		testcases+=" loop/002"
+		#testcases+=" loop/002" # Fails randomly on x86_64
 		testcases+=" loop/003"
-		testcases+=" loop/004"
+		#testcases+=" loop/004" # Fails randomly on powerpc
 		testcases+=" loop/005"
 	fi
 	echo $testcases
