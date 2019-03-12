@@ -146,10 +146,14 @@ EOF
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
-  $YUM install -y "kernel-$KVER" "kernel-headers-$KVER" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "kernel-$KVER" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
+  fi
+  $YUM install -y "kernel-headers-${KVER}" >>${OUTPUTFILE} 2>&1
+  if [ $? -ne 0 ]; then
+    echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL
