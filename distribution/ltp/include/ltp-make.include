@@ -164,6 +164,11 @@ ifeq ($(TESTVERSION),20190115)
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-fcntl36-make-sure-write-threads-complete-at-least-1-.patch
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-cma-fix-the-failure-of-compiling-with-O2-op.patch
 	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-migrate_pages03-skip-migratition-of-shared-.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-fanotify03-defined-additional-tcase-members.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-syscalls-fanotify03-included-execve-to-generate_even.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0003-syscalls-fanotify03-add-FAN_OPEN_EXEC_PERM-tcase-sup.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-fanotify03-Small-cleanup.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-fanotify0-135-contain-effects-of-FAN_MARK_M.patch
 
 endif
 	@# The following ones are for specific hardware/release
