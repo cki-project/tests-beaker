@@ -153,7 +153,7 @@ EOF
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL
-  if $YUM search kernel-firmware | grep kernel-firmware ; then
+  if $YUM search kernel-firmware | grep "^kernel-firmware\.noarch" ; then
       $YUM install -y kernel-firmware >>${OUTPUTFILE} 2>&1
   else
       $YUM install -y linux-firmware >>${OUTPUTFILE} 2>&1
