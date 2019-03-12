@@ -39,6 +39,8 @@ function targz_install()
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
+  else
+    echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
   tar xfh ${kpkg} -C / >>${OUTPUTFILE} 2>&1
@@ -140,6 +142,8 @@ EOF
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
+  else
+    echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
   $YUM install -y "kernel-$KVER" "kernel-headers-$KVER" >>${OUTPUTFILE} 2>&1
