@@ -100,7 +100,7 @@ rlJournalStart
         rlRun "unset DISTRO" 0
         rlRun "echo $(id -u) >/proc/self/loginuid" 0
 
-	# Turn off intel-only test on non-intel architectures.
+	# Turn off x86_64 specific test when running on non x86_64 architectures. 
 	test "$(rlGetPrimaryArch)" != "x86_64" && \
 	    rlRun "sed -i '/syscall_socketcall/d' tests/Makefile" 0
         
