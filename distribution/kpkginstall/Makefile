@@ -47,4 +47,4 @@ $(METADATA): Makefile
 	@echo "License:         GPL" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	@echo "Requires:        $(PACKAGE_NAME) make curl grubby tar" >> $(METADATA)
+	@echo "Requires:        $(PACKAGE_NAME) make curl grubby tar binutils" >> $(METADATA)
