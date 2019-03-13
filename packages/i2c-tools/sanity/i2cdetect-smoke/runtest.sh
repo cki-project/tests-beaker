@@ -45,7 +45,6 @@ rlJournalStart
         cat list
         for I2C in $(sed 's/^i2c-\([0-9]\+\).*/\1/' list); do
             rlRun "i2cdetect -F $I2C > $I2C-f.txt 2> $I2C-f.err"
-            rlRun "i2cdetect -y $I2C > $I2C-y.txt 2> $I2C-y.err"
         done
     rlPhaseEnd
 
