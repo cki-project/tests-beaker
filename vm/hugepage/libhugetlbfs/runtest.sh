@@ -106,7 +106,7 @@ if [ $kver_ret -le 0 ]; then
 fi
 
 # Bug 1006253 libhugetlbfs counters testcase occasionally fails on NUMA systems
-if grep -q "release 7.[0-4]" /etc/redhat-release; then
+if grep -q "release 7.[0-9]" /etc/redhat-release; then
 	kvercmp "$cver" '4.10'
 	if [ $kver_ret -le 0 ]; then
 		KNOWNISSUE_32="$KNOWNISSUE_32 -e \"^counters.sh.*Bad HugePages\""
