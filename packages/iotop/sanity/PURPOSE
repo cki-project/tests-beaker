@@ -1,0 +1,3 @@
+PURPOSE of /CoreOS/iotop/Sanity/basic-functionality
+Description: verifies that iotop can detect heavy disk load simulated by dd
+Author: Ales Zelinka <azelinka@redhat.com>
