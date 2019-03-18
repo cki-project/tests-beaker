@@ -174,6 +174,11 @@ function rpm_install()
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
   fi
+  $YUM install -y "kernel-devel-${KVER}" >>${OUTPUTFILE} 2>&1
+  if [ $? -ne 0 ]; then
+    echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
+    echo "Note that some tests might require the package and can fail!" | tee -a ${OUTPUTFILE}
+  fi
   $YUM install -y "kernel-headers-${KVER}" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
