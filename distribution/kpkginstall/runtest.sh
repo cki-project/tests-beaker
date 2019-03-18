@@ -8,17 +8,20 @@ YUM=""
 
 function get_kpkg_ver()
 {
-
-  case "${KPKG_URL}" in
-    *.tar.gz)
-            declare -r kpkg=${KPKG_URL##*/}
-            tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
-            ;;
-    *)
-            # Grab the kernel version from the provided repo directly
-            ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" kernel --showduplicates | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
-            ;;
-  esac
+  if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
+    declare -r kpkg=${KPKG_URL##*/}
+    tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+  elif [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+    # Repo names in configs are formatted as "USER-REPO", so take the kpkgurl
+    # and change / to -
+    REPO_NAME=${KPKG_URL/\//-}
+    # Do the same thing as with normal repos since that's what it is and we
+    # know the name now
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" kernel --showduplicates | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+  else
+    # Grab the kernel version from the provided repo directly
+    ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" kernel --showduplicates | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+  fi
 }
 
 function targz_install()
@@ -110,9 +113,11 @@ function select_yum_tool()
   if [ -x /usr/bin/yum ]; then
     YUM=/usr/bin/yum
     AVAILABLE="available"
+    ${YUM} install -y yum-plugin-copr
   elif [ -x /usr/bin/dnf ]; then
     YUM=/usr/bin/dnf
     AVAILABLE="--available"
+    ${YUM} install -y dnf-plugins-core
   else
     echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
@@ -120,7 +125,7 @@ function select_yum_tool()
   fi
 }
 
-function rpm_install()
+function rpm_prepare()
 {
   # setup yum repo based on url
   cat > /etc/yum.repos.d/kernel-cki.repo << EOF
@@ -136,6 +141,24 @@ EOF
   # set YUM var.
   select_yum_tool
 
+  return 0
+}
+
+function copr_prepare()
+{
+  # set YUM var.
+  select_yum_tool
+
+  ${YUM} copr enable -y "${KPKG_URL}"
+  if [ $? -ne 0 ]; then
+    echo "Can't enable COPR repo!" | tee -a ${OUTPUTFILE}
+    exit 1
+  fi
+  return 0
+}
+
+function rpm_install()
+{
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER="$(get_kpkg_ver)"
   if [ -z "${KVER}" ]; then
@@ -173,12 +196,15 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
     exit 1
   fi
 
-  case "${KPKG_URL}" in
-    *.tar.gz)
-             targz_install ;;
-    *)
-             rpm_install ;;
-  esac
+  if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
+      targz_install
+  elif [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+      copr_prepare
+      rpm_install
+  else
+      rpm_prepare
+      rpm_install
+  fi
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
