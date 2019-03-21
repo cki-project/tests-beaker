@@ -465,6 +465,7 @@ TriggerSysrqPanic()
     PrepareReboot
 
     Log "- Triggering crash."
+    echo 1 > /proc/sys/kernel/sysrq
     echo c > /proc/sysrq-trigger
 
     sleep 60
