@@ -1,0 +1,4 @@
+OK = 1
+INFO = 2
+WARN = 4
+BLACKLIST = 8 

@@ -1,0 +1,27 @@
+This test will try to compile each kernel header file with gcc.
+
+It generates trivial .c file for each kernel header file.
+Then it tries to compile it. For most kernel headers this is possible
+without any other includes or defines. Some kernel headers needs little
+help, for example to include another kernel header defining some struct.
+
+Upstream (read Linus) was always saying, that he doesn't want to support
+this, as kernel header files are not meant to be included directly by
+user-space applications. However there are some applications, which
+include these directly.
+
+If this test fails, it can mean 1 of 2 things:
+1. change introduced in header file can have negative effect on user-space
+   applications, investigate, contact maintainer
+2. this test needs update
+
+If the parameter 'VERIFY' is set to 'yes' then:
+* Files for which there are no extra includes are skipped.
+* It checked if it is possible to compile the header if some of
+  extra includes are omitted.
+* Reports 'verify-all.log' and 'verify-pass.log' are generated.
+  For each header, the log contains the name of the file where the extra
+  includes originate, a list of extra includes and some other informations.
+  The list of cases for which the compilation succeeded follows, 'Y' means
+  that the extra include was used, 'n' means that it was omitted.
+  The compliation of BLACKLISTED files is also tried.
