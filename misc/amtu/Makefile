@@ -55,6 +55,7 @@ $(METADATA):
 	@echo "Requires:	@developer-tools" >> $(METADATA)
 	@echo "Requires:	amtu"		>> $(METADATA)
 	@echo "Requires:	gcc"		>> $(METADATA)
+	@echo "Requires:	git"		>> $(METADATA)
 	@echo "Requires:	make"		>> $(METADATA)
 	@echo "Requires:	wget"		>> $(METADATA)
 	@echo "Requires:	auditd"		>> $(METADATA)
