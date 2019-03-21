@@ -53,6 +53,7 @@ $(METADATA):
 	@echo "Type:		KernelTier1"	>> $(METADATA)
 	@echo "Requires:	kernel-devel"	>> $(METADATA)
 	@echo "Requires:	@developer-tools" >> $(METADATA)
+	@echo "Requires:	@development" >> $(METADATA)
 	@echo "Requires:	amtu"		>> $(METADATA)
 	@echo "Requires:	gcc"		>> $(METADATA)
 	@echo "Requires:	git"		>> $(METADATA)
