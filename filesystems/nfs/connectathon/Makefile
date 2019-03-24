@@ -95,6 +95,8 @@ $(METADATA):
 	@echo "Requires:     rusers"		>> $(METADATA)
 	@echo "Requires:     bzip2"		>> $(METADATA)
 	@echo "Requires:     gcc"		>> $(METADATA)
+	@echo "Requires:     git"		>> $(METADATA)
+	@echo "Requires:     patch"		>> $(METADATA)
 	@echo "Requires:     time"		>> $(METADATA)
 	@echo "Requires:     libnsl2 libtirpc-devel"		>> $(METADATA)
 	@echo "RhtsRequires: test(/kernel/include)"                      >> $(METADATA)
