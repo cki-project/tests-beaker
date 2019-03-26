@@ -50,6 +50,7 @@ fi
 
 rlJournalStart
     rlPhaseStartSetup
+        rlImport "selinux-policy/common"
         rlAssertRpm ${PACKAGE}
         rlAssertRpm audit
         rlAssertRpm kernel
@@ -57,7 +58,12 @@ rlJournalStart
         # running the testsuite in /tmp causes permission denied messages
         # rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         # rlRun "pushd $TmpDir"
-        allow_domain_fd_use_restore=$(getsebool allow_domain_fd_use | sed -r 's/--> //')
+
+        # test turns this boolean off
+        rlSEBooleanBackup allow_domain_fd_use
+        # test expects that domains cannot map files by default
+        rlSEBooleanOff domain_can_mmap_files
+
         rlRun "setenforce 1"
         rlRun "sestatus"
         rlRun "sed -i 's/^expand-check[ ]*=.*$/expand-check = 0/' /etc/selinux/semanage.conf"
@@ -76,6 +82,7 @@ rlJournalStart
         fi
         if rlIsRHEL 8 ; then
             # to avoid error messages like runcon: ‘overlay/access’: No such file or directory
+            rlRun "rpm -qa | grep python | sort"
             if ! grep -q python3 tests/overlay/access ; then
                 rlRun "sed -i 's/python/python3/' tests/overlay/access"
             fi
@@ -105,7 +112,7 @@ rlJournalStart
             rlRun "make" 0
             rlRun "cat results.log" 0
             $PIPEFAIL_ENABLE
-            rlRun "unbuffer make -s test 2>&1 | tee -a results.log" 0
+            rlRun "LANG=C unbuffer make -s test 2>&1 | tee -a results.log" 0
             $PIPEFAIL_DISABLE
             export DISTRO="$MYTMP"
         else
@@ -117,11 +124,12 @@ rlJournalStart
 
     rlPhaseStartCleanup
 
+        rlSEBooleanRestore
+
         # Submit report to beaker.
         rlFileSubmit "results.log" "selinux-testsuite.results.$(uname -r).txt"
         rlRun "make clean" 0-2
         rlRun "popd"
-        rlRun "setsebool $allow_domain_fd_use_restore"
         rlRun "semodule -r test_policy" 0,1
         sleep 5
         rlRun "dmesg | grep -i \"rcu_sched detected stalls\"" 1
