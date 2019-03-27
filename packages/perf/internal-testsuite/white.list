@@ -46,7 +46,7 @@ aba5be59b8476eb15178828406fa0d307fb794b9 aarch64 s390x x86_64 ppc64le # Test dwa
 30d384952b664d5c4f5b81753b0edffc0b003695 x86_64 # x86 rdpmc
 24a8cd476d3077c41e5795428ea7820d88d12309 x86_64 # Convert perf time to TSC
 
-# Known ppc64le bugs
-9e14b86f572e9d058f59302cfa8759e5afb20017 ppc64le # probe libc's inet_pton & backtrace it with ping
+# Known bugs
+9e14b86f572e9d058f59302cfa8759e5afb20017 ppc64le aarch64 x86_64 # probe libc's inet_pton & backtrace it with ping
 90ae3743ecb512bf3d9956df1d6ea8cbb3f63dc6 ppc64le # Use vfs_getname probe to get syscall args filenames
 0e5b27841d80bf495ebfbfb1a446f7ca08fe5e97 ppc64le # Check open filename arg using perf trace + vfs_getname
