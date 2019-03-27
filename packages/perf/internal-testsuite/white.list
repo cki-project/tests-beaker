@@ -1,0 +1,52 @@
+# FORMAT:
+#   sha1sum arch1 arch2 arch3  # comment (test name)
+#
+# where archs might be also "all"
+#
+#  testcases listed here will be skipped
+#  everything from the '#' sign to the end of line is ignored
+
+#### s390x does not have syscall tracepoints, only raw syscalls
+04a274b4bcd3b75f2c514964b7782c836864d631 s390x	# Detect openat syscall event
+8d735cfd56f7d85dc83eba589af9ec15736f5b1a s390x  # Detect openat syscall event on all cpus
+2b05df303eaa71ff64f21a705a2232428d79cf41 s390x  # Detect open syscall event
+e2b405038028fad78e4b440fee4615c9e3105437 s390x	# Detect open syscall event on all cpus
+c40b1c8154d00b7e0a191e18721a2310236f1ca9 s390x	# syscalls:sys_enter_openat event fields
+6a42a33ddab2bb2e5f06c68dae1f01317f2d3687 s390x	# syscalls:sys_enter_open event fields
+dc25abc10dbbe8bbcfd828943e562325bb04d11d s390x	# Read samples using the mmap interface
+
+### s390x does not have cycles and 'dummy' event is not on RHEL6
+1452f6a9560857ae31acc9eaad816ae63c0cec44 s390x	# PERF_RECORD_* events & perf_sample fields
+
+#### tests that should be skipped, if it is not, we have to do it ourselves
+b81906564501bbdb29b976760f7e3735760c3d05 s390x	# Number of exit events of a simple workload
+
+#### to be investigated
+3370c451caa40aa5cb102f145c75eb22141766eb x86_64	# DWARF unwind
+
+#### fails on s390x due to events we don't need at RH
+a314df14af58957548d292f859cbd2ee451c9c9f s390x	# Parse event definition strings
+8d036401505f5579ff5912c30cbccb3c5098d8cd s390x	# Object code reading
+
+#### this test currently fails on powerpc, known thing
+64b224a2fb478a47529700c6237c6c0a0a90ad98 ppc64le ppc64	# Session topology
+
+#### this should be blacklisted on all non-x86_64, it goes slowly, so blacklisting here
+#    (bz1432652 fixes s390x only, not aarch64...)
+b549be0430aa3df45cf25675e2cad1b50d710435 aarch64 s390x # Breakpoint overflow signal handler
+4a3f54aad1d4f9f5a613f72c20a12273533f438f aarch64 s390x # Breakpoint overflow sampling
+
+#### GENERALLY UNSTABLE ####
+
+8d036401505f5579ff5912c30cbccb3c5098d8cd aarch64 s390x x86_64 ppc64le # Object code reading
+3370c451caa40aa5cb102f145c75eb22141766eb aarch64 s390x x86_64 ppc64le # DWARF unwind
+aba5be59b8476eb15178828406fa0d307fb794b9 aarch64 s390x x86_64 ppc64le # Test dwarf unwind
+
+#### PMU might not work on KVM guests
+30d384952b664d5c4f5b81753b0edffc0b003695 x86_64 # x86 rdpmc
+24a8cd476d3077c41e5795428ea7820d88d12309 x86_64 # Convert perf time to TSC
+
+# Known bugs
+9e14b86f572e9d058f59302cfa8759e5afb20017 ppc64le aarch64 x86_64 # probe libc's inet_pton & backtrace it with ping
+90ae3743ecb512bf3d9956df1d6ea8cbb3f63dc6 ppc64le # Use vfs_getname probe to get syscall args filenames
+0e5b27841d80bf495ebfbfb1a446f7ca08fe5e97 ppc64le # Check open filename arg using perf trace + vfs_getname
