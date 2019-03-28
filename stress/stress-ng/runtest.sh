@@ -62,12 +62,22 @@ EXCLUDE+=",bad-altstack,opcode"
 # fanotify fails on systems with many CPUs (>128?):
 #     cannot initialize fanotify, errno=24 (Too many open files)
 EXCLUDE+=",fanotify"
+
+ARCH=`uname -m`
 # RHEL specific excludes
 if rlIsRHEL 7 ; then
     EXCLUDE+=",chroot,idle-page,rtc"
+    #rhel7 architecture specific excludes
+    case ${ARCH} in
+        ppc64)
+            # fnctl invokes failed Interrupted system call
+            EXCLUDE+=",fcntl"
+            # kcmp reports SHIM_KCMP_FILE not implemented
+            EXCLUDE+=",kcmp" 
+        ;;
+    esac
 fi
 # architecture specific excludes
-ARCH=`uname -m`
 case ${ARCH} in
     aarch64)
         # clone invokes oom-killer loop
@@ -138,12 +148,12 @@ rlPhaseStartTest
         fi
 
         rlRun "${BUILDDIR}/stress-ng ${FLAGS}" \
-            0 "Running stress-ng on class ${CLASS} for ${TIMEOUT} seconds per stressor"
+            0,2,3 "Running stress-ng on class ${CLASS} for ${TIMEOUT} seconds per stressor"
         RET=$?
 
-        RESULT="PASS"
-        if [ $RET -ne 0 ] ; then
-            RESULT="FAIL"
+        RESULT="FAIL"
+        if [ $RET -eq 0 -o $RET -eq 2 -o $RET -eq 3  ] ; then
+            RESULT="PASS"
         fi
 
         rlReport "Class ${CLASS}" ${RESULT} 0 ${CLASS}.log
