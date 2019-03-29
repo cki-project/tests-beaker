@@ -5,6 +5,39 @@
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
 YUM=""
+PACKAGE_NAME=""
+
+function set_package_name()
+{
+  # We can't do a simple "grep for anything kernel-like" because of packages like
+  # kernel-devel, kernel-tools etc. State all possible kernel packages that aren't
+  # a simple "kernel" and check for them. If none of them is present, set the
+  # package name to kernel. Do NOT do a check for "kernel" because all of those
+  # packages we don't want to match will match!
+  # Please someone come up with a better solution how to determine the package name...
+
+  if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+    # COPR
+    REPO_NAME=${KPKG_URL/\//-}
+  else
+    # Normal RPM repo we create
+    REPO_NAME='kernel-cki'
+  fi
+
+  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" --showduplicates | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
+
+  for possible_name in "kernel-rt" ; do
+    if echo "$ALL_PACKAGES" | grep $possible_name ; then
+      PACKAGE_NAME=$possible_name
+      break
+    fi
+  done
+  if [[ -z $PACKAGE_NAME ]] ; then
+      PACKAGE_NAME=kernel
+  fi
+
+  echo "Package name is ${PACKAGE_NAME}" | tee -a ${OUTPUTFILE}
+}
 
 function get_kpkg_ver()
 {
@@ -17,10 +50,10 @@ function get_kpkg_ver()
     REPO_NAME=${KPKG_URL/\//-}
     # Do the same thing as with normal repos since that's what it is and we
     # know the name now
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" kernel --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" "${PACKAGE_NAME}" --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   else
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" kernel --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" "${PACKAGE_NAME}" --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
   fi
 }
 
@@ -169,17 +202,17 @@ function rpm_install()
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
-  $YUM install -y "kernel-$KVER" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-$KVER" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
   fi
-  $YUM install -y "kernel-devel-${KVER}" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
     echo "Note that some tests might require the package and can fail!" | tee -a ${OUTPUTFILE}
   fi
-  $YUM install -y "kernel-headers-${KVER}" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
   fi
@@ -205,9 +238,11 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
       targz_install
   elif [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
       copr_prepare
+      set_package_name
       rpm_install
   else
       rpm_prepare
+      set_package_name
       rpm_install
   fi
 
