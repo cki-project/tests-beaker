@@ -17,7 +17,7 @@ function get_kpkg_ver()
     REPO_NAME=${KPKG_URL/\//-}
     # Do the same thing as with normal repos since that's what it is and we
     # know the name now
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" kernel --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" kernel --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   else
     # Grab the kernel version from the provided repo directly
     ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" kernel --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
