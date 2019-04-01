@@ -1,0 +1,46 @@
+The rteval script is a utility for measuring various aspects of
+realtime behaviour on a system under load. The script unpacks the
+hackbench and kernel source, builds hackbench and then goes into a
+loop, running hackbench and compiling a kernel tree. During that loop
+the cyclictest program is run to measure event response time. After
+the run time completes, a statistical analysis of the event response
+times is done and printed to the screen.
+
+This script takes the following parameters:
+
+* RTREPORTSRV
+  Default: rtserver.farm.hsv.redhat.com
+  Defines which XML-RPC server rteval will use for reporting
+
+* NOXMLRPC
+  Default: (not set)
+  If this is set to "1" and only "1", XML-RPC reporting will be disabled
+
+* RTEVAL_EXTRA_PARAMS
+  Default: (not set)
+  The given string will be passed straight through to the rteval command line
+
+* KILLTIMEOVERRIDE
+  Default: (not set / testinfo.desc defines it to 43200 seconds == 12h)
+  This can decide how long rteval will run.  However, it is not a straight
+  forward value.  The Beaker watchdog uses this value to decide when to
+  kill off a running task.  So this script will deduct a number of seconds
+  and use that as rteval run time.  To ensure that rteval can be run both
+  for a short time and a long time, the deducted time differs depending on
+  the KILLTIMEOVERRIDE value.  The default run-time for rteval is 8 hours if
+  this value is not provided.
+
+  If KILLTIMEOVERRIDE value is > 1800 seconds (30 minutes) it will deduct
+  30 minutes for rteval reporting.  So if you pass the value 1801, rteval
+  will run for 1 second, and 30 minutes will be reserved for reporting.
+  If you pass 3600 (1 hour), rteval will run for 30 minutes and 30 minutes
+  is reserved for reporting.
+
+  If KILLTIMEOVERRIDE value is >= 601 and <= 1800 (between 10 min 1 sec and
+  30 minutes), it will deduct 10 minutes for rteval reporting.  So if you
+  pass the value 601, rteval will run for 1 second.  If you pass 1800,
+  rteval will run for 20 minutes.
+
+  If KILLTIMEOVERRIDE value is less than 601, only 3 minutes will be
+  deducted for rteval reporting.
+

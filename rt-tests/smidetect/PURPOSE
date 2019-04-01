@@ -1,0 +1,49 @@
+This test is used to detect if System Management Interrupts (SMIs) are
+causing event latencies in the Linux RT kernel.
+
+The module hwlat is a special purpose kernel module that is
+used to detect if System Management Interrupts (SMIs) are causing event
+latencies in the Linux RT kernel.
+
+SMIs are usually not serviced by the Linux kernel. They are set up by
+BIOS code and are serviced by BIOS code, usually for critical events
+such as management of thermal sensors and fans. Sometimes though, SMIs
+are used for other tasks and those tasks can spend an inordinate
+amount of time in the handler (sometimes measured in milliseconds).
+Obviously if you are trying to keep event service latencies down in the
+microsecond range, this is a problem.
+
+Note that the SMI detector should *NEVER* be used in a production
+environment. It is intended to be run manually to determine if the
+hardware platform has a problem with long SMI service routines.
+
+Usage: smidetect [options]
+
+Options:
+  -h, --help            show this help message and exit
+  --duration=DURATION   total time to test for hardware latency (<n>{smdw})
+  --threshold=THRESHOLD	value above which is considered an hardware latency
+  --window		time between samples
+  --width		time to actually measure
+  --report=REPORT	filename for sample data
+  --cleanup             force unload of module and umount of debugfs
+  --debug               turn on debugging prints
+  --quiet               turn off all screen output
+
+
+An example run looks like this:
+
+   $ sudo hwlatdetect --duration=2h
+   hwlatdetect:  test duration 7200 seconds
+     parameters:
+           Latency threshold: 1us
+           Sample window:     5001000us
+           Sample width:      1000us
+        Non-sampling period:  5000000us
+           Output File:       run/hwlatdetect-2h.dat
+
+   Starting test
+   test finished
+   Max Latency: 74us
+   Samples recorded: 3
+   Samples exceeding threshold: 3
