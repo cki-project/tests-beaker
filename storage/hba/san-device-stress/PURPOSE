@@ -1,0 +1,3 @@
+PURPOSE of /tests-beaker/storage/hba 
+Description: This test generates I/O with FIO at the device level using 4 different methods: write, read, randwrite, randread.
+
