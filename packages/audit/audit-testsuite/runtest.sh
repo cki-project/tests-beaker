@@ -123,8 +123,14 @@ rlJournalStart
                               | grep -v "Tests" \
                               | grep -v "====")
 
-            # Test exec_name test (also) a feature not available until rhel8.
-            if rlIsRHEL "<8"; then
+            # Test exec_name test (also) a feature not available until rhel8,
+            # or compatible userspace package is needed for this test.
+            auditctl -a always,exclude -F exe=/usr/bin/date
+            if [ $? -eq 0 ]; then
+                auditctl -d always,exclude -F exe=/usr/bin/date
+                exclude_exe_filter_supported=1
+            fi
+            if rlIsRHEL "<8" || [ -z "$exclude_exe_filter_supported" ]; then
                 TESTS="$(echo $TESTS | sed 's/exec_name//g')"
             fi
 
