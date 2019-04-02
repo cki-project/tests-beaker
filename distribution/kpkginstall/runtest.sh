@@ -24,7 +24,7 @@ function set_package_name()
     REPO_NAME='kernel-cki'
   fi
 
-  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" --showduplicates | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
+  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
 
   for possible_name in "kernel-rt" ; do
     if echo "$ALL_PACKAGES" | grep $possible_name ; then
@@ -50,10 +50,10 @@ function get_kpkg_ver()
     REPO_NAME=${KPKG_URL/\//-}
     # Do the same thing as with normal repos since that's what it is and we
     # know the name now
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${AVAILABLE}" "${PACKAGE_NAME}" --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   else
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" "${PACKAGE_NAME}" --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
   fi
 }
 
@@ -145,11 +145,11 @@ function select_yum_tool()
 {
   if [ -x /usr/bin/yum ]; then
     YUM=/usr/bin/yum
-    AVAILABLE="available"
+    ALL="all"
     ${YUM} install -y yum-plugin-copr
   elif [ -x /usr/bin/dnf ]; then
     YUM=/usr/bin/dnf
-    AVAILABLE="--available"
+    ALL="--all"
     ${YUM} install -y dnf-plugins-core
   else
     echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
@@ -259,6 +259,9 @@ else
   # set YUM var.
   select_yum_tool
 
+  if [[ ! "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
+    set_package_name
+  fi
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
   if [ -z "${KVER}" ]; then
