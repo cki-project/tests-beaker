@@ -54,7 +54,7 @@ function get_kpkg_ver()
     fi
 
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep -m 1 "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   fi
 }
 
