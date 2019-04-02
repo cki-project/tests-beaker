@@ -44,16 +44,17 @@ function get_kpkg_ver()
   if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
     declare -r kpkg=${KPKG_URL##*/}
     tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
-  elif [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
-    # Repo names in configs are formatted as "USER-REPO", so take the kpkgurl
-    # and change / to -
-    REPO_NAME=${KPKG_URL/\//-}
-    # Do the same thing as with normal repos since that's what it is and we
-    # know the name now
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   else
+    if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+      # Repo names in configs are formatted as "USER-REPO", so take the kpkgurl
+      # and change / to -
+      REPO_NAME=${KPKG_URL/\//-}
+    else
+      REPO_NAME='kernel-cki'
+    fi
+
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep $ARCH | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   fi
 }
 
