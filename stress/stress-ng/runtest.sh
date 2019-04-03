@@ -110,6 +110,11 @@ esac
 EXCLUDE=$(sed -e 's/^,//' -e 's/,$//' <<<$EXCLUDE)
 
 rlPhaseStartSetup
+    # if stress-ng triggers a panic and reboot, then abort the test
+    if [ $REBOOTCOUNT -ge 1 ] ; then
+        rlDie "Aborting due to system crash and reboot"
+    fi
+
     rlLog "Downloading stress-ng from source"
     rlRun "git clone $GIT_URL" 0
     if [ $? != 0 ]; then
