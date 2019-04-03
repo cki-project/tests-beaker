@@ -156,6 +156,8 @@ function knownissue_filter()
 		osver_in_range "800" "801" && tskip "cve-2018-19854 crypto_user01" unfix
 		# Bug 1650597 - [RHEL8][aarch64][Huawei] ltp/lite migrate_pages failures in T2280
 		osver_in_range "800" "801" && is_arch "aarch64" && tskip "migrate_pages03" unfix
+		# Bug 1586281 - ltp/lite fails in keyctl02 due too many threads (cgroup: fork rejected by...
+		osver_in_range "800" "802" && tskip "keyctl02" unfix
 
 		# ------- fixed ---------
 		# Bug 1638647 - ltp execveat03 failed, as missing "355139a8dba4
