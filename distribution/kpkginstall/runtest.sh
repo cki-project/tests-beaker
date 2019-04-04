@@ -24,7 +24,7 @@ function set_package_name()
     REPO_NAME='kernel-cki'
   fi
 
-  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
+  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
 
   for possible_name in "kernel-rt" ; do
     if echo "$ALL_PACKAGES" | grep $possible_name ; then
@@ -54,7 +54,7 @@ function get_kpkg_ver()
     fi
 
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | grep -m 1 "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep -m 1 "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
   fi
 }
 
