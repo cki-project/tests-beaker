@@ -46,17 +46,14 @@ FILES=	$(METADATA)       \
 	Makefile          \
 	hostnamefix.patch \
 	umount.patch      \
-	filter_nroff_warnings.patch \
-	tests.init.patch
+	filter_nroff_warnings.patch
 
 dopatch: $(CONNECTATHON_SRCDIR)
-	patch -d $< -p1 < patches/0001-tests.init.patch
 	patch -d $< -p1 < patches/patch
 	patch -d $< -p1 < patches/434966lock.patch
 	patch -d $< -p1 < patches/hostnamefix.patch
 	patch -d $< -p1 < patches/umount.patch
 	patch -d $< -p1 < patches/filter_nroff_warnings.patch
-	test glibc-2.26 = $$({ rpm -qf /etc/ld.so.conf; echo glibc-2.26; } | sort -V | tail -n1) || patch -d $< -p0 < patches/tests.init.patch
 
 clone: $(CONNECTATHON_SRCDIR)
 $(CONNECTATHON_SRCDIR):
