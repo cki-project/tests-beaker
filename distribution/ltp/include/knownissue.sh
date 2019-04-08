@@ -193,7 +193,7 @@ function knownissue_filter()
 		# disable futex_wake04 until we fix Bug 1087896
 		osver_in_range "700" "705" && is_arch "aarch64" && tskip "futex_wake04" fixed
 		# Bug 1543265 - CVE-2017-17807 kernel-alt: kernel: Missing permissions check for request_key()
-		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fixed
+                osver_in_range "700" "708" && tskip "request_key04 cve-2017-17807" fixed
 		# Bug 1578750 - ovl: hash directory inodes for fsnotify
 		osver_in_range "700" "707" && tskip "inotify07" fixed
 		# Bug 1578751 - ovl: hash non-dir by lower inode for fsnotify
@@ -242,7 +242,7 @@ function knownissue_filter()
 		# Bug 1481114 - [LTP fanotify07] kernel hangs while testing fanotify permission event destruction
 		osver_in_range "700" "706" && tskip "fanotify07" fatal
 		# Bug 1543262 - CVE-2017-17807 kernel: Missing permissions check for request_key()
-		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fatal
+                osver_in_range "700" "708" && tskip "request_key04 cve-2017-17807" fatal
 		# Bug TBD - needs investigation: fallocate05 fails on ppc64/ppc64le
 		is_arch "ppc64" && tskip "fallocate05" fatal
 		is_arch "ppc64le" && tskip "fallocate05" fatal
