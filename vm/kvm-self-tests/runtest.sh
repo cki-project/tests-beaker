@@ -37,6 +37,12 @@ function rlSkip
 
     rlLog "Skipping test because $*"
     rhts-report-result $TEST SKIP $OUTPUTFILE
+
+    #
+    # As we want result="Skip" status="Completed" for all scenarios, right here
+    # we always exit 0, otherwise the test will skip/abort
+    #
+    exit 0
 }
 
 function check_platform_support
@@ -86,11 +92,9 @@ function check
             rlLog "Hardware supports virtualization, proceeding"
         else
             rlSkip "CPU doesn't support virtualization"
-            return 1
         fi
     else
         rlSkip "test is only supported on x86_64 and aarch64"
-        return 1
     fi
 
     # test should only run on a system with 1 or more cpus
@@ -99,10 +103,7 @@ function check
         rlLog "You have sufficient CPU's to run the test"
     else
         rlSkip "system requires > 1 CPU"
-        return 1
     fi
-
-    return 0
 }
 
 function runtest
@@ -138,7 +139,7 @@ function setup
 
     rlPhaseStartSetup
 
-    check || return 1
+    check
 
     rlRun "rm -rf $TMPDIR && mkdir $TMPDIR"
 
@@ -178,7 +179,7 @@ function main
 {
     rlJournalStart
 
-    setup || return 1
+    setup
     runtest
     cleanup
 
