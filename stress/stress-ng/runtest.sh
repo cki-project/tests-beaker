@@ -62,6 +62,8 @@ EXCLUDE+=",bad-altstack,opcode"
 # fanotify fails on systems with many CPUs (>128?):
 #     cannot initialize fanotify, errno=24 (Too many open files)
 EXCLUDE+=",fanotify"
+# sigsuspend often triggers slow path warnings until killed by the watchdog
+EXCLUDE+=",sigsuspend"
 
 ARCH=`uname -m`
 # RHEL specific excludes
