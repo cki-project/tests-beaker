@@ -62,7 +62,7 @@ function targz_install()
 {
   declare -r kpkg=${KPKG_URL##*/}
   echo "Fetching kpkg from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  curl -OL "${KPKG_URL}" >>${OUTPUTFILE} 2>&1
+  curl -OL "${KPKG_URL}" >>${OUTPUTFILE}
 
   if [ $? -ne 0 ]; then
     echo "Failed to fetch package from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
