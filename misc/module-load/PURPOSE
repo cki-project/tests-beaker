@@ -1,0 +1,8 @@
+This test is designed to test basic kernel functionality.
+It loads some kernel modules from a list of modules in a file and checks to see,if they have loaded and can be removed.
+Architecture specific modules may be used by adding additional files to this test in the form of modules.
+$arch where $arch is the name of the architecture the test is running on. 
+If there is no architecture specific file the test will use the modules listed in modules.default.
+For any RHEL release specific modules that don't match between releases create modules.rhel[345] file with release-specific modules listed in it.
+These modules will be appended to default or arch-specific module list.
+

@@ -1,0 +1,48 @@
+#!/bin/sh
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   Copyright (c) 2019 Red Hat, Inc. All rights reserved.
+#
+#   This copyrighted material is made available to anyone wishing
+#   to use, modify, copy, or redistribute it subject to the terms
+#   and conditions of the GNU General Public License version 2.
+#
+#   This program is distributed in the hope that it will be
+#   useful, but WITHOUT ANY WARRANTY; without even the implied
+#   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+#   PURPOSE. See the GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public
+#   License along with this program; if not, write to the Free
+#   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#   Boston, MA 02110-1301, USA.
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function needs_hardware() {
+    local module=$1
+    modinfo $module | awk '/alias:/ { print }' |grep -q 'pci\|usb\|pcmcia\|i2c\|platform\|dmi\|acpi'
+    if [ "$?" == "0" ]; then
+        return 0
+    fi
+    local depends=$(modinfo $module | awk '/depends:/ { print $2 }')
+    OLDIFS=$IFS
+    IFS=","
+    for depend in $depends; do
+        if (needs_hardware "$depend" ); then
+            return 0
+        fi
+    done
+    IFS=$OLDIFS
+    return 1
+}
+
+modules=$(find /lib/modules/$(uname -r) -name \*.ko)
+
+for module in $modules; do
+   name=$(basename $module | sed -e 's/.ko$//')
+   if (! needs_hardware "$module" ); then
+       echo $name
+   else
+       echo "$name needs hardware" 1>&2
+   fi
+done
