@@ -58,7 +58,7 @@ function is_rhel6() { grep -q "release 6" /etc/redhat-release; }
 function is_rhel7() { grep -q "release 7" /etc/redhat-release; }
 function is_rhel8() { grep -q "release 8" /etc/redhat-release; }
 function is_rhel_alt() { rpm -q --qf "%{sourcerpm}\n" -f /boot/vmlinuz-$(uname -r) | grep -q "alt"; }
-function is_upstream() { uname -r | grep -q -v 'el\|fc'; }
+function is_upstream() { uname -r | grep -q -v 'el[0-9]\|fc'; }
 function is_arch() { [ "$(uname -m)" == "$1" ]; }
 # osver_low <= $osver < osver_high
 function osver_in_range() { [ "$1" -le "$osver" -a "$osver" -lt "$2" ]; }
