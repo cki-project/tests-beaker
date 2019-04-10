@@ -69,5 +69,8 @@ $(METADATA):
 	@echo "TestTime:     10m"               >> $(METADATA)
 	@echo "Requires:     fio"		>> $(METADATA)
 	@echo "Requires:     blktrace"		>> $(METADATA)
+	@echo "Requires:     gcc"		>> $(METADATA)
+	@echo "Requires:     gcc-c++"		>> $(METADATA)
+	@echo "Requires:     git"		>> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)"   >> $(METADATA)
 	rhts-lint $(METADATA)
