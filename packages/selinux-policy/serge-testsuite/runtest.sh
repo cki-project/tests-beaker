@@ -71,7 +71,11 @@ rlJournalStart
             rlRun "git clone $GIT_URL" 0
         fi
         rlRun "pushd selinux-testsuite"
-        rlRun "git checkout $GIT_BRANCH" 0 
+        rlRun "git checkout $GIT_BRANCH" 0
+
+        # backup code before making tweaks
+        rlFileBackup "."
+
         if [ -f ./tests/nnp/execnnp.c ] ; then
             rlRun "sed -i 's/3.18/3.9/' ./tests/nnp/execnnp.c"
         fi
@@ -80,13 +84,27 @@ rlJournalStart
             # test_policy module compilation fails because of syntax error
             rlRun "sed -i 's/test_ibpkey.te//' ./policy/Makefile"
         fi
+        if rlIsRHEL 7.6 ; then
+            # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1613056
+            rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
+            rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
+            rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_no_execmem_t, tmpfs_t, file)'"
+        fi
         if rlIsRHEL 8 ; then
             # to avoid error messages like runcon: ‘overlay/access’: No such file or directory
             rlRun "rpm -qa | grep python | sort"
-            if ! grep -q python3 tests/overlay/access ; then
-                rlRun "sed -i 's/python/python3/' tests/overlay/access"
-            fi
+            rlRun "sed -i 's/python\$/python3/' tests/overlay/access"
         fi
+
+        # on aarch64 and s390x the kernel support for Bluetooth is turned
+        # off so we disable the Bluetooth socket tests there
+        case "$(rlGetPrimaryArch)" in
+            aarch64|s390x)
+                script1='s/runcon -t test_bluetooth_socket_t/true/g'
+                script2='s/runcon -t test_no_bluetooth_socket_t/false/g'
+                rlRun "sed -i -e '$script1' -e '$script2' ./tests/extended_socket_class/test"
+                ;;
+        esac
 
         # Initialize report.
         rlRun "echo 'Remote: $GIT_URL' >results.log" 0

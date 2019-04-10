@@ -55,7 +55,7 @@ $(METADATA): Makefile
 	@echo "TestTime:        60m" >> $(METADATA)
 	@echo "RunFor:          selinux-policy" >> $(METADATA)
 	@echo "Requires:        /usr/bin/unbuffer" >> $(METADATA)
-	@echo "Requires:        checkpolicy libselinux-devel libsepol-devel net-tools policycoreutils-devel selinux-policy selinux-policy-devel git perl-Test-Harness gcc netlabel_tools ipsec-tools perl-Test perl-Test-Simple perl-Test-Harness attr rdma-core-devel libibverbs-devel nmap-ncat nc secilc libsemanage expect lksctp-tools-devel kernel-modules-extra platform-python python3" >> $(METADATA)
+	@echo "Requires:        checkpolicy libselinux-devel libsepol-devel net-tools policycoreutils-devel selinux-policy selinux-policy-devel git perl-Test-Harness gcc netlabel_tools ipsec-tools perl-Test perl-Test-Simple perl-Test-Harness attr rdma-core-devel libibverbs-devel nmap-ncat nc secilc libsemanage expect lksctp-tools-devel kernel-modules-extra kernel-rt-modules-extra platform-python python3" >> $(METADATA)
 	@echo "RhtsRequires:    library(selinux-policy/common)" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
