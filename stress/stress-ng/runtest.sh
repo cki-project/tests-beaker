@@ -64,6 +64,9 @@ EXCLUDE+=",bad-altstack,opcode"
 EXCLUDE+=",fanotify"
 # sigsuspend often triggers slow path warnings until killed by the watchdog
 EXCLUDE+=",sigsuspend"
+# efivar triggers panics on both aarch64 and x86_64 systems
+# and it's not applicable on ppc64le nor s390x
+EXCLUDE+=",efivar"
 
 ARCH=`uname -m`
 # RHEL specific excludes
@@ -84,28 +87,18 @@ case ${ARCH} in
     aarch64)
         # clone invokes oom-killer loop
         EXCLUDE+=",clone"
-        # efivar with all CPUs triggers kernel panics, but works ok with 1 CPU?
-        EXCLUDE+=",efivar"
         # fcntl returns Interrupted system call error"
         EXCLUDE+=",fcntl"
         ;;
     ppc64|ppc64le)
-        # POWER does not have UEFI firmware
-        EXCLUDE+=",efivar"
         # kill locks up the kernel on ppc64(le)
         EXCLUDE+=",kill"
         ;;
     s390x)
-        # System z does not have UEFI firmware
-        EXCLUDE+=",efivar"
         # dev test gets stuck in uninterruptible I/O (state D)
         EXCLUDE+=",dev"
         ;;
     x86_64)
-        # x86 may have either UEFI or Legacy BIOS
-        if [ ! -d /sys/firmware/efi/vars ] ; then
-            EXCLUDE+=",efivar"
-        fi
         ;;
 esac
 # finally, strip any leading or trailing commas
