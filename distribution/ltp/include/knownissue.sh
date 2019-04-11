@@ -266,10 +266,10 @@ function knownissue_filter()
 		tskip "sysctl" unfix
 		# Bug 1431926 - CVE-2016-10044 kernel: aio_mount function does not properly restrict execute access
 		tskip "cve-2016-10044" unfix
-		# Bug 1652436 - fanotify: fix handling of events on child sub-directory
-		osver_in_range "700" "707" && tskip "fanotify09" unfix
 
 		# ------- fixed ---------
+		# Bug 1652436 - fanotify: fix handling of events on child sub-directory
+		osver_in_range "706" "708" && tskip "fanotify09" fixed
 		# Bug 1597738 - [RHEL7.6]ltp fanotify09 test failed as missing patch of "fanotify: fix logic of events on child"
 		kernel_in_range "0" "3.10.0-951.el7" && tskip "fanotify09" fixed
 		# Bug 1633059 - [RHEL7.6]ltp syscalls/mlock203 test failed as missing patch "mm: mlock:
