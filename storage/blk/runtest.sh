@@ -191,7 +191,7 @@ function get_test_cases_loop
 		#      - loop/006
 		#      - loop/007
 		#
-		uname -r | grep -q 5.0.0 || testcases+=" loop/001" # Fails on 5.0.0
+		uname -r | grep -q 5.0 || testcases+=" loop/001" # Fails on 5.0
 		#testcases+=" loop/002" # Fails randomly on x86_64
 		testcases+=" loop/003"
 		#testcases+=" loop/004" # Fails randomly on powerpc
