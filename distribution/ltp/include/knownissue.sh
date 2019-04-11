@@ -58,7 +58,7 @@ function is_rhel6() { grep -q "release 6" /etc/redhat-release; }
 function is_rhel7() { grep -q "release 7" /etc/redhat-release; }
 function is_rhel8() { grep -q "release 8" /etc/redhat-release; }
 function is_rhel_alt() { rpm -q --qf "%{sourcerpm}\n" -f /boot/vmlinuz-$(uname -r) | grep -q "alt"; }
-function is_upstream() { uname -r | grep -q -v 'el\|fc'; }
+function is_upstream() { uname -r | grep -q -v 'el[0-9]\|fc'; }
 function is_arch() { [ "$(uname -m)" == "$1" ]; }
 # osver_low <= $osver < osver_high
 function osver_in_range() { [ "$1" -le "$osver" -a "$osver" -lt "$2" ]; }
@@ -137,6 +137,8 @@ function knownissue_filter()
 		# ------- unfix ---------
 		# http://lists.linux.it/pipermail/ltp/2017-January/003424.html
 		kernel_in_range "4.8.0-rc6" "4.12" && tskip "utimensat01.*" unfix
+		# http://lists.linux.it/pipermail/ltp/2019-March/011231.html
+		kernel_in_range "5.0.0" "5.2.0" && tskip "mount02" unfix
 	fi
 
 	if is_rhel8; then
@@ -154,6 +156,8 @@ function knownissue_filter()
 		osver_in_range "800" "801" && tskip "cve-2018-19854 crypto_user01" unfix
 		# Bug 1650597 - [RHEL8][aarch64][Huawei] ltp/lite migrate_pages failures in T2280
 		osver_in_range "800" "801" && is_arch "aarch64" && tskip "migrate_pages03" unfix
+		# Bug 1586281 - ltp/lite fails in keyctl02 due too many threads (cgroup: fork rejected by...
+		osver_in_range "800" "802" && tskip "keyctl02" unfix
 
 		# ------- fixed ---------
 		# Bug 1638647 - ltp execveat03 failed, as missing "355139a8dba4
@@ -191,7 +195,7 @@ function knownissue_filter()
 		# disable futex_wake04 until we fix Bug 1087896
 		osver_in_range "700" "705" && is_arch "aarch64" && tskip "futex_wake04" fixed
 		# Bug 1543265 - CVE-2017-17807 kernel-alt: kernel: Missing permissions check for request_key()
-		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fixed
+                osver_in_range "700" "708" && tskip "request_key04 cve-2017-17807" fixed
 		# Bug 1578750 - ovl: hash directory inodes for fsnotify
 		osver_in_range "700" "707" && tskip "inotify07" fixed
 		# Bug 1578751 - ovl: hash non-dir by lower inode for fsnotify
@@ -240,7 +244,7 @@ function knownissue_filter()
 		# Bug 1481114 - [LTP fanotify07] kernel hangs while testing fanotify permission event destruction
 		osver_in_range "700" "706" && tskip "fanotify07" fatal
 		# Bug 1543262 - CVE-2017-17807 kernel: Missing permissions check for request_key()
-		osver_in_range "700" "707" && tskip "request_key04 cve-2017-17807" fatal
+                osver_in_range "700" "708" && tskip "request_key04 cve-2017-17807" fatal
 		# Bug TBD - needs investigation: fallocate05 fails on ppc64/ppc64le
 		is_arch "ppc64" && tskip "fallocate05" fatal
 		is_arch "ppc64le" && tskip "fallocate05" fatal

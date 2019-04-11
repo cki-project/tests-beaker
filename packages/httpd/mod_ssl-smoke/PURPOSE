@@ -1,0 +1,4 @@
+PURPOSE of /CoreOS/httpd/Sanity/mod_ssl-smoke
+Description: try to reinstall mod_ssl and run httpd with mod_ssl
+This test is ready for rhscl.
+Author: Ondrej Ptak <optak@redhat.com>

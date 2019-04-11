@@ -1,0 +1,5 @@
+PURPOSE of /CoreOS/redhat-rpm-config/Regression/bz1619235-Incorrect-kernel-module-symbol-Requires
+Description: Test for BZ#1619235 (Incorrect kernel module symbol Requires generation)
+Author: Eva Mrakova <emrakova@redhat.com>
+Bug summary: Incorrect kernel module symbol Requires: generation
+Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1619235

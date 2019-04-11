@@ -5,27 +5,64 @@
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
 YUM=""
+PACKAGE_NAME=""
+
+function set_package_name()
+{
+  # We can't do a simple "grep for anything kernel-like" because of packages like
+  # kernel-devel, kernel-tools etc. State all possible kernel packages that aren't
+  # a simple "kernel" and check for them. If none of them is present, set the
+  # package name to kernel. Do NOT do a check for "kernel" because all of those
+  # packages we don't want to match will match!
+  # Please someone come up with a better solution how to determine the package name...
+
+  if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+    # COPR
+    REPO_NAME=${KPKG_URL/\//-}
+  else
+    # Normal RPM repo we create
+    REPO_NAME='kernel-cki'
+  fi
+
+  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
+
+  for possible_name in "kernel-rt" ; do
+    if echo "$ALL_PACKAGES" | grep $possible_name ; then
+      PACKAGE_NAME=$possible_name
+      break
+    fi
+  done
+  if [[ -z $PACKAGE_NAME ]] ; then
+      PACKAGE_NAME=kernel
+  fi
+
+  echo "Package name is ${PACKAGE_NAME}" | tee -a ${OUTPUTFILE}
+}
 
 function get_kpkg_ver()
 {
+  if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
+    declare -r kpkg=${KPKG_URL##*/}
+    tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+  else
+    if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+      # Repo names in configs are formatted as "USER-REPO", so take the kpkgurl
+      # and change / to -
+      REPO_NAME=${KPKG_URL/\//-}
+    else
+      REPO_NAME='kernel-cki'
+    fi
 
-  case "${KPKG_URL}" in
-    *.tar.gz)
-            declare -r kpkg=${KPKG_URL##*/}
-            tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
-            ;;
-    *)
-            # Grab the kernel version from the provided repo directly
-            ${YUM} -q --disablerepo="*" --enablerepo="kernel-cki" list "${AVAILABLE}" kernel --showduplicates | awk -v arch="$ARCH" '/kernel-cki/ {print $2"."arch}'
-            ;;
-  esac
+    # Grab the kernel version from the provided repo directly
+    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep -m 1 "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+  fi
 }
 
 function targz_install()
 {
   declare -r kpkg=${KPKG_URL##*/}
   echo "Fetching kpkg from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  curl -OL "${KPKG_URL}" >>${OUTPUTFILE} 2>&1
+  curl -OL "${KPKG_URL}" >>${OUTPUTFILE}
 
   if [ $? -ne 0 ]; then
     echo "Failed to fetch package from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
@@ -39,6 +76,8 @@ function targz_install()
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
+  else
+    echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
   tar xfh ${kpkg} -C / >>${OUTPUTFILE} 2>&1
@@ -107,10 +146,12 @@ function select_yum_tool()
 {
   if [ -x /usr/bin/yum ]; then
     YUM=/usr/bin/yum
-    AVAILABLE="available"
+    ALL="all"
+    ${YUM} install -y yum-plugin-copr
   elif [ -x /usr/bin/dnf ]; then
     YUM=/usr/bin/dnf
-    AVAILABLE="--available"
+    ALL="--all"
+    ${YUM} install -y dnf-plugins-core
   else
     echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
@@ -118,7 +159,7 @@ function select_yum_tool()
   fi
 }
 
-function rpm_install()
+function rpm_prepare()
 {
   # setup yum repo based on url
   cat > /etc/yum.repos.d/kernel-cki.repo << EOF
@@ -134,22 +175,51 @@ EOF
   # set YUM var.
   select_yum_tool
 
+  return 0
+}
+
+function copr_prepare()
+{
+  # set YUM var.
+  select_yum_tool
+
+  ${YUM} copr enable -y "${KPKG_URL}"
+  if [ $? -ne 0 ]; then
+    echo "Can't enable COPR repo!" | tee -a ${OUTPUTFILE}
+    exit 1
+  fi
+  return 0
+}
+
+function rpm_install()
+{
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER="$(get_kpkg_ver)"
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
     exit 1
+  else
+    echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
-  $YUM install -y "kernel-$KVER" "kernel-headers-$KVER" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-$KVER" >>${OUTPUTFILE} 2>&1
   if [ $? -ne 0 ]; then
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
   fi
+  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" >>${OUTPUTFILE} 2>&1
+  if [ $? -ne 0 ]; then
+    echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
+    echo "Note that some tests might require the package and can fail!" | tee -a ${OUTPUTFILE}
+  fi
+  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" >>${OUTPUTFILE} 2>&1
+  if [ $? -ne 0 ]; then
+    echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
+  fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL
-  if $YUM search kernel-firmware | grep kernel-firmware ; then
+  if $YUM search kernel-firmware | grep "^kernel-firmware\.noarch" ; then
       $YUM install -y kernel-firmware >>${OUTPUTFILE} 2>&1
   else
       $YUM install -y linux-firmware >>${OUTPUTFILE} 2>&1
@@ -165,12 +235,17 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
     exit 1
   fi
 
-  case "${KPKG_URL}" in
-    *.tar.gz)
-             targz_install ;;
-    *)
-             rpm_install ;;
-  esac
+  if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
+      targz_install
+  elif [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
+      copr_prepare
+      set_package_name
+      rpm_install
+  else
+      rpm_prepare
+      set_package_name
+      rpm_install
+  fi
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
@@ -185,6 +260,9 @@ else
   # set YUM var.
   select_yum_tool
 
+  if [[ ! "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
+    set_package_name
+  fi
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
   KVER=$(get_kpkg_ver)
   if [ -z "${KVER}" ]; then

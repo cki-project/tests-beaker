@@ -1,0 +1,16 @@
+PURPOSE of /CoreOS/audit/Sanity/audit-testsuite
+Description: Execute audit-testsuite
+Author: Ondrej Moris <omoris@redhat.com>
+
+This test executes audit-testsuite. By default, test download upstream
+audit-testsuite from github [1] and execute all tests. Optionally, you
+can specify the following test parameters:
+
+  * TESTS       - set of tests to be executed,
+  * GIT_URL     - URL to alternative git repository (eg. fork from the upstream),
+  * GIT_BRANCH  - checkout specific branch for test execution, useful for downstream
+                  tests and tests not yet merged into master branch.
+  * DEBUG       - execute debugging shell after tests execution (for manual 
+                  execution only)
+
+[1] https://github.com/linux-audit/audit-testsuite
