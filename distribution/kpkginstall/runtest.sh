@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x
+
 
 . /usr/bin/rhts_environment.sh
 
@@ -62,7 +64,7 @@ function targz_install()
 {
   declare -r kpkg=${KPKG_URL##*/}
   echo "Fetching kpkg from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  curl -OL "${KPKG_URL}" >>${OUTPUTFILE}
+  curl -OL "${KPKG_URL}" 2>&1 | tee -a ${OUTPUTFILE}
 
   if [ $? -ne 0 ]; then
     echo "Failed to fetch package from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
@@ -80,7 +82,7 @@ function targz_install()
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
-  tar xfh ${kpkg} -C / >>${OUTPUTFILE} 2>&1
+  tar xfh ${kpkg} -C / 2>&1 | tee -a ${OUTPUTFILE}
 
   if [ $? -ne 0 ]; then
     echo "Failed to extract package ${kpkg}" | tee -a ${OUTPUTFILE}
@@ -135,10 +137,10 @@ function targz_install()
   esac
 
   if [ ! -x /sbin/new-kernel-pkg ]; then
-    kernel-install add ${KVER} /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
-    grubby --set-default /boot/vmlinuz-${KVER} >>${OUTPUTFILE} 2>&1
+    kernel-install add ${KVER} /boot/vmlinuz-${KVER} 2>&1 | tee -a ${OUTPUTFILE}
+    grubby --set-default /boot/vmlinuz-${KVER} 2>&1 | tee -a ${OUTPUTFILE}
   else
-    new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} >>${OUTPUTFILE} 2>&1
+    new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} 2>&1 | tee -a ${OUTPUTFILE}
   fi
 }
 
@@ -169,8 +171,8 @@ baseurl=${KPKG_URL}
 enabled=1
 gpgcheck=0
 EOF
-  echo "Setup kernel repo file" >> ${OUTPUTFILE}
-  cat /etc/yum.repos.d/kernel-cki.repo >> ${OUTPUTFILE}
+  echo "Setup kernel repo file" | tee -a  ${OUTPUTFILE}
+  cat /etc/yum.repos.d/kernel-cki.repo 2>&1 | tee -a ${OUTPUTFILE}
 
   # set YUM var.
   select_yum_tool
@@ -203,26 +205,26 @@ function rpm_install()
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
-  $YUM install -y "${PACKAGE_NAME}-$KVER" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-$KVER" 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
     exit 1
   fi
-  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
     echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
     echo "Note that some tests might require the package and can fail!" | tee -a ${OUTPUTFILE}
   fi
-  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" >>${OUTPUTFILE} 2>&1
+  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
     echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL
   if $YUM search kernel-firmware | grep "^kernel-firmware\.noarch" ; then
-      $YUM install -y kernel-firmware >>${OUTPUTFILE} 2>&1
+      $YUM install -y kernel-firmware 2>&1 | tee -a ${OUTPUTFILE}
   else
-      $YUM install -y linux-firmware >>${OUTPUTFILE} 2>&1
+      $YUM install -y linux-firmware 2>&1 | tee -a ${OUTPUTFILE}
   fi
 
   return 0
