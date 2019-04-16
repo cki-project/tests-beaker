@@ -211,4 +211,8 @@ for testcase in $testcases; do
 	((ret += $?))
 done
 
-exit $ret
+if [[ $ret -ne 0 ]]; then
+	echo ">> There are failing tests, pls check it"
+fi
+
+exit 0
