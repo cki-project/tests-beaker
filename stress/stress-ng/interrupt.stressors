@@ -1,0 +1,21 @@
+--aio 0 --timeout 5 --log-file aio.log
+--aiol 0 --timeout 5 --log-file aiol.log
+--clock 0 --timeout 5 --log-file clock.log
+--fault 0 --timeout 5 --log-file fault.log
+--itimer 0 --timeout 5 --log-file itimer.log
+# kill locks up the kernel on ppc64(le) systems
+#--kill 0 --timeout 5 --log-file kill.log
+--schedpolicy 0 --timeout 5 --log-file schedpolicy.log
+--sigfd 0 --timeout 5 --log-file sigfd.log
+--sigfpe 0 --timeout 5 --log-file sigfpe.log
+--sigio 0 --timeout 5 --log-file sigio.log
+--sigpending 0 --timeout 5 --log-file sigpending.log
+--sigpipe 0 --timeout 5 --log-file sigpipe.log
+--sigq 0 --timeout 5 --log-file sigq.log
+--sigrt 0 --timeout 5 --log-file sigrt.log
+--sigsegv 0 --timeout 5 --log-file sigsegv.log
+# sigsuspend often triggers slow path warnings until killed by the watchdog
+#--sigsuspend 0 --timeout 5 --log-file sigsuspend.log
+--sleep 0 --timeout 5 --log-file sleep.log
+--timer 0 --timeout 5 --log-file timer.log
+--timerfd 0 --timeout 5 --log-file timerfd.log

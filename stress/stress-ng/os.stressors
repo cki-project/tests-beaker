@@ -1,0 +1,142 @@
+--access 0 --timeout 5 --log-file access.log
+# RHEL uses SELinux instead of AppArmor
+#--apparmor 0 --timeout 5 --log-file apparmor.log
+--bigheap 0 --timeout 5 --log-file bigheap.log
+# bind-mount reports errors
+#--bind-mount 0 --timeout 5 --log-file bind-mount.log
+--brk 0 --timeout 5 --log-file brk.log
+--cap 0 --timeout 5 --log-file cap.log
+--chdir 0 --timeout 5 --log-file chdir.log
+--chmod 0 --timeout 5 --log-file chmod.log
+--chown 0 --timeout 5 --log-file chown.log
+# chroot fails
+#--chroot 0 --timeout 5 --log-file chroot.log
+# clone invokes oom-killer loop
+#--clone 0 --timeout 5 --log-file clone.log
+--close 0 --timeout 5 --log-file close.log
+--copy-file 0 --timeout 5 --log-file copy-file.log
+--cyclic 0 --timeout 5 --log-file cyclic.log
+--daemon 0 --timeout 5 --log-file daemon.log
+--dccp 0 --timeout 5 --log-file dccp.log
+--dentry 0 --timeout 5 --log-file dentry.log
+# dev and dev-shm get stuck in interruptible I/O (ps state D) on s390x
+#--dev 0 --timeout 5 --log-file dev.log
+#--dev-shm 0 --timeout 5 --log-file dev-shm.log
+--dir 0 --timeout 5 --log-file dir.log
+--dirdeep 0 --timeout 5 --log-file dirdeep.log
+# dnotify fails
+#--dnotify 0 --timeout 5 --log-file dnotify.log
+--dup 0 --timeout 5 --log-file dup.log
+--dynlib 0 --timeout 5 --log-file dynlib.log
+# efivar triggers kernel panics, and it's not valid on ppc64(le) and s390x
+#--efivar 0 --timeout 5 --log-file efivar.log
+--enosys 0 --timeout 5 --log-file enosys.log
+--epoll 0 --timeout 5 --log-file epoll.log
+--eventfd 0 --timeout 5 --log-file eventfd.log
+# exec reports errors
+#--exec 0 --timeout 5 --log-file exec.log
+--fallocate 0 --timeout 5 --log-file fallocate.log
+# fanotify fails on systems with many CPUs (>128?):
+#     cannot initialize fanotify, errno=24 (Too many open files)
+#--fanotify 0 --timeout 5 --log-file fanotify.log
+--fcntl 0 --timeout 5 --log-file fcntl.log
+--fiemap 0 --timeout 5 --log-file fiemap.log
+--fifo 0 --timeout 5 --log-file fifo.log
+--file-ioctl 0 --timeout 5 --log-file file-ioctl.log
+--filename 0 --timeout 5 --log-file filename.log
+--flock 0 --timeout 5 --log-file flock.log
+--fork 0 --timeout 5 --log-file fork.log
+--fstat 0 --timeout 5 --log-file fstat.log
+--futex 0 --timeout 5 --log-file futex.log
+--get 0 --timeout 5 --log-file get.log
+--getdent 0 --timeout 5 --log-file getdent.log
+--handle 0 --timeout 5 --log-file handle.log
+--hdd 0 --timeout 5 --log-file hdd.log
+--icmp-flood 0 --timeout 5 --log-file icmp-flood.log
+--idle-page 0 --timeout 5 --log-file idle-page.log
+# inode-flags reports errors
+#--inode-flags 0 --timeout 5 --log-file inode-flags.log
+--inotify 0 --timeout 5 --log-file inotify.log
+--io 0 --timeout 5 --log-file io.log
+--iomix 0 --timeout 5 --log-file iomix.log
+--ioprio 0 --timeout 5 --log-file ioprio.log
+--kcmp 0 --timeout 5 --log-file kcmp.log
+--key 0 --timeout 5 --log-file key.log
+--klog 0 --timeout 5 --log-file klog.log
+--lease 0 --timeout 5 --log-file lease.log
+--link 0 --timeout 5 --log-file link.log
+--locka 0 --timeout 5 --log-file locka.log
+--lockf 0 --timeout 5 --log-file lockf.log
+--lockofd 0 --timeout 5 --log-file lockofd.log
+--loop 0 --timeout 5 --log-file loop.log
+--madvise 0 --timeout 5 --log-file madvise.log
+--mknod 0 --timeout 5 --log-file mknod.log
+--mlock 0 --timeout 5 --log-file mlock.log
+# mlockmany reports errors
+#--mlockmany 0 --timeout 5 --log-file mlockmany.log
+--mmap 0 --timeout 5 --log-file mmap.log
+# mmapaddr and mmapfix trigger SELinux AVCs
+#--mmapaddr 0 --timeout 5 --log-file mmapaddr.log
+#--mmapfixed 0 --timeout 5 --log-file mmapfixed.log
+--mmapfork 0 --timeout 5 --log-file mmapfork.log
+--mmapmany 0 --timeout 5 --log-file mmapmany.log
+--mq 0 --timeout 5 --log-file mq.log
+--mremap 0 --timeout 5 --log-file mremap.log
+--msg 0 --timeout 5 --log-file msg.log
+--msync 0 --timeout 5 --log-file msync.log
+--netlink-proc 0 --timeout 5 --log-file netlink-proc.log
+--nice 0 --timeout 5 --log-file nice.log
+--open 0 --timeout 5 --log-file open.log
+--personality 0 --timeout 5 --log-file personality.log
+--poll 0 --timeout 5 --log-file poll.log
+--prctl 0 --timeout 5 --log-file prctl.log
+--procfs 0 --timeout 5 --log-file procfs.log
+--pthread 0 --timeout 5 --log-file pthread.log
+--ptrace 0 --timeout 5 --log-file ptrace.log
+--pty 0 --timeout 5 --log-file pty.log
+--quota 0 --timeout 5 --log-file quota.log
+--readahead 0 --timeout 5 --log-file readahead.log
+--rename 0 --timeout 5 --log-file rename.log
+--revio 0 --timeout 5 --log-file revio.log
+--rlimit 0 --timeout 5 --log-file rlimit.log
+--rtc 0 --timeout 5 --log-file rtc.log
+--seal 0 --timeout 5 --log-file seal.log
+--seccomp 0 --timeout 5 --log-file seccomp.log
+--seek 0 --timeout 5 --log-file seek.log
+--sem 0 --timeout 5 --log-file sem.log
+--sem-sysv 0 --timeout 5 --log-file sem-sysv.log
+--sendfile 0 --timeout 5 --log-file sendfile.log
+--set 0 --timeout 5 --log-file set.log
+--shm-sysv 0 --timeout 5 --log-file shm-sysv.log
+--sock 0 --timeout 5 --log-file sock.log
+--sockdiag 0 --timeout 5 --log-file sockdiag.log
+--sockfd 0 --timeout 5 --log-file sockfd.log
+--sockpair 0 --timeout 5 --log-file sockpair.log
+# spawn reports errors
+#--spawn 0 --timeout 5 --log-file spawn.log
+--splice 0 --timeout 5 --log-file splice.log
+# swap reports errors
+#--swap 0 --timeout 5 --log-file swap.log
+--switch 0 --timeout 5 --log-file switch.log
+--symlink 0 --timeout 5 --log-file symlink.log
+--sync-file 0 --timeout 5 --log-file sync-file.log
+--sysbadaddr 0 --timeout 5 --log-file sysbadaddr.log
+--sysinfo 0 --timeout 5 --log-file sysinfo.log
+--sysfs 0 --timeout 5 --log-file sysfs.log
+--tee 0 --timeout 5 --log-file tee.log
+--udp 0 --timeout 5 --log-file udp.log
+--udp-flood 0 --timeout 5 --log-file udp-flood.log
+--unshare 0 --timeout 5 --log-file unshare.log
+--urandom 0 --timeout 5 --log-file urandom.log
+--userfaultfd 0 --timeout 5 --log-file userfaultfd.log
+--utime 0 --timeout 5 --log-file utime.log
+--vdso 0 --timeout 5 --log-file vdso.log
+--vfork 0 --timeout 5 --log-file vfork.log
+--vforkmany 0 --timeout 5 --log-file vforkmany.log
+--vm-splice 0 --timeout 5 --log-file vm-splice.log
+--wait 0 --timeout 5 --log-file wait.log
+# watchdog reports errors
+#--watchdog 0 --timeout 5 --log-file watchdog.log
+--xattr 0 --timeout 5 --log-file xattr.log
+--yield 0 --timeout 5 --log-file yield.log
+--zombie 0 --timeout 5 --log-file zombie.log
