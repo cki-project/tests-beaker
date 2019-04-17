@@ -1,0 +1,6 @@
+--cache 0 --timeout 5 --log-file cache.log
+--icache 0 --timeout 5 --log-file icache.log
+--lockbus 0 --timeout 5 --log-file lockbus.log
+--malloc 0 --timeout 5 --log-file malloc.log
+--membarrier 0 --timeout 5 --log-file membarrier.log
+--memcpy 0 --timeout 5 --log-file memcpy.log

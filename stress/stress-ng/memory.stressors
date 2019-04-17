@@ -1,0 +1,23 @@
+# systemd-coredump does not like bad-altstack
+#--bad-altstack 0 --timeout 5 --log-file bad-altstack.log
+--full 0 --timeout 5 --log-file full.log
+--mcontend 0 --timeout 5 --log-file mcontend.log
+--memfd 0 --timeout 5 --log-file memfd.log
+--memrate 0 --timeout 5 --log-file memrate.log
+--memthrash 0 --timeout 5 --log-file memthrash.log
+--mincore 0 --timeout 5 --log-file mincore.log
+--null 0 --timeout 5 --log-file null.log
+# oom-pipe reports errors
+#--oom-pipe 0 --timeout 5 --log-file oom-pipe.log
+--remap 0 --timeout 5 --log-file remap.log
+--resources 0 --timeout 5 --log-file resources.log
+--rmap 0 --timeout 5 --log-file rmap.log
+--stack 0 --timeout 5 --log-file stack.log
+--stackmmap 0 --timeout 5 --log-file stackmmap.log
+--tlb-shootdown 0 --timeout 5 --log-file tlb-shootdown.log
+--tmpfs 0 --timeout 5 --log-file tmpfs.log
+--vm 0 --timeout 5 --log-file vm.log
+--vm-addr 0 --timeout 5 --log-file vm-addr.log
+--vm-rw 0 --timeout 5 --log-file vm-rw.log
+--vm-segv 0 --timeout 5 --log-file vm-segv.log
+--zero 0 --timeout 5 --log-file zero.log

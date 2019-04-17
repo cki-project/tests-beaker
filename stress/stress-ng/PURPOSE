@@ -1,24 +1,19 @@
 Run stress-ng tests
   git://kernel.ubuntu.com/cking/stress-ng.git
 
-Note: The timeout is per stressor, not the whole class.
-Run 'stress-ng --class interrupt?' to see all the stressors
-in the interrupt class.  Multiply the number of stressors
-by the timeout to get the expected run time.
+Note: If using classes, the timeout is per stressor, not the
+whole class.  Run 'stress-ng --class interrupt?' to see all the
+stressors in the interrupt class.  Multiply the number of
+stressors by the timeout to get the expected run time.
 
-As of the V0.09.56 release, there are 289 total stressors in
-the 5 classes interrupt, cpu, cpu-cache, memory, and os, so
-the expected runtime is 144.5 minutes with a 30 sec timeout.
+This task uses a list of stressors (see the *.stressors files)
+with a 5 second timeout (by default) for each.  There are 184
+stressors, so 184 * 5 = expected runtime of 920 seconds.
 
 TASK PARAMETERS
 ---------------
-CLASSES = list of stress-ng classes to run
-          task default is: interrupt cpu cpu-cache memory os
+GIT_URL = URL to stress-ng git repo
+          default: git://kernel.ubuntu.com/cking/stress-ng.git
 
-TIMEOUT = timeout per stressor in seconds
-          task default is 30 seconds
-          (setting it longer than 30 seconds will require
-           adjusting the expected runtime of the test)
-
-EXTRA_FLAGS = extra command line args for stress-ng, e.g., --verbose
-              task default is ""
+GIT_BRANCH = version of stress-ng to check out
+             default: see runtest.sh

@@ -24,7 +24,8 @@ export TEST=/$(TOPLEVEL_NAMESPACE)/$(PACKAGE_NAME)/$(RELATIVE_PATH)
 FILES=	$(METADATA) \
     runtest.sh \
     Makefile \
-    PURPOSE
+    PURPOSE \
+    *.stressors
 
 .PHONY: clean run
 
