@@ -83,6 +83,12 @@ rlJournalStart
 			fi
 		fi
 		rlRun "rpmquery $KERNEL_DEBUGINFO_PKG_NAME" 0 "Correct debuginfo is installed ($KERNEL)"
+                # return Skip when correct kernel debug is not installed
+                if [ $? -ne 0 ]; then
+                    echo "Correct kernel debuginfo pkg: ${KERNEL_DEBUGINFO_PKG_NAME} is not installed" | tee -a ${OUTPUTFILE}
+                    rhts-report-result $TEST SKIP $OUTPUTFILE
+                    exit 0
+                fi
 		echo "==================== kernel packages installed ===================="
 		rpmquery -a | grep -e kernel -e perf
 		echo "==================================================================="
