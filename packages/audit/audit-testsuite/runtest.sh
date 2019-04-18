@@ -139,9 +139,28 @@ rlJournalStart
 
             TESTS=$(echo $TESTS | sed 's/  / /g')
         fi
-        rlRun "TESTS=\"$TESTS\" unbuffer make -seC tests/ test >>results.log 2>&1" 0
-        rlAssertGrep "Result: PASS" results.log
-        rlRun "cat results.log" 0
+
+        result=0
+        for attempt in 1 2 3; do
+            TESTS="$TESTS" unbuffer make -seC tests/ test >>results.log 2>&1
+            result_rc=$?
+
+            grep -q "Result: PASS" results.log
+            result_gr=$?
+
+            if [ $result_rc -eq 0 ] && [ $result_gr -eq 0 ]; then
+                rlPass "Attempt $attempt passed"
+                result=1
+                break
+            else
+                rlLog "Attempt $attempt failed"
+            fi
+            rlRun "cat results.log" 0
+        done
+        if [ $result -eq 0 ]; then
+            rlFail "All attempts failed!"
+        fi
+
         # DEBUG mode (interactive shell).
         [ -n "$DEBUG" ] && PS1="DEBUG: \W \$ " bash
 
