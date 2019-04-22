@@ -21,6 +21,14 @@
 #          suggest to skip it when <= unfix-rhel-version, or we can remark
 #          the test result as KNOWN issue to avoid beaker report failure.
 #
+# Issue Note:
+#      We'd better follow these principles to exlucde testcase:
+#      1. Upstream kernel bug use its kernel-nvr ranges
+#      2. RHEL kernel bug(fixed) use its kernel-nvr ranges
+#      3. RHEL kernel bug(unfix) use distro exclustion first, then move
+#         to kernel-nvr ranges once it has been fixed.
+#      4. Userspace package bug use itself package-nvr ranges
+#
 # Added-by: Li Wang <liwang@redhat.com>
 
 . ../include/kvercmp.sh  || exit 1
@@ -61,7 +69,7 @@ function is_rhel_alt() { rpm -q --qf "%{sourcerpm}\n" -f /boot/vmlinuz-$(uname -
 function is_upstream() { uname -r | grep -q -v 'el[0-9]\|fc'; }
 function is_arch() { [ "$(uname -m)" == "$1" ]; }
 # osver_low <= $osver < osver_high
-function osver_in_range() { [ "$1" -le "$osver" -a "$osver" -lt "$2" ]; }
+function osver_in_range() { ! is_upstream && [ "$1" -le "$osver" -a "$osver" -lt "$2" ]; }
 
 # kernel_low <= $cver < kernel_high
 function kernel_in_range()
