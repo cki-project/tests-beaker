@@ -68,8 +68,9 @@ function targz_install()
 
   if [ $? -ne 0 ]; then
     echo "Failed to fetch package from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
     rhts-abort -t recipe
-    exit 1
+    exit 0
   fi
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
@@ -86,8 +87,9 @@ function targz_install()
 
   if [ $? -ne 0 ]; then
     echo "Failed to extract package ${kpkg}" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
     rhts-abort -t recipe
-    exit 1
+    exit 0
   fi
 
   case ${ARCH} in
@@ -156,8 +158,9 @@ function select_yum_tool()
     ${YUM} install -y dnf-plugins-core
   else
     echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
     rhts-abort -t recipe
-    exit 1
+    exit 0
   fi
 }
 
@@ -188,7 +191,8 @@ function copr_prepare()
   ${YUM} copr enable -y "${KPKG_URL}"
   if [ $? -ne 0 ]; then
     echo "Can't enable COPR repo!" | tee -a ${OUTPUTFILE}
-    exit 1
+    report_result ${TEST} WARN 99
+    rhts-abort -t recipe
   fi
   return 0
 }
@@ -199,8 +203,9 @@ function rpm_install()
   KVER="$(get_kpkg_ver)"
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
     rhts-abort -t recipe
-    exit 1
+    exit 0
   else
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
@@ -208,7 +213,9 @@ function rpm_install()
   $YUM install -y "${PACKAGE_NAME}-$KVER" 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
     echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
-    exit 1
+    report_result ${TEST} WARN 99
+    rhts-abort -t recipe
+    exit 0
   fi
   $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
@@ -251,8 +258,9 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   if [ $? -ne 0 ]; then
     echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
     rhts-abort -t recipe
-    exit 1
+    exit 0
   fi
 
   echo "Installed kernel ${KVER}, rebooting" | tee -a ${OUTPUTFILE}
@@ -289,6 +297,8 @@ else
     fi
   else
     echo "Kernel version after reboot is not '${KVER}': '${ckver}'" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
     rhts-abort -t recipe
+    exit 0
   fi
 fi
