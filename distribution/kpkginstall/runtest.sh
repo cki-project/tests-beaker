@@ -197,6 +197,29 @@ function copr_prepare()
   return 0
 }
 
+function download_install_package()
+{
+  $YUM install --downloadonly -y $1 2>&1 | tee -a ${OUTPUTFILE}
+
+  # If download of a package fails, report warn/abort -> infrastructure issue
+  if [ $? -ne 0 ]; then
+    echo "Failed to download $2!" 2>&1 | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
+    rhts-abort -t recipe
+    exit 0
+  fi
+
+  # If installation of a downloaded package fails, report fail/abort
+  # -> distro issue
+
+  $YUM install -y $1 2>&1 | tee -a ${OUTPUTFILE}
+  if [ $? -ne 0 ]; then
+    echo "Failed to install $2!" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
+}
+
 function rpm_install()
 {
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
@@ -210,13 +233,9 @@ function rpm_install()
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
-  $YUM install -y "${PACKAGE_NAME}-$KVER" 2>&1 | tee -a ${OUTPUTFILE}
-  if [ $? -ne 0 ]; then
-    echo "Failed to install kernel!" | tee -a ${OUTPUTFILE}
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
-  fi
+  # download & install kernel, or report result
+  download_install_package "${PACKAGE_NAME}-$KVER" "kernel"
+
   $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
     echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
