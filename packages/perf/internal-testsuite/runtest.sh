@@ -29,6 +29,14 @@
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+# Known failure on Mustangs, skip this test until BZ 1619305 is resolved
+if type -p dmidecode >/dev/null ; then
+    if dmidecode -t1 | grep -q 'Product Name:.*Mustang.*' ; then
+        rhts-report-result $TEST SKIP $OUTPUTFILE
+        exit
+    fi
+fi
+
 PACKAGE="perf"
 
 # configuration
