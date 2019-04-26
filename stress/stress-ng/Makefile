@@ -61,6 +61,7 @@ $(METADATA):
 	@echo "Requires:	kernel-headers"				>> $(METADATA)
 	@echo "Requires:	gcc"					>> $(METADATA)
 	@echo "Requires:	wget"					>> $(METADATA)
+	@echo "Requires:	dmidecode"				>> $(METADATA)
 	@echo "Requires:	libaio-devel"				>> $(METADATA)
 	@echo "Requires:	libattr-devel"				>> $(METADATA)
 	@echo "Requires:	libbsd-devel"				>> $(METADATA)

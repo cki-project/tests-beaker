@@ -29,6 +29,14 @@
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+# Mustangs have a hardware flaw which causes kernel warnings under stress:
+#    list_add corruption. prev->next should be next
+if type -p dmidecode >/dev/null ; then
+    if dmidecode -t1 | grep -q 'Product Name:.*Mustang.*' ; then
+        rhts-report-result $TEST SKIP $OUTPUTFILE
+        exit
+    fi
+fi
 
 rlJournalStart
 
