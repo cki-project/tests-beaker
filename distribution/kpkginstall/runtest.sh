@@ -253,6 +253,11 @@ function rpm_install()
       $YUM install -y linux-firmware 2>&1 | tee -a ${OUTPUTFILE}
   fi
 
+  # Workaround for BZ 1698363
+  if [[ "${ARCH}" == s390x ]] ; then
+    grubby --set-default /boot/"${KVER}" && zipl
+  fi
+
   return 0
 }
 
