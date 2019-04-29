@@ -56,6 +56,7 @@ $(METADATA): Makefile
 	@echo "Requires:        perf perf-debuginfo" >> $(METADATA)
 	@echo "Requires:        python-perf python3-perf" >> $(METADATA)
 	@echo "Requires:        kernel-debuginfo iputils-debuginfo dmidecode" >> $(METADATA)
+	@echo "Requires:        kernel-rt-debuginfo" >> $(METADATA)
 	@echo "Requires:        yum-utils dnf-utils" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)
