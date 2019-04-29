@@ -59,6 +59,17 @@ prepare_whitelists()
 	rlRun "cp white.list $TmpDir/" 0 "WHITELIST: adding basic whitelist"
 }
 
+# return 0 when running kernel rt
+is_kernel_rt()
+{
+	local kernel_name=$(uname -r)
+	if [[ "$kernel_name" =~ "rt" ]]; then
+		echo 0
+	else
+		echo 1
+	fi
+}
+
 rlJournalStart
 	rlPhaseStartSetup
 		rlAssertRpm $PACKAGE
@@ -67,12 +78,21 @@ rlJournalStart
 		export KERNEL=`uname -r`
 
 		export KERNEL_PKG_NAME="kernel-$KERNEL"
-		export KERNEL_DEBUGINFO_PKG_NAME="kernel-debuginfo-$KERNEL"
+		if [ $(is_kernel_rt) -eq 0 ]; then
+			export KERNEL_DEBUGINFO_PKG_NAME="kernel-rt-debuginfo-$KERNEL"
+		else
+			export KERNEL_DEBUGINFO_PKG_NAME="kernel-debuginfo-$KERNEL"
+		fi
 		echo $KERNEL | grep -q debug
 		if [ $? -eq 0 ]; then
 			export KERNEL=${KERNEL%[.+]debug}
-			export KERNEL_PKG_NAME="kernel-debug-$KERNEL"
-			export KERNEL_DEBUGINFO_PKG_NAME="kernel-debug-debuginfo-$KERNEL"
+			if [ $(is_kernel_rt) -eq 0 ]; then
+				export KERNEL_PKG_NAME="kernel-rt-debug-$KERNEL"
+				export KERNEL_DEBUGINFO_PKG_NAME="kernel-rt-debug-debuginfo-$KERNEL"
+			else
+				export KERNEL_PKG_NAME="kernel-debug-$KERNEL"
+				export KERNEL_DEBUGINFO_PKG_NAME="kernel-debug-debuginfo-$KERNEL"
+			fi
 		fi
 		rlLog "Variables:"
 		rlLog "KERNEL = $KERNEL"
