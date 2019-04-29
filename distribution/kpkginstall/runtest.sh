@@ -144,6 +144,18 @@ function targz_install()
   else
     new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} 2>&1 | tee -a ${OUTPUTFILE}
   fi
+
+  # Workaround for kernel-install problem when it's not sourcing os-release
+  # file, no official bug number yet.
+  if [[ "${ARCH}" == s390x ]] ; then
+      # Yay matching with wildcard, as we only want to execute this part of the
+      # code on BLS systems and when this file exists, to prevent weird failures.
+      for f in /boot/loader/entries/*"${KVER}".conf ; do
+        title=$(grep title "${f}" | sed "s/[[:space:]]*$//")
+        echo "Removing trailing whitespace in title record of $f" | tee -a ${OUTPUTFILE}
+        sed -i "s/title.*/$title/" "${f}"
+      done
+  fi
 }
 
 function select_yum_tool()
