@@ -84,16 +84,25 @@ rlJournalStart
             # test_policy module compilation fails because of syntax error
             rlRun "sed -i 's/test_ibpkey.te//' ./policy/Makefile"
         fi
-        if rlIsRHEL 7.6 ; then
-            # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1613056
-            rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
-            rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
-            rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_no_execmem_t, tmpfs_t, file)'"
-        fi
         if rlIsRHEL 8 ; then
             # to avoid error messages like runcon: ‘overlay/access’: No such file or directory
             rlRun "rpm -qa | grep python | sort"
             rlRun "sed -i 's/python\$/python3/' tests/overlay/access"
+        fi
+
+        # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1613056
+        # (if running kernel version sorts inside the known-bug window, then
+        # we need to apply the workaround)
+        marker='bz1613056-check'
+        pos=$({
+            echo '3.10.0-874.el7' # last good kernel
+            echo '3.10.0-972.el7' # first fixed kernel
+            echo "$(uname -r)-$marker"
+        } | sort -V | grep -n "$marker" | cut -f 1 -d ':')
+        if [ $pos -eq 2 ]; then
+            rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
+            rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
+            rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_no_execmem_t, tmpfs_t, file)'"
         fi
 
         # on aarch64 and s390x the kernel support for Bluetooth is turned
