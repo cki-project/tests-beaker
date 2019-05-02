@@ -252,6 +252,13 @@ function rpm_install()
   # download & install kernel, or report result
   download_install_package "${PACKAGE_NAME}" "$KVER"
 
+  # The package was renamed (and temporarily aliased) in Fedora/RHEL
+  if $YUM search kernel-firmware | grep "^kernel-firmware\.noarch" ; then
+      $YUM install -y kernel-firmware 2>&1 | tee -a ${OUTPUTFILE}
+  else
+      $YUM install -y linux-firmware 2>&1 | tee -a ${OUTPUTFILE}
+  fi
+
   # Workaround for BZ 1698363
   if [[ "${ARCH}" == s390x ]] ; then
     grubby --set-default /boot/"${KVER}" && zipl
