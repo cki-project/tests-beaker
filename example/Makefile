@@ -1,6 +1,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~
 #
-#   Dummy test Makefile
+#   Example test Makefile
 #
 # ~~~~~~~~~~~~~~~~~~~~~
 
