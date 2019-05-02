@@ -211,29 +211,25 @@ function copr_prepare()
 
 function download_install_package()
 {
-  mkdir -vp kernel_packages
-  pushd kernel_packages
-    # Download the kernel RPMs from our kernel build repo along with any
-    # dependencies needed.
-    $YUM install --downloadonly --downloaddir=$(pwd)/ -y "${1}*${2}" 2>&1 | tee -a ${OUTPUTFILE}
+  $YUM install --downloadonly -y $1 2>&1 | tee -a ${OUTPUTFILE}
 
-    # If download of a package fails, report warn/abort -> infrastructure issue
-    if [ $? -ne 0 ]; then
-      echo "Failed to download ${1}!" 2>&1 | tee -a ${OUTPUTFILE}
-      report_result ${TEST} WARN 99
-      rhts-abort -t recipe
-      exit 0
-    fi
+  # If download of a package fails, report warn/abort -> infrastructure issue
+  if [ $? -ne 0 ]; then
+    echo "Failed to download $2!" 2>&1 | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 99
+    rhts-abort -t recipe
+    exit 0
+  fi
 
-    # If installation of a downloaded package fails, report fail/abort
-    # -> distro issue
-    $YUM install -y $(ls *.rpm) 2>&1 | tee -a ${OUTPUTFILE}
-    if [ $? -ne 0 ]; then
-      echo "Failed to install ${1}" | tee -a ${OUTPUTFILE}
-      rhts-abort -t recipe
-      exit 1
-    fi
-  popd
+  # If installation of a downloaded package fails, report fail/abort
+  # -> distro issue
+
+  $YUM install -y $1 2>&1 | tee -a ${OUTPUTFILE}
+  if [ $? -ne 0 ]; then
+    echo "Failed to install $2!" | tee -a ${OUTPUTFILE}
+    rhts-abort -t recipe
+    exit 1
+  fi
 }
 
 function rpm_install()
@@ -250,7 +246,24 @@ function rpm_install()
   fi
 
   # download & install kernel, or report result
-  download_install_package "${PACKAGE_NAME}" "$KVER"
+  download_install_package "${PACKAGE_NAME}-$KVER" "kernel"
+
+  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
+  if [ $? -ne 0 ]; then
+    echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
+    echo "Note that some tests might require the package and can fail!" | tee -a ${OUTPUTFILE}
+  fi
+  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
+  if [ $? -ne 0 ]; then
+    echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
+  fi
+
+  # The package was renamed (and temporarily aliased) in Fedora/RHEL
+  if $YUM search kernel-firmware | grep "^kernel-firmware\.noarch" ; then
+      $YUM install -y kernel-firmware 2>&1 | tee -a ${OUTPUTFILE}
+  else
+      $YUM install -y linux-firmware 2>&1 | tee -a ${OUTPUTFILE}
+  fi
 
   # Workaround for BZ 1698363
   if [[ "${ARCH}" == s390x ]] ; then
