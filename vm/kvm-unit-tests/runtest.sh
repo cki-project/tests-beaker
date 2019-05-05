@@ -11,6 +11,8 @@ function check_platform_support
     typeset hwpf=${1?"*** what hardware-platform?, e.g. x86_64"}
     [[ $hwpf == "x86_64" ]] && return 0
     [[ $hwpf == "aarch64" ]] && return 0
+    [[ $hwpf == "ppc64" ]] && return 0
+    [[ $hwpf == "s390x" ]] && return 0
     return 1
 }
 
@@ -34,16 +36,22 @@ function check_virt_support
                 egrep -iq "kvm.*: Hyp mode initialized successfully"
         fi
         return $?
+    elif [[ $hwpf == "ppc64" ]]; then
+        grep -q 'platform.*PowerNV' /proc/cpuinfo
+        return $?
+    elif [[ $hwpf == "s390x" ]]; then
+        grep -q 'features.*sie' /proc/cpuinfo
+        return $?
     else
         return 1
     fi
 }
 
-# test is only supported on x86_64 and aarch64
+# test is only supported on x86_64, aarch64, ppc64 and s390x
 hwpf=$(uname -i)
 check_platform_support $hwpf
 if (( $? == 0 )); then
-    echo "Running on supported arch (x86_64 or aarch64)" | tee -a $OUTPUTFILE
+    echo "Running on supported arch ($hwpf)" | tee -a $OUTPUTFILE
 
     # test can only run on hardware that supports virtualization
     check_virt_support $hwpf
@@ -55,13 +63,13 @@ if (( $? == 0 )); then
         exit
     fi
 else
-    echo "Skipping test, test is only supported on x86_64 and aarch64" | tee -a $OUTPUTFILE
+    echo "Skipping test, test is only supported on x86_64, aarch64, ppc64 or s390x" | tee -a $OUTPUTFILE
     rhts-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 
 # test should only run on a system with 1 or more cpus
-if [ "$cpus" > 1 ]; then
+if [ "$cpus" -gt 1 ]; then
     echo "You have sufficient CPU's to run the test" | tee -a $OUTPUTFILE
 else
     echo "Skipping test, system requires > 1 CPU" | tee -a $OUTPUTFILE
@@ -69,18 +77,20 @@ else
     exit
 fi
 
-# set the virt kernel parameters
-echo -e "options kvm force_emulation_prefix=1\noptions kvm enable_vmware_backdoor=1" > /etc/modprobe.d/kvm-ci.conf
-
-# reload the modules
-rmmod kvm_intel kvm_amd kvm
-modprobe kvm_intel kvm_amd kvm
-
 KVM_SYSFS=/sys/module/kvm/parameters/
-KVM_OPTIONS="enable_vmware_backdoor force_emulation_prefix"
+KVM_OPTIONS_X86="enable_vmware_backdoor force_emulation_prefix"
 
 if [[ $hwpf == "x86_64" ]]; then
-    for opt in $KVM_OPTIONS; do
+    # set the virt kernel parameters
+    echo -e "options kvm force_emulation_prefix=1\noptions kvm enable_vmware_backdoor=1" > /etc/modprobe.d/kvm-ci.conf
+    # reload the modules
+    if (lsmod | grep -q kvm_intel); then
+        rmmod kvm_intel kvm
+    elif (lsmod | grep -q kvm_amd); then
+        rmmod kvm_amd kvm
+    fi
+    modprobe kvm_intel kvm_amd kvm
+    for opt in $KVM_OPTIONS_X86; do
         if [ ! -f "$KVM_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
             report_result $TEST WARN
@@ -89,6 +99,19 @@ if [[ $hwpf == "x86_64" ]]; then
             echo "kernel option $opt is set" | tee -a $OUTPUTFILE
         fi
     done
+elif [[ $hwpf == "ppc64" ]]; then
+    for mod in kvm_hv kvm_pr kvm ; do
+        if (lsmod | grep -q $mod); then
+            rmmod $mod
+        fi
+    done
+    modprobe kvm_hv
+else
+    # reload the modules
+    if (lsmod | grep -q kvm); then
+        rmmod kvm
+    fi
+    modprobe kvm
 fi
 
 # set the qemu-kvm path
@@ -124,7 +147,11 @@ fi
 cp ../unittests.cfg x86/unittests.cfg
 
 # run the tests
-./configure
+if [[ $hwpf == "ppc64" ]]; then
+    ./configure --endian=little
+else
+    ./configure
+fi
 make
 ./run_tests.sh -v > test.log 2>&1
 cat test.log | tee -a $OUTPUTFILE
