@@ -147,6 +147,8 @@ function knownissue_filter()
 		kernel_in_range "4.8.0-rc6" "4.12" && tskip "utimensat01.*" unfix
 		# http://lists.linux.it/pipermail/ltp/2019-March/011231.html
 		kernel_in_range "5.0.0" "5.2.0" && tskip "mount02" unfix
+		# https://lore.kernel.org/linux-mm/1817839533.20996552.1557065445233.JavaMail.zimbra@redhat.com/T/#u
+		kernel_in_range "5.0.0" "5.2.0" && is_arch "aarch64" && tskip "mtest06" unfix
 	fi
 
 	if is_rhel8; then
