@@ -26,9 +26,17 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+typeset -l debug=${_DEBUG}
+[[ $debug =~ (yes|true) ]] && \
+    export PS4='[${FUNCNAME}@${BASH_SOURCE}:${LINENO}|${SECONDS}]+ ' && set -x
+
 # Include Beaker environment
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
+
+# Include tests-specific libraries
+. lib/common.sh || exit 1
+. lib/concheck.sh || exit 1
 
 PACKAGE="selinux-policy"
 
@@ -50,7 +58,6 @@ fi
 
 rlJournalStart
     rlPhaseStartSetup
-        rlImport "selinux-policy/common"
         rlAssertRpm ${PACKAGE}
         rlAssertRpm audit
         rlAssertRpm kernel
