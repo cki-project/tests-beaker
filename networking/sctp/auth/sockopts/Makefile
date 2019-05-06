@@ -23,7 +23,7 @@ export TESTVERSION=1.0
 
 BUILT_FILES=
 
-FILES=$(METADATA) *.sh Makefile PURPOSE *.c *.h
+FILES=$(METADATA) *.sh Makefile PURPOSE *.c *.h common lib
 TARGET_FILES=api_tests test_cases.c
 
 .PHONY: all install download clean
@@ -54,8 +54,6 @@ $(METADATA): Makefile
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	@echo "RhtsRequires:    kernel-kernel-networking-common" >> $(METADATA)
-	@echo "RhtsRequires:    kernel-kernel-networking-sctp-lib" >> $(METADATA)
 	@echo "Requires:        $(PACKAGE_NAME) lksctp-tools lksctp-tools-devel" >> $(METADATA)
 	@echo "Requires:        bc wget bzip2 gcc" >> $(METADATA)
 	@echo "Requires:        git patch rsync" >> $(METADATA)
