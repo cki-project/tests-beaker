@@ -1,0 +1,5 @@
+attr: {level: Tier1, distronotin: RHEL-6}, param: [TEST_TYPE=netns, TEST_TOPO=default, ROUTE_MODE=local]
+attr: {level: Tier1, distronotin: RHEL-6}, param: [TEST_TYPE=netns, TEST_TOPO=default, ROUTE_MODE=forward]
+attr: {level: Tier1, distroin: RHEL-6, ssched: yes}, param: [TEST_TYPE=netns, TEST_TOPO=default, ROUTE_MODE=local]
+attr: {level: Tier1, distroin: RHEL-6, ssched: yes}, param: [TEST_TYPE=netns, TEST_TOPO=default, ROUTE_MODE=forward]
+attr: {level: Tier2}, param: [TEST_TYPE=vm, TEST_TOPO=default, ROUTE_MODE=local], setup: [--nay-driver]

@@ -1,0 +1,67 @@
+1. Summary:
+    This is a library of networking common and usually used functions.
+
+2. Description:
+   Here are some descriptions about the file and functions. For more info,
+   please read the code directly.
+
+   include.sh
+	This is the main entrance, it sourced all other lib files.
+
+   install.sh
+	This file include some install functions for tool that are not available
+	via yum install.
+
+   keys
+	This folder contains the network-qe ssh key
+
+   netperf.sh
+	all kinds of netperf test, you need to install netperf first.
+
+	netperf_tcp_4(): only IPv4 tcp test
+	netperf_test(): run all netperf test(IPv4/6 tcp/udp/sctp)
+
+   network.sh
+	All network related functions
+
+	get_iface_and_addr(): get the interface and address you want. You can
+	supply TOPO, NIC_DRIVER, NIC_NUM info to get like bond, vlan
+	interface. By default it will return the default interface system use.
+
+   obsolete.sh
+	Functions that are obsoleted, please do not use it anymore.
+
+   patch
+	Folder contains all patch for tools install.
+
+   runtest.sh
+	Do nothing by default. But can run specific function if you give PARAM
+
+   service.sh
+	Enable or disable some service.
+
+	lib_service(): call the service and you do not need to care whether is
+	RHEL6 or RHEL7
+
+   src
+	some c tool that need to build
+	mtools: a tool that can send/receive IPv4/v6 TCP/UDP/IGMP packets
+
+   sync
+	some sync function we defined ourselves.
+
+   tools
+	netns_*.sh: create subnets via namespace
+	parse_netqe_nic_info.sh: Get network-qe special machines by NIC driver/model/num/...
+	send_nd.py: send all kinds of IPv6 ND message
+	vmsh: A tool to use 'virsh console' to run cmdline on a VM
+
+   vm.sh
+	An easy way to start a guest.
+
+3. How to use:
+   1. please add the following line in your runtest.sh
+	. ../${relative_path}/common/include.sh
+   2. And add the following line in you Makefile
+	@echo "RhtsRequires: kernel-kernel-networking-common" >> $(METADATA)
+	@echo "RepoRequires: networking/common/" >> $(METADATA)

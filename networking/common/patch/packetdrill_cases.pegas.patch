@@ -1,0 +1,149 @@
+diff --git a/gtests/net/packetdrill/tests/linux/initial_window/iw10-base-case.pkt b/gtests/net/packetdrill/tests/linux/initial_window/iw10-base-case.pkt
+index f790f56..98ae437 100755
+--- a/gtests/net/packetdrill/tests/linux/initial_window/iw10-base-case.pkt
++++ b/gtests/net/packetdrill/tests/linux/initial_window/iw10-base-case.pkt
+@@ -12,7 +12,10 @@
+ 0.200 accept(3, ..., ...) = 4
+ 
+ 0.200 write(4, ..., 14600) = 14600
+-0.200 > P. 1:14601(14600) ack 1
++//0.200 > P. 1:14601(14600) ack 1
++0.200 > . 1:7301(7300) ack 1
++0.200 > P. 7301:14601(7300) ack 1
++
+ 0.300 < . 1:1(0) ack 14601 win 257
+ 
+ 0.400 close(4) = 0
+diff --git a/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-client.pkt b/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-client.pkt
+index 906ad6e..a495fea 100644
+--- a/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-client.pkt
++++ b/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-client.pkt
+@@ -21,4 +21,6 @@
+ 
+ // IW10 MSS should yield outgoing TSO packet with 10*1100 == 11000 bytes:
+ 0.500 write(3, ..., 12000) = 12000
+-0.500 > . 1:11001(11000) ack 1
++//0.500 > . 1:11001(11000) ack 1
++0.500 > . 1:5501(5500) ack 1
++0.500 > . 5501:11001(5500) ack 1
+diff --git a/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-server.pkt b/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-server.pkt
+index f2ed31d..fea4cb2 100644
+--- a/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-server.pkt
++++ b/gtests/net/packetdrill/tests/linux/mss/mss-setsockopt-tcp_maxseg-server.pkt
+@@ -24,4 +24,7 @@
+ 
+ // IW10 MSS should yield outgoing TSO packet with 10*1100 == 11000 bytes:
+ 0.600 write(4, ..., 12000) = 12000
+-0.600 > . 1:11001(11000) ack 1
++//0.600 > . 1:11001(11000) ack 1
++0.600 > . 1:5501(5500) ack 1
++0.600 > . 5501:11001(5500) ack 1
++
+diff --git a/gtests/net/packetdrill/tests/linux/pmtu_discovery/pmtud-10pkt-1460-to-1160.pkt b/gtests/net/packetdrill/tests/linux/pmtu_discovery/pmtud-10pkt-1460-to-1160.pkt
+index df30dee..5b8c0ef 100644
+--- a/gtests/net/packetdrill/tests/linux/pmtu_discovery/pmtud-10pkt-1460-to-1160.pkt
++++ b/gtests/net/packetdrill/tests/linux/pmtu_discovery/pmtud-10pkt-1460-to-1160.pkt
+@@ -18,7 +18,9 @@
+ 
+ // Send 10 data segments.
+ 0.200 write(4, ..., 14600) = 14600
+-0.200 > P. 1:14601(14600) ack 1
++//0.200 > P. 1:14601(14600) ack 1
++0.200 > . 1:7301(7300) ack 1
++0.200 > P. 7301:14601(7300) ack 1
+ 
+ // ICMP says that the first segment was too big.
+ 0.250 < [1:1461(1460)] icmp unreachable frag_needed mtu 1200
+diff --git a/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2-3-fack.pkt b/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2-3-fack.pkt
+index 52b8cda..4b714c1 100644
+--- a/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2-3-fack.pkt
++++ b/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2-3-fack.pkt
+@@ -13,7 +13,10 @@
+ 0.200 accept(3, ..., ...) = 4
+ 
+ 0.200 write(4, ..., 10000) = 10000
+-0.200 > P. 1:10001(10000) ack 1
++//0.200 > P. 1:10001(10000) ack 1
++0.200 > . 1:5001(5000) ack 1
++0.200 > P. 5001:10001(5000) ack 1
++
+ 0.200 %{
+ assert tcpi_reordering == 3
+ assert tcpi_unacked == 10
+diff --git a/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2:6-fack.pkt b/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2:6-fack.pkt
+index 464ba69..709ad07 100644
+--- a/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2:6-fack.pkt
++++ b/gtests/net/packetdrill/tests/linux/sack/sack-shift-sacked-1-2:6-fack.pkt
+@@ -14,7 +14,10 @@
+ 0.200 accept(3, ..., ...) = 4
+ 
+ 0.200 write(4, ..., 10000) = 10000
+-0.200 > P. 1:10001(10000) ack 1
++//0.200 > P. 1:10001(10000) ack 1
++0.200 > . 1:5001(5000) ack 1
++0.200 > P. 5001:10001(5000) ack 1
++
+ 0.200 %{
+ assert tcpi_reordering == 3
+ assert tcpi_unacked == 10
+diff --git a/gtests/net/packetdrill/tests/linux/undo/undo-fr-ack-then-dsack-on-ack-below-snd_una.pkt b/gtests/net/packetdrill/tests/linux/undo/undo-fr-ack-then-dsack-on-ack-below-snd_una.pkt
+index b3347f9..0ea215d 100644
+--- a/gtests/net/packetdrill/tests/linux/undo/undo-fr-ack-then-dsack-on-ack-below-snd_una.pkt
++++ b/gtests/net/packetdrill/tests/linux/undo/undo-fr-ack-then-dsack-on-ack-below-snd_una.pkt
+@@ -20,7 +20,9 @@
+ 
+ // Send 10 MSS.
+ 0.200 write(4, ..., 10000) = 10000
+-0.200 > P. 1:10001(10000) ack 1
++//0.200 > P. 1:10001(10000) ack 1
++0.200 > . 1:5001(5000) ack 1
++0.200 > P. 5001:10001(5000) ack 1
+ 
+ // Get 3 dupacks.
+ 0.300 < . 1:1(0) ack 1 win 257 <sack 1001:2001,nop,nop>
+@@ -48,7 +50,9 @@
+ 
+ // Verify that the DSACK caused an undo, restoring cwnd to 10.
+ 0.450 write(4, ..., 11000) = 11000
+-0.450 > . 11001:21001(10000) ack 1
++//0.450 > . 11001:21001(10000) ack 1
++0.450 > . 11001:16001(5000) ack 1
++0.450 > . 16001:21001(5000) ack 1
+ 0.450 %{
+ assert tcpi_snd_cwnd == 10
+ assert tcpi_unacked == 10
+diff --git a/gtests/net/packetdrill/tests/linux/undo/undo-fr-acks-dropped-then-dsack.pkt b/gtests/net/packetdrill/tests/linux/undo/undo-fr-acks-dropped-then-dsack.pkt
+index f39ddc8..369c2b5 100644
+--- a/gtests/net/packetdrill/tests/linux/undo/undo-fr-acks-dropped-then-dsack.pkt
++++ b/gtests/net/packetdrill/tests/linux/undo/undo-fr-acks-dropped-then-dsack.pkt
+@@ -19,7 +19,9 @@
+ 
+ // Send 10 MSS.
+ 0.200 write(4, ..., 10000) = 10000
+-0.200 > P. 1:10001(10000) ack 1
++//0.200 > P. 1:10001(10000) ack 1
++0.200 > . 1:5001(5000) ack 1
++0.200 > P. 5001:10001(5000) ack 1
+ 
+ // Get 3 dupacks.
+ 0.300 < . 1:1(0) ack 1 win 257 <sack 1001:2001,nop,nop>
+@@ -35,10 +37,15 @@
+ // Receiver sends DSACK for retransmitted packet.
+ 0.400 < . 1:1(0) ack 10001 win 257 <sack 1:1001,nop,nop>
+ 
+-// Verify that the DSACK caused an undo, restoring cwnd to 10.
++// in Pegas kernel we will not only do a cwnd undo but will also grow the window.
++// 1.process the ack (duplicate sack),undo and ca_state to be set back to open.
++// 2.call tcp_may_raise_cwnd() to check if cwnd can be increased.
++
+ 0.400 write(4, ..., 11000) = 11000
+-0.400 > . 10001:20001(10000) ack 1
++//0.400 > . 10001:20001(10000) ack 1
++0.400 > . 10001:19001(9000) ack 1
++0.400 > P. 19001:21001(2000) ack 1
+ 0.400 %{
+-assert tcpi_snd_cwnd == 10
+-assert tcpi_unacked == 10
++assert tcpi_snd_cwnd == 18
++assert tcpi_unacked == 11
+ }%

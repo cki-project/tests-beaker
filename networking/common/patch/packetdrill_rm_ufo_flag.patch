@@ -1,0 +1,14 @@
+diff --git a/gtests/net/packetdrill/netdev.c b/gtests/net/packetdrill/netdev.c
+index dc3a04a..9c180f6 100644
+--- a/gtests/net/packetdrill/netdev.c
++++ b/gtests/net/packetdrill/netdev.c
+@@ -202,7 +202,8 @@ static void set_device_offload_flags(struct local_netdev *netdev)
+ {
+ #ifdef linux
+ 	const u32 offload =
+-	    TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 | TUN_F_TSO_ECN | TUN_F_UFO;
++	    TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 | TUN_F_TSO_ECN;
++	   // TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 | TUN_F_TSO_ECN | TUN_F_UFO;
+ 	if (ioctl(netdev->tun_fd, TUNSETOFFLOAD, offload) != 0)
+ 		die_perror("TUNSETOFFLOAD");
+ #endif

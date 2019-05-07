@@ -1,0 +1,306 @@
+#!/usr/bin/expect
+
+##########################################################################
+# common functions
+#
+
+proc send_cmd { name cmd } {
+	global SWITCH
+
+	send -i $SWITCH($name,spid) "$cmd\r"
+}
+
+proc run_cmd { name cmd } {
+	global SWITCH
+
+	send_cmd $name $cmd
+	expect_cmd_end $name
+}
+
+proc cmd_set { name cmd } {
+	login_switch $name
+	foreach c $cmd {
+		run_cmd $name $c
+	}
+	logout_switch $name
+}
+
+proc ssh { name } {
+	global SWITCH
+
+	login_switch $name
+	interact -i $SWITCH($name,spid)
+}
+
+
+##########################################################################
+# implement functions for Cisco
+#
+
+proc expect_cmd_end { name } {
+	global SWITCH
+	expect {
+		-i $SWITCH($name,spid) "$SWITCH($name,prompt)#" {}
+		-i $SWITCH($name,spid) "[string range $SWITCH($name,prompt) 0 15]*#" {}
+		timeout {
+			puts stderr "ERROR: timeout to execute command the switch \"$name\"!"
+			exit 1
+		}
+	}
+}
+
+proc login_switch { name } {
+	global SWITCH_LIST
+	global SWITCH
+
+	spawn ssh $SWITCH($name,login)
+	expect {
+		"Protocol major versions differ: 2 vs. 1" {
+			spawn ssh -1 $SWITCH($name,login)
+		} timeout {
+			puts stderr "ERROR: timeout to login the switch \"$name\"!"
+			exit 1
+		} -re . {
+		}
+	}
+	set SWITCH($name,spid) $spawn_id
+	expect {
+		"yes/no" {
+			send_cmd $name "yes"
+			exp_continue
+		} "*assword:" {
+			send_cmd $name $SWITCH($name,passwd)
+		} timeout {
+			puts stderr "ERROR: timeout to login the switch \"$name\"!"
+			exit 1
+		}
+	}
+	expect_cmd_end $name
+
+	# to remove --MORE--
+	run_cmd $name "terminal length 0"
+}
+
+proc logout_switch { name } {
+	run_cmd $name "end"
+	run_cmd $name "exit"
+}
+
+proc port_up { name interfaces_list } {
+	global SWITCH
+	login_switch $name
+
+	foreach interface $interfaces_list {
+		run_cmd $name "configure t"
+		run_cmd $name "interface $interface "
+		run_cmd $name "no shutdown"
+		run_cmd $name "end"
+		run_cmd $name "show interface $interface status"
+	}
+
+	logout_switch $name
+}
+
+proc port_down { name interfaces_list } {
+	global SWITCH
+	login_switch $name
+
+	foreach interface $interfaces_list {
+		run_cmd $name "configure t"
+		run_cmd $name "interface $interface "
+		run_cmd $name "shutdown"
+		run_cmd $name "end"
+		run_cmd $name "show interface $interface status"
+	}
+
+	logout_switch $name
+}
+
+# find an available port-channel on switch
+# try from interface port-channel 48
+# and descrease 1 for each time
+# until the available one is found
+proc find_available_port_channel { name } {
+	global SWITCH
+
+	log_user 0
+	set need_logout_switch 0
+
+	if { $SWITCH($name,spid) == -1 } {
+		login_switch $name
+		set need_logout_switch 1
+	}
+
+	run_cmd $name "end"
+
+	set port_channel -1
+	for {set cx 48} {$cx>0 && $port_channel == -1} {incr cx -1} {
+		send -i $SWITCH($name,spid) "show run interface Port-channel $cx\r"
+		expect {
+			-i $SWITCH($name,spid) -re {Invalid input|range} {
+				set port_channel $cx
+				exp_continue
+			}
+			-i $SWITCH($name,spid) "$SWITCH($name,prompt)#" {}
+			-i $SWITCH($name,spid) "[string range $SWITCH($name,prompt) 0 15]*)#" {}
+		}
+	}
+
+	if { $need_logout_switch } {
+		logout_switch $name
+	}
+	log_user 1
+
+	return $port_channel
+}
+
+# find the used channel-group via a specific interface
+# when cleaning port-channel setings, we have only the interface
+# so to remove port-channel, it'll be used
+proc find_channel_group_used_by_interface { name interface } {
+	global SWITCH
+
+	log_user 0
+	set need_logout_switch 0
+
+	if { $SWITCH($name,spid) == -1 } {
+		login_switch $name
+		set need_logout_switch 1
+	}
+
+	run_cmd $name "end"
+
+	set channel_group -1
+	send -i $SWITCH($name,spid) "show run interface $interface\r"
+	expect {
+		-i $SWITCH($name,spid) -re {channel-group (\d+)} {
+			set channel_group "$expect_out(1,string)"
+			exp_continue
+		}
+		-i $SWITCH($name,spid) "$SWITCH($name,prompt)#" {}
+		-i $SWITCH($name,spid) "[string range $SWITCH($name,prompt) 0 15]*)#" {}
+	}
+
+	if { $need_logout_switch } {
+		logout_switch $name
+	}
+
+	log_user 1
+
+	return $channel_group
+}
+
+# setup port-channel on switch
+# name: switch name
+# interface_list: ex. "eth2/13 eth2/14"
+# mode: channel-group id mode $mode
+proc setup_port_channel { name interfaces_list mode } {
+	global SWITCH
+	login_switch $name
+
+	set port_channel [ find_available_port_channel $name ]
+	if { $port_channel < 1 } {
+		puts stderr "ERROR: no available port_channel is found with switch \"$name\"!"
+		exit 1
+	}
+
+	run_cmd $name "configure t"
+	run_cmd $name "interface port-channel$port_channel"
+	if {$SWITCH($name,ostype) == "cisco-ios"} {run_cmd $name "switchport trunk encapsulation dot1q"}
+	run_cmd $name "switchport mode trunk"
+	run_cmd $name "switchport trunk allowed vlan 1-100"
+	foreach interface $interfaces_list {
+		run_cmd $name "interface $interface"
+		if {$SWITCH($name,ostype) == "cisco-nxos"} {run_cmd $name "lacp rate fast"}
+		run_cmd $name "channel-group $port_channel mode $mode"
+	}
+	run_cmd $name "end"
+	if {$SWITCH($name,ostype) == "cisco-ios"} {run_cmd $name "show etherchannel summary"}
+	if {$SWITCH($name,ostype) == "cisco-nxos"} {run_cmd $name "show port-channel summary"}
+
+	logout_switch $name
+}
+
+# cleanup port-channel settings on switch
+# name: switch name
+# interface_list: ex. "eth2/13 eth2/14"
+proc cleanup_port_channel { name interfaces_list } {
+	global SWITCH
+	login_switch $name
+
+	set channel_group [find_channel_group_used_by_interface $name [lindex $interfaces_list 0]]
+
+	run_cmd $name "configure t"
+	foreach interface $interfaces_list {
+		run_cmd $name "interface $interface"
+		if {$SWITCH($name,ostype) == "cisco-nxos"} {run_cmd $name "no lacp rate fast"}
+		run_cmd $name "no channel-group"
+	}
+
+	if { $channel_group < 1 } {
+		puts stderr "ERROR: channel_group is not found with interface(\"$interface\") of switch \"$name\"!"
+		exit 1
+	} else {
+		run_cmd $name "no interface port-channel$channel_group"
+	}
+
+	run_cmd $name "end"
+	if {$SWITCH($name,ostype) == "cisco-ios"} {run_cmd $name "show etherchannel summary"}
+	if {$SWITCH($name,ostype) == "cisco-nxos"} {run_cmd $name "show port-channel summary"}
+
+	logout_switch $name
+}
+
+# backup configuration to tftp server
+# name: switch name
+# server: tftp IP
+proc backup_config_tftp { name server } {
+	global SWITCH
+	set date [clock format [clock seconds] -format %Y%m%d_%H%M]
+	set filename config-sw-${name}_${date}
+	login_switch $name
+
+	send -i $SWITCH($name,spid) "copy startup-config tftp:\r"
+	expect {
+		-i $SWITCH($name,spid) "filename*" {
+			# Cisco NX-OS Software
+			send -i $SWITCH($name,spid) "$filename\r"
+			expect -i $SWITCH($name,spid) "vrf*"
+			send -i $SWITCH($name,spid) "management\r"
+			expect -i $SWITCH($name,spid) "server:"
+			send -i $SWITCH($name,spid) "$server\r"
+			expect_cmd_end $name
+		}
+		-i $SWITCH($name,spid) "Address" {
+			# Cisco IOS Software
+			send -i $SWITCH($name,spid) "$server\r"
+			expect -i $SWITCH($name,spid) "filename*"
+			send -i $SWITCH($name,spid) "$filename\r"
+			expect_cmd_end $name
+		}
+	}
+
+	logout_switch $name
+}
+
+
+
+# cleanup all port-channel on cisco from port-channel list
+# name: switch name
+# index_list : port-channel list
+proc all_cleanup_port_channel { name index_list } {
+	global SWITCH
+	login_switch $name
+
+	run_cmd $name "configure t"
+	foreach index $index_list {
+		run_cmd $name "no interface port-channel$index"
+	}
+
+	run_cmd $name "end"
+	if {$SWITCH($name,ostype) == "cisco-ios"} {run_cmd $name "show etherchannel summary"}
+	if {$SWITCH($name,ostype) == "cisco-nxos"} {run_cmd $name "show port-channel summary"}
+
+	logout_switch $name
+}
+

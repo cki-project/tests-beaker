@@ -1,0 +1,44 @@
+diff --git a/runtest/net_stress.route b/runtest/net_stress.route
+index 00ce52f..424d577 100644
+--- a/runtest/net_stress.route
++++ b/runtest/net_stress.route
+@@ -7,11 +7,11 @@ route4-change-gw route4-change-gw
+ route4-change-if route4-change-if
+ route4-redirect route4-redirect
+ route4-ifdown route4-ifdown
+-route4-rmmod route4-rmmod
++#route4-rmmod route4-rmmod
+ 
+ route6-change-dst route6-change-dst
+ route6-change-gw route6-change-gw
+ route6-change-if route6-change-if
+ route6-redirect route6-redirect
+ route6-ifdown route6-ifdown
+-route6-rmmod route6-rmmod
++#route6-rmmod route6-rmmod
+diff --git a/testcases/network/stress/ns-tools/check_icmpv4_connectivity b/testcases/network/stress/ns-tools/check_icmpv4_connectivity
+index 7630aae..1a67fed 100644
+--- a/testcases/network/stress/ns-tools/check_icmpv4_connectivity
++++ b/testcases/network/stress/ns-tools/check_icmpv4_connectivity
+@@ -47,7 +47,7 @@
+ $trace_logic
+ 
+ # The max number of ICMP echo request
+-PING_MAX=10
++PING_MAX=40
+ 
+ # Check the arguments
+ if [ $# -ne 2 ]; then
+diff --git a/testcases/network/stress/ns-tools/check_icmpv6_connectivity b/testcases/network/stress/ns-tools/check_icmpv6_connectivity
+index 10e432d..0579050 100644
+--- a/testcases/network/stress/ns-tools/check_icmpv6_connectivity
++++ b/testcases/network/stress/ns-tools/check_icmpv6_connectivity
+@@ -48,7 +48,7 @@
+ $trace_logic
+ 
+ # The max number of ICMP echo request
+-PING_MAX=10
++PING_MAX=40
+ 
+ # Check the arguments
+ if [ $# -ne 2 ]; then

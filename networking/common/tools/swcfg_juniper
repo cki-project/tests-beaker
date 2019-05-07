@@ -1,0 +1,315 @@
+#!/usr/bin/expect
+
+##########################################################################
+# common functions
+#
+
+proc send_cmd { name cmd } {
+	global SWITCH
+
+	send -i $SWITCH($name,spid) "$cmd\r"
+}
+
+proc run_cmd { name cmd } {
+	global SWITCH
+
+	send_cmd $name $cmd
+	expect_cmd_end $name
+}
+
+proc cmd_set { name cmd } {
+	login_switch $name
+	foreach c $cmd {
+		run_cmd $name $c
+	}
+	logout_switch $name
+}
+
+proc ssh { name } {
+	global SWITCH
+
+	login_switch $name
+	interact -i $SWITCH($name,spid)
+}
+
+##########################################################################
+# implement functions for Juniper
+#
+
+proc expect_cmd_end { name } {
+	global SWITCH
+
+	expect {
+		-i $SWITCH($name,spid) "$SWITCH($name,prompt)*%" {}
+		-i $SWITCH($name,spid) "$SWITCH($name,prompt)*>" {}
+		-i $SWITCH($name,spid) "$SWITCH($name,prompt)*#" {}
+		timeout {
+			puts stderr "ERROR: timeout to execute command the switch \"$name\"!"
+			exit 1
+		}
+	}
+}
+
+proc login_switch { name } {
+	global SWITCH_LIST
+	global SWITCH
+
+	spawn ssh $SWITCH($name,login)
+	set SWITCH($name,spid) $spawn_id
+	expect {
+		"yes/no" {
+			send_cmd $name "yes"
+			exp_continue
+		} "*assword:" {
+			send_cmd $name $SWITCH($name,passwd)
+			exp_continue
+		} "root@*%" {
+			send "cli\r"
+		} "root@*~ #" {
+			send "cli\r"
+		} timeout {
+			puts stderr "ERROR: timeout to login the switch \"$name\"!"
+			exit 1
+		}
+	}
+	expect_cmd_end $name
+
+	# don't wrap long commands
+	run_cmd $name "set cli screen-width 0"
+
+	# to remove --MORE--
+	run_cmd $name "set cli screen-length 0"
+}
+
+proc logout_switch { name } {
+	run_cmd $name "exit"
+	run_cmd $name "exit\rexit"
+}
+
+proc port_up { name interfaces_list } {
+	global SWITCH
+
+	login_switch $name
+
+	foreach interface $interfaces_list {
+		run_cmd $name "configure private"
+		run_cmd $name "delete interfaces $interface disable"
+		run_cmd $name "show | diff"
+		run_cmd $name "commit"
+		sleep 2
+		run_cmd $name "commit"
+		sleep 2
+		run_cmd $name "commit"
+		run_cmd $name "exit"
+		run_cmd $name "show interface $interface terse"
+	}
+
+	logout_switch $name
+}
+
+proc port_down { name interfaces_list } {
+	global SWITCH
+
+	login_switch $name
+
+	foreach interface $interfaces_list {
+		run_cmd $name "configure private"
+		run_cmd $name "set interfaces $interface disable"
+		run_cmd $name "show | diff"
+		run_cmd $name "commit"
+		sleep 2
+		run_cmd $name "commit"
+		sleep 2
+		run_cmd $name "commit"
+		run_cmd $name "exit"
+		run_cmd $name "show interface $interface terse"
+	}
+
+	logout_switch $name
+}
+
+# find an available ae on switch
+# try from ae48 and descrease 1 for each time
+# until the available one is found
+proc find_available_port_channel { name } {
+	global SWITCH
+
+	#log_user 0
+	set need_logout_switch 0
+
+	if { $SWITCH($name,spid) == -1 } {
+		login_switch $name
+		set need_logout_switch 1
+	}
+
+	set ae_id -1
+	set flag 0
+	for {set cx 48} {$cx>0 && $ae_id == -1} {incr cx -1;set flag 0} {
+		send -i $SWITCH($name,spid) "show configuration interface ae$cx\r"
+		expect {
+			-i $SWITCH($name,spid) "apply-groups test-ports;" {
+			set flag 1
+			exp_continue
+			}
+			-i $SWITCH($name,spid) "$SWITCH($name,prompt)>" {}
+			-i $SWITCH($name,spid) "[string range $SWITCH($name,prompt) 0 15]*)>" {}
+		}
+		if { $flag == 0 } {
+			set ae_id $cx
+		}
+	}
+	if { $need_logout_switch } {
+		logout_switch $name
+	}
+	log_user 1
+	return $ae_id
+}
+
+# find the used ae via a specific interface
+# when cleaning ae settings, we have only the interface
+# so to remove the ae
+proc find_channel_group_used_by_interface { name interface } {
+	global SWITCH
+
+	log_user 0
+	set need_logout_switch 0
+
+	if { $SWITCH($name,spid) == -1 } {
+		login_switch $name
+		set need_logout_switch 1
+	}
+
+	set ae_id -1
+	send -i $SWITCH($name,spid) "show configuration interfaces $interface ether-options\r"
+	expect {
+		-i $SWITCH($name,spid) -re {802.3ad ae(\d+);} {
+			set ae_id "$expect_out(1,string)"
+			exp_continue
+		}
+		-i $SWITCH($name,spid) "$SWITCH($name,prompt)>" {}
+		timeout {
+			puts stderr "ERROR: timeout to config the switch \"$name\"!"
+			exit 1
+		} -re . {
+			exp_continue
+		}
+	}
+
+	if { $need_logout_switch } {
+		logout_switch $name
+	}
+
+	log_user 1
+
+	return $ae_id
+}
+
+# The port-channel on Juniper is called aggregated-ethernet
+proc setup_port_channel { name interfaces_list mode } {
+	global SWITCH
+
+	login_switch $name
+
+	set ae_id [ find_available_port_channel $name ]
+	if { $ae_id < 1 } {
+		puts stderr "ERROR: no available ae_id is found with switch \"$name\"!"
+		exit 1
+	}
+	set ae ae$ae_id
+
+	run_cmd $name "configure private"
+	run_cmd $name "set interfaces $ae apply-groups test-ports"
+	if {$mode == "passive"} {
+		run_cmd $name "set interfaces $ae aggregated-ether-options lacp passive"
+		run_cmd $name "set interfaces $ae aggregated-ether-options lacp periodic fast"
+	} elseif {$mode == "active"} {
+		run_cmd $name "set interfaces $ae aggregated-ether-options lacp active"
+		run_cmd $name "set interfaces $ae aggregated-ether-options lacp periodic fast"
+	}
+
+	foreach interface $interfaces_list {
+		run_cmd $name "delete interfaces $interface apply-groups test-ports"
+		# disable rstp on 5200, so no need to set
+		# run_cmd $name "delete protocols rstp interface $interface"
+		run_cmd $name "set interfaces $interface ether-options 802.3ad $ae"
+	}
+
+	run_cmd $name "show | diff"
+	# work around for error:configuration database locked by
+	# commit for three times
+	run_cmd $name "commit"
+	sleep 2
+	run_cmd $name "commit"
+	sleep 2
+	run_cmd $name "commit"
+	run_cmd $name "exit"
+	sleep 5
+	run_cmd $name "show interface ters | grep $ae"
+	if {$mode == "active"} {
+		run_cmd $name "show lacp interfaces"
+	}
+
+	logout_switch $name
+}
+
+proc cleanup_port_channel { name interfaces_list } {
+	global SWITCH
+	login_switch $name
+
+	set ae_id [ find_channel_group_used_by_interface $name [lindex $interfaces_list 0] ]
+
+	if { $ae_id < 0 } {
+		puts stderr "ERROR: 802.3ad is not found on interface(\"$interface\") of switch \"$name\"!"
+		exit 1
+	}
+	set ae ae$ae_id
+
+	run_cmd $name "configure private"
+	run_cmd $name "delete interfaces $ae"
+
+	foreach interface $interfaces_list {
+		run_cmd $name "set interfaces $interface apply-groups test-ports"
+		run_cmd $name "delete interfaces $interface ether-options 802.3ad $ae"
+		# run_cmd $name "set protocols rstp interface $interface"
+	}
+
+	run_cmd $name "show | diff"
+	run_cmd $name "commit"
+	sleep 2
+	run_cmd $name "commit"
+	sleep 2
+	run_cmd $name "commit"
+	run_cmd $name "exit"
+	sleep 5
+	run_cmd $name "show interface ters | grep ae"
+
+	logout_switch $name
+}
+
+# backup configuration to tftp server
+# name: switch name
+# server: tftp IP
+proc backup_config_tftp { name server } {
+	global SWITCH
+	set date [clock format [clock seconds] -format %Y%m%d_%H%M]
+	set filename config-sw-${name}_${date}
+	login_switch $name
+
+	send -i $SWITCH($name,spid) "start shell\r"
+	expect -i $SWITCH($name,spid) -re "root@.*%"
+	send -i $SWITCH($name,spid) "tftp -JP startup-config $server:$filename\r"
+	expect -i $SWITCH($name,spid) -re "root@.*%"
+	send -i $SWITCH($name,spid) "exit\r"
+	expect_cmd_end $name
+	logout_switch $name
+}
+
+# cleanup all port-channel on cisco from port-channel list
+# name: switch name
+# index_list : port-channel list
+proc all_cleanup_port_channel { name index_list } {
+	global SWITCH
+	login_switch $name
+	puts stderr "ERROR: This function not implement Now If you need , Please FIX IT !!!!"
+	logout_switch $name
+}

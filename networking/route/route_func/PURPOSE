@@ -1,0 +1,36 @@
+PURPOSE of kernel/networking/route/route_func
+== Description ==
+use ip route to operate route table and check
+if the operation take effect
+
+== Relateds bug ==
+
+== topo ==
+
+1. local topo
+
+ +------------+      +-----------------+      +------------+
+ |        IF1 +------+IF1              |      |            |
+ |            |      |                 |      |            |
+ |Client      |      |     Router  IF3 +------+IF3  Server |
+ |            |      |                 |      |            |
+ |        IF2 +------+IF2              |      |            |
+ +------------+      +-----------------+      +------------+
+
+2. forward topo
+
+ +-----------+    +-----------------+   +-----------------+  +-----------+
+ |           |    |             IF2 +---+ IF2             |  |           |
+ |Client IF1 +----+ IF1 Route0      |   |     Route1  IF4 +--+IF4 Server |
+ |           |    |             IF3 +---+ IF3             |  |           |
+ +-----------+    +-----------------+   +-----------------+  +-----------+
+
+
+== Steps ==
+
+for every ip route function
+
+1. use ip route to modify route table
+2. use ip route list to check route table
+3. use ip route get to check route table
+4. send packet to validate route item
