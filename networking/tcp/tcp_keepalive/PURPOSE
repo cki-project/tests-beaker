@@ -1,0 +1,26 @@
+Keep-Alive Process:
+There are three configurable properties that determine how Keep-Alives work. On Linux they are1:
+    tcp_keepalive_time
+        default 7200 seconds
+    tcp_keepalive_probes
+        default 9
+    tcp_keepalive_intvl
+        default 75 seconds
+TCP keepalive works like this:
+    Client opens TCP connection
+    If the connection is silent for tcp_keepalive_time seconds, send a single empty ACK packet.1
+    Did the server respond with a corresponding ACK of its own?
+        No
+            Wait tcp_keepalive_intvl seconds, then send another ACK
+            Repeat until the number of ACK probes that have been sent equals tcp_keepalive_probes.
+            If no response has been received at this point, send a RST and terminate the connection.
+        Yes: Return to step 2
+This process is enabled by default on most operating systems, and thus dead TCP connections are regularly pruned once the other end has been responsive for 2 hours 11 minutes (7200 seconds + 75 * 9 seconds).
+
+This test case:
+Use socket options to overide the system's, and test keepalive process.
+TCP_KEEPIDLE	---->	tcp_keepalive_time
+TCP_KEEPCNT		---->	tcp_keepalive_probes
+TCP_KEEPINTVL	---->	tcp_keepalive_intvl
+
+For namespace: Bug 1476667 - [RFE] Namespace tcp_keepalive_time sysctl knob
