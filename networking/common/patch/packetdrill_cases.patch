@@ -1,0 +1,42 @@
+diff --git a/gtests/net/packetdrill/tests/linux/icmp/icmp-all-types.pkt b/gtests/net/packetdrill/tests/linux/icmp/icmp-all-types.pkt
+index 169cdb4..bf1c637 100644
+--- a/gtests/net/packetdrill/tests/linux/icmp/icmp-all-types.pkt
++++ b/gtests/net/packetdrill/tests/linux/icmp/icmp-all-types.pkt
+@@ -2,6 +2,9 @@
+ // This test tests all known ICMP packet types, and a few unknown
+ // types.
+ 
++// add tolerance_usecs as a workaround for bz1334622
++--tolerance_usecs=40000
++
+ // Establish a connection.
+ 0.000 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+ 0.000 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+diff --git a/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ipv4.pkt b/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ipv4.pkt
+index c07c5c0..68007d5 100644
+--- a/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ipv4.pkt
++++ b/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ipv4.pkt
+@@ -6,7 +6,8 @@
+ // To ensure that we do not cache something that interferes with other tests:
+ --remote_ip="192.0.2.2"
+ 
+-`ip route change 192.0.2.2 via 192.168.0.2 dev tun0 advmss 1430 mtu lock 1470`
++// need disable tso, rhel6 fail is a known issue, details in bz1361036
++`ip route change 192.0.2.2 via 192.168.0.2 dev tun0 advmss 1430 mtu lock 1470;ethtool -K tun0 tso off`
+ 
+ // Set up a listening socket.
+ 0  socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+diff --git a/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ts-ipv4.pkt b/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ts-ipv4.pkt
+index 2222d51..3c8de36 100644
+--- a/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ts-ipv4.pkt
++++ b/gtests/net/packetdrill/tests/linux/mss/mss-getsockopt-tcp_maxseg-server-advmss-ts-ipv4.pkt
+@@ -6,7 +6,8 @@
+ // To ensure that we do not cache something that interferes with other tests:
+ --remote_ip="192.0.2.2"
+ 
+-`ip route change 192.0.2.2 via 192.168.0.2 dev tun0 advmss 1430 mtu lock 1470`
++// need disable tso, rhel6 fail is a known issue, details in bz1361036
++`ip route change 192.0.2.2 via 192.168.0.2 dev tun0 advmss 1430 mtu lock 1470;ethtool -K tun0 tso off`
+ 
+ // Set up a listening socket.
+ 0  socket(..., SOCK_STREAM, IPPROTO_TCP) = 3

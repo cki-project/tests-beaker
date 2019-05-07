@@ -1,0 +1,13 @@
+[General]
+name=/kernel/networking/route/route_func
+owner=Jianlin Shi<jishi@redhat.com>
+description=route and rule functions
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=180m
+dependencies=net-tools
+repoRequires=networking/common

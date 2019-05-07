@@ -1,0 +1,14 @@
+diff --git a/src/apps/Makefile.am b/src/apps/Makefile.am
+index 7e33b9c..296fd22 100644
+--- a/src/apps/Makefile.am
++++ b/src/apps/Makefile.am
+@@ -14,7 +14,8 @@ LDADD = $(top_builddir)/src/testlib/libsctputil.la \
+ 	$(top_builddir)/src/lib/libsctp.la
+ 
+ # programs to be installed with the distriubution
+-bin_PROGRAMS = sctp_darn sctp_test sctp_status
++bin_PROGRAMS = bindx_test nagle_snd nagle_rcv myftp sctp_xconnect \
++	peel_server peel_client sctp_darn sctp_test sctp_status
+ 
+ # Test programs and libraries to build
+ noinst_PROGRAMS = bindx_test nagle_snd nagle_rcv myftp sctp_xconnect \

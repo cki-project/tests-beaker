@@ -1,0 +1,13 @@
+[General]
+name=Networking Common Library
+owner=Networking QE
+description=Common helper functions for networking tests
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=180m
+dependencies=net-tools;iproute;tcpdump;nmap;ethtool;nc;nmap-ncat;socat;libtool;bind-utils;libteam;teamd;traceroute;expect;python3-pexpect;bc;wget;bzip2;gcc;git;patch;rsync
+softDependencies=pexpect;bridge-utils
