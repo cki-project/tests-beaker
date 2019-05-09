@@ -1,0 +1,3 @@
+PURPOSE of /kernel/networking/igmp/conformance
+Description: Test setting and getting of socket options for multicast and IGMP.
+Author: Radek Pazdera <rpazdera@redhat.com>
