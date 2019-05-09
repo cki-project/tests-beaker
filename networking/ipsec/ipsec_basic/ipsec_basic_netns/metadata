@@ -1,0 +1,13 @@
+[General]
+name=/kernel/networking/ipsec/ipsec_basic/ipsec_basic_netns
+owner=Xiumei Mu <xmu@redhat.com>
+description=ipsec compression test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=60m
+dependencies=socat;iproute
+repoRequires=networking/common
