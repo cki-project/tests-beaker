@@ -24,10 +24,10 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/kernel/misc/pci_id
+export TEST=legacy/pci_id
 export TESTVERSION=1.0
 
-FILES=$(METADATA) runtest.sh Makefile
+FILES=$(METADATA) runtest.sh Makefile 02-pci-id.sh
 
 run: $(FILES) build
 	$(foreach v, $(.VARIABLES), $(info $(v) = $($(v))))
@@ -71,5 +71,6 @@ $(METADATA): Makefile
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
+	@echo "repoRequires:    legacy/shared" >> $(METADATA)
 
 	rhts-lint $(METADATA)

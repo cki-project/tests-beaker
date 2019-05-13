@@ -24,10 +24,10 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/kernel/misc/whitelist
+export TEST=legacy/whitelist
 export TESTVERSION=1.0
 
-FILES=$(METADATA) runtest.sh Makefile
+FILES=$(METADATA) runtest.sh Makefile 01-whitelist.sh
 
 run: $(FILES) build
 	$(foreach v, $(.VARIABLES), $(info $(v) = $($(v))))
@@ -63,5 +63,6 @@ $(METADATA): Makefile
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
+	@echo "repoRequires:    legacy/shared" >> $(METADATA)
 
 	rhts-lint $(METADATA)
