@@ -64,7 +64,15 @@ function rcmd()
 	ret=$((ret | $_ret))	
 }
 
+size_free=`df -BM $storage_path | tail -1 | awk '{ print $4 }' | sed "s/M//"`
+# in M, adjust this manually according to make_loop_dev loopdev1 commands below
+size_requested=1024
 
+# SKIP test if there's not enough space on target device
+if [[ $size_requested -gt $size_free ]]; then
+  rhts-report-result $TEST SKIP $OUTPUTFILE
+  exit
+fi
 rcmd make_loop_dev loopdev1 512M
 rcmd make_loop_dev loopdev2 512M
 
