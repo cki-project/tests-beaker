@@ -285,47 +285,38 @@ for lib in *.sh; do
 	source $lib
 done
 
-# handle the initial task just once
-if [ -f /dev/shm/network_common_initalized ]
-then
-	# avc_check toggle every time common is called as avc setting may be
-	# reset by beaker or others
-	[ "$AVC_CHECK" = yes ] && enable_avc_check || disable_avc_check
-else
-	{
-	# make sure all required packages are installed
-	make testinfo.desc
-	packages=`awk -F: '/Requires:/ {print $2}' testinfo.desc`
-	${yum} install -y $packages --skip-broken
-	# install kernel-module-extra version matching the current running kernel version
-	${yum} install kernel-modules-extra -y --skip-broken
+# avc_check toggle every time common is called as avc setting may be
+# reset by beaker or others
+[ "$AVC_CHECK" = yes ] && enable_avc_check || disable_avc_check
 
-	# install customer tools
-	mkdir -p /usr/local/src /usr/local/bin
-	\cp -af src/*    /usr/local/src/.
-	\cp -af tools/*  /usr/local/bin/.
-        chmod a+x /usr/local/bin/netns_clean.sh
+# make sure all required packages are installed
+make testinfo.desc
+packages=`awk -F: '/Requires:/ {print $2}' testinfo.desc`
+${yum} install -y $packages --skip-broken
+# install kernel-module-extra version matching the current running kernel version
+${yum} install kernel-modules-extra -y --skip-broken
 
-	# work around bz883695
-	lsmod | grep mlx4_en || modprobe mlx4_en
-	# work around bz1642795 
-	lsmod | grep sctp || modprobe sctp
+# install customer tools
+mkdir -p /usr/local/src /usr/local/bin
+\cp -af src/*    /usr/local/src/.
+\cp -af tools/*  /usr/local/bin/.
+chmod a+x /usr/local/bin/netns_clean.sh
 
-	[ -d $networkLib/network-scripts.bak ] || \
-		rsync -a --delete /etc/sysconfig/network-scripts/ $networkLib/network-scripts.bak/
+# work around bz883695
+lsmod | grep mlx4_en || modprobe mlx4_en
+# work around bz1642795 
+lsmod | grep sctp || modprobe sctp
 
-	# NetworkManger toggle
-	[ "$NM_CTL" = yes ] || stop_NetworkManager
+[ -d $networkLib/network-scripts.bak ] || \
+	rsync -a --delete /etc/sysconfig/network-scripts/ $networkLib/network-scripts.bak/
 
-	# firewall toggle
-	[ "$FIREWALL" = yes ] && enable_firewall || disable_firewall
+# NetworkManger toggle
+[ "$NM_CTL" = yes ] || stop_NetworkManager
 
-	# avc_check toggle
-	[ "$AVC_CHECK" = yes ] && enable_avc_check || disable_avc_check
+# firewall toggle
+[ "$FIREWALL" = yes ] && enable_firewall || disable_firewall
 
-	touch /dev/shm/network_common_initalized
-}
-fi
+touch /dev/shm/network_common_initalized
 
 popd > /dev/null
 
