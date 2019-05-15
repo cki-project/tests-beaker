@@ -80,12 +80,6 @@ ieee802154_6lowpan
 ieee802154_socket
 ifb
 inet_diag
-ip6_gre
-ip6_tables
-ip6t_hbh
-ip6t_NPT
-ip6_tunnel
-ip6_vti
 ipcomp
 ipcomp6
 ip_gre

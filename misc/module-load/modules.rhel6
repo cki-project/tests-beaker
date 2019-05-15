@@ -157,7 +157,6 @@ stp
 psnap
 xfrm6_mode_beet
 xfrm6_mode_ro
-ip6_tunnel
 ipcomp6
 sit
 xfrm6_tunnel
@@ -166,18 +165,6 @@ esp6
 mip6
 tunnel6
 ah6
-ip6t_rt
-ip6table_mangle
-ip6t_LOG
-ip6t_ah
-ip6_queue
-ip6t_eui64
-ip6t_mh
-ip6t_frag
-ip6t_ipv6header
-ip6table_raw
-ip6t_hbh
-ip6table_security
 xfrm6_mode_transport
 rds
 sch_sfq
