@@ -300,7 +300,7 @@ ${yum} install kernel-modules-extra -y --skip-broken
 mkdir -p /usr/local/src /usr/local/bin
 \cp -af src/*    /usr/local/src/.
 \cp -af tools/*  /usr/local/bin/.
-chmod a+x /usr/local/bin/netns_clean.sh
+chmod a+x /usr/local/bin/*
 
 # work around bz883695
 lsmod | grep mlx4_en || modprobe mlx4_en
