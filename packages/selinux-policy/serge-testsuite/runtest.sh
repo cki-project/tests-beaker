@@ -56,6 +56,15 @@ else
     PIPEFAIL_DISABLE=""
 fi
 
+function version_le() {
+    { echo "$1"; echo "$2"; } | sort -V | tail -n 1 | grep -qx "$2"
+}
+
+function kver_ge() { version_le "$1" "$(uname -r)"; }
+function kver_lt() { ! kver_ge "$1"; }
+function kver_le() { version_le "$(uname -r)" "$1"; }
+function kver_gt() { ! kver_le "$1"; }
+
 rlJournalStart
     rlPhaseStartSetup
         rlAssertRpm ${PACKAGE}
@@ -65,6 +74,19 @@ rlJournalStart
         # running the testsuite in /tmp causes permission denied messages
         # rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         # rlRun "pushd $TmpDir"
+
+        # version_le() sanity check:
+        rlRun "version_le 4.10 4.10"
+        rlRun "version_le 4.10 4.10.0"
+        rlRun "version_le 4.10 4.10.1"
+        rlRun "! version_le 4.10 4.9"
+        rlRun "! version_le 4.10.0 4.10"
+
+        # make sure the right version of kernel[-rt]-modules-extra is installed
+        if rlRun "yum=\$(which yum) || yum=\$(which dnf)"; then
+            rlRun "$yum install -y kernel-modules-extra-$(uname -r)" 0-255
+            rlRun "$yum install -y kernel-rt-modules-extra-$(uname -r)" 0-255
+        fi
 
         # test turns this boolean off
         rlSEBooleanBackup allow_domain_fd_use
@@ -83,33 +105,48 @@ rlJournalStart
         # backup code before making tweaks
         rlFileBackup "."
 
-        if [ -f ./tests/nnp/execnnp.c ] ; then
-            rlRun "sed -i 's/3.18/3.9/' ./tests/nnp/execnnp.c"
-        fi
+        exclude_tests=""
+        for file in ./tests/nnp*/execnnp.c; do
+            rlRun "sed -i 's/3.18/3.9/' $file" 0 \
+                "Fix up kernel version in nnp test"
+        done
         if rlIsRHEL 6 ; then
             # the dev_rw_infiniband_dev macro is not defined in RHEL-6 policy
             # test_policy module compilation fails because of syntax error
-            rlRun "sed -i 's/test_ibpkey.te//' ./policy/Makefile"
+            rlRun "sed -i 's/test_ibpkey.te//' ./policy/Makefile" 0 \
+                "Disable test_ibpkey.te on RHEL6"
         fi
-        if rlIsRHEL 8 ; then
+        if rlIsRHEL '>=8' ; then
             # to avoid error messages like runcon: ‘overlay/access’: No such file or directory
             rlRun "rpm -qa | grep python | sort"
-            rlRun "sed -i 's/python\$/python3/' tests/overlay/access"
+            rlRun "sed -i 's/python\$/python3/' tests/overlay/access" 0 \
+                "Fix up Python shebang in overlay test"
         fi
 
         # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1613056
         # (if running kernel version sorts inside the known-bug window, then
         # we need to apply the workaround)
-        marker='bz1613056-check'
-        pos=$({
-            echo '3.10.0-874.el7' # last good kernel
-            echo '3.10.0-972.el7' # first fixed kernel
-            echo "$(uname -r)-$marker"
-        } | sort -V | grep -n "$marker" | cut -f 1 -d ':')
-        if [ $pos -eq 2 ]; then
+        if kver_ge "3.10.0-874" && kver_lt "3.10.0-972"; then
+            rlLog "Applying workaround for BZ 1613056..."
             rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_no_execmem_t, tmpfs_t, file)'"
+        fi
+
+        if kver_lt "4.18.0-80.19"; then
+            exclude_tests+=" cgroupfs_label"
+        fi
+
+        if [ -n "$exclude_tests" ] ; then
+            rlRun "sed -i '/^[^[:space:]]*:\(\| .*\)\$/i SUBDIRS:=\$(filter-out $exclude_tests, \$(SUBDIRS))' tests/Makefile" 0 \
+                "Exclude not applicable tests: $exclude_tests"
+        fi
+
+        if ! modprobe sctp 2>/dev/null; then
+            script1='s/runcon -t test_sctp_socket_t/true/g'
+            script2='s/runcon -t test_no_sctp_socket_t/false/g'
+            rlRun "sed -i -e '$script1' -e '$script2' ./tests/extended_socket_class/test" 0 \
+                "No SCTP support => fix up extended_socket_class test"
         fi
 
         # on aarch64 and s390x the kernel support for Bluetooth is turned
@@ -118,7 +155,8 @@ rlJournalStart
             aarch64|s390x)
                 script1='s/runcon -t test_bluetooth_socket_t/true/g'
                 script2='s/runcon -t test_no_bluetooth_socket_t/false/g'
-                rlRun "sed -i -e '$script1' -e '$script2' ./tests/extended_socket_class/test"
+                rlRun "sed -i -e '$script1' -e '$script2' ./tests/extended_socket_class/test" 0 \
+                    "No Bluetooth support => fix up extended_socket_class test"
                 ;;
         esac
 
@@ -139,7 +177,6 @@ rlJournalStart
     rlPhaseEnd
 
     rlPhaseStartTest
-        rlRun "modprobe sctp" 0,1
         if pwd | grep selinux-testsuite ; then
             MYTMP="$DISTRO"
             unset DISTRO
@@ -157,8 +194,10 @@ rlJournalStart
     rlPhaseEnd
 
     rlPhaseStartCleanup
-
-        rlSEBooleanRestore
+        # rlSEBooleanRestore
+        # rlSEBooleanRestore allow_domain_fd_use
+        # none of above-mentioned commands is able to correctly restore the value in the boolean
+        rlRun "setsebool allow_domain_fd_use on"
 
         # Submit report to beaker.
         rlFileSubmit "results.log" "selinux-testsuite.results.$(uname -r).txt"
