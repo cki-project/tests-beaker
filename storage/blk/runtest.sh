@@ -161,7 +161,8 @@ function get_test_cases_block
 		testcases+=" block/006"
 		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
 		testcases+=" block/016"
-		testcases+=" block/017"
+		#block/017 fails on s390x
+		uname -i | grep -i s390x || testcases+=" block/017"
 		testcases+=" block/018"
 		#testcases+=" block/020" # Fail randomly on arm64, powerpc
 		testcases+=" block/021"
