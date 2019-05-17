@@ -1,0 +1,12 @@
+PURPOSE of  networking/tunnel/geneve/basic
+
+Description:
+basic test for geneve: add and delete geneve, run ping and netperf
+on geneve device
+
+Relateds bug:
+
+Steps:
+
+Note:
+mtu for geneve must be set as 1400 if mtu of physical dev is 1500

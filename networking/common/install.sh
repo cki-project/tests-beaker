@@ -247,7 +247,8 @@ iperf_install()
 	${yum} install -y gcc-c++ make gcc
 	# grab sctp-enabled iperf and install it:
 	IPERF_FILE="iperf-2.0.10.tar.gz"
-        wget https://netcologne.dl.sourceforge.net/project/iperf2/${IPERF_FILE}
+        # download iperf-2 from sourceforge mirrors download page
+        wget --trust-server-names https://sourceforge.net/projects/iperf2/files/${IPERF_FILE}/download
 	if [[ $? != 0 ]]; then
 		echo "${TEST} fail grabbing iperf source"
 		report_result ${TEST}_get_iperf FAIL 1

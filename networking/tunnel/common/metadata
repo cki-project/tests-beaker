@@ -1,0 +1,13 @@
+[General]
+name=Networking Tunnel Common Library
+owner=Networking QE
+description=Common helper functions for networking tunnel tests
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=60m
+dependencies=net-tools;iproute;tcpdump;ethtool
+repoRequires=networking/common
