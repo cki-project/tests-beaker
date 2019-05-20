@@ -94,7 +94,7 @@ function main()
         rpm_extract_add "kernel-modules-extra"
         rpm_extract
 
-        local new_kernel_dir="$(find /lib/ -type d -name "$(uname -r)")"
+        local new_kernel_dir="$(find /lib/modules/ -type d -name "$(uname -r)")"
         local old_kernel_dir="$RPM_TMPDIR"
 
         old_alias_all=$(mktemp old-alias-all-XXXXXX --tmpdir=/tmp)
