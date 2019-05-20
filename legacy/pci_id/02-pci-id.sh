@@ -119,9 +119,39 @@ function main()
         sort "$old_alias_all" | uniq >> "$old_alias_all.tmp"
         mv "$old_alias_all.tmp" "$old_alias_all"
 
+        alias_diff=$(mktemp alias-diff-XXXXXX --tmpdir=/tmp)
+        TMP_FILES+=($alias_diff)
+
+        comm -13 "$new_alias_all" "$old_alias_all" > $alias_diff
+
+        # REMARK: While diff is usually sufficient, there are perfectly valid
+        # changes such as:
+        #
+        # from cpu:type:x86,ven0000fam0006mod0066:feature:*0083*
+        # to   cpu:type:x86,ven0000fam0006mod0066:feature:*
+        #
+        # As these are generalizations, we do not wish to yield a failure.
+        # To remedy that, we check whether or not the old one, as a string,
+        # is satisfied by the new one, as a regular expression.
+        if test -s "$alias_diff"
+        then
+                IFS=$'\n'
+                while read -r -u9 alias_entry_old
+                do
+                        while read -r -u8 alias_entry_new
+                        do
+                                if [[ $alias_entry_old =~ $alias_entry_new ]]
+                                then
+                                        echo "INFO: Old alias $alias_entry_old covered by $alias_entry_new."
+                                        sed -i '/^'"${alias_entry_old//\*/.\*}"'$/d' $alias_diff
+                                fi
+                        done 8< "$new_alias_all"
+                done 9< "$alias_diff"
+        fi
+
         echo " :: Comparing aliases."
 
-        if test -n "$(comm -13 "$new_alias_all" "$old_alias_all")"
+        if test -s "$alias_diff"
         then
                 echo "---------------------------------------------------------"
                 echo "--- Missing PCI IDs -------------------------------------"
@@ -129,8 +159,7 @@ function main()
                 echo
                 echo "The following PCI IDs are missing from this patch."
                 echo "Syntax: KO_FILE PCI_ID"
-                comm -13 "$new_alias_all" "$old_alias_all" \
-                | sed 's/*/\\\\*/g' \
+                sed 's/*/\\\\*/g' "$alias_diff" \
                 | xargs -I ALIAS_LINE grep -r 'ALIAS_LINE$' "$old_alias_dir" \
                 | xargs -I MATCH_LINE bash -c '
                         line="MATCH_LINE";
