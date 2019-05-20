@@ -251,8 +251,9 @@ iperf_install()
         wget --trust-server-names https://sourceforge.net/projects/iperf2/files/${IPERF_FILE}/download
 	if [[ $? != 0 ]]; then
 		echo "${TEST} fail grabbing iperf source"
-		report_result ${TEST}_get_iperf FAIL 1
-		exit 1
+		test_warn "Grabbing iperf-2 source failed"
+		rhts-abort -t recipe
+		exit
 	fi
 	tar xf ${IPERF_FILE}
 	if [[ $? != 0 ]]; then
