@@ -1,0 +1,4 @@
+1. Add IGMP support
+1. Add SCTP support
+1. Add IPv6 support
+1. Let server/client close socket randomly
