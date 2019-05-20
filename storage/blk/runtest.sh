@@ -157,12 +157,12 @@ function get_test_cases_block
 		#
 		testcases+=" block/001"
 		#block/002 fails on RHEL8
-		uname -r | grep -q 4.18.0-.*el8.s390x || testcases+=" block/002"
+		uname -r | grep -q 4.18.0-.*el8.*s390x || testcases+=" block/002"
 		testcases+=" block/006"
 		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
 		testcases+=" block/016"
 		#block/017 fails on s390x
-		uname -i | grep -i s390x || testcases+=" block/017"
+		uname -i | grep -q s390x || testcases+=" block/017"
 		testcases+=" block/018"
 		#testcases+=" block/020" # Fail randomly on arm64, powerpc
 		testcases+=" block/021"
