@@ -24,7 +24,6 @@ dmesg -c >/dev/null
 
 . ./dep-install.sh
 . ./misc.sh
-. ./check.sh
 . ./devices.sh
 . ./install.sh
 . ./xfstests-preset.sh
