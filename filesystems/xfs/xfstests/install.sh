@@ -261,7 +261,7 @@ function install_xfs()
 {
 	install_xfsprogs
 	install_xfsdump
-	install_dbench
+	#install_dbench
 	install_fio
 	install_duperemove
 }
