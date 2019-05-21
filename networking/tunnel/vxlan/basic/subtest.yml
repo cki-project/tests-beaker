@@ -1,0 +1,2 @@
+attr: {level: Tier1, type: singlehost, distronotin: RHEL-6}
+attr: {distroin: RHEL-6}, param: [NAY=yes], setup: [--topo=multihost, --nay-driver=any]

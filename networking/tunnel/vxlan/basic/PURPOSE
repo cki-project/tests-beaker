@@ -1,0 +1,5 @@
+PURPOSE of networking/tunnel/vxlan/basic 
+
+Description:
+Basic test for vxlan: add and delete vxlan, run ping and netperf on vxlan device
+This test is supported in both single host and multi-host environment
