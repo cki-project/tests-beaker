@@ -84,6 +84,13 @@ ProcessSizeMax=0
 EOF
         rlRun "systemctl mask --now systemd-coredump.socket" 0 "Masking and stopping systemd-coredump.socket"
     fi
+
+    # blacklist tests on certain arch or RHEL release
+    if [ "$(uname -i)" = "ppc64le" ]; then
+        # TODO: open BZ: vforkmany triggers kernel "BUG: soft lockup" on ppc64le
+        sed -ie '/vforkmany/d' os.stressors
+    fi
+
 rlPhaseEnd
 
 rlPhaseStartTest
