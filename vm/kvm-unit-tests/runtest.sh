@@ -12,6 +12,7 @@ function check_platform_support
     [[ $hwpf == "x86_64" ]] && return 0
     [[ $hwpf == "aarch64" ]] && return 0
     [[ $hwpf == "ppc64" ]] && return 0
+    [[ $hwpf == "ppc64le" ]] && return 0
     [[ $hwpf == "s390x" ]] && return 0
     return 1
 }
@@ -36,7 +37,7 @@ function check_virt_support
                 egrep -iq "kvm.*: Hyp mode initialized successfully"
         fi
         return $?
-    elif [[ $hwpf == "ppc64" ]]; then
+    elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
         grep -q 'platform.*PowerNV' /proc/cpuinfo
         return $?
     elif [[ $hwpf == "s390x" ]]; then
@@ -86,10 +87,11 @@ if [[ $hwpf == "x86_64" ]]; then
     # reload the modules
     if (lsmod | grep -q kvm_intel); then
         rmmod kvm_intel kvm
+        modprobe kvm_intel kvm
     elif (lsmod | grep -q kvm_amd); then
         rmmod kvm_amd kvm
+        modprobe kvm_amd kvm
     fi
-    modprobe kvm_intel kvm_amd kvm
     for opt in $KVM_OPTIONS_X86; do
         if [ ! -f "$KVM_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
@@ -99,7 +101,7 @@ if [[ $hwpf == "x86_64" ]]; then
             echo "kernel option $opt is set" | tee -a $OUTPUTFILE
         fi
     done
-elif [[ $hwpf == "ppc64" ]]; then
+elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
     for mod in kvm_hv kvm_pr kvm ; do
         if (lsmod | grep -q $mod); then
             rmmod $mod
@@ -147,7 +149,7 @@ fi
 cp ../unittests.cfg x86/unittests.cfg
 
 # run the tests
-if [[ $hwpf == "ppc64" ]]; then
+if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
     ./configure --endian=little
 else
     ./configure
