@@ -121,6 +121,11 @@ rlJournalStart
 		rpmquery -a | grep -e kernel -e perf
 		echo "==================================================================="
 		rlCheckRpm $PACKAGE-debuginfo || rlRun "debuginfo-install -y $PACKAGE"
+                if [ $? -ne 0 ]; then
+                    echo "Unable to install $PACKAGE-debuginfo" | tee -a ${OUTPUTFILE}
+                    rhts-report-result $TEST SKIP $OUTPUTFILE
+                    exit 0
+                fi
 		rlAssertRpm $PACKAGE-debuginfo
 		# we need iputils-debuginfo for the sake of `perf test inet_pton` testcase
 		rlCheckRpm iputils-debuginfo || rlRun "debuginfo-install -y iputils"
