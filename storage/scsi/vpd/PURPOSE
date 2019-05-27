@@ -1,0 +1,3 @@
+PURPOSE of check scsi disk vpd 
+Description: check the scsi device vpd with sg3_utils 
+
