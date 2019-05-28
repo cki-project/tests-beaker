@@ -1,0 +1,197 @@
+Firewall & Traffic Control Test How To
+======================================
+
+  Summary
+  =======
+  networking/firewall is a test suite for firewall & traffic control multihost tests.
+    |-- 000infralib # library for firewall & traffic control tests
+    |-- conntrackd  # firewall HA tests
+    |-- netfilter   # firewall function tests
+    `-- netsched    # traffic control tests
+
+  Details
+  =======
+
+    000infralib
+    ===========
+    000infralib is used to provide firewall & traffic control test environment.
+
+      1. Test Infrastructures
+         (1) MH_INFRA_TYPE=ns
+             |--------------------------------------------------------|
+             |                                                        |
+             |  |-------------|  |-------------|     |-------------|  | 
+             |  | TestNode #1 |  | TestNode #2 | ... | TestNode #N |  |
+             |  |   (netns)   |  |   (netns)   |     |   (netns)   |  |
+             |  |-------------|  |-------------|     |-------------|  |
+             |                                                        |
+             |    TestNode #0                           Controller    |
+             |      (host)                               (host)       |
+             |                                                        |
+             |--------------------------------------------------------|
+         (2) MH_INFRA_TYPE=vm
+             |--------------------------------------------------------|
+             |                                                        |
+             |  |-------------|  |-------------|     |-------------|  | 
+             |  | TestNode #1 |  | TestNode #2 | ... | TestNode #N |  |
+             |  |    (kvm)    |  |    (kvm)    |     |    (kvm)    |  |
+             |  |-------------|  |-------------|     |-------------|  |
+             |                                                        |
+             |                                          Controller    |
+             |                                           (host)       |
+             |                                                        |
+             |--------------------------------------------------------|
+
+      2. Environment Variables setting
+         (1) Directory settings
+           - MH_INFRA_ROOT      : Directory of networking/firewall/000infralib.
+           - MH_COMMON_ROOT     : Directory of networking/common.
+         (2) Test env settings
+           - MH_PAYLOAD_LEN     : {TCP|UDP|SCTP|ICMP|FTP|TFTP|HTTP|...} payload length, depends on the test item.
+           - MH_INFRA_TYPE      : [ns|vm] Default is ns.
+           - MH_AS_A_CONTROLLER : [ns|vm] Default is ns.
+           - MH_AS_A_TESTNODE   : [ns|vm] Default is ns.
+           - MH_BR_OPENSTACK    : More details please see BZ1430571, only for bridge-netfilter tests.
+           - MH_BR_VNIC         : [nic|bond|nic_vlan|bond_vlan|nic_bridge_vlan|bond_bridge_vlan] Default is nic, only for bridge-nf tests.
+           - MH_TC_VNIC         : [nic|bond|nic_vlan|bond_vlan] Default is nic, only for TC offload tests.
+           - MH_OFFLOADS        : For example, 'tso/tso hw-tc-offload' means tso is on, hw-tc-offload is off, other options keep default value.
+           - MH_TEST_LEVELS     : [basic|function|fuzz|performance|integration|regression] Default is all of them.
+           - MH_NFT_IS_INET     : Use inet family instead of {ip|ip6} to do nftables tests.
+           - MH_XT_IS_COMPAT    : Use {ip|ip6|eb|arp}tables-compat instead of {ip|ip6|eb|arp}tables to do xtables tests.
+           - MH_PKT_TYPES       : [normal|fragment] This will be replaced by MH_PAYLOAD_LEN in the future.
+           - MH_RULE_TYPES      : [xt|nft] Now we have seperated netfilter tests to xtables & nftables folders, so this will be deprecated in the future.
+         (3) vm infra settings
+           - MH_KERNEL          : Kervel version of the vm guests (e.g. 3.10.0-862.el7.x86_64.debug).
+           - MH_IS_DEBUG        : Will sync the latest networking/firewall & networking/common code to the guests.
+         (4) Test entries (test entries to be run, default is all of the tests)
+           - MH_TEST_ENTRIES    :
+           - MH_SKIP_ENTRIES    :
+           - MH_MT_ENTRIES      :
+           - MH_TG_ENTRIES      :
+
+      3. How to use 000infralib library manually
+         (1) Install kernel-kernel-networking-firewall-000infralib rpm package.
+             # yum install kernel-kernel-networking-firewall-000infralib -y
+         (2) Set env parameters mentioned in "1. Environment Variables setting",
+             for example MH_INFRA_TYPE="vm", and then init test environment.
+             $ cd /mnt/tests/kernel/networking/firewall/000infralib/
+             $ export MH_INFRA_TYPE="vm"
+             $ make run
+         (3) Include 000infralib library and do your test, for example:
+             $ source include.sh
+             $ topo_cs_init
+             $ topo_cs_ipv4
+             $ topo_cs_check ipv4
+             $ run client "uname -r; ifconfig"
+             $ run server "uname -r; ifconfig"
+
+      4. How to run netfilter|netsched|conntrackd tests
+         TBC.
+
+      5. Files tree
+         |-- env.sh     # environment variables initiating and ~/.profile file creating
+         |-- include.sh # include file for 000infralib user
+         |-- Makefile
+         |-- PURPOSE
+         |-- runtest.sh # test environment initiating and ~/.profile file creating
+         |-- src
+         |   |-- controller.sh  # include file only for the controller
+         |   |-- infra          # functions for topo & infrastructure settings [only for the controller]
+         |   |   |-- common.sh          # functions for topo configurations on all infrastructures
+         |   |   |-- ns.sh              # functions for topo creating|destroying on ns infrastructure
+         |   |   |-- run.sh             # functions for commands executing on all infrastructures
+         |   |   `-- vm.sh              # functions for topo creating/destroying on vm infrastructure
+         |   |-- init.sh        # include file only for test environment initiating [for both the controller and the test nodes]
+         |   |-- lib            # atomic functions [for both the controller and the test nodes]
+         |   |   |-- install.sh         # functions for packages installing
+         |   |   |-- mellanox.sh        # functions for sr-iov settings on Mellanox devices
+         |   |   |-- module.sh          # functions for modules listing|dumping|loading|unloading
+         |   |   |-- netfilter.sh       # functions for netfilter rules cleaning and modules loading|unloading
+         |   |   |-- netsched.sh        # functions for netsched rules cleaning and modules loading|unloading
+         |   |   |-- netronome.sh       # functions for sr-iov settings on Netronome devices
+         |   |   |-- network.sh         # functions for network settings
+         |   |   |-- nfbpf_compile.c    # source file only for iptables bpf match test
+         |   |   |-- repo.sh            # functions for repo settings
+         |   |   |-- service.sh         # functions for services start/stop
+         |   |   `-- wait.sh            # functions for waiting command finished or services started
+         |   |-- packet         # functions for packet sending|receiving [only for the test nodes]
+         |   |   |-- nflog.py
+         |   |   |-- pktchk.py
+         |   |   |-- pktgen.py
+         |   |   |-- recv.py
+         |   |   |-- recv.sh
+         |   |   |-- send.py
+         |   |   |-- send.sh
+         |   |   |-- sock.py
+         |   |   |-- sock.sh
+         |   |-- testnode.sh    # include file only for the test nodes
+         `-- subtest.yml
+
+      6. Call graph
+         |----------------------------------------------------------------------------------------------------------------------------------------------------|
+         | runtest.sh -> env.sh                                                                                                                               |
+         |            -> src/init.sh -> src/lib/*.sh                                                                                                          |
+         | include.sh -> src/lib/*.sh                                                                                                                         |
+         |            -> src/controller.sh -> networking/common/include.sh                                                                                    |
+         |                                 -> networking/common/vm/vm.sh                                                                                      |
+         |                                 -> src/lib/*.sh                                                                                                    |
+         |                                 -> src/infra/common.sh -> src/infra/vm.sh   -> src/infra/run.sh                                                    |
+         |                                                        -> src/infra/ns.sh   -> src/infra/run.sh -> src/testnode.sh -> networking/common/include.sh |
+         |                                                                                                                    -> src/lib/*.sh                 |
+         |                                                                                                                    -> src/packet/*.sh              |
+         |----------------------------------------------------------------------------------------------------------------------------------------------------|
+
+    netfilter
+    =========
+    TBC.
+
+    netsched
+    ========
+    TBC.
+
+    conntrackd
+    ==========
+    TBC.
+
+  User Manual
+  ===========
+
+    Common
+    ======
+    - Functions can be used on the Controller
+      - always_pass
+      - always_fail
+      - assert_pass
+      - assert_fail
+      - topo_netfilter_clean_all
+      - topo_netsched_clean_all
+    - Functions can be used on the Testnodes
+       (functions in the following files)
+      - src/lib/wait.sh
+      - src/lib/service.sh
+      - src/lib/network.sh
+      - src/lib/mellanox.sh
+      - src/lib/netronome.sh
+      - src/lib/module.sh
+      - src/lib/netfilter.sh
+      - src/lib/netsched.sh
+      - src/packet/send.sh
+      - src/packet/recv.sh
+      - src/packet/sock.sh
+
+    Topos
+    =====
+    - Functions (also include functions and variables
+      mentioned in topo_XX_help()) can be used on the Controller
+      - topo_cs_help
+      - topo_bf_help
+      - topo_rf_help
+      - topo_bf2_help
+      - topo_rf2_help
+      - topo_lb_help
+      - topo_lb2_help
+      - topo_lb3_help
+      - topo_ha_help
+      - topo_tcf_help
+      - topo_tcf2_help
+
