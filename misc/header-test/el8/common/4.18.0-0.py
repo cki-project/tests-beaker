@@ -142,3 +142,13 @@ def setup(exc):
 
     exc['xen/privcmd.h'] = ([],
                             BLACKLIST | WARN, 'no domid_t')
+
+    exc['sound/sof/eq.h'] = (['stdint.h'], OK, 'int32_t uint32_t')
+
+    exc['sound/sof/fw.h'] = (['stdint.h'], OK, 'int32_t uint32_t')
+
+    exc['sound/sof/header.h'] = (['stdint.h'], OK, 'int32_t uint32_t')
+
+    exc['sound/sof/manifest.h'] = (['stdint.h'], OK, 'int32_t uint32_t')
+
+    exc['sound/sof/trace.h'] = (['stdint.h'], OK, 'int32_t uint32_t')
