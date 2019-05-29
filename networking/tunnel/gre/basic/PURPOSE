@@ -1,0 +1,9 @@
+PURPOSE of  networking/tunnel/gre/basic
+
+Description:
+basic test for gre: add and delete gre, run ping and netperf
+on gre device
+
+Relateds bug:
+
+Steps:
