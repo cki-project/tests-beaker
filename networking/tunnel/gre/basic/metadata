@@ -1,0 +1,14 @@
+[General]
+name=/kernel/networking/tunnel/gre/basic
+owner=Jianlin Shi<jishi@redhat.com>
+description=Tunnel GRE basic test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=60m
+dependencies=beakerlib;beakerlib-redhat;net-tools;tcpdump;wget;bzip2;gcc;git;patch;socat
+softDependencies=python3-lxml;kernel-modules-extra;kernel-rt-modules-extra
+repoRequires=networking/common;networking/tunnel/common
