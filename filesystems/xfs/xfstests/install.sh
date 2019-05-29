@@ -192,8 +192,8 @@ function install_fio_git_upstream()
 		local last_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 		echoo "Choose fio $last_tag"
 		git checkout -b $last_tag
-		make 2>&1 | tee -a build-fio-upstream.log
-		make install
+		make >> ../build-fio-upstream.log 2>&1
+		make install >> ../build-fio-upstream.log 2>&1
 		popd
 	fi
 }
@@ -206,7 +206,8 @@ function install_fio()
 	yum install -y $FIO
 	rpm -q --quiet "${FIO}"
 
-	if ! rpm -q "${FIO}"; then
+	fio -v
+	if [ $? -ne 0 ]; then
 		install_fio_git_upstream
 	fi
 
@@ -215,7 +216,6 @@ function install_fio()
 		report install_fio_git_upstream PASS 0
 		return 0
 	else
-		rhts_submit_log -l build-fio-rpm.log
 		rhts_submit_log -l build-fio-upstream.log
 		report install_fio_git_upstream FAIL 0
 		return 1
