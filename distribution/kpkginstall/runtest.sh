@@ -227,6 +227,7 @@ function download_install_package()
   $YUM install -y $1 2>&1 | tee -a ${OUTPUTFILE}
   if [ $? -ne 0 ]; then
     echo "Failed to install $2!" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} FAIL 1
     rhts-abort -t recipe
     exit 1
   fi
