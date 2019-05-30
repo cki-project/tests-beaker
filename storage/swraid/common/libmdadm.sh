@@ -14,45 +14,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 # Author: Chnaghui Zhong <czhong@redhat.com>
 
-rpm -q mdadm || yum install -y mdadm
 JOURNAL_SUPPORT=0
 info=`mdadm --create --help | grep -o "write-journal"`
 if [ "$info" = "write-journal" ]; then
         JOURNAL_SUPPORT=1
 fi
-
-#Install fio from upstream
-function install_fio() {
-
-	git_url=git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
-
-	yum install libaio-devel zlib-devel -y
-	git clone $git_url
-	echo "INFO: Installing Fio"
-	cd fio  &&./configure && make && make install
-	which fio
-	if [ $? -ne 0 ]; then
-		echo "FAIL: Fio not succesffully installed"
-		exit 1
-	fi
-
-	echo "INFO: Fio succesfully installed"
-}
-
-#Install dt
-function install_dt () { 
-
-	wget http://www.scsifaq.org/RMiller_Tools/ftp/dt/dt-source.tar.gz
-	tar xvf dt-source.tar.gz
-	cd dt.d-WIP/
-	cp -p Makefile.linux Makefile
-	make
-	cp dt /usr/bin
-}
-
 #----------------------------------------------------------------------------#
 # MD_Create_RAID ()
 # Usage:
@@ -72,14 +40,8 @@ function install_dt () {
 #		MD_DEVS			# $raid_dev_list like '/dev/sda /dev/sdb'
 #----------------------------------------------------------------------------#
 
-function MD_Create_RAID (){
-	EX_USAGE=64 # Bad arg format
-	if [ $# -lt 3 ]; then
-		echo 'Usage: MD_Create_RAID $level $dev_list $raid_dev_num \
-		[$spar_dev_num] [$chunk]'
-		exit "${EX_USAGE}"
-	fi
-	# variable definitions
+function MD_Create_RAID()
+{
 	RETURN_STR=''
 	MD_DEVS=''
 	local level=$1
@@ -103,7 +65,6 @@ function MD_Create_RAID (){
 	done
 	if [ $dev_num -lt $(($raid_dev_num+$spar_dev_num)) ]; then
 		echo "FAIL: Required devices are more than given."
-		exit 1
 	fi
 	# get free md device name, only scan /dev/md[0-15].
 	for i in `seq 1 30`; do
@@ -133,12 +94,13 @@ function MD_Create_RAID (){
 		if [ $spar_dev_num -ne 0 ]; then
 			rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata \
 			--raid-devices $raid_dev_num $raid_dev \
-			--spare-devices $spar_dev_num $spar_dev --chunk $chunk --bitmap=internal --bitmap-chunk=$bitmap_chunksize"
+			--spare-devices $spar_dev_num $spar_dev --chunk $chunk --bitmap=internal \
+			--bitmap-chunk=$bitmap_chunksize"
 		else
 			rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata \
-			--raid-devices $raid_dev_num $raid_dev --chunk $chunk --bitmap=internal --bitmap-chunk=$bitmap_chunksize"
+			--raid-devices $raid_dev_num $raid_dev --chunk $chunk --bitmap=internal \
+			--bitmap-chunk=$bitmap_chunksize"
 		fi
-	
 	elif [ $bitmap -eq 2 ];then
 		touch /home/bitmap_md_$level
 	 	echo "INFO:bitmap backup in /home/bitmap_md_$level"
@@ -146,14 +108,13 @@ function MD_Create_RAID (){
 		if [ $spar_dev_num -ne 0 ]; then
 			rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata \
                         --raid-devices $raid_dev_num $raid_dev \
-                        --spare-devices $spar_dev_num $spar_dev --chunk $chunk --bitmap=$bitmap_dir --force  --bitmap-chunk=$bitmap_chunksize"
+                        --spare-devices $spar_dev_num $spar_dev --chunk $chunk --bitmap=$bitmap_dir \
+			--force  --bitmap-chunk=$bitmap_chunksize"
                 else
 			rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata \
-                        --raid-devices $raid_dev_num $raid_dev --chunk $chunk --bitmap=$bitmap_dir --force --bitmap-chunk=$bitmap_chunksize"
+                        --raid-devices $raid_dev_num $raid_dev --chunk $chunk --bitmap=$bitmap_dir \
+			--force --bitmap-chunk=$bitmap_chunksize"
                 fi
-	
-
-	
 	else
 		if [ $spar_dev_num -ne 0 ]; then
 			rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata \
@@ -164,13 +125,13 @@ function MD_Create_RAID (){
 			--raid-devices $raid_dev_num $raid_dev --chunk $chunk"
 		fi
 	fi
-	if [ $? -ne 0 ]; then
-		ret=$?
-		echo "INFO:create $md_raid failed.will remove all raid disk "
-		exit 1
-
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		rlLog "INFO:create $md_raid failed."
+		exit
 	fi
-	echo "create `date +%s` mdadm -CR $md_raid -l $level -e $mtdata -n $raid_dev_num \"$raid_dev\"  -x=$spar_dev_num $spar_dev bitmap=$bitmap --chunk $chunk --bitmap-chunk=$bitmap_chunksize"
+	echo "create `date +%s` mdadm -CR $md_raid -l $level -e $mtdata -n $raid_dev_num \"$raid_dev\" \
+	      -x=$spar_dev_num $spar_dev bitmap=$bitmap --chunk $chunk --bitmap-chunk=$bitmap_chunksize"
 	echo "INFO:cat /proc/mdstat######################"
 	rlRun "cat /proc/mdstat"
 	rlRun "lsblk"
@@ -203,14 +164,8 @@ function MD_Create_RAID (){
 #		MD_DEVS			# $raid_dev_list like '/dev/sda /dev/sdb'
 #----------------------------------------------------------------------------#
 
-function MD_Create_RAID_Journal (){
-	EX_USAGE=64 # Bad arg format
-	if [ $# -lt 3 ]; then
-		echo 'Usage: MD_Create_RAID_Journal $level $dev_list $raid_dev_num \
-		[$spar_dev_num] [$chunk]'
-		exit "${EX_USAGE}"
-	fi
-	# variable definitions
+function MD_Create_RAID_Journal()
+{
 	RETURN_STR=''
 	MD_DEVS=''
 	local level=$1
@@ -234,7 +189,6 @@ function MD_Create_RAID_Journal (){
 	done
 	if [ $dev_num -lt $(($raid_dev_num+$spar_dev_num)) ]; then
 		echo "FAIL: Required devices are more than given."
-		exit 1
 	fi
 	# get free md device name, only scan /dev/md[0-15].
 	for i in `seq 0 15`; do
@@ -248,7 +202,6 @@ function MD_Create_RAID_Journal (){
 	tmp_dev=`echo $dev_list | cut -d " " -f 1`
 	journal_dev="/dev/$tmp_dev"
 	echo "INFO: Created md raid with write journal disk \"$journal_dev\"."
-
 	# get raid disk list.
 	for i in `seq 2 $raid_dev_num`; do
 		tmp_dev=`echo $dev_list | cut -d " " -f $i`
@@ -264,26 +217,29 @@ function MD_Create_RAID_Journal (){
 		done
 		echo "INFO: Created md raid with these spare disks \"$spar_dev\"."
 	fi
-
 	#There is one write journal disk, so change the raid_dev_num--
 	((raid_dev_num--))
-
 	# create md raid
 	# prepare the parameter
 	BITMAP=""
 	SPAR_DEV=""
-#	if [ $bitmap -eq 1 ]; then
-#		BITMAP="--bitmap=internal --bitmap-chunk=$bitmap_chunksize"
-#	fi
 	if [ $spar_dev_num -ne 0 ]; then
 		SPAR_DEV="--spare-devices $spar_dev_num $spar_dev"
 	fi
 	if [ -n "$journal_dev" ]; then
 		WRITE_JOURNAL="--write-journal $journal_dev"
 	fi
-	rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata --raid-devices $raid_dev_num $raid_dev $WRITE_JOURNAL $SPAR_DEV $BITMAP --chunk $chunk"
+	rlRun "mdadm --create --run $md_raid --level $level --metadata $mtdata \
+		--raid-devices $raid_dev_num $raid_dev $WRITE_JOURNAL $SPAR_DEV \
+		$BITMAP --chunk $chunk"
 	ret=$?
-	echo "create raid time `date +%s` mdadm -CR $md_raid --level $level --metadata $mtdata --raid-devices $raid_dev_num $raid_dev $WRITE_JOURNAL $SPAR_DEV $BITMAP --chunk $chunk "
+	if [ $ret -ne 0 ]; then
+		echo "INFO:create $md_raid failed"
+		exit
+	fi
+	echo "create raid time `date +%s` mdadm -CR $md_raid --level $level \
+		--metadata $mtdata --raid-devices $raid_dev_num $raid_dev $WRITE_JOURNAL \
+		$SPAR_DEV $BITMAP --chunk $chunk "
 	rlRun "cat /proc/mdstat"
 	rlRun "mdadm --detail $md_raid"
 	# define global variables
@@ -307,7 +263,8 @@ function MD_Create_RAID_Journal (){
 #       NULL
 #----------------------------------------------------------------------------#
 
-function MD_Save_RAID (){
+function MD_Save_RAID()
+{
     echo "INFO: Executing MD_Save_RAID()"                    
     echo "DEVICE $MD_DEVS" > /etc/mdadm.conf
 	if [ $? -ne 0 ]; then
@@ -335,12 +292,8 @@ function MD_Save_RAID (){
 #       NULL
 #----------------------------------------------------------------------------#
 
-function MD_Clean_RAID (){
-    EX_USAGE=64 # Bad arg format                                                
-    if [ $# -ne 1 ]; then                                                       
-        echo 'Usage: MD_Clean_RAID $md_name'                                               
-        exit "${EX_USAGE}"                                                      
-    fi 
+function MD_Clean_RAID()
+{
     echo "INFO: Executing MD_Clean_RAID() against this md device: $md_name"
 	local md_name=$1	
 	echo "mdadm --stop $md_name"
@@ -355,7 +308,6 @@ function MD_Clean_RAID (){
 		done
 	mdadm --stop $md_name
 	st=$?
-		
 	done
 	sleep 10	
 	echo "clean devs : $MD_DEVS"
@@ -375,7 +327,6 @@ function MD_Clean_RAID (){
 		cat /proc/mdstat
         else
         	echo "mdadm --stop can delete md node name $md_name in /dev"
-#        	rm -rf $md_name
         fi
 	return 0
 }
@@ -395,27 +346,20 @@ function MD_Clean_RAID (){
 #       RETURN_STR  # $state, like 'clean, resyncing'
 #----------------------------------------------------------------------------#
 
-function MD_Get_State_RAID (){
-    EX_USAGE=64 # Bad arg format
-    if [ $# -lt 1 ]; then
-        echo 'Usage: MD_Get_State_RAID $md_name'
-        exit "${EX_USAGE}"
-    fi
-
+function MD_Get_State_RAID()
+{
     RETURN_STR=''
 	local md_name=$1
 	local state=''
 	local start_times=0
 	local end_times=0
 	local spend_times=0
-#    	echo "INFO: Executing MD_Get_State_RAID() against this md array: $md_name"
 	start_times=$(date +%s)
 	echo " $start_times start_time against this md array: $md_name "
-#	echo "mdadm --detail $md_name | grep "State :" | cut -d ":" -f 2 | cut -d " " -f 2"
 	state=`mdadm --detail $md_name | grep "State :" | cut -d ":" -f 2 | cut -d " " -f 2`
 	sta=$?
 	if [ -z "$state" ]; then
-		echo "`date +%s`  first_time_failed get raid statu #############################+++++++++++++++++++++++++"
+		echo "`date +%s`  first_time_failed get raid statu #######################"
 		while [ $sta ];do
 			state=`mdadm --detail $md_name | grep "State :" | cut -d ":" -f 2 | cut -d " " -f 2`
 			sta=$?
@@ -425,66 +369,18 @@ function MD_Get_State_RAID (){
 					echo "get raid status spend $spend_times and exit  "
 					ls /dev/md* |egrep md[0-9]+
 					cat /proc/mdstat
-					exit 1
+					exit
 				fi
 		done
-		
 		echo "$spend_times spend raid statu_time #############################"	
 	fi
 	echo "state is $state"
     RETURN_STR="$state"
     return 0
 }
-####################### End of functoin MD_Get_State_RAID
 
-
-#----------------------------------------------------------------------------#
-# MD_IO_Test ()
-# Usage:
-#   IO test using dt against block level
-# Parameter:
-#   $dt_target		# like "/dev/md0"
-# Returns:
-#   Return code:
-#       0 on success
-#       1 if something went wrong.
-#   Return string:
-#		NULL
-#----------------------------------------------------------------------------#
-
-function MD_IO_Test (){
-	EX_USAGE=64 # Bad arg format
-	if [ $# -lt 1 ]; then
-	    echo 'Usage: MD_IO_Test $dt_target'
-	    exit "${EX_USAGE}"
-	fi
-	# this parameter should be change to 7200 during a real testing cycle                                                        
-	local dt_runtime=72
-	local dt_logfile=""                            
-	test -f /tmp/dt_XXXXXXXX.log || `mktemp /tmp/dt_XXXXXXXX.log`
-    	dt_logfile="/tmp/dt_XXXXXXXX.log"
-	local dt_target=$1                                                          
-	echo -n "INFO: dt against ${dt_target} is running with "                    
-	echo "runtime: ${dt_runtime}s, log file is: ${dt_logfile}" 
-	echo "dt  slices=16 disable=eof,pstats flags=direct \
-    	oncerr=abort min=b max=256k \
-    	pattern=iot iodir=reverse prefix='%d@%h (pid %p)' \
-    	of=${dt_target} log=${dt_logfile} \                    
-        runtime=${dt_runtime}"                                                   
-	`dt  slices=16 disable=eof,pstats flags=direct \
-    	oncerr=abort min=b max=256k \
-    	pattern=iot iodir=reverse prefix='%d@%h (pid %p)' \
-    	of=${dt_target} log=${dt_logfile} \
-        runtime=${dt_runtime}`                                                 
-	if [ $? -ne 0 ]; then
-		echo "FAIL: Failed to run dt testing against $dt_target"
-		exit 1
-	fi
-    return 0
-}
-####################### End of functoin MD_IO_Test
-
-function create_loop_devices (){
+function create_loop_devices()
+{
     Create_Loop_Devices $@
 }
 
@@ -504,12 +400,8 @@ function create_loop_devices (){
 #       RETURN_STR like 'loop9 loop10'
 # ---------------------------------------------------------#
 
-function Create_Loop_Devices (){
-    EX_USAGE=64 # Bad arg format
-    if [ $# -ne 2 ]; then
-        echo 'Usage: Create_Loop_Devices $count $size_mib'
-        exit "${EX_USAGE}"
-    fi
+function Create_Loop_Devices()
+{
     RETURN_STR=''
     local count="$1"
     local size_mib="$2"
@@ -535,23 +427,21 @@ function Create_Loop_Devices (){
     return 0
 }
 
-function get_disks() {
-
+function get_disks()
+{
 	disk_num=$1
 	disk_size=$2
-
 	LOOP_DEVICE_LIST=$(create_loop_devices $disk_num $disk_size)
 	for i in $(seq 1 $disk_num); do
 	   	disk_temp=$(echo $LOOP_DEVICE_LIST | cut -d " " -f $i)
    		disk_temp=$(echo $disk_temp | cut -d "/" -f 3)
    		devlist="$devlist $disk_temp"
 	done
-	
 	RETURN_STR="$devlist"
 }
 
-function remove_disks() {
-
+function remove_disks()
+{
 	disks=$1			  
 	for disk in $disks; do
 		try_num=1
@@ -569,16 +459,14 @@ function remove_disks() {
 			state=$?
 			((try_num++))
                 done
-
 	done
 	rm -rf /tmp/loop.*
-	
 }
 
-
-local_clean(){
+function local_clean()
+{
 		local md_name=""
-                (mdadm -E /dev/sd[b-i]1 |grep "raid") || (cat /proc/mdstat |grep "inactive") || (ls /dev/md* |egrep md[0-9]+)
+                mdadm -E /dev/sd[b-i]1 |grep "raid" || cat /proc/mdstat |grep "inactive" || ls /dev/md* |egrep md[0-9]+
                 if [ $? = 0 ];then
                                 echo "have some md don't clean"
 				ls /dev/md* |egrep md[0-9]+
@@ -614,6 +502,4 @@ EOF
 
 		echo "have been remove all partition,check it"
 		lsblk;cat /proc/mdstat; ls /dev/md*
-
 }
-

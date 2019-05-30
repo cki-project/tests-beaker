@@ -11,8 +11,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-# Author: guazhang <guazhang@redhat.com>
-
 # The toplevel namespace within which the test lives.
 TOPLEVEL_NAMESPACE=test-beaker
 
@@ -20,7 +18,7 @@ TOPLEVEL_NAMESPACE=test-beaker
 PACKAGE_NAME=storage
 
 # The path of the test below the package:
-RELATIVE_PATH=mdadm/trim
+RELATIVE_PATH=swraid/trim
 
 # Version of the Test. Used with make tag.
 export TESTVERSION=0.1
@@ -74,11 +72,10 @@ $(METADATA): Makefile
 	@echo "TestTime:     2h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here
-	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:	 mdadm" >> $(METADATA)
 	@echo "Requires:         iscsi-initiator-utils" >> $(METADATA)
 	@echo "Requires:         scsi-target-utils" >> $(METADATA)
-	@echo "RhtsRequires: tests-beaker-storage-mdadm-include" >> $(METADATA)
+	@echo "RepoRequires:     storage/swraid/common" >> $(METADATA)
 # add any other requirements for the script to run here
 
 # You may need other fields here; see the documentation

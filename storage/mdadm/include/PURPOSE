@@ -1,6 +1,0 @@
-Please check http://wiki.test.redhat.com/fge/mdadm_include
-
-Add these lines into your Makefile:
-===
-@echo "RhtsRequires: rh-tests-kernel-storage-include" >> $(METADATA)
-@echo "RhtsRequires: rh-tests-kernel-storage-mdadm-include" >> $(METADATA)

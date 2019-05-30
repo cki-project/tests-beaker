@@ -19,38 +19,29 @@
 #   Boston, MA 02110-1301, USA.
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#set -x
 # Include Beaker environment
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/lib/beakerlib/beakerlib.sh || exit 1
-. ../include/include.sh || exit 200
+. ../common/libmdadm.sh || exit 1
 
-
-function runtest (){
-
+function runtest()
+{
 	rlRun "modprobe raid456 devices_handle_discard_safely=Y"
 	rlRun "echo Y >/sys/module/raid456/parameters/devices_handle_discard_safely"
-
 	devlist=''
 	which mkfs.xfs
-	if [ $? -eq 0 ]; then
-		FILESYS="xfs"
-	else
-		FILESYS="ext4"
-	fi
+	[ $? -eq 0 ] && FILESYS="xfs" || FILESYS="ext4"
 	disk_num=6
 	#disk size M
 	disk_size=500
 	get_disks $disk_num $disk_size
 	devlist=$RETURN_STR
-
 	if [ $JOURNAL_SUPPORT -eq 1 ]; then
 		RAID_LIST="0 1 4 5 6 4-j 5-j 6-j 10"
 	else
 		RAID_LIST="0 1 4 5 6 10"
 	fi
 	for level in $RAID_LIST; do
-
 		RETURN_STR=''
 		MD_RAID=''
 		MD_DEV_LIST=''
@@ -62,54 +53,40 @@ function runtest (){
 			spare_num=1
 			bitmap=1
 		fi
-
 		if [[ $level =~ "j" ]]; then
-			MD_Create_RAID_Journal ${level:0:1} "$devlist" $raid_num $bitmap $spare_num
+			MD_Create_RAID_Journal ${level:0:1} \
+			    "$devlist" $raid_num $bitmap $spare_num
 		else
-			MD_Create_RAID $level "$devlist" $raid_num $bitmap $spare_num
+			MD_Create_RAID $level "$devlist" \
+			    $raid_num $bitmap $spare_num
 		fi
-
 		if [ $? -ne 0 ];then
 			rlLog "FAIL: Failed to create md raid $RETURN_STR"
-			break
-		else
-			rlLog "INFO: Successfully created md raid $RETURN_STR"
+			exit
 		fi
-
+		rlLog "INFO: Successfully created md raid $RETURN_STR"
 		MD_RAID=$RETURN_STR
-	
 		MD_Get_State_RAID $MD_RAID
 		state=$RETURN_STR
-		
 		while [[ $state != "active" && $state != "clean" ]]; do
 			sleep 5
 			MD_Get_State_RAID $MD_RAID
 			state=$RETURN_STR
 		done
-	
 		rlLog "mkfs -t $FILESYS $MD_RAID"
-		(mkfs -t $FILESYS $MD_RAID) || (mkfs -t $FILESYS -f $MD_RAID)
-		if [ ! -d /mnt/md_test ]; then
-			mkdir /mnt/md_test
-		fi
+		mkfs -t $FILESYS $MD_RAID || mkfs -t $FILESYS -f $MD_RAID
+		[ ! -d /mnt/md_test ] && mkdir /mnt/md_test
 		rlRun "mount -t $FILESYS $MD_RAID /mnt/md_test "
 		rlRun "fstrim -v /mnt/md_test"
-		if [ $? -ne 0 ];then
-			rlLog "fstrim -v /mnt/md_test failed"	
-		fi
-	
+		[ $? -ne 0 ] && rlLog "fstrim -v /mnt/md_test failed"	
 		rlRun "umount $MD_RAID"
 		MD_Clean_RAID $MD_RAID
-	
 	done	
-	
 	remove_disks "$devlist"
-	if [ $? -ne 0 ];then
-		exit 1
-	fi
 }
 
-function check_log(){
+function check_log()
+{
     rlRun "dmesg | grep -i 'Call Trace:'" 1 "check the errors"
 }
 
