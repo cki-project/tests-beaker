@@ -81,6 +81,7 @@ data_tests(){
 	bytes_10M="10485760" # (10M) for tcp test
 	[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=$bytes_10M tcp-connect:${HB_IP[$TEST_VER]}:$tcpport"
 	[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=$bytes_10M tcp-connect:[${HB_IP[$TEST_VER]}]:$tcpport"
+	rlRun "sleep 1"
 	rlRun "ls -l tcprecv | grep $bytes_10M" 0 "tcp should receive $bytes_10M bytes, received `ls -l tcprecv | awk '{print $5}'` bytes"
 	rm -f tcprecv
 	ipsec_stat tcp after
@@ -104,6 +105,7 @@ data_tests(){
 	rlRun "sleep 1"
 	[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=2000 sctp:${HB_IP[$TEST_VER]}:$sctpport"
 	[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=2000 sctp:[${HB_IP[$TEST_VER]}]:$sctpport"
+	rlRun "sleep 1"
 	rlRun "ls -l sctprecv | grep 2000" 0 "sctp should receive 2000 bytes, received `ls -l sctprecv | awk '{print $5}'` bytes"
 	ipsec_stat sctp after
 }
@@ -164,7 +166,7 @@ rlJournalStart
 		fi
 		[ $KMEMLEAK == "enable" ] && rlRun "cat /sys/kernel/debug/kmemleak > kmemleak.before"
 		THRESHOLD=${THRESHOLD:-"10"}
-		SUB_PARAM=${SUB_PARAM:-"-p esp -m tunnel -s '10 65450'"}
+		SUB_PARAM=${SUB_PARAM:-"-p esp -e aes -m tunnel -s '10 65450'"}
 		rlRun "source ipsec-parameter-setting.sh $SUB_PARAM"
 		uname -r | grep el6 && {
 			rlLog "For el6, Maximum data of ping6 is smaller than that on el7(due to sendbuf size),not test max data for el6"
