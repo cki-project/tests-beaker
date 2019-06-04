@@ -34,7 +34,7 @@ function check_virt_support
             #      "journalctl -k"
             #
             journalctl -k | \
-                egrep -iq "kvm.*: Hyp mode initialized successfully"
+                egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
         fi
         return $?
     elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
