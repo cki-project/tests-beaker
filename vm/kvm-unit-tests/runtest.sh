@@ -26,7 +26,7 @@ function check_virt_support
     elif [[ $hwpf == "aarch64" ]]; then
         dmesg | egrep -iq "kvm"
         if (( $? == 0 )); then
-            dmesg | egrep -iq "kvm.*: Hyp mode initialized successfully"
+            dmesg | egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
         else
             #
             # XXX: Note that the harness (i.e. beaker) does clear dmesg, hence
@@ -34,7 +34,7 @@ function check_virt_support
             #      "journalctl -k"
             #
             journalctl -k | \
-                egrep -iq "kvm.*: Hyp mode initialized successfully"
+                egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
         fi
         return $?
     elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
