@@ -195,7 +195,8 @@ else
 fi
 res=$?
 if [ $res -ne 0 ] ; then
-    echo "Failed to install kernel devel-${kernel}" | tee -a $OUTPUTFILE
+    echo "WARN: failed to install kernel devel-${kernel}" | tee -a $OUTPUTFILE
+    report_result $TEST WARN/ABORTED
     rhts-abort -t recipe
     exit
 fi
