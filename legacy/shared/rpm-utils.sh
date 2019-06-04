@@ -137,12 +137,26 @@ function __yum_call()
 
 function rpm_install_add()
 {
-    RPM_INSTALL+=("$@")
+        for pkg in "$@"
+        do
+                if [ -z "$(rpm -qa $pkg | head -n 1)" ]
+                then
+                        continue
+                fi
+                RPM_INSTALL+=("$pkg")
+        done
 }
 
 function rpm_extract_add()
 {
-    RPM_EXTRACT+=("$@")
+        for pkg in "$@"
+        do
+                if [ -z "$(rpm -qa $pkg | head -n 1)" ]
+                then
+                        continue
+                fi
+                RPM_EXTRACT+=("$pkg")
+        done
 }
 
 function rpm_install()
