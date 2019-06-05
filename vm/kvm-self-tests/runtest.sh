@@ -20,8 +20,78 @@
 NAME=$(basename $0)
 CDIR=$(dirname $0)
 TEST=${TEST:-"$0"}
-PACKAGE="kernel"
+RELEASE=$(uname -r | sed s/\.`arch`//)
+PACKAGE="kernel-${RELEASE}"
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
+BINDIR=${TMPDIR}-bin
+
+function getTests
+{
+    # List of tests to run on all architectures
+    ALLARCH_TESTS=()
+    while IFS=  read -r -d $'\0'; do
+        ALLARCH_TESTS+=("$REPLY")
+    done < <(find ${BINDIR} -maxdepth 1 -type f -executable -printf "%f\0")
+
+    # List of tests to run on x86_64 architecture
+    X86_64_TESTS=()
+    while IFS=  read -r -d $'\0'; do
+        X86_64_TESTS+=("$REPLY")
+    done < <(find ${BINDIR}/x86_64 -maxdepth 1 -type f -executable -printf "x86_64/%f\0")
+
+    # List of tests to run on aarch64 architecture
+    AARCH64_TESTS=()
+
+    # List of tests to run on ppc64 architecture
+    PPC64_TESTS=()
+
+    # List of tests to run on s390x architecture
+    S390X_TESTS=()
+}
+
+function disableTests
+{
+    # Disable tests for RHEL8 Kernel (4.18.X)
+    if uname -r | grep --quiet '^4'; then
+        # Disable test clear_dirty_log_test
+        # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718479
+        mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "clear_dirty_log_test")
+
+        # Disabled x86_64 tests for AMD machines due to bugs
+        if lsmod | grep --quiet kvm_amd; then
+            # Disable test x86_64/platform_info_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718499
+            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/platform_info_test")
+        fi
+    fi
+
+    # Disable tests for ARK Kernel (5.X)
+    if uname -r | grep --quiet '^5'; then
+        # Disable x86_64/sync_regs_test
+        # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719397
+        mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/sync_regs_test")
+
+        # Disabled x86_64 tests for AMD machines due to bugs
+        if lsmod | grep --quiet kvm_amd; then
+            # Disable test x86_64/platform_info_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719387
+            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/platform_info_test")
+            # Disable x86_64/state_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719401
+            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/state_test")
+            # Disable x86_64/smm_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719402
+            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/smm_test")
+        fi
+
+        # Disabled x86_64 tests for Intel machines due to bugs
+        if lsmod | grep --quiet kvm_intel; then
+            # Disable x86_64/evmcs_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719400
+            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/evmcs_test")
+        fi
+    fi
+}
 
 source /usr/share/beakerlib/beakerlib.sh
 
@@ -112,21 +182,27 @@ function runtest
 
     typeset linux_srcdir=$(find $TMPDIR -type d -a -name "linux-*")
     typeset tests_srcdir="$linux_srcdir/tools/testing/selftests/kvm"
-    rlAssertExists $tests_srcdir
+    typeset outputdir="${BINDIR}"
+    typeset hwpf=$(uname -i)
 
-    #
-    # XXX: Apply a patch because case 'dirty_log_test' fails to be built, which
-    #      is because patch [1] is missed when backporting to RHEL8 repo. Note
-    #      we should remove the workaround if the case is fixed.
-    #      [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=07a262cc
-    #
-    rlRun "patch -d $linux_srcdir -p1 < patches/bitmap.h.patch" 0 \
-          "Patching via patches/bitmap.h.patch"
+    rlAssertExists $tests_srcdir
+    rlAssertExists ${outputdir}
 
     rlRun "pushd '.'"
-    rlRun "cd $tests_srcdir && make TARGETS=kvm run_tests" 0 \
-          "Running kvm selftests"
-    (( $? == 0 )) && rlPass $TEST || rlFail $TEST
+
+    # Build tests
+    rlRun "make -C ${tests_srcdir} OUTPUT=${outputdir} TARGETS=kvm"
+
+    # Prepare lists of tests to run
+    getTests
+    disableTests
+
+    # Run tests
+    for test in ${ALLARCH_TESTS[*]}; do rlRun "${outputdir}/${test}" 0,4; done
+    [[ $hwpf == "x86_64" ]] && for test in ${X86_64_TESTS[*]}; do rlRun "${outputdir}/${test}" 0,4;  done
+    [[ $hwpf == "aarch64" ]] && for test in ${AARCH64_TESTS[*]}; do rlRun "${outputdir}/${test}" 0,4;  done
+    [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]] && for test in ${PPC64_TESTS[*]}; do rlRun "${outputdir}/${test}" 0,4; done
+    [[ $hwpf == "s390x" ]] &&  for test in ${S390X_TESTS[*]}; do rlRun "${outputdir}/${test}" 0,4; done
 
     rlRun "popd"
 
@@ -141,13 +217,33 @@ function setup
 
     check
 
+    if lsmod | grep --quiet kvm_intel; then
+        rmmod kvm_intel; rmmod kvm
+        modprobe kvm; modprobe kvm_intel
+    elif lsmod | grep --quiet kvm_amd; then
+        rmmod kvm_amd; rmmod kvm
+        modprobe kvm; modprobe kvm_amd
+    fi
     rlRun "rm -rf $TMPDIR && mkdir $TMPDIR"
+    rlRun "rm -rf ${BINDIR} && mkdir -p ${BINDIR}/x86_64"
 
     rlRun "pushd '.'"
 
+    # if running on rhel8, use python3
+    if grep --quiet "release 8." /etc/redhat-release && [ ! -x /usr/bin/python ];then
+        ln -s /usr/libexec/platform-python /usr/bin/python
+    fi
+
     rlRun "cd $TMPDIR"
-    rlFetchSrcForInstalled $pkg
-    typeset rpmfile=$(ls -1 $TMPDIR/${pkg}*.src.rpm)
+    if [ -x /usr/bin/dnf ]; then
+        dnf download ${pkg} --source
+    elif [ -x /usr/bin/yum ]; then
+        yum download ${pkg} --source
+    fi
+    if [ ! -f $TMPDIR/${pkg}.src.rpm ]; then
+        rlFetchSrcForInstalled $pkg
+    fi
+    typeset rpmfile=$(ls -1 $TMPDIR/${pkg}.src.rpm)
     rlAssertExists $rpmfile
     rlRun "ls -l $rpmfile"
 
@@ -171,6 +267,7 @@ function cleanup
     rlPhaseStartCleanup
 
     rlRun "rm -rf $TMPDIR"
+    rlRun "rm -rf ${BINDIR}"
 
     rlPhaseEnd
 }

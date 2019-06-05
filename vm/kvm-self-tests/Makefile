@@ -55,6 +55,7 @@ $(METADATA): Makefile
 	@echo "Requires:        patch" >> $(METADATA)
 	@echo "Requires:        python2-lxml" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
+	@echo "Requires:        bc" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv3" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
