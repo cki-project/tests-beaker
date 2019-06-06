@@ -1,2 +1,2 @@
 PURPOSE of trim
-Description: Test the function of create raid0 1 4 5 6 10 and write-journal raid 4 5 6 with mdadm, format and mount test.
+Description: Test the function of TRIM which quickly erase invalid data for the RAID that created by mdadm.
