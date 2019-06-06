@@ -36,11 +36,7 @@ function runtest()
 	disk_size=500
 	get_disks $disk_num $disk_size
 	devlist=$RETURN_STR
-	if [ $JOURNAL_SUPPORT -eq 1 ]; then
-		RAID_LIST="0 1 4 5 6 4-j 5-j 6-j 10"
-	else
-		RAID_LIST="0 1 4 5 6 10"
-	fi
+	RAID_LIST="0 1 4 5 6 10"
 	for level in $RAID_LIST; do
 		RETURN_STR=''
 		MD_RAID=''
@@ -53,13 +49,7 @@ function runtest()
 			spare_num=1
 			bitmap=1
 		fi
-		if [[ $level =~ "j" ]]; then
-			MD_Create_RAID_Journal ${level:0:1} \
-			    "$devlist" $raid_num $bitmap $spare_num
-		else
-			MD_Create_RAID $level "$devlist" \
-			    $raid_num $bitmap $spare_num
-		fi
+		MD_Create_RAID $level "$devlist" $raid_num $bitmap $spare_num
 		if [ $? -ne 0 ];then
 			rlLog "FAIL: Failed to create md raid $RETURN_STR"
 			exit
@@ -87,14 +77,14 @@ function runtest()
 
 function check_log()
 {
-    rlRun "dmesg | grep -i 'Call Trace:'" 1 "check the errors"
+	rlRun "dmesg | grep -i 'Call Trace:'" 1 "check the errors"
 }
 
 rlJournalStart
     rlPhaseStartTest
-        rlRun "uname -a"
-        rlLog "$0"
-    	runtest
+	rlRun "uname -a"
+	rlLog "$0"
+	runtest
 	check_log
     rlPhaseEnd
 rlJournalPrintText
