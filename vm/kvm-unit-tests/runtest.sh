@@ -128,7 +128,7 @@ if [ -z "$QEMU" ]; then
 fi
 
 # if running on rhel8, use python3
-if grep --quiet 8.0 /etc/redhat-release;then
+if grep --quiet "release 8." /etc/redhat-release && [ ! -f /usr/bin/python ];then
     ln -s /usr/libexec/platform-python /usr/bin/python
 fi
 
