@@ -44,6 +44,9 @@ def setup(exc):
     exc['asm/ucontext.h'] = ([SIZE_T, 'asm/signal.h', 'asm/sigcontext.h'],
                              OK, 'stack_t sigcontext')
 
+    exc['drm/vmwgfx_drm.h'] = ([], WARN | BLACKLIST,
+                               'SVGA3dMSPattern and SVGA3dMSQualityLevel not defined in UAPI')
+
     exc['linux/android/binder.h'] = ([PID_T],
                                      OK, 'pid_t uid_t')
 
