@@ -549,6 +549,9 @@ else
     getServerList
 fi
 
+# RHEL4 is no longer supported
+servers=$(sed 's/rhel4[^[:space:]]*//' <<<$servers)
+
 if [ "$CTHONTESTS" ]; then
     tests="$CTHONTESTS"
     echo " ========== Override cthon test list =========="
