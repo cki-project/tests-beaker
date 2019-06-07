@@ -11,7 +11,7 @@ export TESTVERSION=1.0
 # The path of the test below the package
 RELATIVE_PATH=storage/lvm/thinp/sanity
 
-# The relative path name to the test 
+# The relative path name to the test
 export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 
 # Name of the tar file that will be bundled in the rpm
@@ -24,7 +24,7 @@ FILES=	$(METADATA)      \
 clean:
 	$(RM) *~ rm $(METADATA)
 	rm -rf $(TARGET) rh-tests-kernel-*.rpm
-	rm -rf $(TARGET).tar
+	rm -rf $(TARGET).tar.gz
 	rm -f iozone *.txt
 
 run: build
@@ -35,11 +35,11 @@ build: $(METADATA) $(TARGET)
 	make -C iozone3_414/src/current/ linux
 	cp -f iozone3_414/src/current/iozone ./
 
-$(TARGET).tar:
-	wget http://www.iozone.org/src/current/$(TARGET).tar
-
-$(TARGET): $(TARGET).tar
-	tar -xvf $(TARGET).tar
+$(TARGET):
+	# NOTE(mhayden): iozone.org went offline mysteriously on 2019-06-07.
+	# wget http://www.iozone.org/src/current/$(TARGET).tar
+	wget --tries=10 https://artifacts.cki-project.org/lookaside/$(TARGET).tar.gz
+	tar -xzvf $(TARGET).tar.gz
 
 # Include a global make rules file
 include /usr/share/rhts/lib/rhts-make.include
