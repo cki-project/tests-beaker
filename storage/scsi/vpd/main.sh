@@ -44,12 +44,18 @@ function scsi_level(){
     local stat
     local dev
     local mpath_name
+    local flag=0
 
     for i in 4 5 6 7;do
         rlLog "add scsi_debug level $i"
         rlLog "Start test using scsi_level $i"
         rlRun "modprobe scsi_debug scsi_level=$i"
         dev=$(get_scsi_debug_devices)
+        if [[ -z $dev  ]];then
+            rlLog "Can not get test device at level $i, skip it"
+            continue
+        fi
+        (( $flag += 1 ))
         rlLog "Checking if VPD for "$dev" is exported correctly"
         rlRun "sg_inq $dev" 0  "get message by sg_ing"
         rlRun "sg_vpd --page=0x80 $dev" 0 "get mesage by page=0x80"
@@ -90,6 +96,11 @@ function scsi_level(){
         rlLog "test passed scsi_debug $i level vpd "
     done
 
+    if (( $flag == 0 )); then
+        rlLog "Skipping test because test device not found"
+        rhts-report-result $TEST SKIP $OUTPUTFILE
+        exit 0
+    fi
 }
 
 function check_log(){
