@@ -1,0 +1,17 @@
+./functional/threads/pi_test
+./conformance/interfaces/aio_error/3-1.c
+./conformance/interfaces/aio_return/3-2.c
+./conformance/interfaces/aio_return/2-1.c
+./conformance/interfaces/aio_return/4-1.c
+./conformance/interfaces/clock_getcpuclockid/5-1.c
+./conformance/interfaces/lio_listio/11-1.c
+./conformance/interfaces/mmap/28-1.c
+./conformance/interfaces/mmap/31-1.c
+./conformance/interfaces/pthread_rwlock_rdlock/2-2.c
+./conformance/interfaces/pthread_rwlock_rdlock/2-1.c
+./conformance/interfaces/pthread_rwlock_unlock/3-1.c
+./conformance/interfaces/sched_getparam/6-1.c
+./conformance/interfaces/sched_getscheduler/7-1.c
+./conformance/interfaces/pthread_create/1-6.c
+./conformance/interfaces/aio_suspend/4-1.c
+./conformance/interfaces/sigaltstack/12-1.c

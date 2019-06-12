@@ -1,0 +1,100 @@
+KNOWN to fail (these should be excluded from testrun):
+------------------------------------------------------
+
+./functional/threads/pi_test
+Excluded, there is separate test already (rt-tests) and this one
+takes occasionally a lot of time to complete.
+
+./conformance/interfaces/aio_error/3-1.c
+call aio_error with with argument aiocbp which does not point at a control
+block for an asynchronous I/O request, and expect error EINVAL. But this is
+optional. 
+
+./conformance/interfaces/aio_return/3-2.c
+Same with aio_return/2-1 
+
+./conformance/interfaces/aio_return/2-1.c
+In specification, second call to aio_return() return -1 is a kind of
+possibility, depends on implementation.
+
+./conformance/interfaces/aio_return/4-1.c
+call aio_return with with argument aiocbp which does not point at a control
+block for an asynchronous I/O request, and expect error EINVAL. But this is
+optional.
+
+./conformance/interfaces/clock_getcpuclockid/5-1.c
+This is not supported by Linux. In man page, it addresses EPERM "Specified as
+an optional error in POSIX.1-2001; does not occur on Linux unless the kernel
+does not support obtaining the per-process CPU-time clock of another
+process.".
+
+./conformance/interfaces/lio_listio/11-1.c
+or aio_lio_opcode posix says "The supported operations are LIO_READ,
+LIO_WRITE, and LIO_NOP" but it does not say what should happen if the value it
+not one of the above. 
+
+./conformance/interfaces/mmap/28-1.c
+This case tests mmap() with length of 2 timed file size and expects fail with
+errno ENXIO( No such device or address), but mmap() successed.
+Because Linux kernel just make the mmap connection between file and memory
+when mmap() called. When first read/write, the kernel mmap the physical file
+page to the virtual memory page. So it doesn't fail in mmap().
+This case is NOT supported by Linux. 
+
+./conformance/interfaces/mmap/31-1.c
+Parameters lenth and offset for mmap() are too large. Case 24-2 with same
+length expects mmap() failed with ENOMEM.
+In function get_unmapped_area(), it checks len should less than TASK_SIZE,
+otherwise it returns -ENOMEM. TASK_SIZE value on different platforms 
+
+./conformance/interfaces/pthread_rwlock_rdlock/2-2.c
+This test case is to test option Thread Execution Scheduling of pthread
+rwlock. But eglibc/libc don't support this option. They provide a
+rwlock->__data.__flags option to identify perfer 'read lock' or write lock,
+and the default is 'read lock' first. So second reader can get the lock when a
+higher priority writer is waiting for the lock.
+A Non-portable api pthread_rwlockattr_setkind_np() is provided to set this
+value. The test case is not supported. 
+
+./conformance/interfaces/pthread_rwlock_rdlock/2-1.c
+See pthread_rwlock_rdlock/2-2
+
+./conformance/interfaces/pthread_rwlock_unlock/3-1.c
+See pthread_rwlock_rdlock/2-2
+
+./conformance/interfaces/sched_getparam/6-1.c
+This case try to call sched_getparam as non-root user to get scheduling
+parameters of process with pid 0. It is a system call and implemented in
+kernel source sched/core.c. In SYSCALL_DEFINE2(sched_getparam, ...) it calls
+security_task_getscheduler() to check the permission. For default security
+operations, security_task_getscheduler() is a stub function and just return 0. 
+
+./conformance/interfaces/sched_getscheduler/7-1.c
+Similiar with sched_getparam/6-1
+
+./conformance/interfaces/pthread_create/1-6.c
+Works reliably only with less than 5 CPUs
+
+./conformance/interfaces/mq_open/16-1.c
+can fail sometimes, was fixed in upstream by:
+commit d3f22c05202c3ec296c43ca09907f5adc9600c02
+Author: Kang Kai <kai.kang@windriver.com>
+Date:   Thu Sep 6 17:50:57 2012 +0800
+    mq_open/16-1: use tmp file to share info
+
+./conformance/interfaces/aio_read/7-1.c
+contains race, which is fixed upstream by:
+commit 4558bfae923a715ac78b5b3d3ecdfa16f9424808
+Author: Jan Stancek <jstancek@redhat.com>
+Date:   Wed Dec 5 12:49:47 2012 +0100
+    aio_read/7-1.c: fix race at exit
+
+
+./conformance/interfaces/aio_suspend/4-1.c
+race-y testcase, aio operations can complete in any order
+and before aio_suspend times out
+
+KNOWN to produce core files:
+-----------------------------
+see grab_corefiles_excluded_bins 
+

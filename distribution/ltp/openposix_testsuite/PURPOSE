@@ -1,0 +1,16 @@
+This will include openposix_testsuite from LTP.
+
+The POSIX Test Suite is an open source test suite with the goal of
+performing conformance, functional, and stress testing of the IEEE
+1003.1-2001 System Interfaces specification in a manner that is
+agnostic to any given implementation.
+
+NOTE:
+[] When editing this task you will need the following rpm 
+   installed on your local system, in order to commit to GIT 
+   and update the Beaker task rpm:
+     Linux Test Project - include
+     https://beaker.engineering.redhat.com/tasks/4941
+
+There is number of known issues, which are excluded from testing on RHEL.
+Linux (including RHEL) is not 100% compliant with open posix.
