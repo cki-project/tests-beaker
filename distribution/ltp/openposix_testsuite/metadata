@@ -1,0 +1,14 @@
+[General]
+name=/kernel/distribution/ltp/openposix_testsuite
+owner=Kernel General Test Team <kernel-general-test-team@redhat.com>
+description=Linux Test Project openposix testsuite KernelTier1
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=120m
+dependencies=automake;autoconf;flex;bison;rsyslog;util-linux-ng;rpm-build;kernel-headers;redhat-lsb;bc;numactl;time;kernel-devel;libaio-devel;libcap-devel;strace;gcc
+softDependencies=numactl-devel;kernel-rt-devel;ntpdate;chrony;sysklogd
+repoRequires=distribution/ltp/include

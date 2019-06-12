@@ -1,0 +1,15 @@
+WIFEXITED/WIFEXITED_1-3.run-test
+nanosleep/nanosleep_1-2.run-test
+pthread_create/pthread_create_1-5.run-test
+pthread_create/pthread_create_3-2.run-test
+sigsuspend/sigsuspend_3-1.run-test
+mq_timedreceive/mq_timedreceive_18-1.run-test
+mq_timedreceive/mq_timedreceive_18-2.run-test
+mq_timedreceive/mq_timedreceive_5-2.run-test
+mq_timedreceive/mq_timedreceive_8-1.run-test
+mmap/mmap_6-3.run-test
+mmap/mmap_6-2.run-test
+mmap/mmap_6-1.run-test
+clock_nanosleep/clock_nanosleep_2-3.run-test
+clock_nanosleep/clock_nanosleep_1-4.run-test
+aio_read/aio_read_7-1.runtest
