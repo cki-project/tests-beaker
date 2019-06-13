@@ -1,0 +1,28 @@
+PURPOSE of /kernel/storage/iscsi/params
+
+DESCRIPTION: This test randomly generates values for following iSCSI parameters
+[
+    'HeaderDigest',
+    'MaxRecvDataSegmentLength',
+    'MaxXmitDataSegmentLength',
+    'FirstBurstLength',
+    'MaxBurstLength',
+    'ImmediateData',
+    'InitialR2T'
+]
+And
+    o applies generated values to both initiator and local LIO target
+    o establishes iSCSI session
+    o prints negotiated values
+    o do IO with data verification using fio
+
+If you'd like to check values manually, please try:
+    # iscsiadm -m session -P2 | grep HeaderDigest | cut -d " " -f 2
+    # cat /sys/class/iscsi_connection/connection*/header_digest
+    # cat /sys/class/iscsi_session/session*/first_burst_len
+
+NOTES:
+    This test is using python-libsan and python-stqe. python-libsan is listed
+    in python-stqe dependencies in setup.py, so we need to clone just
+    python-stqe from gitlab and install it. Package 'Augeas' is required by
+    python-stqe.
