@@ -100,8 +100,10 @@ run_test() {
 if [ -w "$LOGFILE" ] || echo "" > "$LOGFILE"; then
 	:
 else
-	echo >&2 "ERROR: $LOGFILE not writable"
-	exit 1
+	echo >&2 "ERROR: $LOGFILE not writable" | tee -a $OUTPUTFILE
+	report_result CHECKLOGS  WARN/ABORTED
+	rhts-abort -t recipe
+	exit
 fi
 
 SCRIPT_DIR=$(dirname "$0")
@@ -110,8 +112,10 @@ T0=$SCRIPT_DIR/t0
 T0_VAL=$SCRIPT_DIR/t0.val
 
 if [ ! -x $T0 ]; then
-	echo >&2 "ERROR: $T0 doesn't exist / isn't executable"
-	exit 1
+	echo >&2 "ERROR: $T0 doesn't exist / isn't executable" | tee -a $OUTPUTFILE
+	report_result CHECKLOGS  WARN/ABORTED
+	rhts-abort -t recipe
+	exit
 fi
 
 if [ ! -f "$T0_VAL" ]; then
