@@ -1,0 +1,3 @@
+PURPOSE of /distribution/kernel-fips-mode
+Description: Test kernel FIPS 140 mode
+Author: Ondrej Moris <omoris@redhat.com>
