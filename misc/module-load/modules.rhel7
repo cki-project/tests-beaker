@@ -146,7 +146,6 @@ ipt_MASQUERADE
 ipt_NETMAP
 ipt_REDIRECT
 ipt_REJECT
-ipt_ULOG
 ip_vs
 ip_vs_dh
 ip_vs_ftp
