@@ -123,7 +123,6 @@ arp_tables
 ipt_CLUSTERIP
 nf_nat_pptp
 ipt_LOG
-ipt_ULOG
 ipt_ECN
 nf_nat_h323
 nf_nat_proto_udplite

@@ -383,7 +383,6 @@ ipt_CLUSTERIP
 ipt_ECN
 ipt_MASQUERADE
 ipt_rpfilter
-ipt_ULOG
 ip_vs
 ip_vs_dh
 ip_vs_ftp
