@@ -67,6 +67,7 @@ $(METADATA): Makefile
 	@echo "Requires:        zstd" >> $(METADATA)
 	@echo "Requires:        tar" >> $(METADATA)
 	@echo "Requires:        binutils" >> $(METADATA)
+	@echo "Requires:        yum-utils" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)

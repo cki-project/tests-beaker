@@ -175,7 +175,8 @@ function rpm_install()
 
 function rpm_extract()
 {
-        __yum_call --downloadonly --downloaddir=$RPM_TMPDIR "${RPM_EXTRACT[@]}"
+        yumdownloader --disablerepo='*' --enablerepo=rhel-latest \
+                      --downloaddir=$RPM_TMPDIR "${RPM_EXTRACT[@]}"
 
         if test $? -gt 0
         then
