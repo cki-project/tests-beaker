@@ -2,7 +2,7 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /distribution/kernel-fips-mode
+#   runtest.sh of kernel-fips-mode
 #   Description: Test kernel FIPS 140 mode.
 #   Author: Ondrej Moris <omoris@redhat.com>
 #
