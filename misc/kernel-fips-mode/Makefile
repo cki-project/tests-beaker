@@ -1,6 +1,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Makefile of /distribution/kernel-fips-mode
+#   Makefile of kernel-fips-mode
 #   Description: Test kernel FIPS 140 mode
 #   Authors: Ondrej Moris <omoris@redhat.com>
 #
@@ -24,7 +24,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/distribution/kernel-fips-mode
+export TEST=kernel-fips-mode
 export TESTVERSION=1.0
 
 BUILT_FILES=
