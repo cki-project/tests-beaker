@@ -40,11 +40,17 @@ typeset -l debug=${_DEBUG}
 
 PACKAGE="selinux-policy"
 
+# Default commit to checkout from the repo.
+# This should be updated as needed after verifying that the new version
+# doesn't break testing and after applying all necessary tweaks in the TC.
+# Run with GIT_BRANCH=master to run the latest upstream version.
+DEFAULT_COMMIT="f33778210539adc66cf6d29bc28cc409860fb29c"
+
 # Optional test parametr - location of testuite git.
 GIT_URL=${GIT_URL:-"git://github.com/SELinuxProject/selinux-testsuite"}
 
 # Optional test paramenter - branch containing tests.
-GIT_BRANCH=${GIT_BRANCH:-"master"}
+GIT_BRANCH=${GIT_BRANCH:-"$DEFAULT_COMMIT"}
 
 # Check if pipefail is enabled to restore original setting.
 # See: https://unix.stackexchange.com/a/73180
@@ -123,10 +129,15 @@ rlJournalStart
                 "Fix up Python shebang in overlay test"
         fi
 
+        if kver_lt "3.10.0-875"; then
+            rlLog "No xperms support => disable xperms testing"
+            rlRun "sed -i '/TARGETS += test_ioctl_xperms\.te/d' policy/Makefile"
+            rlRun "sed -i 's/\$kernver >= 30/\$kernver >= 999999/' tests/ioctl/test"
+        fi
         # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1613056
         # (if running kernel version sorts inside the known-bug window, then
         # we need to apply the workaround)
-        if kver_ge "3.10.0-874" && kver_lt "3.10.0-972"; then
+        if kver_ge "3.10.0-875" && kver_lt "3.10.0-972"; then
             rlLog "Applying workaround for BZ 1613056..."
             rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
