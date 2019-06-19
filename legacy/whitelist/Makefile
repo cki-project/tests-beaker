@@ -59,6 +59,7 @@ $(METADATA): Makefile
 	@echo "Requires:        file" >> $(METADATA)
 	@echo "Requires:        gawk" >> $(METADATA)
 	@echo "Requires:        binutils" >> $(METADATA)
+	@echo "Requires:        yum-utils" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
