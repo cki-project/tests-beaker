@@ -90,6 +90,7 @@ function main()
         echo
 
         # -- Download and extract the baseline kernel RPMS
+        rpm_extract_add "kernel"
         rpm_extract_add "kernel-modules"
         rpm_extract_add "kernel-modules-extra"
         rpm_extract
