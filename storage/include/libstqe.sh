@@ -21,7 +21,7 @@ source /usr/share/beakerlib/beakerlib.sh
 source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
 
 STQE_GIT="https://gitlab.com/rh-kernel-stqe/python-stqe.git"
-STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"ad38f15"}
+STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"6ae4855"}
 LIBSAN_STABLE_VERSION=${LIBSAN_STABLE_VERSION:-"0.3.0"}
 
 function stqe_get_fwroot
@@ -53,7 +53,21 @@ function stqe_init_fwroot
         fi
     fi
 
-    rlRun "python3 setup.py install --prefix=" || \
+    #
+    # XXX: On RHEL7, should use python2 instead because python3
+    #      is not available by default
+    #
+    typeset python=""
+    typeset cmd=""
+    for cmd in python3 python2 python; do
+        $cmd -V > /dev/null 2>&1 && python=$cmd && break
+    done
+    [[ -n $python ]] || rlSkip "python not found"
+
+    # install required packages
+    rlRun "bash env_setup.sh" $BKRM_RC_ANY
+
+    rlRun "$python setup.py install --prefix=" || \
         rlAbort "fail to install test framework"
 
     popd
