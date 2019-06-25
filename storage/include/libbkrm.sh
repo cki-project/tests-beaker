@@ -20,6 +20,8 @@
 source /usr/bin/rhts_environment.sh
 source /usr/share/beakerlib/beakerlib.sh
 
+BKRM_RC_ANY="0-255" # make sure rlRun supports any return code
+
 #
 # A simple wrapper function to skip a test because beakerlib doesn't support
 # such an important feature, right here we just leverage 'rhts'. Note we
