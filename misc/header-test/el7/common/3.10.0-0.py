@@ -360,7 +360,7 @@ def setup(exc):
     exc['linux/usb/ch11.h'] = (['* #define USB_MAXCHILDREN 16'],
                                  OK | WARN, 'USB_MAXCHILDREN')
 
-    exc['linux/virtio_balloon.h'] = (['linux/types.h', '* typedef __u16 u16;', '* typedef __u64 u64;'],
+    exc['linux/virtio_balloon.h'] = (['linux/types.h', 'linux/virtio_types.h', '* typedef __u16 u16;', '* typedef __u64 u64;'],
                                      OK | WARN, 'u16 u64 not defined')
 
     exc['linux/wireless.h'] = ([SOCKADDR],
