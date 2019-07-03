@@ -464,6 +464,9 @@ def setup(exc):
 
     exc['rdma/rdma_user_cm.h'] = (['sys/socket.h'], OK, 'sockaddr_storage')
 
+    exc['rdma/rdma_user_rxe.h'] = ([SOCKADDR, 'linux/in.h', 'linux/in6.h'],
+                                   OK, 'sockaddr sockaddr_in sockaddr_in6')
+
     exc['linux/openvswitch.h'] = ([SIZE_T, 'stdint.h'],
                                   OK, 'size_t uint32_t uint64_t')
 
