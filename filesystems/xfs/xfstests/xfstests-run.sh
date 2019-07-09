@@ -29,7 +29,6 @@ function check_tests()
 			xlog head -n 10 tests/$XFSTEST
 		else
 			echoo "The test $XFSTEST does not seem to exist."
-			report $XFSTEST FAIL 0
 			continue
 		fi
 		MOUNT_OPTIONS="$MOUNT_OPTS" MKFS_OPTIONS="$MKFS_OPTS" xlog ./check $CHECK_OPTS $XFSTEST
