@@ -299,7 +299,7 @@ GetBiosInfo()
 GetHWInfo()
 {
     Log "- Getting system hw or firmware config."
-    rpm -q lshw || yum install -y lshw
+    rpm -q lshw || InstallPackages lshw
     lshw > "${K_TMP_DIR}/lshw.output"
     RhtsSubmit "${K_TMP_DIR}/lshw.output"
 
@@ -378,7 +378,7 @@ PrepareKdump()
     rpm -q kexec-tools kernel
 
     Log "- Crashkernel reservation and current cmdline"
-    rpm -q lshw || yum -y install lshw
+    rpm -q lshw || InstallPackages lshw
     echo "Total system memory: $(lshw -short | grep -i "System Memory" | awk '{print $3}')"
     cat /proc/cmdline
     kdumpctl showmem || cat /sys/kernel/kexec_crash_size
@@ -562,6 +562,46 @@ RestartKdump()
     ReportKdumprd
 }
 
+PrepareCrash()
+{
+    Log "- Installing crash and kernel-debuginfo packages required for testing crash untilities."
+    rpm -q crash || InstallPackages crash
+    InstallDebuginfo
+}
+
+InstallPackages()
+{
+    [ $# -eq 0 ] && return 1
+    local pkg=$@
+
+    if which dnf; then
+        dnf install -y $pkg
+    elif which yum; then
+        yum install -y $pkg
+    else
+        return 1
+    fi
+
+    return 0
+}
+
+InstallDebuginfo()
+{
+    local kern=$(rpm -qf /boot/vmlinuz-$(uname -r) --qf "%{name}-debuginfo-%{version}-%{release}.%{arch}" | sed -e "s/-core//g")
+
+    #workaround the kernel name if it's kernel-core
+    if [[ "$kern" == kernel-core-debuginfo-* ]]; then
+        kern=${kern//kernel-core/kernel}
+    fi
+
+    Log "- Installing ${kern}"
+    rpm -q ${kern} || {
+        InstallPackages ${kern} || MajorError "Failed to install kernel debuginfo packages"
+    }
+    Log "- Done installation of crash and kernel-debuginfo packages"
+    Log "$(rpm -q crash ${kern})"
+}
+
 LsCore()
 {
     Log "\n# ls -l ${vmcore}"
@@ -592,5 +632,53 @@ GetCorePath()
     else
         Error "no vmcore found in ${corepath}"
         Report
+    fi
+}
+
+CrashCommand()
+{
+    local args=$1; shift
+    local aux=$1; shift
+    local core=$1; shift
+    # allow passing cmd file other than default crash.cmd or crash-simple.cmd
+    local cmd_file=$1; shift
+
+    local result=0
+    CrashCommand_CheckReturnCode "${args}" "${aux}" "${core}" "${cmd_file}" || result=1
+}
+
+# Run crash cmd defined in $cmd_file. Only return code is checked.
+# Output:
+#   ${cmd_file%.*}.log if on a live system
+#   ${cmd_file%.*}.vmcore.log if on a vmcore
+CrashCommand_CheckReturnCode()
+{
+    local args=$1; shift
+    local aux=$1; shift
+    local core=$1; shift
+    local cmd_file=${1:-"crash-simple.cmd"}; shift
+    local log_suffix
+    [ -z "$core" ] && log_suffix=log || log_suffix="${core##*/}.log"
+
+    Log "- Only check the return code of this session."
+    Log "# crash ${args} -i ${K_TESTAREA}/${cmd_file} ${aux} ${core}"
+
+    if [ -f "${K_TESTAREA}/${cmd_file}" ]; then
+        crash ${args} -i "${K_TESTAREA}/${cmd_file}" ${aux} ${core} \
+                > "${K_TESTAREA}/${cmd_file%.*}.$log_suffix" 2>&1 <<EOF
+EOF
+        code=$?
+
+        echo | tee -a "${OUTPUTFILE}"
+        RhtsSubmit "${K_TESTAREA}/${cmd_file%.*}.$log_suffix"
+        RhtsSubmit "${K_TESTAREA}/${cmd_file}"
+
+        if [ ${code} -eq 0 ]; then
+            return 0
+        else
+            Error "crash returns error code ${code}."
+            return 1
+        fi
+
     fi
 }

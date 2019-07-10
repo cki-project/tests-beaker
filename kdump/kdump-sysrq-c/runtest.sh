@@ -22,6 +22,8 @@
 # Source kdump common functions
 . ../include/runtest.sh
 
+ANALYZE_VMCORE="${ANALYZE_VMCORE:-true}"
+
 Crash()
 {
     if [ ! -f "${C_REBOOT}" ]; then
@@ -32,6 +34,30 @@ Crash()
     else
         rm -f "${C_REBOOT}"
         GetCorePath
+
+        if [ "${ANALYZE_VMCORE,,}" != "true" ]; then
+          return
+        fi
+
+        # Analyse the vmcore by crash utilities
+        PrepareCrash
+
+        # Only check the return code of this session.
+        cat <<EOF > "${K_TESTAREA}/crash-simple.cmd"
+bt -a
+ps
+log
+exit
+EOF
+        local vmcores
+        CheckVmlinux
+
+        Log "- Analyze the vmcore by crash utilities."
+        if [ "${K_KVARI}" = 'rt' ]; then
+            CrashCommand "--reloc=12m" "${vmlinux}" "${vmcore}"
+        else
+            CrashCommand "" "${vmlinux}" "${vmcore}"
+        fi
     fi
 }
 
