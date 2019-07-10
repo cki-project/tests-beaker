@@ -1,0 +1,27 @@
+--- a/tools/include/linux/bitmap.h	2019-03-28 23:18:27.245070526 -0400
++++ b/tools/include/linux/bitmap.h	2019-03-28 23:20:26.958597334 -0400
+@@ -97,6 +97,24 @@
+ }
+
+ /**
++ * test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ */
++static inline int test_and_clear_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BIT_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
++	unsigned long old;
++	unsigned long flags;
++
++	old = *p;
++	*p = old & ~mask;
++
++	return (old & mask) != 0;
++}
++
++/**
+  * bitmap_alloc - Allocate bitmap
+  * @nbits: Number of bits
+  */

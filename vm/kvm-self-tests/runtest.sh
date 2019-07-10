@@ -188,6 +188,19 @@ function runtest
     rlAssertExists $tests_srcdir
     rlAssertExists ${outputdir}
 
+    #
+    # XXX: Apply a patch because case 'dirty_log_test' fails to be built, which
+    #      is because patch [1] is missed when backporting to RHEL8 repo. Note
+    #      we should remove the workaround if the case is fixed.
+    #      [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=07a262cc
+    #
+    # This patch was merged in version 4.18.0-97.el8 only earlier versions need to apply it
+    rlTestVersion "${RELEASE}" "<" "4.18.0-97.el8"
+    if (( $? == 0)); then
+        rlRun "patch -d $linux_srcdir -p1 < patches/bitmap.h.patch" 0 \
+              "Patching via patches/bitmap.h.patch"
+    fi
+
     rlRun "pushd '.'"
 
     # Build tests
