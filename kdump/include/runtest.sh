@@ -205,8 +205,10 @@ LogRun() {
 
 Skip() {
     local msg="$1"
-    echo "- warn: $msg" | tee -a "${OUTPUTFILE}"
+    echo "- skip: $msg" | tee -a "${OUTPUTFILE}"
     skip=$((skip + 1))
+
+    Report
 }
 
 Warn() {
@@ -588,7 +590,17 @@ InstallPackages()
 InstallDebuginfo()
 {
     local kern=$(rpm -qf /boot/vmlinuz-$(uname -r) --qf "%{name}-debuginfo-%{version}-%{release}.%{arch}" | sed -e "s/-core//g")
-
+    if [[ "$kern" == *"is not owned by any package" ]]; then
+        Log "- Kernel is installed from a tar, not from yum/dnf package."
+        Log "- kernel-debuginfo should be prepared in cki boot test."
+        Log "- Check if /usr/lib/debug/lib/modules/$(uname -r)/vmlinux exists"
+        [ -f "/usr/lib/debug/lib/modules/$(uname -r)/vmlinux" ] || {
+            Log "- Failed to find /usr/lib/debug/lib/modules/$(uname -r)/vmlinux."
+            Log "- Warn: Skip running crash utitlies against the vmcore."
+            return 1
+        }
+        return 0
+    fi
     #workaround the kernel name if it's kernel-core
     if [[ "$kern" == kernel-core-debuginfo-* ]]; then
         kern=${kern//kernel-core/kernel}
@@ -596,7 +608,12 @@ InstallDebuginfo()
 
     Log "- Installing ${kern}"
     rpm -q ${kern} || {
-        InstallPackages ${kern} || MajorError "Failed to install kernel debuginfo packages"
+        InstallPackages ${kern}
+        rpm -q ${kern} || {
+            Log "- Failed to install ${kern}"
+            Log "- Warn: Skip running crash utitlies against the vmcore."
+            return 1
+        }
     }
     Log "- Done installation of crash and kernel-debuginfo packages"
     Log "$(rpm -q crash ${kern})"
