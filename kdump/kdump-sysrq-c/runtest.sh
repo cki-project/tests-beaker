@@ -41,6 +41,7 @@ Crash()
 
         # Analyse the vmcore by crash utilities
         PrepareCrash
+        [ $? -eq 1 ] && return
 
         # Only check the return code of this session.
         cat <<EOF > "${K_TESTAREA}/crash-simple.cmd"
