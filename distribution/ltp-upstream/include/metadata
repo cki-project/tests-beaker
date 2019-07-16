@@ -1,0 +1,14 @@
+[General]
+name=/kernel/distribution/ltp/include
+owner=MM-QE@redhat.com
+description=Linux Test Project - include
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=5h
+dependencies=gcc;gcc-c++;autoconf;automake;binutils;glibc-devel;procmail;rsyslog;util-linux;redhat-lsb;bc;wget;bzip2;virt-what
+softDependencies=ntpdate;chrony
+dependencies[RedHatEnterpriseLinuxServer5]=procmail;rsyslog;ntpdate;util-linux;util-linux-ng;redhat-lsb;bc;wget;sysklogd
