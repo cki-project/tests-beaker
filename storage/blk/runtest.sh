@@ -127,7 +127,7 @@ function get_test_cases_block
 		#      - block/028
 		#
 		testcases+=" block/001"
-		testcases+=" block/002"
+		#testcases+=" block/002" # Test case issue: https://lore.kernel.org/linux-block/e84b29e1-209e-d598-0828-bed5e3b98093@acm.org/
 		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
 		testcases+=" block/016"
 		#testcases+=" block/020" # Fail randomly on arm64, powerpc
@@ -156,8 +156,7 @@ function get_test_cases_block
 		#      - block/028
 		#
 		testcases+=" block/001"
-		#block/002 fails on RHEL8
-		uname -r | grep -q 4.18.0-.*el8.*s390x || testcases+=" block/002"
+		#testcases+=" block/002" # Test case issue: https://lore.kernel.org/linux-block/e84b29e1-209e-d598-0828-bed5e3b98093@acm.org/
 		testcases+=" block/006"
 		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
 		testcases+=" block/016"
