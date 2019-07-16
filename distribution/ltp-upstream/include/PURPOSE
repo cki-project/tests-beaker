@@ -1,0 +1,51 @@
+PURPOSE of /kernel/distribution/ltp/include
+Description: Linux Test Project - include part
+Author: Caspar Zhang <czhang@redhat.com>
+
+LTP Introduction
+================
+LTP is a famous test suite under Linux, I port
+LTP to Beaker every 4 months (+/-1 month if
+needed). You can use this testcase for your
+RHEL testing.
+
+What's this
+===========
+This is a include testcase, you should include
+it in your own ltp projects.
+
+HOW TO USE IT
+=============
+
+1. What you should put in your own Makefile:
+
+ - include /mnt/tests/kernel/distribution/ltp/include/ltp-make.include
+
+ - add "patch-inc" to patch section, i.e.:
+   patch: patch-inc
+       #YOUR OWN PATCHES
+       $(PATCH) < blabla.patch
+   or if you are 100% sure you don't need generic patches, you can just
+   add "patch-critical" to patch section.
+
+ - add "build-basic" or "build-all" to build section, depends on you:
+   . are running a general test or cann't be sure which tests to build,
+     you should add "build-all";
+   . are 100% sure which sub tests you will build,
+     you should add "build-basic", then add your own build commands, e.g.:
+     build: build-basic
+         make -C $(TARGET)/testcases/kernel/mem/hugetlb all
+         make -C $(TARGET)/testcases/kernel/mem/hugetlb install
+
+ - add "rh-tests-kernel-distribution-ltp-include" as RhtsRequires in METADATA
+
+2. What you should put in your own runtest.sh:
+
+  It's a little complex, basically, you should:
+
+ - add this line to your runtest.sh:
+ . /mnt/tests/kernel/distribution/ltp/include/runtest.sh
+
+ - Others.... Hmmm..... have a look at:
+   /kernel/distribution/ltp/generic/runtest.sh
+   /kernel/vm/hugepage/ltp-hugetlbfs/runtest.sh
