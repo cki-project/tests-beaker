@@ -17,7 +17,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-source ${CDIR%/cpu/driver}/cpu/common/libbkrm.sh
+source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
 
 TMPDIR=${TMPDIR:-"/tmp"}
 MSR_TOOLS_SRC_URL="https://github.com/intel/msr-tools.git"

@@ -1,0 +1,4 @@
+PURPOSE of /kernel/cpu/driver
+
+DESCRIPTION: Simple test which verifies that the correct cpu frequency driver
+             is loaded
