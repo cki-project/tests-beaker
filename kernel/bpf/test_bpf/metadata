@@ -1,0 +1,12 @@
+[General]
+name=/kernel/bpf/test_bpf
+owner=Ziqian SUN<zsun@redhat.com>
+description=Test eBPF tracing by using test_bpf module
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=180m
+repoRequires=kernel/include
