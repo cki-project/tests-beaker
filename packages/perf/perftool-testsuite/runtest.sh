@@ -42,6 +42,20 @@ if [ "$PERFTESTS_ENABLE_BLACKLIST" = "true" -o "$PERFTESTS_ENABLE_BLACKLIST" = "
 	PERFTESTS_ENABLE_BLACKLIST=1
 fi
 
+# select tool to manage package, which could be "yum" or "dnf"
+select_yum_tool()
+{
+    if [ -x /usr/bin/dnf ]; then
+        echo "/usr/bin/dnf"
+    elif [ -x /usr/bin/yum ]; then
+        echo "/usr/bin/yum"
+    else
+        return 1
+    fi
+
+    return 0
+}
+
 skip_testcase()
 {
 	echo "$1" | tee -a ${OUTPUTFILE}
@@ -160,6 +174,7 @@ rlJournalStart
 		# do some environment logging
 		ARCH=`arch`
 		KERNEL=`uname -r`
+		YUM=`select_yum_tool`
 		rlLog "RUNNING KERNEL: $KERNEL"
 		lscpu | while read line; do rlLog "$line"; done; unset line # log the CPU
 		rlLog "AUXV: `LD_SHOW_AUXV=1 /bin/true | grep PLATFORM`"
@@ -195,12 +210,12 @@ rlJournalStart
 		if [ $? -ne 0 ]; then
 			# we need to install debuginfo for the proper kernel
 			# but sometimes, debuginfo-install is not available!
-			which debuginfo-install || rlRun "yum -y install yum-utils dnf-utils" 0 "Installing {yum,dnf}-utils (it has not been present)"
+			which debuginfo-install || rlRun "$YUM -y install yum-utils dnf-utils" 0 "Installing {yum,dnf}-utils (it has not been present)"
 			which debuginfo-install # now it should be installed, but what if it fails...
 			if [ $? -eq 0 ]; then
 				rlRun "debuginfo-install -y $KERNEL_PKG_NAME" 0 "Installing debuginfo for $KERNEL_PKG_NAME via debuginfo-install (it has not been present)"
 			else
-				rlRun "yum install -y $KERNEL_DEBUGINFO_PKG_NAME" 0 "Installing debuginfo for $KERNEL_PKG_NAME via yum/dnf (unable to obtain debuginfo-install)"
+				rlRun "$YUM install -y $KERNEL_DEBUGINFO_PKG_NAME" 0 "Installing debuginfo for $KERNEL_PKG_NAME via yum/dnf (unable to obtain debuginfo-install)"
 			fi
 		fi
 		rlRun "rpmquery $KERNEL_DEBUGINFO_PKG_NAME" 0 "Correct debuginfo is installed ($KERNEL)"
