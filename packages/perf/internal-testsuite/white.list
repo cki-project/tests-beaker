@@ -50,5 +50,5 @@ aba5be59b8476eb15178828406fa0d307fb794b9 aarch64 s390x x86_64 ppc64le # Test dwa
 9e14b86f572e9d058f59302cfa8759e5afb20017 ppc64le aarch64 x86_64 # probe libc's inet_pton & backtrace it with ping
 90ae3743ecb512bf3d9956df1d6ea8cbb3f63dc6 ppc64le # Use vfs_getname probe to get syscall args filenames
 0e5b27841d80bf495ebfbfb1a446f7ca08fe5e97 ppc64le # Check open filename arg using perf trace + vfs_getname
-b011103996bcd810c4c87e049fffb48326edf705 ppc64le s390x # Parse sched tracepoints fields
+b011103996bcd810c4c87e049fffb48326edf705 ppc64le s390x aarch64 # Parse sched tracepoints fields
 887e416aca88217834c65490461a2137431efddd ppc64le # Watchpoint
