@@ -242,7 +242,7 @@ rlJournalStart
 		# clone the upstream perftool-testsuite repo
 		fetch_the_testsuite
 		# return SKip if the testsuite could not be fetched
-		test -d "perftool-testsuite" || skip_testcase "Could not fetch the upstream testsuite from github. I am sorry, dude."
+		test -d "perftool-testsuite" || rlDie "Could not fetch the upstream testsuite from github. I am sorry, dude."
 		
 		# tweak the testsuite variables for CKI purpose
 		export TESTLOG_VERBOSITY=2
