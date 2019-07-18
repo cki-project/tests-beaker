@@ -37,6 +37,13 @@ rlJournalStart
 
         # SETUP.
         rlPhaseStartSetup
+        
+            # Woraround for kernel hmac missing on CKI kernel.
+            kernel="/boot/vmlinuz-$(uname -r)"
+            if ! [ -s "${kernel}.hmac" ]; then
+                rlRun "cp ${kernel}.hmac ${kernel}.hmac.backup" 0
+                rlRun "sha512hmac $kernel > ${kernel}.hmac" 0
+            fi
 
             # Enable FIPS mode.
             rlRun "fips-mode-setup --enable" 0
@@ -90,6 +97,12 @@ rlJournalStart
         # Remove reboot indication file.
         rlRun "rm -f /var/tmp/fips-enabled" 0
 
+        # Woraround for kernel hmac missing on CKI kernel - restore.
+        kernel="/boot/vmlinuz-$(uname -r)"
+        if [ -e "${kernel}.hmac.backup" ]; then
+            rlRun "mv ${kernel}.hmac.backup ${kernel}.hmac" 0
+        fi
+        
         # Disable FIPS mode.
         rlRun "fips-mode-setup --disable" 0
         rlRun "rm -f /etc/dracut.conf.d/40-fips.conf /etc/system-fips && dracut -v -f" 0
