@@ -201,9 +201,52 @@ function get_test_cases_loop
 	echo $testcases
 }
 
+function get_test_cases_nvme
+{
+	typeset testcases=""
+	if is_rhel7; then
+		testcases+=" nvme/004"
+		testcases+=" nvme/006"
+		testcases+=" nvme/008"
+		testcases+=" nvme/012"
+		testcases+=" nvme/014"
+		testcases+=" nvme/016"
+		testcases+=" nvme/019"
+		testcases+=" nvme/023"
+	else
+		#testcases+=" nvme/002" #disable
+		#testcases+=" nvme/003" #disable
+		testcases+=" nvme/004"
+		#testcases+=" nvme/005" modprobe/modprobe -r nvme-core will be failed
+		testcases+=" nvme/006"
+		testcases+=" nvme/007"
+		testcases+=" nvme/008"
+		testcases+=" nvme/009"
+		testcases+=" nvme/010"
+		uname -r | grep -Eq "5\.|4.18.0" || testcases+=" nvme/011"
+		testcases+=" nvme/012"
+		uname -r | grep -qE "5\.|4.18.0" || testcases+=" nvme/013"
+		testcases+=" nvme/014"
+		uname -r | grep -qE "5\.|4.18.0" || testcases+=" nvme/015"
+		#testcases+=" nvme/016" #disable
+		#testcases+=" nvme/017" #disable
+		testcases+=" nvme/019"
+		testcases+=" nvme/020"
+		testcases+=" nvme/021"
+		testcases+=" nvme/022"
+		testcases+=" nvme/023"
+		testcases+=" nvme/024"
+		testcases+=" nvme/026"
+		testcases+=" nvme/027"
+		testcases+=" nvme/028"
+	fi
+	echo $testcases
+}
+
 testcases_default=""
 testcases_default+=" $(get_test_cases_block)"
 testcases_default+=" $(get_test_cases_loop)"
+testcases_default+=" $(get_test_cases_nvme)"
 testcases=${_DEBUG_MODE_TESTCASES:-"$(echo $testcases_default)"}
 test_ws=$CDIR/blktests
 ret=0
