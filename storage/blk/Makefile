@@ -72,5 +72,6 @@ $(METADATA):
 	@echo "Requires:     gcc"		>> $(METADATA)
 	@echo "Requires:     gcc-c++"		>> $(METADATA)
 	@echo "Requires:     git"		>> $(METADATA)
+	@echo "Requires:     nvme-cli"		>> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)"   >> $(METADATA)
 	rhts-lint $(METADATA)
