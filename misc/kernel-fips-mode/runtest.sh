@@ -39,10 +39,10 @@ rlJournalStart
         rlPhaseStartSetup
         
             # Woraround for kernel hmac missing on CKI kernel.
-            kernel="/boot/vmlinuz-$(uname -r)"
-            if ! [ -s "${kernel}.hmac" ]; then
-                rlRun "cp ${kernel}.hmac ${kernel}.hmac.backup" 0
-                rlRun "sha512hmac $kernel > ${kernel}.hmac" 0
+            kernel="vmlinuz-$(uname -r)"
+            if ! [ -s "/boot/.${kernel}.hmac" ]; then
+                rlRun "cp /boot/.${kernel}.hmac /boot/.${kernel}.hmac.backup" 0
+                rlRun "sha512hmac /boot/$kernel > /boot/.${kernel}.hmac" 0
             fi
 
             # Enable FIPS mode.
@@ -98,9 +98,9 @@ rlJournalStart
         rlRun "rm -f /var/tmp/fips-enabled" 0
 
         # Woraround for kernel hmac missing on CKI kernel - restore.
-        kernel="/boot/vmlinuz-$(uname -r)"
-        if [ -e "${kernel}.hmac.backup" ]; then
-            rlRun "mv ${kernel}.hmac.backup ${kernel}.hmac" 0
+        kernel="vmlinuz-$(uname -r)"
+        if [ -e "/boot/.${kernel}.hmac.backup" ]; then
+            rlRun "mv /boot/.${kernel}.hmac.backup /boot/.${kernel}.hmac" 0
         fi
         
         # Disable FIPS mode.
