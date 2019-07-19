@@ -153,51 +153,86 @@ tg_STANDARD_integration()
 		done
 	done
 
+	##############################
+	# init test environment
+	##############################
+	topo_rf_init
+	topo_rf_ipv4
+	##############################
+	# check test environment
+	##############################
+	topo_rf_check
+	assert_pass result "router-forward topo init"
+	##############################
+	# do your test
+	##############################
+	SCTP=false
 	#DNAT:
-	modprobe sctp
+	run server modprobe sctp
+	if [ $? == 0 ];then
+		SCTP=true
+	fi
 	run server sleep 1
 	run router iptables -t nat -A PREROUTING -i $rf_router_if1 -p tcp -j DNAT --to-destination $rf_server_ip1:9999
 	run router iptables -t nat -A PREROUTING -i $rf_router_if1 -p udp -j DNAT --to-destination $rf_server_ip1:9999
-	run router iptables -t nat -A PREROUTING -i $rf_router_if1 -p sctp -j DNAT --to-destination $rf_server_ip1:9999
 	run server ncat -4 -l 9999 &
 	run server ncat -4 -u -l 9999 &
-	run server ncat -4 --sctp -l 9999 &
-	run server sleep 1
+	run server sleep 3
 	run client "ncat -4 $rf_router_ip1 8888 <<<'abc'"
 	assert_pass result "DNAT tcp pass"
 	run client "ncat -4 -u $rf_router_ip1 8888 <<<'abc'"
 	assert_pass result "DNAT udp pass"
-	run client "ncat -4 --sctp $rf_router_ip1 8888 <<<'abc'"
-	assert_pass result "DNAT sctp pass"
+	if [ "$SCTP" == "true" ];then
+		run router iptables -t nat -A PREROUTING -i $rf_router_if1 -p sctp -j DNAT --to-destination $rf_server_ip1:9999
+		#run server ncat -4 --sctp -l 9999 &
+		run server socat -4 - SCTP-LISTEN:9999 &
+		run server sleep 3
+		#run client "ncat -4 --sctp $rf_router_ip1 8888 <<<'abc'"
+		run client "socat -4 - SCTP-CONNECT:$rf_router_ip1:8888 <<<'abc'"
+		assert_pass result "DNAT sctp pass"
+	fi
 
 	run router iptables -tnat -nvL
 	run router iptables -tnat -F
-	pkill ncat
+	pkill -9 ncat
+	pkill -9 socat
 
 	#SNAT
 	run router iptables -t nat -A POSTROUTING -o $rf_router_if2 -p tcp -j SNAT --to-source $rf_router_ip2:1234
 	run router iptables -t nat -A POSTROUTING -o $rf_router_if2 -p udp -j SNAT --to-source $rf_router_ip2:1234
-	run router iptables -t nat -A POSTROUTING -o $rf_router_if2 -p sctp -j SNAT --to-source $rf_router_ip2:1234
 	run server iptables -A INPUT -i $rf_server_if1 -p tcp ! --sport 1234 -j DROP
 	run server iptables -A INPUT -i $rf_server_if1 -p udp ! --sport 1234 -j DROP
-	run server iptables -A INPUT -i $rf_server_if1 -p sctp ! --sport 1234 -j DROP
 
 	run server ncat -4 -l 9999 &
 	run server ncat -4 -u -l 9999 &
-	run server ncat -4 --sctp -l 9999 &
-	run server sleep 1
+	run server sleep 3
 	run client "ncat -4 $rf_server_ip1 9999 <<<'abc'"
 	assert_pass result "SNAT tcp pass"
 	run client "ncat -4 -u $rf_server_ip1 9999 <<<'abc'"
 	assert_pass result "SNAT udp pass"
-	run client "ncat -4 --sctp $rf_server_ip1 9999 <<<'abc'"
-	assert_pass result "SNAT sctp pass"
+	if [ "$SCTP" == "true" ];then
+		run router iptables -t nat -A POSTROUTING -o $rf_router_if2 -p sctp -j SNAT --to-source $rf_router_ip2:1234
+		run server iptables -A INPUT -i $rf_server_if1 -p sctp ! --sport 1234 -j DROP
+		#run server ncat -4 --sctp -l 9999 &
+		run server socat -4 - SCTP-LISTEN:9999 &
+		run router tcpdump -nni $rf_router_if2 -w file.pcap &
+		run server sleep 3
+		#run client "ncat -4 --sctp $rf_server_ip1 9999 <<<'abc'"
+		run client "socat -4 - SCTP-CONNECT:$rf_server_ip1:9999 <<<'abc'"
+		assert_pass result "SNAT sctp pass"
+		run router sleep 2
+		pkill tcpdump
+		run router sleep 1
+		tcpdump -nnr file.pcap
+		rlFileSubmit file.pcap
+	fi
 
 	run router iptables -tnat -nvL
 	run router iptables -F
 	run server iptables -nvL
 	run server iptables -F
-	pkill ncat
+	pkill -9 ncat
+	pkill -9 socat
 
 	return $result
 }
