@@ -47,7 +47,7 @@ EOF
 
     rlRun "chmod +x $script" $BKRM_RC_ANY
     rlRun "cat -n $script" $BKRM_RC_ANY
-    rlRun "bash $script" || return $BKRM_FATAL
+    rlRun "bash $script" || return $BKRM_UNINITIATED
 
     return $BKRM_PASS
 }

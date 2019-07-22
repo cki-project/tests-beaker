@@ -36,14 +36,14 @@ function runtest
 function startup
 {
     if [[ ! -d $TMPDIR ]]; then
-        rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_FAIL
+        rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_UNINITIATED
     fi
 
     # setup msr tools as package 'msr-tools' is not installed by default
-    msr_tools_setup || return $?
+    msr_tools_setup
     if (( $? != 0 )); then
-        rlSetReason $BKRM_FATAL "fail to setup msr tools"
-        return $BKRM_FATAL
+        rlSetReason $BKRM_UNINITIATED "fail to setup msr tools"
+        return $BKRM_UNINITIATED
     fi
 
     # check this test is supported by CPU
@@ -59,7 +59,7 @@ function startup
 
 function cleanup
 {
-    msr_tools_cleanup || return $BKRM_FAIL
+    msr_tools_cleanup
     rlRun "rm -rf $TMPDIR" $BKRM_RC_ANY
     return $BKRM_PASS
 }
