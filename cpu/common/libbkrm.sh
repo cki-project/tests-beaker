@@ -28,7 +28,7 @@ BKRM_RC_ANY="0-255" # To assist rlRun() to support any return code
 BKRM_PASS=0        # should go to rlPass()
 BKRM_FAIL=1        # should go to rlFail()
 BKRM_UNSUPPORTED=2 # should go to rlSkip()
-BKRM_FATAL=3       # should go to rlAbort()
+BKRM_UNINITIATED=3 # should go to rlAbort()
 
 #
 # A simple wrapper function to report result
@@ -42,7 +42,7 @@ function rlReportResult
         $BKRM_PASS) rlPass $argv ;;
         $BKRM_FAIL) rlFail "$g_reason_fail #$argv#" ;;
         $BKRM_UNSUPPORTED) rlSkip "$g_reason_unsupported #$argv#" ;;
-        $BKRM_FATAL) rlAbort "$g_reason_fatal #$argv#" ;;
+        $BKRM_UNINITIATED) rlAbort "$g_reason_uninitiated #$argv#" ;;
         *) ;;
     esac
 }
@@ -58,7 +58,7 @@ function rlSetReason
     case $rc in
         $BKRM_FAIL) g_reason_fail="$@" ;;
         $BKRM_UNSUPPORTED) g_reason_unsupported="$@" ;;
-        $BKRM_FATAL) g_reason_fatal="$@" ;;
+        $BKRM_UNINITIATED) g_reason_uninitiated="$@" ;;
         *) ;;
     esac
 }
