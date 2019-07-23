@@ -1,0 +1,21 @@
+#!/bin/bash
+
+assertPass(){
+    $@
+    assertEquals '$@ failed' 0 $?
+}
+
+# assertFileContains
+# Param1: Filename
+# Param2: pattern
+assertFileContains(){
+    egrep $2 $1 | grep -v 'grep' &>/dev/null
+    assertEquals 'Missing content in file' 0 $?
+}
+assertFileNotContains(){
+    egrep $2 $1 | grep -v 'grep' &>/dev/null
+    assertEquals 'File should not contain the keyword' 1 $?
+}
+
+
+. $(dirname $0)/../../include/shunit2
