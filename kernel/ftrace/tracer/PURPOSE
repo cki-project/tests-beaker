@@ -1,0 +1,1 @@
+Enable some ftrace tracer one by one and make sure system do not hang or panic.

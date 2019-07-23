@@ -1,0 +1,10 @@
+[General]
+name=ftrace-tracer
+owner="Ziqian SUN (Zamir) <zsun@redhat.com>"
+description="Minimal test for ftrace tracers"
+
+[restraint]
+entry_point=make run
+repoRequires=kernel/include
+max_time=60m
+use_pty=true
