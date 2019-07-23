@@ -164,6 +164,15 @@ function setup_test_dev_mkfs()
 	fi
 }
 
+# Submit block device info for debug
+function get_blkdev_info()
+{
+	local dev=$1
+	[ -b $dev ] || return
+
+	echo blockdev -v --getsz --getss --getpbsz --getbsz --getsize64 $dev
+	blockdev -v --getsz --getss --getpbsz --getbsz --getsize64 $dev
+}
 
 # Needs TEST_DEV, TEST_DIR, SRATCH_DEV, SCRATCH_MNT, SCRATCH_DEV_POOL, SCRATCH_LOGDEV and SCRATCH_RTDEV
 function setup_config()
@@ -195,7 +204,12 @@ _EOF_
 		echo "SCRATCH_DEV_POOL=\"$SCRATCH_DEV_POOL\"" >> $config
 	fi
 
+	get_blkdev_info $TEST_DEV > blockdev.info
+	get_blkdev_info $SCRATCH_DEV >> blockdev.info
+	get_blkdev_info $LOGWRITES_DEV >> blockdev.info
+
 	rhts_submit_log -l $config
+	rhts_submit_log -l blockdev.info
 }
 
 
