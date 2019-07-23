@@ -65,6 +65,7 @@ function is_rhel5() { grep -q "release 5" /etc/redhat-release; }
 function is_rhel6() { grep -q "release 6" /etc/redhat-release; }
 function is_rhel7() { grep -q "release 7" /etc/redhat-release; }
 function is_rhel8() { grep -q "release 8" /etc/redhat-release; }
+function is_fedora() { grep -q "Fedora" /etc/redhat-release; }
 function is_rhel_alt() { rpm -q --qf "%{sourcerpm}\n" -f /boot/vmlinuz-$(uname -r) | grep -q "alt"; }
 function is_upstream() { uname -r | grep -q -v 'el[0-9]\|fc'; }
 function is_arch() { [ "$(uname -m)" == "$1" ]; }
@@ -140,6 +141,13 @@ function knownissue_filter()
 	is_arch "ppc64" && tskip "fallocate05" fatal
 	is_arch "ppc64le" && tskip "fallocate05" fatal
 	is_arch "s390x" && tskip "fallocate05" fatal
+
+
+	if is_fedora; then
+		# rsyslog is disabled in F30 by default, ltp will be updated soon to
+		# start the service before running, until then skip syslog tests.
+		tskip "syslog.*" fatal
+	fi
 
 	if is_upstream; then
 		# ------- unfix ---------
