@@ -246,7 +246,7 @@ function get_test_cases_nvme
 testcases_default=""
 testcases_default+=" $(get_test_cases_block)"
 testcases_default+=" $(get_test_cases_loop)"
-testcases_default+=" $(get_test_cases_nvme)"
+uname -ri | grep -q "5.*aarch64" || testcases_default+=" $(get_test_cases_nvme)"
 testcases=${_DEBUG_MODE_TESTCASES:-"$(echo $testcases_default)"}
 test_ws=$CDIR/blktests
 ret=0
