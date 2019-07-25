@@ -44,13 +44,21 @@ PACKAGE="selinux-policy"
 # This should be updated as needed after verifying that the new version
 # doesn't break testing and after applying all necessary tweaks in the TC.
 # Run with GIT_BRANCH=master to run the latest upstream version.
-DEFAULT_COMMIT="f33778210539adc66cf6d29bc28cc409860fb29c"
+DEFAULT_COMMIT="ea941e0a1f25be1cc8d1c51be920ead3428b5f93"
+# Default pull requests to merge before running the test.
+# If non-empty, then after checking out GIT_BRANCH the listed upstream pull
+# requests (by number) are merged, creating a new temporay local branch.
+DEFAULT_PULLS="54"
 
 # Optional test parametr - location of testuite git.
 GIT_URL=${GIT_URL:-"git://github.com/SELinuxProject/selinux-testsuite"}
 
 # Optional test paramenter - branch containing tests.
-GIT_BRANCH=${GIT_BRANCH:-"$DEFAULT_COMMIT"}
+if [ -z "$GIT_BRANCH" ]; then
+    GIT_BRANCH="$DEFAULT_COMMIT"
+    # Use default cherries only if branch is default and they are not overriden
+    GIT_PULLS="${GIT_PULLS:-"$DEFAULT_PULLS"}"
+fi
 
 # Check if pipefail is enabled to restore original setting.
 # See: https://unix.stackexchange.com/a/73180
@@ -104,9 +112,31 @@ rlJournalStart
         rlRun "sed -i 's/^expand-check[ ]*=.*$/expand-check = 0/' /etc/selinux/semanage.conf"
         if [ ! -d selinux-testsuite ] ; then
             rlRun "git clone $GIT_URL" 0
+            rlRun "pushd selinux-testsuite"
+            rlRun "git checkout $GIT_BRANCH" 0
+            for _ in $GIT_PULLS; do
+                rlRun "git config --global user.email nobody@redhat.com"
+                rlRun "git config --global user.name 'Nemo Nobody'"
+                rlRun "git checkout -b testing-cherry-picks" 0
+                break
+            done
+            for pull in $GIT_PULLS; do
+                ref="refs/pull/$pull/head"
+                if ! rlRun "git fetch origin $ref:$ref" 0; then
+                    rlRun "git checkout $GIT_BRANCH" 0
+                    rlLog "PR merge failed, falling back to GIT_BRANCH"
+                    break
+                fi
+                if ! rlRun "git merge --no-edit $ref" 0; then
+                    rlRun "git merge --abort" 0
+                    rlRun "git checkout $GIT_BRANCH" 0
+                    rlLog "PR merge failed, falling back to GIT_BRANCH"
+                    break
+                fi
+            done
+        else
+            rlRun "pushd selinux-testsuite"
         fi
-        rlRun "pushd selinux-testsuite"
-        rlRun "git checkout $GIT_BRANCH" 0
 
         # backup code before making tweaks
         rlFileBackup "."
@@ -175,6 +205,7 @@ rlJournalStart
         rlRun "echo 'Remote: $GIT_URL' >results.log" 0
         rlRun "echo 'Branch: $GIT_BRANCH' >>results.log" 0
         rlRun "echo 'Commit: $(git rev-parse HEAD)' >>results.log" 0
+        rlRun "echo 'Pulls:  ${GIT_PULLS:-"(none)"}' >>results.log" 0
         rlRun "echo 'Kernel: $(uname -r)' >>results.log" 0
         rlRun "echo 'Policy: $(rpm -q selinux-policy)' >>results.log" 0
         rlRun "echo '        $(rpm -q checkpolicy)' >>results.log" 0
