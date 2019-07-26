@@ -72,6 +72,7 @@ $(METADATA): Makefile
 	@echo "Requires:	gettext"	>> $(METADATA)
 	@echo "Requires:	wget"		>> $(METADATA)
 	@echo "Requires:	pciutils"	>> $(METADATA)
+	@echo "Requires:	virt-what"	>> $(METADATA)
 	@echo "RunFor:		kernel" >> $(METADATA)
 	@echo "License:		GPLv2" 	>> $(METADATA)
 	@echo "Owner:		Victor Ruiz <rvr@redhat.com>"	>> $(METADATA)
