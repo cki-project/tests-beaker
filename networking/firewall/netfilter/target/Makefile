@@ -79,7 +79,7 @@ $(METADATA): Makefile
 	@echo "Type:         Functional" >> $(METADATA)
 	@echo "TestTime:     24h" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
-	@echo "Requires:     nmap-ncat" >> $(METADATA)
+	@echo "Requires:     nmap-ncat socat lksctp-tools" >> $(METADATA)
 	@echo "Requires:     tree" >> $(METADATA)
 	@echo "RepoRequires: networking/common" >> $(METADATA)
 	@echo "RepoRequires: networking/firewall/000infralib" >> $(METADATA)
