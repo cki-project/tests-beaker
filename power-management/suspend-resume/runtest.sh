@@ -47,6 +47,20 @@ function result_pass ()
     exit 0
 }
 
+#return 0 when running on baremetal
+function is_baremetal 
+{
+   local virtwhat=$(virt-what)
+   local virtret=$?
+   # virt-what returns empty string  and exit code 0, when is baremetal
+   if [[  -z "$virtwhat" ]] && [[ $virtret -eq 0 ]]; then
+      return 0
+   else
+      return 1
+   fi
+}
+
+
 function getdetails ()
 {
 	echo "grep /var/log/messages for which time source kernel is using" >> $OUTPUTFILE
@@ -69,6 +83,13 @@ function getdetails ()
 function setup ()
 {
 	echo '=============== Setup ==================================' | tee -a ${OUTPUTFILE}
+
+        is_baremetal
+        if (( $? != 0 )); then
+            echo "Not running on baremetal machine" | tee -a ${OUTPUTFILE}
+            report_result $TEST SKIP 0
+            exit 0
+        fi
 
 	systemctl disable ntpd 
 
