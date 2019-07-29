@@ -83,7 +83,9 @@ rlPhaseStartSetup
 Storage=none
 ProcessSizeMax=0
 EOF
-        rlRun "systemctl mask --now systemd-coredump.socket" 0 "Masking and stopping systemd-coredump.socket"
+        if systemctl list-units --all | grep -qw systemd-coredump.socket ; then
+            rlRun "systemctl mask --now systemd-coredump.socket" 0 "Masking and stopping systemd-coredump.socket"
+        fi
     fi
 
     # blacklist tests on certain arch or RHEL release
@@ -110,7 +112,9 @@ rlPhaseStartCleanup
     # restore default systemd-coredump config
     if [ -f /lib/systemd/systemd ] ; then
         rm -f /etc/systemd/coredump.conf.d/stress-ng.conf
-        rlRun "systemctl unmask systemd-coredump.socket" 0 "Unmasking systemd-coredump.socket"
+        if systemctl list-units --all | grep -qw systemd-coredump.socket ; then
+            rlRun "systemctl unmask systemd-coredump.socket" 0 "Unmasking systemd-coredump.socket"
+        fi
     fi
 rlPhaseEnd
 
