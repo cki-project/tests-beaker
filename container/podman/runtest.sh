@@ -1,7 +1,6 @@
 #!/bin/bash
-set -x
 #--------------------------------------------------------------------------------
-# Copyright (c) 2019 Red Hat, Inc. All rights reserved. This copyrighted material 
+# Copyright (c) 2019 Red Hat, Inc. All rights reserved. This copyrighted material
 # is made available to anyone wishing to use, modify, copy, or
 # redistribute it subject to the terms and conditions of the GNU General
 # Public License v.2.
@@ -26,7 +25,14 @@ pkg=$(rpm -qa | grep podman-tests)
 if [ -z "$pkg" ] ; then
     report_result $TEST WARN
     rhts-abort -t recipe
-fi 
+fi
+
+# Use the multi-arch Fedora image to ensure podman's tests pass
+# on non-x86 architectures.
+export PODMAN_TEST_IMAGE_REGISTRY="docker.io"
+export PODMAN_TEST_IMAGE_USER="library"
+export PODMAN_TEST_IMAGE_NAME="fedora"
+export PODMAN_TEST_IMAGE_TAG="latest"
 
 # Run the podman system tests.
 bats /usr/share/podman/test/system/*.bats | tee -a $OUTPUTFILE
