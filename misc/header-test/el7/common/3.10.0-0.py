@@ -462,6 +462,8 @@ def setup(exc):
 
     exc['scsi/scsi_netlink.h'] = (['stdint.h'], OK, 'uint32_t')
 
+    exc['rdma/mlx5-abi.h'] = (['linux/if_ether.h'], OK, 'ETH_ALEN')
+
     exc['rdma/rdma_user_cm.h'] = (['sys/socket.h'], OK, 'sockaddr_storage')
 
     exc['rdma/rdma_user_rxe.h'] = ([SOCKADDR, 'linux/in.h', 'linux/in6.h'],
