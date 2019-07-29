@@ -35,7 +35,7 @@ export PODMAN_TEST_IMAGE_NAME="fedora"
 export PODMAN_TEST_IMAGE_TAG="latest"
 
 # Run the podman system tests.
-bats /usr/share/podman/test/system/*.bats | tee -a $OUTPUTFILE
+bats /usr/share/podman/test/system/ | tee -a $OUTPUTFILE
 ret=$?
 
 echo "Test finished" | tee -a $OUTPUTFILE
