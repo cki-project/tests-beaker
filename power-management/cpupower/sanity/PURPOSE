@@ -1,0 +1,5 @@
+PURPOSE of /kernel/power-management/cpupower/sanity
+Description: Check, that output of cpupower looks sane.
+
+Sanity check of basic cpupower frequency-info functions with and without the -n
+option.
