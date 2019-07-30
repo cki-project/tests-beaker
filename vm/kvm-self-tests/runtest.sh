@@ -120,6 +120,9 @@ function check_platform_support
     typeset hwpf=${1?"*** what hardware-platform?, e.g. x86_64"}
     [[ $hwpf == "x86_64" ]] && return 0
     [[ $hwpf == "aarch64" ]] && return 0
+    [[ $hwpf == "ppc64" ]] && return 0
+    [[ $hwpf == "ppc64le" ]] && return 0
+    [[ $hwpf == "s390x" ]] && return 0
     return 1
 }
 
@@ -132,7 +135,7 @@ function check_virt_support
     elif [[ $hwpf == "aarch64" ]]; then
         dmesg | egrep -iq "kvm"
         if (( $? == 0 )); then
-            dmesg | egrep -iq "kvm.*: Hyp mode initialized successfully"
+            dmesg | egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
         else
             #
             # XXX: Note that the harness (i.e. beaker) does clear dmesg, hence
@@ -140,8 +143,14 @@ function check_virt_support
             #      "journalctl -k"
             #
             journalctl -k | \
-                egrep -iq "kvm.*: Hyp mode initialized successfully"
+                egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
         fi
+        return $?
+    elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
+        grep -q 'platform.*PowerNV' /proc/cpuinfo
+        return $?
+    elif [[ $hwpf == "s390x" ]]; then
+        grep -q 'features.*sie' /proc/cpuinfo
         return $?
     else
         return 1
@@ -204,7 +213,11 @@ function runtest
     rlRun "pushd '.'"
 
     # Build tests
-    rlRun "make -C ${tests_srcdir} OUTPUT=${outputdir} TARGETS=kvm"
+    [[ $hwpf == "x86_64" ]] && ARCH="x86_64"
+    [[ $hwpf == "aarch64" ]] && ARCH="arm64"
+    [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]] && ARCH="powerpc"
+    [[ $hwpf == "s390x" ]] && ARCH="s390"
+    rlRun "make -C ${tests_srcdir} OUTPUT=${outputdir} ARCH=${ARCH} TARGETS=kvm"
 
     # Prepare lists of tests to run
     getTests
