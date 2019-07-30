@@ -27,6 +27,13 @@ if [ -z "$pkg" ] ; then
     rhts-abort -t recipe
 fi
 
+# RHEL 8 will install podman-tests, but it will not install bats. We can use
+# the Fedora 30 package instead.
+if [ ! -x /usr/bin/bats ]; then
+    dnf -y --nogpgcheck install \
+        http://mirrors.kernel.org/fedora/releases/30/Everything/x86_64/os/Packages/b/bats-1.1.0-2.fc30.noarch.rpm
+fi
+
 # Use the multi-arch Fedora image to ensure podman's tests pass
 # on non-x86 architectures.
 export PODMAN_TEST_IMAGE_REGISTRY="docker.io"
