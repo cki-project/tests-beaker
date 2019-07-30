@@ -216,7 +216,7 @@ function get_test_cases_nvme
 	else
 		#testcases+=" nvme/002" #disable
 		#testcases+=" nvme/003" #disable
-		testcases+=" nvme/004"
+		uname -ri | grep -qE "4.18.0-.*ppc64le" || testcases+=" nvme/004"
 		#testcases+=" nvme/005" modprobe/modprobe -r nvme-core will be failed
 		testcases+=" nvme/006"
 		testcases+=" nvme/007"
@@ -246,7 +246,7 @@ function get_test_cases_nvme
 testcases_default=""
 testcases_default+=" $(get_test_cases_block)"
 testcases_default+=" $(get_test_cases_loop)"
-uname -ri | grep -q "5.*aarch64" || testcases_default+=" $(get_test_cases_nvme)"
+uname -ri | grep -Eq "5.*aarch64|5.*ppc64|4.18.0-.*rt.*x86_64|3.10.0-.*rt.*x86_64|3.10.0-957.*ppc64|3.10.0-862.*x86_64" || testcases_default+=" $(get_test_cases_nvme)"
 testcases=${_DEBUG_MODE_TESTCASES:-"$(echo $testcases_default)"}
 test_ws=$CDIR/blktests
 ret=0
