@@ -23,7 +23,7 @@ ret=0
 # Verify that podman-tests is installed
 pkg=$(rpm -qa | grep podman-tests)
 if [ -z "$pkg" ] ; then
-    report_result $TEST WARN
+    report_result "${TEST}" WARN
     rhts-abort -t recipe
 fi
 
@@ -42,14 +42,14 @@ export PODMAN_TEST_IMAGE_NAME="fedora"
 export PODMAN_TEST_IMAGE_TAG="latest"
 
 # Run the podman system tests.
-bats /usr/share/podman/test/system/ | tee -a $OUTPUTFILE
+bats /usr/share/podman/test/system/ | tee -a "${OUTPUTFILE}"
 ret=$?
 
-echo "Test finished" | tee -a $OUTPUTFILE
+echo "Test finished" | tee -a "${OUTPUTFILE}"
 
 if [ $ret != 0 ] ; then
-    report_result $TEST FAIL $ret
+    report_result "${TEST}" FAIL $ret
 else
     # all is well
-    report_result $TEST PASS 0
+    report_result "${TEST}" PASS 0
 fi
