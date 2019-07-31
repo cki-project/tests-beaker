@@ -165,15 +165,20 @@ grep FAIL test.log >> failures.txt
 # submit logs to beaker
 which rhts-submit-log > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
-    logs=$(ls logs/)
+    logs=$(ls logs/*.log)
+    testlog="tests_run.log"
     if [[ $? -ne 0 ]]; then
         exit 0
     fi
+    > ${testlog}
     for log in $logs
     do
-        echo "Submitting the following log to beaker: $log"
-        rhts-submit-log -l logs/$log
+        printf "[START ${log} LOG]\n" >> ${testlog}
+        cat ${log} >> ${testlog}
+        printf "[END ${log} LOG]\n\n" >> ${testlog}
     done
+    echo "Submitting the following log to beaker: ${testlog}"
+    rhts-submit-log -l ${testlog}
 fi
 
 # number of failures is our return code
