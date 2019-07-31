@@ -406,8 +406,9 @@ function Create_Loop_Devices()
     local count="$1"
     local size_mib="$2"
     local loop_dev_list=''
+    mkdir /home/loop
     for X in `seq 1 ${count}`;do
-        local loop_file_name=$(mktemp /tmp/loop.XXXXXX)
+        local loop_file_name=$(mktemp /home/loop/loop.XXXXXX)
 	     dd if=/dev/zero of=${loop_file_name} count=$size_mib  bs=1M 1>/dev/null 2>&1
         local loop_dev_name=$(losetup -f)
 #BUG: RHEL5 only support 8 loop device and we need to check whether we are run out of it
@@ -460,7 +461,8 @@ function remove_disks()
 			((try_num++))
                 done
 	done
-	rm -rf /tmp/loop.*
+	rm -rf /home/loop/loop.*
+	rm -rf /home/loop/
 }
 
 function local_clean()

@@ -28,6 +28,11 @@ function runtest()
 {
 	rlRun "modprobe raid456 devices_handle_discard_safely=Y"
 	rlRun "echo Y >/sys/module/raid456/parameters/devices_handle_discard_safely"
+	uname -r | grep el7
+	if [ $? -eq 0 ];then
+		rlRun "modprobe raid0 devices_discard_performance=Y"
+		rlRun "echo Y >/sys/module/raid0/parameters/devices_discard_performance"
+	fi
 	devlist=''
 	which mkfs.xfs
 	[ $? -eq 0 ] && FILESYS="xfs" || FILESYS="ext4"
@@ -80,12 +85,24 @@ function check_log()
 	rlRun "dmesg | grep -i 'Call Trace:'" 1 "check the errors"
 }
 
+function get_pkg_cmd()
+{
+	typeset pkgcmd=""
+	typeset cmd=""
+	for cmd in dnf yum; do
+		$cmd --version > /dev/null 2>&1 && pkgcmd=$cmd && break
+	done
+	echo $pkgcmd
+}
+
 rlJournalStart
-    rlPhaseStartTest
-	rlRun "uname -a"
-	rlLog "$0"
-	runtest
-	check_log
-    rlPhaseEnd
+	rlPhaseStartTest
+		rlRun "uname -a"
+		pkgcmd=$(get_pkg_cmd)
+		rlRun "rpm -q mdadm || $pkgcmd install -y mdadm"
+		rlLog "$0"
+		runtest
+		check_log
+	rlPhaseEnd
 rlJournalPrintText
 rlJournalEnd
