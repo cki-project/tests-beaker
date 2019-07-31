@@ -21,7 +21,7 @@ source /usr/share/beakerlib/beakerlib.sh
 source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
 
 STQE_GIT="https://gitlab.com/rh-kernel-stqe/python-stqe.git"
-STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"6ae4855"}
+STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"9fd6e5e7"}
 LIBSAN_STABLE_VERSION=${LIBSAN_STABLE_VERSION:-"0.3.0"}
 
 function stqe_get_fwroot
@@ -42,27 +42,28 @@ function stqe_init_fwroot
     # install the framework
     pushd "." && rlRun "cd $fwroot"
 
-    if [[ $fwbranch != "master" ]]; then
-        if [[ -n $STQE_STABLE_VERSION ]]; then
-            rlRun "git checkout $STQE_STABLE_VERSION" || \
-                rlAbort "fail to checkout $STQE_STABLE_VERSION"
-        fi
-        if [[ -n $LIBSAN_STABLE_VERSION ]]; then
-            rlRun "pip3 install libsan==$LIBSAN_STABLE_VERSION" || \
-                rlAbort "fail to install libsan==$LIBSAN_STABLE_VERSION"
-        fi
-    fi
-
     #
     # XXX: On RHEL7, should use python2 instead because python3
     #      is not available by default
     #
     typeset python=""
     typeset cmd=""
-    for cmd in python3 python2 python; do
+    for cmd in python python3 python2; do
         $cmd -V > /dev/null 2>&1 && python=$cmd && break
     done
     [[ -n $python ]] || rlSkip "python not found"
+
+    typeset pip_cmd=$([[ $python == python3 ]] && echo pip3 || echo pip)
+    if [[ $fwbranch != "master" ]]; then
+        if [[ -n $STQE_STABLE_VERSION ]]; then
+            rlRun "git checkout $STQE_STABLE_VERSION" || \
+                rlAbort "fail to checkout $STQE_STABLE_VERSION"
+        fi
+        if [[ -n $LIBSAN_STABLE_VERSION ]]; then
+            rlRun "$pip_cmd install libsan==$LIBSAN_STABLE_VERSION" || \
+                rlAbort "fail to install libsan==$LIBSAN_STABLE_VERSION"
+        fi
+    fi
 
     # install required packages
     rlRun "bash env_setup.sh" $BKRM_RC_ANY
