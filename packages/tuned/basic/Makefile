@@ -1,7 +1,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Makefile of /CoreOS/tuned/Sanity/tune-processes-through-perf
-#   Description: Test if we can tune new process via perf
+#   Makefile of /CoreOS/tuned/Library/basic
+#   Description: Library for tuned
 #   Author: Branislav Blaskovic <bblaskov@redhat.com>
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,12 +24,12 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/CoreOS/tuned/Sanity/tune-processes-through-perf
+export TEST=/CoreOS/tuned/Library/basic
 export TESTVERSION=1.0
 
 BUILT_FILES=
 
-FILES=$(METADATA) runtest.sh Makefile PURPOSE test-tuned-perf
+FILES=$(METADATA) runtest.sh Makefile lib.sh metadata README.md PURPOSE
 
 .PHONY: all install download clean
 
@@ -50,16 +50,16 @@ $(METADATA): Makefile
 	@echo "Name:            $(TEST)" >> $(METADATA)
 	@echo "TestVersion:     $(TESTVERSION)" >> $(METADATA)
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
-	@echo "Description:     Test if we can tune new process via perf" >> $(METADATA)
-	@echo "Type:            Sanity" >> $(METADATA)
+	@echo "Description:     Library for tuned" >> $(METADATA)
+	@echo "Type:            Library" >> $(METADATA)
 	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          tuned" >> $(METADATA)
 	@echo "Requires:        tuned" >> $(METADATA)
+	@echo "Provides:        library(tuned/basic)" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	@echo "Bug:             1148546" >> $(METADATA)
-	@echo "Releases:        -RHEL4 -RHEL6 -RHELClient5 -RHELServer5" >> $(METADATA)
+	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5" >> $(METADATA)
 
 	rhts-lint $(METADATA)

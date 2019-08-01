@@ -1,0 +1,12 @@
+[General]
+name=Tuned Basic Common Library
+owner=Petr Sklenar<psklenar@redhat.com>
+description=Common helper functions for tuned tests
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=10m
+dependencies=beakerlib;beakerlib-redhat;tuned
