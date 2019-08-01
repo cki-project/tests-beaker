@@ -31,6 +31,12 @@ BKRM_UNSUPPORTED=2 # should go to rlSkip()
 BKRM_UNINITIATED=3 # should go to rlAbort()
 
 #
+# Status code definitions
+#
+BKRM_STATUS_COMPLETED=0 # task is completed
+BKRM_STATUS_ABORTED=1   # task is aborted
+
+#
 # A simple wrapper function to report result
 #
 function rlReportResult
@@ -72,24 +78,26 @@ function rlSetReason
 function rlSkip
 {
     rlLog "Skipping test because $*"
-    rhts-report-result $TEST SKIP $OUTPUTFILE
-
     #
-    # As we want result="Skip" status="Completed" for all scenarios, right here
-    # we always exit 0, otherwise the test will skip/abort
+    # XXX: Result will be marked as "Warn" although we use word "SKIP"
+    #      because of beaker's implementation
     #
-    exit 0
+    rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+    exit $BKRM_STATUS_COMPLETED
 }
 
 #
-# A simple wrapper function to skip a test
+# A simple wrapper function to abort a test
 #
 function rlAbort
 {
     rlLog "Aborting test because $*"
+    #
+    # XXX: Result will be marked as "Warn" although we use word "ABORTED"
+    #      because of beaker's implementation
+    #
     rhts-report-result "$TEST" ABORTED "$OUTPUTFILE"
-    rhts-abort -t recipe
-    exit 1
+    exit $BKRM_STATUS_ABORTED
 }
 
 #
@@ -114,8 +122,8 @@ function rlPd
 #
 function main
 {
-    typeset hook_startup=${1:-"startup"}
-    typeset hook_runtest=${2:-"runtest"}
+    typeset hook_runtest=${1:-"runtest"}
+    typeset hook_startup=${2:-"startup"}
     typeset hook_cleanup=${3:-"cleanup"}
     typeset -i rc=0
 
@@ -144,7 +152,16 @@ function main
     rlReportResult $rc3 "$hook_cleanup()"
     rlPhaseEnd
 
+    rlLog "OVERALL RESULT CODE: $rc"
+
     rlJournalEnd
 
-    return $rc
+    rlJournalPrintText
+
+    #
+    # XXX: Don't return the overall result code (i.e. $rc) but always return 0
+    #      (i.e. BKRM_STATUS_COMPLETED) to make sure beaker task is not marked
+    #      as 'Aborted' if test result is marked as 'Fail'
+    #
+    return $BKRM_STATUS_COMPLETED
 }
