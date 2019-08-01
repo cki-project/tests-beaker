@@ -152,11 +152,23 @@ rlJournalStart
             rlRun "sed -i 's/test_ibpkey.te//' ./policy/Makefile" 0 \
                 "Disable test_ibpkey.te on RHEL6"
         fi
-        if rlIsRHEL '>=8' ; then
+        if ! [ -x /usr/bin/python3 ]; then
             # to avoid error messages like runcon: ‘overlay/access’: No such file or directory
             rlRun "rpm -qa | grep python | sort"
-            rlRun "sed -i 's/python\$/python3/' tests/overlay/access" 0 \
+            rlRun "sed -i 's/python3\$/python2/' tests/overlay/access" 0 \
                 "Fix up Python shebang in overlay test"
+        fi
+
+        if kver_lt "3.10.0-349"; then
+            # c4684bbdac07 [security] selinux: Permit bounded transitions under NO_NEW_PRIVS or NOSUID
+            # da74590f6501 [security] selinux: reject setexeccon() on MNT_NOSUID applications with -EACCES
+            exclude_tests+=" nnp_nosuid"
+        fi
+
+        if kver_lt "3.10.0-693"; then
+            # I don't know when exactly this test starts passing, so I'm just
+            # disabling it for anything below the RHEL-7.4 kernel...
+            exclude_tests+=" inet_socket"
         fi
 
         if kver_lt "3.10.0-875"; then
@@ -204,8 +216,8 @@ rlJournalStart
         # Initialize report.
         rlRun "echo 'Remote: $GIT_URL' >results.log" 0
         rlRun "echo 'Branch: $GIT_BRANCH' >>results.log" 0
-        rlRun "echo 'Commit: $(git rev-parse HEAD)' >>results.log" 0
-        rlRun "echo 'Pulls:  ${GIT_PULLS:-"(none)"}' >>results.log" 0
+        rlRun "echo 'Commit: $(git rev-parse $GIT_BRANCH)' >>results.log" 0
+        rlRun "echo 'GH PRs: ${GIT_PULLS:-"(none)"}' >>results.log" 0
         rlRun "echo 'Kernel: $(uname -r)' >>results.log" 0
         rlRun "echo 'Policy: $(rpm -q selinux-policy)' >>results.log" 0
         rlRun "echo '        $(rpm -q checkpolicy)' >>results.log" 0
@@ -213,7 +225,6 @@ rlJournalStart
         rlRun "echo '        $(rpm -q libsemanage)' >>results.log" 0
         rlRun "echo '        $(rpm -q libsepol)' >>results.log" 0
         rlRun "echo '        $(rpm -q policycoreutils)' >>results.log" 0
-        rlRun "echo '        $(rpm -q secilc)' >>results.log" 0
         rlRun "echo '' >>results.log" 0
 
     rlPhaseEnd
