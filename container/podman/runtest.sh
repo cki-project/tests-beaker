@@ -27,11 +27,25 @@ if [ -z "$pkg" ] ; then
     rhts-abort -t recipe
 fi
 
+# Bug reports require this information.
+echo "Podman version:"
+podman --version
+echo "Podman debug info:"
+podman info --debug
+
 # RHEL 8 will install podman-tests, but it will not install bats. We can use
 # the Fedora 30 package instead.
 if [ ! -x /usr/bin/bats ]; then
     dnf -y --nogpgcheck install \
         http://mirrors.kernel.org/fedora/releases/30/Everything/x86_64/os/Packages/b/bats-1.1.0-2.fc30.noarch.rpm
+fi
+
+# NOTE(mhayden): The 'metacopy=on' mount option may be causing issues with
+# podman on RHEL 8. It needs to be disabled per BZ 1734799.
+PODMAN_RPM_NAME=$(rpm -q podman)
+if [[ $PODMAN_RPM_NAME =~ el8 ]]; then
+    sed -i 's/,metacopy=on//' /etc/containers/storage.conf || true
+    grep ^mountopt /etc/containers/storage.conf || true
 fi
 
 # Use the multi-arch Fedora image to ensure podman's tests pass
