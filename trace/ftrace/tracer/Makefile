@@ -1,6 +1,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Makefile of kernel/ftrace/tracer
+#   Makefile of trace/ftrace/tracer
 #   Description: Enable ftrace tracer to see if it works
 #   Author: Ziqian SUN <zsun@redhat.com>
 #
@@ -24,10 +24,10 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/kernel/bpf/test_bpf
+export TEST=trace/ftrace/tracer
 export TESTVERSION=1.0
 
-FILES=$(METADATA) runtest.sh Makefile PURPOSE
+FILES=$(METADATA) runtest.sh Makefile PURPOSE include
 
 .PHONY: all install download clean
 
