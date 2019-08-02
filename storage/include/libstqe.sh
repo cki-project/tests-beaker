@@ -21,7 +21,7 @@ source /usr/share/beakerlib/beakerlib.sh
 source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
 
 STQE_GIT="https://gitlab.com/rh-kernel-stqe/python-stqe.git"
-STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"9fd6e5e7"}
+STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"f1ddf69b"}
 LIBSAN_STABLE_VERSION=${LIBSAN_STABLE_VERSION:-"0.3.0"}
 
 function stqe_get_fwroot
