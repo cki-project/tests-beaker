@@ -28,8 +28,8 @@ function runtest()
 {
 	rlRun "modprobe raid456 devices_handle_discard_safely=Y"
 	rlRun "echo Y >/sys/module/raid456/parameters/devices_handle_discard_safely"
-	uname -r | grep el7
-	if [ $? -eq 0 ];then
+	typeset release=$(cat /etc/redhat-release | tr -cd "[0-9.]")
+	if [[ $(bc -l <<< "$release <= 7.4") -eq 1 ]]; then # release <= 7.4 is true
 		rlRun "modprobe raid0 devices_discard_performance=Y"
 		rlRun "echo Y >/sys/module/raid0/parameters/devices_discard_performance"
 	fi
