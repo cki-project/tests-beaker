@@ -210,7 +210,7 @@ function get_test_cases_nvme
 		testcases+=" nvme/008"
 		testcases+=" nvme/012"
 		testcases+=" nvme/014"
-		testcases+=" nvme/016"
+		uname -ri | grep -qE "3.10.0-.*ppc64$" || testcases+=" nvme/016"
 		testcases+=" nvme/019"
 		testcases+=" nvme/023"
 	else
@@ -246,7 +246,8 @@ function get_test_cases_nvme
 testcases_default=""
 testcases_default+=" $(get_test_cases_block)"
 testcases_default+=" $(get_test_cases_loop)"
-uname -ri | grep -Eq "5.*aarch64|5.*ppc64|4.18.0-.*rt.*x86_64|3.10.0-.*rt.*x86_64|3.10.0-957.*ppc64|3.10.0-862.*x86_64|4.18.0-.*ppc64le" || testcases_default+=" $(get_test_cases_nvme)"
+uname -ri | grep -Eq "5.*aarch64|5.*ppc64|4.18.0-.*rt.*x86_64|3.10.0-.*rt.*x86_64|3.10.0-957.*ppc64|3.10.0-862.*x86_64|\
+4.18.0-.*ppc64le|4.18.0-.*el8_0.ppc64le|4.18.0-.*el8_0.x86_64" || testcases_default+=" $(get_test_cases_nvme)"
 testcases=${_DEBUG_MODE_TESTCASES:-"$(echo $testcases_default)"}
 test_ws=$CDIR/blktests
 ret=0
