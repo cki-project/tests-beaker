@@ -39,6 +39,7 @@ mkdir -p ${K_TMP_DIR}
 [[ "$FAMILY" =~ [a-zA-Z]+6 ]] && IS_RHEL6=true || IS_RHEL6=false
 [[ "$FAMILY" =~ [a-zA-Z]+7 ]] && IS_RHEL7=true || IS_RHEL7=false
 [[ "$FAMILY" =~ [a-zA-Z]+8 ]] && IS_RHEL8=true || IS_RHEL8=false
+[[ "$FAMILY" =~ Fedora ]] && IS_FC=true || IS_FC=false
 
 if $IS_RHEL5 || $IS_RHEL6; then
     INITRD_PREFIX=initrd
@@ -328,6 +329,13 @@ ClearReport()
 PrepareKdump()
 {
     if [ ! -f "${K_REBOOT}" ]; then
+        rpm -q kexec-tools || {
+            # On Fedora, kexec-tools is not installed by default.
+            # install kexec-tools ans enabled kdump service.
+            InstallPackages kexec-tools
+            systemctl enable kdump.service || chkconfig kdump on
+        }
+
         local default=/boot/vmlinuz-`uname -r`
         [ ! -s "$default" ] && default=/boot/vmlinux-`uname -r`
 
@@ -429,7 +437,7 @@ DefKdumpMem()
         elif [[ "${K_ARCH}"  = "aarch64"  ]]; then args="crashkernel=512M"
         fi
 
-    elif $IS_RHEL8; then
+    elif $IS_RHEL8 || $IS_FC; then
         if   [[ "${K_ARCH}"  = "x86_64" ]]; then args="crashkernel=0M-64G:160M,64G-1T:256M,1T-:512M"
         elif [[ "${K_ARCH}"  = "s390x"  ]]; then args="crashkernel=0M-64G:160M,64G-1T:256M,1T-:512M"
         elif [[ "${K_ARCH}"  = ppc64*  ]]; then
