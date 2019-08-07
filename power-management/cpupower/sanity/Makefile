@@ -54,6 +54,7 @@ $(METADATA): Makefile
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     kernel" >> $(METADATA)
 	@echo "Requires:     kernel-tools" >> $(METADATA)
+	@echo "Requires:     virt-what" >> $(METADATA)
 	@echo "Requires:     cpupowerutils" >> $(METADATA)
 	@echo "Requires:     bc" >> $(METADATA)
 	@echo "Requires:     python2-lxml" >> $(METADATA)
