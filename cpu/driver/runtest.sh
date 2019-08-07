@@ -28,7 +28,15 @@ source ${CDIR%/cpu/driver}/cpu/common/libutil.sh
 
 function verify_intel_cpufreq_driver
 {
+    typeset driver=$1
+
     rlLog "Start to verify intel cpu freq driver"
+
+    if [[ $driver != "intel_pstate" ]]; then
+        rlSetReason $BKRM_FAIL \
+            "intel system is running: $driver"
+        return $BKRM_FAIL
+    fi
 
     rlRun "lscpu | grep 'hwp'" $BKRM_RC_ANY
     if (( $? == 0 )); then
@@ -53,6 +61,8 @@ function verify_intel_cpufreq_driver
 
 function verify_amd_cpufreq_driver
 {
+    typeset driver=$1
+
     rlLog "Start to verify amd cpu freq driver"
 
     typeset family=$(cat /proc/cpuinfo | grep family | \
@@ -60,10 +70,9 @@ function verify_amd_cpufreq_driver
 
     # verify family is >= 15h
     if (( $family >= 0x15 )); then
-        typeset driver=$(lsmod | grep cpufreq | awk '{print $1}')
-        if [[ $driver != "acpi_cpufreq" ]]; then
+        if [[ $driver != "acpi-cpufreq" ]]; then
             rlSetReason $BKRM_FAIL \
-                "AMD system is not running acpi_cpufreq driver"
+                "amd system is running: $driver"
             return $BKRM_FAIL
         fi
     else
@@ -80,14 +89,21 @@ function runtest
 {
     typeset vendor_str=$(cat /proc/cpuinfo | grep vendor | \
                          sort -u | awk '{print $3}')
+
+    if [[ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver ]]; then
+        typeset driver=$(cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_driver | uniq)
+    else
+        typeset driver="NONE"
+    fi
+
     case $vendor_str in
     GenuineIntel)
-        verify_intel_cpufreq_driver
+        verify_intel_cpufreq_driver $driver
         typeset -i ret=$?
         ;;
 
     AuthenticAMD)
-        verify_amd_cpufreq_driver
+        verify_amd_cpufreq_driver $driver
         typeset -i ret=$?
         ;;
 
