@@ -73,6 +73,7 @@ $(METADATA): Makefile
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here
 	@echo "Requires:	 mdadm" >> $(METADATA)
+	@echo "Requires:         bc" >> $(METADATA)
 	@echo "Requires:         iscsi-initiator-utils" >> $(METADATA)
 	@echo "Requires:         scsi-target-utils" >> $(METADATA)
 	@echo "RepoRequires:     storage/swraid/common" >> $(METADATA)
