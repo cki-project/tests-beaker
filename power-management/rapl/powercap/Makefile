@@ -52,6 +52,7 @@ $(METADATA): Makefile
 	@echo "TestTime:     5m" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     kernel" >> $(METADATA)
+	@echo "Requires:     virt-what" >> $(METADATA)
 	@echo "Requires:     python2-lxml" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "RepoRequires: cpu/common" >> $(METADATA)

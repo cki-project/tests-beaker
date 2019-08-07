@@ -51,6 +51,7 @@ $(METADATA): Makefile
 	@echo "TestTime:     10m" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     msr-tools" >> $(METADATA)
+	@echo "Requires:     virt-what" >> $(METADATA)
 	@echo "Requires:     git" >> $(METADATA)
 	@echo "Requires:     autoconf" >> $(METADATA)
 	@echo "Requires:     automake" >> $(METADATA)
