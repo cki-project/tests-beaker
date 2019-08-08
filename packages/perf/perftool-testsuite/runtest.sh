@@ -37,6 +37,15 @@ GIT_CLONE_ATTEMPTS_COUNT=25
 KEEP_LOGS="no"
 PERFTESTS_ENABLE_BLACKLIST=${PERFTESTS_ENABLE_BLACKLIST:-1}
 
+# constants
+RUNMODE_BASIC=0
+RUNMODE_STANDARD=1
+RUNMODE_EXPERIMENTAL=2
+
+export TESTLOG_VERBOSITY=2
+export TEST_IGNORE_MISSING_PMU=y
+export PERFTOOL_TESTSUITE_RUNMODE=$RUNMODE_BASIC
+
 # hook, someone likes using "True" there, we like 1, 0 values more
 if [ "$PERFTESTS_ENABLE_BLACKLIST" = "true" -o "$PERFTESTS_ENABLE_BLACKLIST" = "True" ]; then
 	PERFTESTS_ENABLE_BLACKLIST=1
@@ -244,14 +253,6 @@ rlJournalStart
 		# return SKip if the testsuite could not be fetched
 		test -d "perftool-testsuite" || rlDie "Could not fetch the upstream testsuite from github. I am sorry, dude."
 		
-		# tweak the testsuite variables for CKI purpose
-		export TESTLOG_VERBOSITY=2
-		export TEST_IGNORE_MISSING_PMU=y
-		export PARAM_GENERAL_HELP_TEXT_CHECK=y
-		export PARAM_STAT_ALL_PMU_EVENTS=n
-		export PARAM_TRACE_OVERLOAD=n
-		export PARAM_RECORD_OVERLOAD=n
-
 		pushd perftool-testsuite
 	rlPhaseEnd
 
