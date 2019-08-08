@@ -91,13 +91,12 @@ function setup ()
             exit 0
         fi
 
-	systemctl disable ntpd 
+	systemctl disable ntpd  > /dev/null 2>&1
 
 	echo "Supported sleep states: `cat /sys/power/state`" | tee -a ${OUTPUTFILE}
 
-	# Set the system to UTC to avoid problems with RTC alarm. Backup and then restore later
-	if [ ! -e /etc/localtime.orig ]; then cp /etc/localtime /etc/localtime.orig ; fi
-	cp -f /usr/share/zoneinfo/UTC /etc/localtime
+	# Set the system to UTC to avoid problems with RTC alarm
+        timedatectl set-timezone UTC
 
 	default=`grubby --default-kernel`
 	grubby --args="no_console_suspend" --update-kernel=$default
@@ -124,8 +123,7 @@ function print_rtc () {
 
 function set_rtc_alarm () {
         echo "Setting RTC alarm to now + $SLEEP_TIME minutes..." | tee -a ${OUTPUTFILE}
-        echo 0 > /sys/class/rtc/rtc0/wakealarm
-        echo `date -u -d "+ $SLEEP_TIME minutes" '+%s'` > /sys/class/rtc/rtc0/wakealarm
+        rtcwake -m no -s $(($SLEEP_TIME * 60))
 }
 
 function suspend_resume ()
@@ -140,7 +138,7 @@ function suspend_resume ()
         echo "/sys/power/mem_sleep: "$(cat  /sys/power/mem_sleep 2>/dev/null) | tee -a ${OUTPUTFILE}
 	echo "Suspend to $state" | tee -a ${OUTPUTFILE}
 
-	if [[ $state = disk ]]; then
+	if [[ "$state" = "disk" ]]; then
 		hibernation_mode=`cat /sys/power/disk | sed 's/\(.*\)\[\(.*\)\]\(.*\)/\2/g'`
 
 		# reboot mode
@@ -157,19 +155,46 @@ function suspend_resume ()
 		else
 			echo "working in $hibernation_mode hibernation mode" | tee -a ${OUTPUTFILE}
 		fi
+	elif [[ "$state" = "mem" ]]; then
+		if grep -q s2idle  /sys/power/mem_sleep; then
+			echo "Setting to s2idle suspend  mode" | tee -a ${OUTPUTFILE}
+			echo "s2idle" > /sys/power/mem_sleep
+                fi
 	fi
 
-	echo $state > /sys/power/state
-	RES=$?
+	RES=1
+	if [[ "$state" = "disk" ]]; then
+                # setting boot order
+		if efibootmgr &>/dev/null ; then
+			os_boot_entry=$(efibootmgr | awk '/BootCurrent/ { print $2 }')
+			# fall back to /root/EFI_BOOT_ENTRY.TXT if it exists and BootCurrent is not available
+			if [[ -z "$os_boot_entry" && -f /root/EFI_BOOT_ENTRY.TXT ]] ; then
+				os_boot_entry=$(</root/EFI_BOOT_ENTRY.TXT)
+			fi
+			if [[ -n "$os_boot_entry" ]] ; then
+				logger -s "efibootmgr -n $os_boot_entry"
+				efibootmgr -n $os_boot_entry
+			else
+				logger -s "Could not determine value for BootNext!"
+			fi
+		fi
+
+		echo "Suspending to disk" | tee -a ${OUTPUTFILE}
+		systemctl hibernate
+		RES=$?
+	elif [[ "$state" = "mem" ]]; then
+		echo "Suspending to mem" | tee -a ${OUTPUTFILE}
+		systemctl suspend
+		RES=$?
+	fi
 
 	if [[ $RES != 0 ]]; then
 		echo "Function not implemented Bug(891967)" | tee -a ${OUTPUTFILE}
 		NOT_SUPPORT=1
-
 		return
 	fi
 
-	# sleep 30
+	sleep 30
 
 	echo "Successfully resumed from $state" | tee -a ${OUTPUTFILE}
 	echo '--------------------------------------------------------' | tee -a ${OUTPUTFILE}
