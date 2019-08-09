@@ -216,7 +216,7 @@ function get_test_cases_nvme
 	else
 		#testcases+=" nvme/002" #disable
 		#testcases+=" nvme/003" #disable
-		testcases+=" nvme/004"
+		uname -ri | grep -qE "4.18.0-.*ppc64le" || testcases+=" nvme/004"
 		#testcases+=" nvme/005" modprobe/modprobe -r nvme-core will be failed
 		testcases+=" nvme/006"
 		testcases+=" nvme/007"
