@@ -30,7 +30,7 @@ wait_time="2"
 
 rlJournalStart
     rlPhaseStartSetup
-	(uname -r |grep el6) || rlRun "modprobe -r br_netfilter" 0 "disable from bridge call iptables 4/6"
+	(uname -r |grep el6) || rlRun "modprobe -r br_netfilter" 0-255 "disable from bridge call iptables 4/6"
     rlPhaseEnd
 
     rlPhaseStartTest "Regression test for Bug 518034"
