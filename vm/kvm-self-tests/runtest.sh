@@ -51,11 +51,19 @@ function getTests
 
 function disableTests
 {
+    typeset hwpf=$(uname -i)
+
     # Disable tests for RHEL8 Kernel (4.18.X)
     if uname -r | grep --quiet '^4'; then
         # Disable test clear_dirty_log_test
         # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718479
         mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "clear_dirty_log_test")
+
+        if [[ $hwpf == "x86_64" ]]; then
+            # Disable test x86_64/vmx_set_nested_state_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1740235
+            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/vmx_set_nested_state_test")
+        fi
 
         # Disabled x86_64 tests for AMD machines due to bugs
         if lsmod | grep --quiet kvm_amd; then
