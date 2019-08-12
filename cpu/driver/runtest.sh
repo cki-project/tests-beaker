@@ -32,13 +32,21 @@ function verify_intel_cpufreq_driver
 
     rlLog "Start to verify intel cpu freq driver"
 
+    typeset vendor=$(dmidecode -t 0 | grep Vendor: | \
+                     cut -d: -f 2 | awk '{print tolower($1)}')
+
     if [[ $driver != "intel_pstate" ]]; then
+	if [ "$vendor" = "lenovo" ]; then
+	    rlLog "lenovo intel system is running: $driver"
+	    rlLog "PASS"
+	    return $BKRM_PASS
+	fi
         rlSetReason $BKRM_FAIL \
             "intel system is running: $driver"
         return $BKRM_FAIL
     fi
 
-    rlRun "lscpu | grep 'hwp'" $BKRM_RC_ANY
+    rlRun "lscpu | grep 'hwp '" $BKRM_RC_ANY
     if (( $? == 0 )); then
         rlRun "rdmsr 0x770"
         if (( $? != 0 )); then
