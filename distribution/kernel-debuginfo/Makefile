@@ -44,7 +44,7 @@ $(METADATA): Makefile
 	@echo "Path:            /tmp/" >> $(METADATA)
 	@echo "Description:     Ensure that debuginfo vmlinux comes with .debug* sections." >> $(METADATA)
 	@echo "Type:            Misc" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
+	@echo "TestTime:        20m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        kernel" >> $(METADATA)
 	@echo "Requires:        kmod" >> $(METADATA)
