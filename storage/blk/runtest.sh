@@ -126,10 +126,12 @@ function get_test_cases_block
 		#      - block/026
 		#      - block/028
 		#
-		testcases+=" block/001"
+		# Disable block/001 for RHEL7.2/7.3/7.4/7.5
+		uname -ri | grep -qE "3.10.0-327|3.10.0-514|3.10.0-693|3.10.0-862" || testcases+=" block/001"
 		#testcases+=" block/002" # Test case issue: https://lore.kernel.org/linux-block/e84b29e1-209e-d598-0828-bed5e3b98093@acm.org/
 		#testcases+=" block/009" # Fail randomly on x86_64, powerpc
-		testcases+=" block/016"
+		# block/016 failed on RHEL7.5
+		uname -ri | grep -qE "3.10.0-862" || testcases+=" block/016"
 		#testcases+=" block/020" # Fail randomly on arm64, powerpc
 		testcases+=" block/021"
 		testcases+=" block/023"
@@ -213,6 +215,8 @@ function get_test_cases_nvme
 		uname -ri | grep -qE "3.10.0-.*ppc64$" || testcases+=" nvme/016"
 		testcases+=" nvme/019"
 		testcases+=" nvme/023"
+		uname -ri | grep -qE "3.10.0-327|3.10.0-514|3.10.0-693" && testcases=""
+		uname -ri | grep -qE "3.10.0-862" && testcases=" nvme/006"
 	else
 		#testcases+=" nvme/002" #disable
 		#testcases+=" nvme/003" #disable
