@@ -70,6 +70,22 @@ function disableTests
             # Disable test x86_64/platform_info_test
             # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718499
             mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/platform_info_test")
+
+            if lscpu | grep --quiet Opteron; then
+                # Disable test x86_64/state_test & x86_64/smm_test
+                # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741347
+                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/state_test")
+                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/smm_test")
+            fi
+        fi
+
+        # Disabled x86_64 tests for Intel machines due to bugs
+        if lsmod | grep --quiet kvm_intel; then
+            if lscpu | grep --quiet "CPU E3-"; then
+                # Disable test dirty_log_test
+                # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741201
+                mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "dirty_log_test")
+            fi
         fi
     fi
 
