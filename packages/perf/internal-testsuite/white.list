@@ -52,3 +52,4 @@ aba5be59b8476eb15178828406fa0d307fb794b9 aarch64 s390x x86_64 ppc64le # Test dwa
 0e5b27841d80bf495ebfbfb1a446f7ca08fe5e97 ppc64le # Check open filename arg using perf trace + vfs_getname
 b011103996bcd810c4c87e049fffb48326edf705 ppc64le s390x aarch64 # Parse sched tracepoints fields
 887e416aca88217834c65490461a2137431efddd ppc64le # Watchpoint
+05b9b8fb2a5d4d41a867a36111ae380bf111f0f0 aarch64 # Track with sched_switch
