@@ -62,6 +62,7 @@ $(METADATA): Makefile
 	@echo "Requires:        libaio-devel" >> $(METADATA)
 	@echo "Requires:        zlib-devel" >> $(METADATA)
 	@echo "Requires:        gcc" >> $(METADATA)
+	@echo "Requires:        git" >> $(METADATA)
 	@echo "RhtsRequires:	hba" >> $(METADATA)
 
 	rhts-lint $(METADATA)
