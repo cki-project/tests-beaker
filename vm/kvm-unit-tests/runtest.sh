@@ -138,7 +138,7 @@ echo 0 > /proc/sys/kernel/nmi_watchdog
 # clone the upstream kvm-unit-tests
 git clone git://git.kernel.org/pub/scm/virt/kvm/kvm-unit-tests.git
 cd kvm-unit-tests
-git checkout 6574705608f8431df465f8417658ffc00ca4d1b6
+git checkout dc9841d08fa1796420a64ad5d5ef652de337809d
 if [ $? -ne 0 ]; then
     echo "Failed to clone and checkout commit from kvm-unit-tests" | tee -a $OUTPUTFILE
     report_result $TEST WARN
@@ -148,6 +148,7 @@ fi
 # update unittests.cfg to exclude known failures
 cp ../x86_unittests.cfg x86/unittests.cfg
 cp ../aarch64_unittests.cfg arm/unittests.cfg
+cp ../s390x_unittests.cfg s390x/unittests.cfg
 
 # run the tests
 if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
