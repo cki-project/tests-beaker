@@ -108,7 +108,7 @@ function dmesgErrors() {
     # find any iommu errors in dmesg/messages file
     while read -r dmesgLine; do
 	dmesgLineNumber=$(($dmesgLineNumber+1))
-	grep "$dmesgLine" /var/log/messages
+	journalctl | grep "$dmesgLine"
 	    code=$?
 	    if [ ${code} -ne 1 ]; then
 		echo "Fail: the following iommu regex matched in dmesg:" |
