@@ -160,14 +160,14 @@ function targz_install()
 
 function select_yum_tool()
 {
-  if [ -x /usr/bin/yum ]; then
-    YUM=/usr/bin/yum
-    ALL="all"
-    ${YUM} install -y yum-plugin-copr
-  elif [ -x /usr/bin/dnf ]; then
+  if [ -x /usr/bin/dnf ]; then
     YUM=/usr/bin/dnf
     ALL="--all"
     ${YUM} install -y dnf-plugins-core
+  elif [ -x /usr/bin/yum ]; then
+    YUM=/usr/bin/yum
+    ALL="all"
+    ${YUM} install -y yum-plugin-copr
   else
     echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
     report_result ${TEST} WARN 99
