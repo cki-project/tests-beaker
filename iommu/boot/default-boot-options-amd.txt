@@ -1,0 +1,5 @@
+amd_iommu=on
+amd_iommu=on iommu=pt
+amd_iommu=on,isolate
+amd_iommu=on,share
+amd_iommu=on,fullflush

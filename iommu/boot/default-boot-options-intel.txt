@@ -1,0 +1,4 @@
+intel_iommu=on
+intel_iommu=on iommu=pt
+intel_iommu=on,pt64
+intel_iommu=on,forcedac,pt64

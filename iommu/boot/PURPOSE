@@ -1,0 +1,13 @@
+This tests booting with various iommu kernel boot options, especially
+ones that are known to cause issues booting like in BZ 908744. The
+code is based on /kernel/cmdline
+
+By default it uses a test included file with different boot options
+'default-boot-options-{intel,amd}.txt' depending on whether the system
+has an AMD or Intel processor. However you can override these if you pass
+in CMDLINEARGS. Separate different boot options or sets of boot
+options with a ":". For example:
+
+CMDLINEARGS="intel_iommu=on"
+or
+CMDLINEARGS="intel_iommu=on iommu=pt:intel_iommu=on,pt64:iommu=on" 

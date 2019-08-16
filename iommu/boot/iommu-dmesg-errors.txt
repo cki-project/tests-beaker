@@ -1,0 +1,13 @@
+Please enable the IOMMU option in the BIOS setup
+AMD-Vi: Event logged \[IO_PAGE_FAULT
+DMAR:\[DMA Read\] Request device \[.*\] fault addr
+DMAR:\[.*\] PTE Write access is not set
+DMAR:\[.*\] PTE Read access is not set
+DMAR:\[.*\] Present bit in context entry is clear
+DRHD: handling fault status reg .*
+DMAR: parse DMAR table failure.
+DMAR reported at address .* returns all ones
+WARNING: at drivers/pci/dmar.c
+Your BIOS is broken; DMAR reported at address zero!
+WARNING: at drivers/pci/intel-iommu.c
+Calgary: DMA error on Calgary PHB
