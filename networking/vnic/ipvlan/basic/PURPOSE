@@ -1,0 +1,33 @@
+PURPOSE of kernel/networking/vnic/ipvlan
+
+Description:
+test for ipvlan
+
+Relateds bug:
+https://bugzilla.redhat.com/show_bug.cgi?id=1562999
+
+Steps:
+
+local_netns
+
+1. add two netns
+2. create two ipvlan over one physical device
+3. add one ipvlan to each netns
+4. run ping and netperf between two ipvlan
+5. change mode and run netperf
+
+multihost_netns
+
+1. add ipvlan on two hosts
+2. run traffic between these two ipvlans
+
+local_stress_netns
+
+1. add mas of ipvlan on one device
+2. run ping and netperf between these ipvlans
+
+multicast_test
+
+1. create 100 ipvlan in mode l2 and join the same multicast group
+2. send multicast packets
+3. check the receiving status for multicast
