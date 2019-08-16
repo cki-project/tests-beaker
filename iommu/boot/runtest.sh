@@ -157,7 +157,7 @@ else
        	bootOptions $DefaultBootOptionsAMD
 	dmesgErrors
     else
-	report_result "${TEST}/nonAMDorIntelProcessor" "FAIL" 0
+	report_result "${TEST}/nonAMDorIntelProcessor" "SKIP" 0
     fi
 fi
 
