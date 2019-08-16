@@ -189,6 +189,10 @@ EOF
   echo "Setup kernel repo file" | tee -a  ${OUTPUTFILE}
   cat /etc/yum.repos.d/kernel-cki.repo 2>&1 | tee -a ${OUTPUTFILE}
 
+  # Disable SSL. This is not cool, but we are also running on RHEL5 which has
+  # very old and insecure crypto libs and thus can't communicate with new repos :(
+  echo "sslverify=false" >> /etc/yum.conf
+
   # set YUM var.
   select_yum_tool
 
