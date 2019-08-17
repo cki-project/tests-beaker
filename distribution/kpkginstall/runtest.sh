@@ -320,7 +320,7 @@ else
 
   ckver=$(uname -r)
   uname -a | tee -a ${OUTPUTFILE}
-  if [ "${KVER}" = "${ckver}" || "${KVER}" = "${ckver}.${ARCH}" ]; then
+  if [ "${KVER}" = "${ckver}" ] || [ "${KVER}" = "${ckver}.${ARCH}" ]; then
     dmesg | grep -qi 'Call Trace:'
     dmesgret=$?
     if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
