@@ -37,16 +37,11 @@ rlJournalStart
         done
         # nfs-utils git util-linux createrepo genisoimage gcc gcc-c++ rpm-build kernel-abi-whitelists wget python-setuptools
         # yum install -y elfutils-libelf-devel binutils-devel newt-devel python-devel perl xmlto asciidoc perl-ExtUtils-Embed
-        rlRpmDownload kernel-devel-$(uname -r)
-        rlRpmDownload --source ${KVARIANT}-${kernel_nvr}
+        $yum download kernel-devel-$(uname -r)
+        $yum download kernel-${kernel_nvr} --source
         rpm -ivh --force kernel-devel-$(uname -r).rpm
         rpm -ivh --force $(rpm -q --queryformat '%{sourcerpm}\n' -qf /boot/config-$(uname -r))
-
-        if [[ ${DistVer} -lt 7 ]]; then
-            $yum install -y module-init-tools
-        else
-            $yum install -y kmod
-        fi
+        $yum install -y kmod
 
         tar Jxf ~/rpmbuild/SOURCES/linux-${KVer}-${KBuild}*.tar.xz
         ksrcdir=`ls | grep linux-${KVer}-${KBuild} | grep -v tar`
