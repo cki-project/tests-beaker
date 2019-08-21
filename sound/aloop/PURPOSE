@@ -1,0 +1,7 @@
+The main purpose of this script is to ensure the kernel sound subsystem
+is basically working.
+
+The snd-dummy driver just consumes playback PCM samples.
+
+The snd-aloop driver is used to check the PCM playback and the PCM
+recording (capture).
