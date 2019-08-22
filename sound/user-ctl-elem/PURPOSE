@@ -1,0 +1,5 @@
+The main purpose of this script is to ensure the kernel sound subsystem
+is basically working.
+
+The test creates user space elements for the dummy soundcard and
+test read/write operations.

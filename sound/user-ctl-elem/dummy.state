@@ -1,0 +1,27 @@
+state.Dummy {
+	control.4600 {
+		iface MIXER
+		name "User CTL Switch"
+		value.0 true
+		value.1 true
+		comment {
+			access 'read write user'
+			type BOOLEAN
+			count 2
+		}
+
+	}
+	control.4601 {
+		iface MIXER
+		name "User CTL Volume"
+		value.0 99
+		value.1 100
+		comment {
+			access 'read write user'
+			type INTEGER
+			count 2
+			range '0 - 100 (step 1)'
+		}
+
+	}
+}
