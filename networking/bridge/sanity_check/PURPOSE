@@ -1,0 +1,9 @@
+bridge sanity check:
+
+- load unload bridge module 50 times
+- test bridge-utils
+- test iproute2
+- fault injection
+
+Bug:
+- bz1114445 - kernel panic when using bridge link show
