@@ -76,8 +76,8 @@ rlJournalStart
 
   rlPhaseStartCleanup
     rlRun -l "rm -f s.raw a.raw"
-    rlRun -l "rmmod snd-aloop"
-    rlRun -l "rmmod snd-dummy"
+    #rlRun -l "rmmod snd-aloop"
+    #rlRun -l "rmmod snd-dummy"
   rlPhaseEnd
 
 rlJournalEnd

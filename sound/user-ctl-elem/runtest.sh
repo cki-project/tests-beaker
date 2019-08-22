@@ -40,9 +40,9 @@ rlJournalStart
     rlRun -l "amixer -c Dummy cget name='User CTL Volume'"
   rlPhaseEnd
 
-  rlPhaseStartCleanup
-    rlRun -l "rmmod snd-dummy"
-  rlPhaseEnd
+  #rlPhaseStartCleanup
+  #  rlRun -l "rmmod snd-dummy"
+  #rlPhaseEnd
 
 rlJournalEnd
 
