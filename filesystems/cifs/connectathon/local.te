@@ -1,0 +1,11 @@
+module local 1.0;
+
+require {
+        type etc_runtime_t;
+        type smbd_t;
+        class file write;
+}
+
+#============= smbd_t ==============
+
+dontaudit smbd_t etc_runtime_t:file write;
