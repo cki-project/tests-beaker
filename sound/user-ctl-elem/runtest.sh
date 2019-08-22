@@ -29,7 +29,7 @@ rlJournalStart
   rlPhaseEnd
 
   rlPhaseStartTest user-ctl
-    rlRun -l "alsactl -f dummy.state restore" 99 "Create new CTL elemenents"
+    rlRun -l "alsactl -f dummy.state restore" 0,99 "Create new CTL elemenents"
     rlRun -l "amixer -c Dummy cset name='User CTL Switch' 0,0"
     rlRun -l "amixer -c Dummy cget name='User CTL Switch'"
     rlRun -l "amixer -c Dummy cset name='User CTL Switch' 1,1"
