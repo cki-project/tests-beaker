@@ -158,6 +158,7 @@ else
 	dmesgErrors
     else
 	report_result "${TEST}/nonAMDorIntelProcessor" "SKIP" 0
+	exit 0
     fi
 fi
 
