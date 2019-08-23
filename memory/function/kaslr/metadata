@@ -1,0 +1,13 @@
+[General]
+name=kaslr
+owner=Chunyu Hu <chuhu@redhat.com>
+description=kaslr testing
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=120m
+dependencies=
+repoRequires=
