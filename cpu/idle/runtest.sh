@@ -39,19 +39,27 @@ function startup
         rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_UNINITIATED
     fi
 
+    rlRun "lscpu | grep ' monitor '"
+    if [ $? -ne 0 ]; then
+        rlLog "mwait is not supported"
+        rhts-report-result $TEST SKIP
+        exit
+    fi
+
     # setup msr tools as package 'msr-tools' is not installed by default
     msr_tools_setup
-    if (( $? != 0 )); then
-        rlSetReason $BKRM_UNINITIATED "fail to setup msr tools"
-        return $BKRM_UNINITIATED
+    if [ $? != 0 ]; then
+        rlLog "fail to setup msr tools"
+        rhts-report-result $TEST SKIP
+        exit
     fi
 
     # check this test is supported by CPU
-    rlRun "rdmsr 0x606" || rlSkip "su access is not available"
-    if (( $? != 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED \
-            "su access is not available"
-        return $BKRM_UNSUPPORTED
+    rlRun "rdmsr 0x606"
+    if [ $? != 0]; then
+        rlLog "su access is not available"
+        rhts-report-result $TEST SKIP
+        exit
     fi
 
     return $BKRM_PASS
