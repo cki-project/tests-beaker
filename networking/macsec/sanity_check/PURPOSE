@@ -1,0 +1,13 @@
+MACsec sanity check
+
+1. Module load unload
+   Load macsec driver, configure some SC/SA then unload the
+   driver, repeat the loop 50 times.
+
+2. Configuration
+   Setup macsec between 2 hosts and do basic check, should cover
+   ip-macsec options as many as possible
+
+3. Run basic network traffic
+
+4. MTU check
