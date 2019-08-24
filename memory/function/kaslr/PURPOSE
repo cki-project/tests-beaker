@@ -1,0 +1,7 @@
+PURPOSE of kaslr
+
+Description:
+    compat with uefi
+    compat with mirror
+    compat with memblock
+    compat with soft mem plug
