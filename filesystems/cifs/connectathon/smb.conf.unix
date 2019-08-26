@@ -1,0 +1,17 @@
+# Samba config file created using SWAT
+# from 127.0.0.1 (127.0.0.1)
+# Date: 2007/06/13 11:10:46
+
+[global]
+	workgroup = EXAMPLE
+	unix extensions = Yes
+	ea support = Yes
+	load printers = no
+	printcap = /mnt/testarea/printcap
+
+[testuser]
+	comment = testuser unix extensions on
+	path = /tmp/connectathon
+	read only = No
+	acl check permissions = No
+	acl map full control = No

@@ -1,0 +1,17 @@
+This is the NFS Connectathon test suite from the Linux Test Project (LTP) it
+has been patched and configured to test CIFS both with and without unix extensions.
+
+This is standalone test - both server and client are running locally.
+It works very much like nfs/connectathon, but instead of mounting
+nfs share, it mounts samba shared directory (see smb.conf)
+
+1. setup server with unix extensions enabled
+2. run connectathon
+4. setup server without unix extensions
+5. run connectathon
+
+Possible issues:
+Occasionally, samba service wouldn't start and it appeared to hang in
+cups_reload_services() / cups_reload_printers() - so far no clue
+what's causing it.
+

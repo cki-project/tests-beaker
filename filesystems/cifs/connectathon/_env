@@ -1,0 +1,8 @@
+#This file was generated automatically,do not manually change it.
+export TOPLEVEL_NAMESPACE=kernel
+export PKG_NAMESPACE=kernel/filesystems/cifs
+export RELATIVE_PATH=connectathon
+export PACKAGE=cifs
+export PACKAGE_NAME=cifs
+export PKG_LIST=samba samba-common cifs-utils samba-client samba-winbind
+export TEST=/kernel/filesystems/cifs/connectathon
