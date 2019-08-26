@@ -20,6 +20,32 @@ checks out a git repo and the git server is unavailable)
 * WARN/COMPLETED or FAIL/COMPLETED in case of any test failures, based on how
 serious they are (left to decide by test authors)
 
+See examples below to properly abort or skip in beaker:
+### Abort task if infrastructure failure is task only related
+~~~
+if [ $? -ne 0 ]; then
+    rlLog "Aborting test because $reason"
+    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+fi
+~~~
+
+### Abort recipe if infrastructure failure affects the entire recipe 
+~~~
+if [ $? -ne 0 ]; then
+    rlLog "Aborting recipe because $reason"
+    rhts-abort recipe
+fi
+~~~
+
+### Skip the task (e.g. testing with unsupported hardware)
+~~~
+if [ $? -ne 0 ]; then
+    rlLog "Skipping test because $reason"
+    rhts-report-result $TEST SKIP
+    exit 0
+fi
+~~~
+
 When onboarding a test, please check especially the point about infrastructure
 issues: a lot of tests simply report a warning if eg. external server can’t be
 reached and then continue. This kind of situation falls under infrastructure
