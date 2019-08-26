@@ -259,6 +259,8 @@ fi
 
     rlPhaseStartCleanup
         rlRun "reset_network_env"
+        rlRun "ip link del dummy0" "0-255"
+        rlRun "modprobe -r dummy" "0-255"
         check_call_trace
     rlPhaseEnd
 rlJournalPrintText
