@@ -149,6 +149,8 @@ function knownissue_filter()
 	tskip "min_free_kbytes" unfix
 	# Issue TBD
 	tskip "msgstress0.*" unfix
+	# Issue TBD
+	tskip "epoll_wait02" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
