@@ -18,12 +18,21 @@
 #
 
 source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
+source ../../cki_lib/lib.sh
 
 TMPDIR=${TMPDIR:-"/tmp"}
 MSR_TOOLS_SRC_URL="https://github.com/intel/msr-tools.git"
 MSR_TOOLS_DST_DIR="$TMPDIR/msr-tools"
 
-function msr_tools_setup
+function is_rhel7
+{
+    [ ! -e /etc/redhat-release ] && return 0
+    rel=$(cat /etc/redhat-release)
+    ver=$(echo "${rel##*release}" | awk '{$1=$1;print}' | cut -d '.' -f 1)
+    [ "$ver" -eq 7 ] && return 1 || return 0
+}
+
+function msr_tools_install
 {
     typeset script=${1:-"$TMPDIR/msr_tools_setup.sh"}
 
@@ -52,7 +61,7 @@ EOF
     return $BKRM_PASS
 }
 
-function msr_tools_cleanup
+function msr_tools_uninstall
 {
     typeset dst_dir=$MSR_TOOLS_DST_DIR
     [[ ! -d $dst_dir ]] && return $BKRM_PASS
@@ -62,4 +71,47 @@ function msr_tools_cleanup
     rlPd
 
     return $BKRM_PASS
+}
+
+EPEL="http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+function msr_tools_epel_install()
+{
+    [ ! -e /etc/yum.repos.d/epel.repo ] && add_repo=true || add_repo=false
+
+    if [ "$add_repo" = "true" ]; then
+	rlRun "${YUM} -y install $EPEL" $BKRM_RC_ANY
+    fi
+
+    rlRun "${YUM} -y install msr-tools" $BKRM_RC_ANY
+
+    if [ "$add_repo" = "true" ]; then
+	rlRun "${YUM} -y remove epel-release" $BKRM_RC_ANY
+    fi
+
+    rlRun "which rdmsr"
+
+    [ $? -eq 0 ] && return $BKRM_PASS || return $BKRM_UNINITIATED
+
+}
+
+function msr_tools_epel_uninstall
+{
+    rlRun "${YUM} -y remove msr-tools" $BKRM_RC_ANY
+}
+
+function msr_tools_setup
+{
+    is_rhel7
+    if [ $? -eq 1 ]; then
+	cki_yum_tool
+	msr_tools_epel_install
+    else
+	msr_tools_install
+    fi
+}
+
+function msr_tools_cleanup
+{
+    is_rhel7
+    [ $? -eq 1 ] && msr_tools_epel_uninstall || msr_tools_uninstall
 }
