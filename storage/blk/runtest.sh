@@ -210,7 +210,7 @@ function get_test_cases_nvme
 		testcases+=" nvme/004"
 		testcases+=" nvme/006"
 		testcases+=" nvme/008"
-		testcases+=" nvme/012"
+		uname -ri | grep -q "3.10.0" || testcases+=" nvme/012"
 		testcases+=" nvme/014"
 		uname -ri | grep -qE "3.10.0-.*ppc64$" || testcases+=" nvme/016"
 		testcases+=" nvme/019"
