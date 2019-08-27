@@ -28,31 +28,30 @@ source ${CDIR%/cpu/idle}/cpu/common/libutil.sh
 
 function runtest
 {
-    rlRun "bash $CDIR/utils/idle-power-test.sh $CDIR/utils/busy.sh" || \
-          return $BKRM_FAIL
-    return $BKRM_PASS
+    rlRun "bash $CDIR/utils/idle-power-test.sh $CDIR/utils/busy.sh"
+    [ $? -eq 0 ] && return $BKRM_PASS || return $BKRM_FAIL
 }
 
 function startup
 {
+    rlRun "lscpu | grep ' monitor '"
+    [ $? -ne 0 ] && rlSkip "system does not support mwait"
+
     if [[ ! -d $TMPDIR ]]; then
-        rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_UNINITIATED
+        rlRun "mkdir -p -m 0755 $TMPDIR"
+        [ $? -ne 0 ] && return $BKRM_UNINITIATED
     fi
 
     # setup msr tools as package 'msr-tools' is not installed by default
     msr_tools_setup
-    if (( $? != 0 )); then
+    if [ $? -ne 0 ]; then
         rlSetReason $BKRM_UNINITIATED "fail to setup msr tools"
         return $BKRM_UNINITIATED
     fi
 
     # check this test is supported by CPU
-    rlRun "rdmsr 0x606" || rlSkip "su access is not available"
-    if (( $? != 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED \
-            "su access is not available"
-        return $BKRM_UNSUPPORTED
-    fi
+    rlRun "rdmsr 0x606"
+    [ $? -ne 0 ] && rlSkip "su access is not available"
 
     return $BKRM_PASS
 }
