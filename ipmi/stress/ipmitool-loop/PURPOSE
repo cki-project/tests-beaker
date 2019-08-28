@@ -1,0 +1,6 @@
+PURPOSE of /kernel/ipmi/stress/ipmitool-loop
+Description: IPMItool loop stress test
+Author: Rachel Sibley <rasibley@redhat.com>
+
+Execute various IPMItool commands in a loop, verify the ipmi driver does
+not get wedged after so many iterations. 

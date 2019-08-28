@@ -1,0 +1,6 @@
+PURPOSE of /kernel/ipmi/stress/driver
+Description: IPMI driver load stress test
+Author: Rachel Sibley <rasibley@redhat.com>
+
+Load and unload all IPMI drivers (ipmi_devintf.ko, ipmi_msghandler.ko, ipmi_poweroff.ko, ipmi_si.ko,
+ipmi_watchdog.ko) in a continuous loop to ensure the system does not get wedged. 
