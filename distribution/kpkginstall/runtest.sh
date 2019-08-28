@@ -351,22 +351,35 @@ else
 
   ckver=$(uname -r)
   uname -a | tee -a ${OUTPUTFILE}
-  if [ "${KVER}" = "${ckver}" ] || [ "${KVER}" = "${ckver}.${ARCH}" ]; then
-    dmesg | grep -qi 'Call Trace:'
-    dmesgret=$?
-    if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
-      DMESGLOG=/tmp/dmesg.log
-      dmesg > ${DMESGLOG}
-      rhts_submit_log -l ${DMESGLOG}
-      echo "Call trace found in dmesg, see dmesg.log" | tee -a ${OUTPUTFILE}
-      report_result ${TEST} WARN 7
-    else
-      report_result ${TEST}/reboot PASS 0
-    fi
-  else
-    echo "Kernel version after reboot is not '${KVER}': '${ckver}'" | tee -a ${OUTPUTFILE}
+
+  # Make a list of kernel versions we expect to see after reboot.
+  valid_kernel_versions=(
+    "${KVER}"
+    "${KVER}.${ARCH}"
+  )
+  echo "Acceptable kernel version strings: ${valid_kernel_versions[@]} "
+  echo "Running kernel version string:     ${ckver}"
+
+  # Did we get the right kernel running after reboot?
+  if [[ ! " ${valid_kernel_versions[@]} " =~ " ${ckver} " ]]; then
+    echo "❌ Kernel version after reboot (${ckver}) does not match expected version strings!" | tee -a ${OUTPUTFILE}
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
+  fi
+
+  echo "✅ Found the correct kernel version running!"
+
+  # We have the right kernel. Do we have any call traces?
+  dmesg | grep -qi 'Call Trace:'
+  dmesgret=$?
+  if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
+    DMESGLOG=/tmp/dmesg.log
+    dmesg > ${DMESGLOG}
+    rhts_submit_log -l ${DMESGLOG}
+    echo "⚠️  Call trace found in dmesg, see dmesg.log" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 7
+  else
+    report_result ${TEST}/reboot PASS 0
   fi
 fi
