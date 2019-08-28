@@ -275,6 +275,14 @@ function rpm_install()
 }
 
 if [ ${REBOOTCOUNT} -eq 0 ]; then
+
+  # If we haven't rebooted yet, then we shouldn't have the temporary directory
+  # present on the system.
+  rm -rfv /tmp/kpkginstall
+
+  # Make a directory to hold small bits of information for the test.
+  mkdir -p /tmp/kpkginstall
+
   if [ -z "${KPKG_URL}" ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
