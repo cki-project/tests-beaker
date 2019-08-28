@@ -52,9 +52,15 @@ function set_package_name()
 
 function get_kpkg_ver()
 {
+  # Recover the saved package name from /tmp/KPKG_KVER if it exists.
+  if [ -f "/tmp/kpkginstall/KPKG_KVER" ]; then
+    KVER=$(cat /tmp/kpkginstall/KPKG_KVER)
+    return
+  fi
+
   if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
     declare -r kpkg=${KPKG_URL##*/}
-    tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+    KVER=$(tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1')
   else
     if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
       # Repo names in configs are formatted as "USER-REPO", so take the kpkgurl
@@ -65,8 +71,16 @@ function get_kpkg_ver()
     fi
 
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep -m 1 "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+    KVER=$(
+      ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates \
+        | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" \
+        | grep -m 1 "$ARCH.*${REPO_NAME}" \
+        | awk -v arch="$ARCH" '{print $2"."arch}'
+    )
   fi
+
+  # Write the KVER to a file in /tmp so we have it after reboot.
+  echo -n "${KVER}" | tee -a /tmp/kpkginstall/KPKG_KVER
 }
 
 function targz_install()
@@ -83,7 +97,7 @@ function targz_install()
   fi
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER=$(get_kpkg_ver)
+  get_kpkg_ver
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
@@ -245,7 +259,7 @@ function download_install_package()
 function rpm_install()
 {
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER="$(get_kpkg_ver)"
+  get_kpkg_ver
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     report_result ${TEST} WARN 99
@@ -328,7 +342,7 @@ else
     set_package_name
   fi
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER=$(get_kpkg_ver)
+  get_kpkg_ver
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
