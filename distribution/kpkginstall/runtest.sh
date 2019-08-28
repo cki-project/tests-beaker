@@ -18,6 +18,12 @@ function set_package_name()
   # packages we don't want to match will match!
   # Please someone come up with a better solution how to determine the package name...
 
+  # Recover the saved package name from /tmp/KPKG_PACKAGE_NAME if it exists.
+  if [ -f "/tmp/kpkginstall/KPKG_PACKAGE_NAME" ]; then
+    PACKAGE_NAME=$(cat /tmp/kpkginstall/KPKG_PACKAGE_NAME)
+    return
+  fi
+
   if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
     # COPR
     REPO_NAME=${KPKG_URL/\//-}
@@ -37,6 +43,9 @@ function set_package_name()
   if [[ -z $PACKAGE_NAME ]] ; then
       PACKAGE_NAME=kernel
   fi
+
+  # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
+  echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
 
   echo "Package name is ${PACKAGE_NAME}" | tee -a ${OUTPUTFILE}
 }
