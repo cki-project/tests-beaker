@@ -1,0 +1,4 @@
+PURPOSE of /kernel/cpu/die
+
+DESCRIPTION: Simple test which verifies the cpu die layout and compares this
+	     with the numa data provided by lscpu
