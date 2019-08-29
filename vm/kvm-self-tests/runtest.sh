@@ -86,6 +86,14 @@ function disableTests
                 # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741201
                 mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "dirty_log_test")
             fi
+
+            if lscpu | grep --quiet E5504; then
+                # Disable test x86_64/state_test, x86_64/smm_test & x86_64/evmcs_test
+                # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741347
+                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/state_test")
+                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/smm_test")
+                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/evmcs_test")
+            fi
         fi
     fi
 
