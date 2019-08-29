@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x
-
 
 . /usr/bin/rhts_environment.sh
 
