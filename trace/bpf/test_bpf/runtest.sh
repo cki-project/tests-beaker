@@ -36,7 +36,7 @@ yum=$(select_yum_tool)
 
 rlJournalStart
     rlPhaseStartSetup
-        for i in libgcc glibc-static gcc gcc-c++ kernel-devel elfutils-libelf-devel binutils-devel libcap-devel ; do
+        for i in libgcc glibc-static gcc gcc-c++ kernel-devel elfutils-libelf-devel binutils-devel libcap-devel openssl-devel ; do
             $yum install -y $i
         done
         # nfs-utils git util-linux createrepo genisoimage gcc gcc-c++ rpm-build kernel-abi-whitelists wget python-setuptools
@@ -55,10 +55,16 @@ rlJournalStart
         mkdir test_bpf
         find . -name test_bpf.c -exec cp {} test_bpf \;
         echo 'obj-m+= test_bpf.o' > test_bpf/Makefile
+        pushd linux-${KVer}-${KBuild}${KDIST}
+            cp /boot/config-$(uname -r) .config
+            make oldconfig
+            make prepare
+            make modules_prepare
+        popd
         pushd test_bpf
         BEAHARCH=${ARCH}
         unset ARCH
-        make -C /lib/modules/`uname -r`/build M=`pwd` modules
+        make -C ../linux-${KVer}-${KBuild}${KDIST}/ M=`pwd` modules
         popd
         rmmod test_bpf
         ARCH=${BEAHARCH}
