@@ -19,6 +19,7 @@ function set_package_name()
   # Recover the saved package name from /tmp/KPKG_PACKAGE_NAME if it exists.
   if [ -f "/tmp/kpkginstall/KPKG_PACKAGE_NAME" ]; then
     PACKAGE_NAME=$(cat /tmp/kpkginstall/KPKG_PACKAGE_NAME)
+    echo "Reading cached package name: ${PACKAGE_NAME}"
     return
   fi
 
@@ -30,6 +31,7 @@ function set_package_name()
     REPO_NAME='kernel-cki'
   fi
 
+  echo "Getting a list of all packages in the repository..."
   ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
 
   # An empty result for ALL_PACKAGES likely means that the repo has been
@@ -52,11 +54,13 @@ EOF
 
   for possible_name in "kernel-rt" ; do
     if echo "$ALL_PACKAGES" | grep $possible_name ; then
+      echo "📦 Found 'kernel-rt' in package list"
       PACKAGE_NAME=$possible_name
       break
     fi
   done
   if [[ -z $PACKAGE_NAME ]] ; then
+      echo "📦 Found 'kernel' in package list"
       PACKAGE_NAME=kernel
   fi
 
@@ -67,9 +71,10 @@ EOF
   fi
 
   # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
+  echo "💾 Saving package name to disk..."
   echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
 
-  echo "Package name is ${PACKAGE_NAME}" | tee -a ${OUTPUTFILE}
+  echo "📦 Package name is ${PACKAGE_NAME}"
 }
 
 function get_kpkg_ver()
