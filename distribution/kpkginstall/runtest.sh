@@ -40,7 +40,7 @@ function set_package_name()
     cat << EOF
 *******************************************************************************
 *******************************************************************************
-** No packages were found on the RPM repository provided for this test.      **
+** 🔥 No packages were found on the RPM repository provided for this test.   **
 ** This usually happens when the artifacts for a test job are no             **
 ** longer available.                                                         **
 **                                                                           **
