@@ -34,6 +34,24 @@ function set_package_name()
 
   ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
 
+  # An empty result for ALL_PACKAGES likely means that the repo has been
+  # deleted from GitLab's artifact storage.
+  if [ -z $ALL_PACKAGES ]; then
+    cat << EOF
+*******************************************************************************
+*******************************************************************************
+** No packages were found on the RPM repository provided for this test.      **
+** This usually happens when the artifacts for a test job are no             **
+** longer available.                                                         **
+**                                                                           **
+** For more details, email cki-project@redhat.com.                           **
+*******************************************************************************
+*******************************************************************************
+EOF
+    rhts-abort -t recipe
+    exit 1
+  fi
+
   for possible_name in "kernel-rt" ; do
     if echo "$ALL_PACKAGES" | grep $possible_name ; then
       PACKAGE_NAME=$possible_name
@@ -207,6 +225,9 @@ function select_yum_tool()
 
 function rpm_prepare()
 {
+  # Detect if we have yum or dnf and install packages for managing COPR repos.
+  select_yum_tool
+
   # setup yum repo based on url
   cat > /etc/yum.repos.d/kernel-cki.repo << EOF
 [kernel-cki]
@@ -217,9 +238,6 @@ gpgcheck=0
 EOF
   echo "Setup kernel repo file" | tee -a  ${OUTPUTFILE}
   cat /etc/yum.repos.d/kernel-cki.repo 2>&1 | tee -a ${OUTPUTFILE}
-
-  # set YUM var.
-  select_yum_tool
 
   return 0
 }
