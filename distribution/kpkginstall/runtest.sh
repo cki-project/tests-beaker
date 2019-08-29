@@ -18,6 +18,12 @@ function set_package_name()
   # packages we don't want to match will match!
   # Please someone come up with a better solution how to determine the package name...
 
+  # Recover the saved package name from /tmp/KPKG_PACKAGE_NAME if it exists.
+  if [ -f "/tmp/kpkginstall/KPKG_PACKAGE_NAME" ]; then
+    PACKAGE_NAME=$(cat /tmp/kpkginstall/KPKG_PACKAGE_NAME)
+    return
+  fi
+
   if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
     # COPR
     REPO_NAME=${KPKG_URL/\//-}
@@ -38,14 +44,29 @@ function set_package_name()
       PACKAGE_NAME=kernel
   fi
 
+  # Append "-debug" if we were asked to install the debug kernel.
+  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+    echo "Debug kernel was requested -- appending -debug to package name"
+    PACKAGE_NAME=${PACKAGE_NAME}-debug
+  fi
+
+  # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
+  echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
+
   echo "Package name is ${PACKAGE_NAME}" | tee -a ${OUTPUTFILE}
 }
 
 function get_kpkg_ver()
 {
+  # Recover the saved package name from /tmp/KPKG_KVER if it exists.
+  if [ -f "/tmp/kpkginstall/KPKG_KVER" ]; then
+    KVER=$(cat /tmp/kpkginstall/KPKG_KVER)
+    return
+  fi
+
   if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
     declare -r kpkg=${KPKG_URL##*/}
-    tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1'
+    KVER=$(tar tf "$kpkg" | sed -ne '/^boot\/vmlinu[xz]-[1-9]/ {s/^[^-]*-//p;q}; $Q1')
   else
     if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
       # Repo names in configs are formatted as "USER-REPO", so take the kpkgurl
@@ -56,8 +77,16 @@ function get_kpkg_ver()
     fi
 
     # Grab the kernel version from the provided repo directly
-    ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep -m 1 "$ARCH.*${REPO_NAME}" | awk -v arch="$ARCH" '{print $2"."arch}'
+    KVER=$(
+      ${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" "${PACKAGE_NAME}" --showduplicates \
+        | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" \
+        | grep -m 1 "$ARCH.*${REPO_NAME}" \
+        | awk -v arch="$ARCH" '{print $2"."arch}'
+    )
   fi
+
+  # Write the KVER to a file in /tmp so we have it after reboot.
+  echo -n "${KVER}" | tee -a /tmp/kpkginstall/KPKG_KVER
 }
 
 function targz_install()
@@ -74,7 +103,7 @@ function targz_install()
   fi
 
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER=$(get_kpkg_ver)
+  get_kpkg_ver
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
@@ -236,7 +265,7 @@ function download_install_package()
 function rpm_install()
 {
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER="$(get_kpkg_ver)"
+  get_kpkg_ver
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     report_result ${TEST} WARN 99
@@ -244,6 +273,15 @@ function rpm_install()
     exit 0
   else
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
+  fi
+
+  # Ensure that the debug kernel is selected as the default kernel in
+  # /boot/grub2/grubenv.
+  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+    echo "Adjusting settings in /etc/sysconfig/kernel to set debug as default"
+    echo "UPDATEDEFAULT=yes" | tee /etc/sysconfig/kernel
+    echo "DEFAULTKERNEL=kernel-debug" | tee -a /etc/sysconfig/kernel
+    echo "DEFAULTDEBUG=yes" | tee -a /etc/sysconfig/kernel
   fi
 
   # download & install kernel, or report result
@@ -275,6 +313,20 @@ function rpm_install()
 }
 
 if [ ${REBOOTCOUNT} -eq 0 ]; then
+
+  # If we haven't rebooted yet, then we shouldn't have the temporary directory
+  # present on the system.
+  rm -rfv /tmp/kpkginstall
+
+  # Make a directory to hold small bits of information for the test.
+  mkdir -p /tmp/kpkginstall
+
+  # If we are installing a debug kernel, make a reminder for us to check for
+  # a debug kernel after the reboot
+  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+    touch /tmp/kpkginstall/KPKG_INSTALL_DEBUG
+  fi
+
   if [ -z "${KPKG_URL}" ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
@@ -311,7 +363,7 @@ else
     set_package_name
   fi
   echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  KVER=$(get_kpkg_ver)
+  get_kpkg_ver
   if [ -z "${KVER}" ]; then
     echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
     rhts-abort -t recipe
@@ -320,22 +372,44 @@ else
 
   ckver=$(uname -r)
   uname -a | tee -a ${OUTPUTFILE}
-  if [ "${KVER}" = "${ckver}" ] || [ "${KVER}" = "${ckver}.${ARCH}" ]; then
-    dmesg | grep -qi 'Call Trace:'
-    dmesgret=$?
-    if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
-      DMESGLOG=/tmp/dmesg.log
-      dmesg > ${DMESGLOG}
-      rhts_submit_log -l ${DMESGLOG}
-      echo "Call trace found in dmesg, see dmesg.log" | tee -a ${OUTPUTFILE}
-      report_result ${TEST} WARN 7
-    else
-      report_result ${TEST}/reboot PASS 0
-    fi
+
+  # Make a list of kernel versions we expect to see after reboot.
+  if [ -f /tmp/kpkginstall/KPKG_INSTALL_DEBUG ]; then
+    valid_kernel_versions=(
+      "${KVER}.debug"           # RHEL 7 style debug kernels
+      "${KVER}.${ARCH}.debug"   # RHEL 7 style debug kernels
+      "${KVER}+debug"           # RHEL 8 style debug kernels
+      "${KVER}.${ARCH}+debug"   # RHEL 8 style debug kernels
+    )
   else
-    echo "Kernel version after reboot is not '${KVER}': '${ckver}'" | tee -a ${OUTPUTFILE}
+    valid_kernel_versions=(
+      "${KVER}"
+      "${KVER}.${ARCH}"
+    )
+  fi
+  echo "Acceptable kernel version strings: ${valid_kernel_versions[@]} "
+  echo "Running kernel version string:     ${ckver}"
+
+  # Did we get the right kernel running after reboot?
+  if [[ ! " ${valid_kernel_versions[@]} " =~ " ${ckver} " ]]; then
+    echo "❌ Kernel version after reboot (${ckver}) does not match expected version strings!" | tee -a ${OUTPUTFILE}
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
+  fi
+
+  echo "✅ Found the correct kernel version running!"
+
+  # We have the right kernel. Do we have any call traces?
+  dmesg | grep -qi 'Call Trace:'
+  dmesgret=$?
+  if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
+    DMESGLOG=/tmp/dmesg.log
+    dmesg > ${DMESGLOG}
+    rhts_submit_log -l ${DMESGLOG}
+    echo "⚠️  Call trace found in dmesg, see dmesg.log" | tee -a ${OUTPUTFILE}
+    report_result ${TEST} WARN 7
+  else
+    report_result ${TEST}/reboot PASS 0
   fi
 fi
