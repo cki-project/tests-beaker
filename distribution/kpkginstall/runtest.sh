@@ -207,6 +207,9 @@ function select_yum_tool()
 
 function rpm_prepare()
 {
+  # Detect if we have yum or dnf and install packages for managing COPR repos.
+  select_yum_tool
+
   # setup yum repo based on url
   cat > /etc/yum.repos.d/kernel-cki.repo << EOF
 [kernel-cki]
@@ -217,9 +220,6 @@ gpgcheck=0
 EOF
   echo "Setup kernel repo file" | tee -a  ${OUTPUTFILE}
   cat /etc/yum.repos.d/kernel-cki.repo 2>&1 | tee -a ${OUTPUTFILE}
-
-  # set YUM var.
-  select_yum_tool
 
   return 0
 }
