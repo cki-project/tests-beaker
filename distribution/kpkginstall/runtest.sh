@@ -82,6 +82,7 @@ function get_kpkg_ver()
   # Recover the saved package name from /tmp/KPKG_KVER if it exists.
   if [ -f "/tmp/kpkginstall/KPKG_KVER" ]; then
     KVER=$(cat /tmp/kpkginstall/KPKG_KVER)
+    echo "💾 Reading cached kernel package version: ${KPKG}"
     return
   fi
 
@@ -106,7 +107,10 @@ function get_kpkg_ver()
     )
   fi
 
+  echo "📦 Setting kernel package version: ${KVER}"
+
   # Write the KVER to a file in /tmp so we have it after reboot.
+  echo "💾 Saving kernel package version to disk..."
   echo -n "${KVER}" | tee -a /tmp/kpkginstall/KPKG_KVER
 }
 
