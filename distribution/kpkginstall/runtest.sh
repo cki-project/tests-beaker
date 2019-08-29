@@ -44,6 +44,12 @@ function set_package_name()
       PACKAGE_NAME=kernel
   fi
 
+  # Append "-debug" if we were asked to install the debug kernel.
+  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+    echo "Debug kernel was requested -- appending -debug to package name"
+    PACKAGE_NAME=${PACKAGE_NAME}-debug
+  fi
+
   # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
   echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
 
@@ -269,6 +275,15 @@ function rpm_install()
     echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
   fi
 
+  # Ensure that the debug kernel is selected as the default kernel in
+  # /boot/grub2/grubenv.
+  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+    echo "Adjusting settings in /etc/sysconfig/kernel to set debug as default"
+    echo "UPDATEDEFAULT=yes" | tee /etc/sysconfig/kernel
+    echo "DEFAULTKERNEL=kernel-debug" | tee -a /etc/sysconfig/kernel
+    echo "DEFAULTDEBUG=yes" | tee -a /etc/sysconfig/kernel
+  fi
+
   # download & install kernel, or report result
   download_install_package "${PACKAGE_NAME}-$KVER" "kernel"
 
@@ -305,6 +320,12 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   # Make a directory to hold small bits of information for the test.
   mkdir -p /tmp/kpkginstall
+
+  # If we are installing a debug kernel, make a reminder for us to check for
+  # a debug kernel after the reboot
+  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+    touch /tmp/kpkginstall/KPKG_INSTALL_DEBUG
+  fi
 
   if [ -z "${KPKG_URL}" ]; then
     echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
@@ -353,10 +374,19 @@ else
   uname -a | tee -a ${OUTPUTFILE}
 
   # Make a list of kernel versions we expect to see after reboot.
-  valid_kernel_versions=(
-    "${KVER}"
-    "${KVER}.${ARCH}"
-  )
+  if [ -f /tmp/kpkginstall/KPKG_INSTALL_DEBUG ]; then
+    valid_kernel_versions=(
+      "${KVER}.debug"           # RHEL 7 style debug kernels
+      "${KVER}.${ARCH}.debug"   # RHEL 7 style debug kernels
+      "${KVER}+debug"           # RHEL 8 style debug kernels
+      "${KVER}.${ARCH}+debug"   # RHEL 8 style debug kernels
+    )
+  else
+    valid_kernel_versions=(
+      "${KVER}"
+      "${KVER}.${ARCH}"
+    )
+  fi
   echo "Acceptable kernel version strings: ${valid_kernel_versions[@]} "
   echo "Running kernel version string:     ${ckver}"
 
