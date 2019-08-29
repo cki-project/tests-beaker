@@ -52,7 +52,7 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     IPMItool loop stress test" >> $(METADATA)
 	@echo "Type:            Stress" >> $(METADATA)
-	@echo "TestTime:        60m" >> $(METADATA)
+	@echo "TestTime:        120m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        ipmitool" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
