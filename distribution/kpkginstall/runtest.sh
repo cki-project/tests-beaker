@@ -71,7 +71,7 @@ EOF
   # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
   echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
 
-  echo "Package name is ${PACKAGE_NAME}" | tee -a ${OUTPUTFILE}
+  echo "Package name is ${PACKAGE_NAME}"
 }
 
 function get_kpkg_ver()
@@ -110,30 +110,30 @@ function get_kpkg_ver()
 function targz_install()
 {
   declare -r kpkg=${KPKG_URL##*/}
-  echo "Fetching kpkg from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
-  curl -OL "${KPKG_URL}" 2>&1 | tee -a ${OUTPUTFILE}
+  echo "Fetching kpkg from ${KPKG_URL}"
+  curl -OL "${KPKG_URL}" 2>&1
 
   if [ $? -ne 0 ]; then
-    echo "Failed to fetch package from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
+    echo "Failed to fetch package from ${KPKG_URL}"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
   fi
 
-  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
+  echo "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    echo "Failed to extract kernel version from the package"
     rhts-abort -t recipe
     exit 1
   else
-    echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
+    echo "Kernel version is ${KVER}"
   fi
 
-  tar xfh ${kpkg} -C / 2>&1 | tee -a ${OUTPUTFILE}
+  tar xfh ${kpkg} -C / 2>&1
 
   if [ $? -ne 0 ]; then
-    echo "Failed to extract package ${kpkg}" | tee -a ${OUTPUTFILE}
+    echo "Failed to extract package ${kpkg}"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -186,10 +186,10 @@ function targz_install()
   esac
 
   if [ ! -x /sbin/new-kernel-pkg ]; then
-    kernel-install add ${KVER} /boot/vmlinuz-${KVER} 2>&1 | tee -a ${OUTPUTFILE}
-    grubby --set-default /boot/vmlinuz-${KVER} 2>&1 | tee -a ${OUTPUTFILE}
+    kernel-install add ${KVER} /boot/vmlinuz-${KVER} 2>&1
+    grubby --set-default /boot/vmlinuz-${KVER} 2>&1
   else
-    new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} 2>&1 | tee -a ${OUTPUTFILE}
+    new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} 2>&1
   fi
 
   # Workaround for kernel-install problem when it's not sourcing os-release
@@ -199,7 +199,7 @@ function targz_install()
       # code on BLS systems and when this file exists, to prevent weird failures.
       for f in /boot/loader/entries/*"${KVER}".conf ; do
         title=$(grep title "${f}" | sed "s/[[:space:]]*$//")
-        echo "Removing trailing whitespace in title record of $f" | tee -a ${OUTPUTFILE}
+        echo "Removing trailing whitespace in title record of $f"
         sed -i "s/title.*/$title/" "${f}"
       done
   fi
@@ -216,7 +216,7 @@ function select_yum_tool()
     ALL="all"
     ${YUM} install -y yum-plugin-copr
   else
-    echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
+    echo "No tool to download kernel from a repo"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -236,8 +236,8 @@ baseurl=${KPKG_URL}
 enabled=1
 gpgcheck=0
 EOF
-  echo "Setup kernel repo file" | tee -a  ${OUTPUTFILE}
-  cat /etc/yum.repos.d/kernel-cki.repo 2>&1 | tee -a ${OUTPUTFILE}
+  echo "Setup kernel repo file"
+  cat /etc/yum.repos.d/kernel-cki.repo 2>&1
 
   return 0
 }
@@ -249,7 +249,7 @@ function copr_prepare()
 
   ${YUM} copr enable -y "${KPKG_URL}"
   if [ $? -ne 0 ]; then
-    echo "Can't enable COPR repo!" | tee -a ${OUTPUTFILE}
+    echo "Can't enable COPR repo!"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
   fi
@@ -258,11 +258,11 @@ function copr_prepare()
 
 function download_install_package()
 {
-  $YUM install --downloadonly -y $1 2>&1 | tee -a ${OUTPUTFILE}
+  $YUM install --downloadonly -y $1 2>&1
 
   # If download of a package fails, report warn/abort -> infrastructure issue
   if [ $? -ne 0 ]; then
-    echo "Failed to download $2!" 2>&1 | tee -a ${OUTPUTFILE}
+    echo "Failed to download $2!" 2>&1
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -271,9 +271,9 @@ function download_install_package()
   # If installation of a downloaded package fails, report fail/abort
   # -> distro issue
 
-  $YUM install -y $1 2>&1 | tee -a ${OUTPUTFILE}
+  $YUM install -y $1 2>&1
   if [ $? -ne 0 ]; then
-    echo "Failed to install $2!" | tee -a ${OUTPUTFILE}
+    echo "Failed to install $2!"
     report_result ${TEST} FAIL 1
     rhts-abort -t recipe
     exit 1
@@ -282,15 +282,15 @@ function download_install_package()
 
 function rpm_install()
 {
-  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
+  echo "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    echo "Failed to extract kernel version from the package"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
   else
-    echo "Kernel version is ${KVER}" | tee -a ${OUTPUTFILE}
+    echo "Kernel version is ${KVER}"
   fi
 
   # Ensure that the debug kernel is selected as the default kernel in
@@ -305,21 +305,21 @@ function rpm_install()
   # download & install kernel, or report result
   download_install_package "${PACKAGE_NAME}-$KVER" "kernel"
 
-  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
+  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1
   if [ $? -ne 0 ]; then
-    echo "No package kernel-devel-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
-    echo "Note that some tests might require the package and can fail!" | tee -a ${OUTPUTFILE}
+    echo "No package kernel-devel-${KVER} found, skipping!"
+    echo "Note that some tests might require the package and can fail!"
   fi
-  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" 2>&1 | tee -a ${OUTPUTFILE}
+  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" 2>&1
   if [ $? -ne 0 ]; then
-    echo "No package kernel-headers-${KVER} found, skipping!" | tee -a ${OUTPUTFILE}
+    echo "No package kernel-headers-${KVER} found, skipping!"
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL
   if $YUM search kernel-firmware | grep "^kernel-firmware\.noarch" ; then
-      $YUM install -y kernel-firmware 2>&1 | tee -a ${OUTPUTFILE}
+      $YUM install -y kernel-firmware 2>&1
   else
-      $YUM install -y linux-firmware 2>&1 | tee -a ${OUTPUTFILE}
+      $YUM install -y linux-firmware 2>&1
   fi
 
   # Workaround for BZ 1698363
@@ -346,7 +346,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   if [ -z "${KPKG_URL}" ]; then
-    echo "No KPKG_URL specified" | tee -a ${OUTPUTFILE}
+    echo "No KPKG_URL specified"
     rhts-abort -t recipe
     exit 1
   fi
@@ -364,13 +364,13 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   if [ $? -ne 0 ]; then
-    echo "Failed installing kernel ${KVER}" | tee -a ${OUTPUTFILE}
+    echo "Failed installing kernel ${KVER}"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
   fi
 
-  echo "Installed kernel ${KVER}, rebooting" | tee -a ${OUTPUTFILE}
+  echo "Installed kernel ${KVER}, rebooting"
   report_result ${TEST}/kernel-in-place PASS 0
   rhts-reboot
 else
@@ -380,16 +380,16 @@ else
   if [[ ! "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
     set_package_name
   fi
-  echo "Extracting kernel version from ${KPKG_URL}" | tee -a ${OUTPUTFILE}
+  echo "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    echo "Failed to extract kernel version from the package" | tee -a ${OUTPUTFILE}
+    echo "Failed to extract kernel version from the package"
     rhts-abort -t recipe
     exit 1
   fi
 
   ckver=$(uname -r)
-  uname -a | tee -a ${OUTPUTFILE}
+  uname -a
 
   # Make a list of kernel versions we expect to see after reboot.
   if [ -f /tmp/kpkginstall/KPKG_INSTALL_DEBUG ]; then
@@ -410,7 +410,7 @@ else
 
   # Did we get the right kernel running after reboot?
   if [[ ! " ${valid_kernel_versions[@]} " =~ " ${ckver} " ]]; then
-    echo "❌ Kernel version after reboot (${ckver}) does not match expected version strings!" | tee -a ${OUTPUTFILE}
+    echo "❌ Kernel version after reboot (${ckver}) does not match expected version strings!"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -425,7 +425,7 @@ else
     DMESGLOG=/tmp/dmesg.log
     dmesg > ${DMESGLOG}
     rhts_submit_log -l ${DMESGLOG}
-    echo "⚠️  Call trace found in dmesg, see dmesg.log" | tee -a ${OUTPUTFILE}
+    echo "⚠️  Call trace found in dmesg, see dmesg.log"
     report_result ${TEST} WARN 7
   else
     report_result ${TEST}/reboot PASS 0
