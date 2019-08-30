@@ -132,7 +132,7 @@ function knownissue_filter()
 	# Issue TBD
 	tskip "madvise09" fatal
 	# Issue TBD
-	tskip "ksm0.*" unfix
+	tskip "ksm0.*" fatal
 	# Issue TBD
 	tskip "timer_create01" unfix
 	# Issue TBD
@@ -146,11 +146,17 @@ function knownissue_filter()
 	# Issue TBD
 	tskip "fs_fill" unfix
 	# Issue TBD
-	tskip "min_free_kbytes" unfix
+	tskip "min_free_kbytes" fatal
 	# Issue TBD
 	tskip "msgstress0.*" unfix
 	# Issue TBD
 	tskip "epoll_wait02" unfix
+	# Issue TBD
+	tskip "ftrace-stress-test" fatal
+	# Issue TBD
+	tskip "sync_file_range02" unfix
+	# Issue TBD
+	tskip "signal06" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
