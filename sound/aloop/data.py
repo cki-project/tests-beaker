@@ -16,7 +16,7 @@ elif cmd == "check":
   fp = open(file, "rb")
   i = sync = 0
   while i < frames:
-    frame = fp.read(4)
+    frame = bytearray(fp.read(4))
     if len(frame) == 0: break
     if frame != b'\x00\x00\x00\x00': sync = 1
     if sync:
