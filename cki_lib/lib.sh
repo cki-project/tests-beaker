@@ -1,6 +1,27 @@
 #!/bin/bash
 # Common helper functions to be used by all CKI tests
 
+function abort_recipe()
+{
+  # When a serious problem occurs and we cannot proceed any further, we abort
+  # this recipe with an error message.
+  #
+  # Arguments:
+  #   $1 - the message to print in the log
+  #   $2 - 'WARN' or 'FAIL'
+  FAILURE_MESSAGE=$1
+  FAILURE_TYPE=${2:FAIL}
+
+  echo "❌ ${FAILURE_MESSAGE}"
+  if [[ $FAILURE_TYPE == 'WARN' ]]; then
+    report_result ${TEST} WARN 99
+  else
+    report_result ${TEST} FAIL 1
+  fi
+  rhts-abort -t recipe
+  exit 1
+}
+
 function cki_yum_tool()
 {
   if [ -x /usr/bin/dnf ]; then
@@ -13,3 +34,4 @@ function cki_yum_tool()
     exit 0
   fi
 }
+

@@ -48,3 +48,4 @@ $(METADATA): Makefile
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Requires:        $(PACKAGE_NAME) make curl grubby tar binutils" >> $(METADATA)
+	@echo "RepoRequires:    cki_lib" >> $(METADATA)
