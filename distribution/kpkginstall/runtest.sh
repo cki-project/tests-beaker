@@ -9,6 +9,10 @@ REBOOTCOUNT=${REBOOTCOUNT:-0}
 YUM=""
 PACKAGE_NAME=""
 
+# Bring in library functions.
+CDIR=$(dirname $FILE)
+source ${CDIR%}/../../cki_lib/lib.sh
+
 function set_package_name()
 {
   # We can't do a simple "grep for anything kernel-like" because of packages like
@@ -48,8 +52,7 @@ function set_package_name()
 *******************************************************************************
 *******************************************************************************
 EOF
-    rhts-abort -t recipe
-    exit 1
+    abort_recipe "RPM repository is unavailable" FAIL
   fi
 
   for possible_name in "kernel-rt" ; do
@@ -115,18 +118,13 @@ function targz_install()
   if curl -OL "${KPKG_URL}" 2>&1; then
     echo "✅ Downloaded kernel package successfully from ${KPKG_URL}"
   else
-    echo "❌ Failed to download package from ${KPKG_URL}"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "Failed to download package from ${KPKG_URL}" WARN
   fi
 
   echo "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    echo "Failed to extract kernel version from the package"
-    rhts-abort -t recipe
-    exit 1
+    abort_recipe "Failed to extract kernel version from the package" FAIL
   else
     echo "Kernel version is ${KVER}"
   fi
@@ -134,10 +132,7 @@ function targz_install()
   if tar xfh ${kpkg} -C / 2>&1; then
     echo "✅ Extracted kernel package successfully: ${kpkg}"
   else
-    echo "❌ Failed to extract kernel package: ${kpkg}"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "Failed to extract kernel package: ${kpkg}" WARN
   fi
 
   case ${ARCH} in
@@ -217,10 +212,7 @@ function select_yum_tool()
     ALL="all"
     ${YUM} install -y yum-plugin-copr
   else
-    echo "No tool to download kernel from a repo"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "No tool to download kernel from a repo" WARN
   fi
 }
 
@@ -251,9 +243,7 @@ function copr_prepare()
   if ${YUM} copr enable -y "${KPKG_URL}"; then
     echo "✅ Successfully enabled COPR repository: ${KPKG_URL}"
   else
-    echo "❌ Could not enable COPR repository: ${KPKG_URL}"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
+    abort_recipe "Could not enable COPR repository: ${KPKG_URL}" WARN
   fi
   return 0
 }
@@ -264,10 +254,7 @@ function download_install_package()
   if $YUM install --downloadonly -y $1 2>&1; then
     echo "✅ Downloaded $1 successfully"
   else
-    echo "❌ Failed to download ${1}!" 2>&1
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "Failed to download ${1}!" WARN
   fi
 
   # If installation of a downloaded package fails, report fail/abort
@@ -275,10 +262,7 @@ function download_install_package()
   if $YUM install -y $1 2>&1; then
     echo "✅ Installed $1 successfully"
   else
-    echo "❌ Failed to install $1!"
-    report_result ${TEST} FAIL 1
-    rhts-abort -t recipe
-    exit 1
+    abort_recipe "Failed to install $1!" FAIL
   fi
 }
 
@@ -287,10 +271,7 @@ function rpm_install()
   echo "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    echo "Failed to extract kernel version from the package"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "Failed to extract kernel version from the package" FAIL
   else
     echo "Kernel version is ${KVER}"
   fi
@@ -350,9 +331,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   if [ -z "${KPKG_URL}" ]; then
-    echo "No KPKG_URL specified"
-    rhts-abort -t recipe
-    exit 1
+    abort_recipe "No KPKG_URL specified" FAIL
   fi
 
   if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
@@ -368,10 +347,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   if [ $? -ne 0 ]; then
-    echo "Failed installing kernel ${KVER}"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "Failed installing kernel ${KVER}" WARN
   fi
 
   echo "Installed kernel ${KVER}, rebooting"
@@ -387,9 +363,7 @@ else
   echo "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    echo "Failed to extract kernel version from the package"
-    rhts-abort -t recipe
-    exit 1
+    abort_recipe  "Failed to extract kernel version from the package" FAIL
   fi
 
   ckver=$(uname -r)
@@ -414,10 +388,7 @@ else
 
   # Did we get the right kernel running after reboot?
   if [[ ! " ${valid_kernel_versions[@]} " =~ " ${ckver} " ]]; then
-    echo "❌ Kernel version after reboot (${ckver}) does not match expected version strings!"
-    report_result ${TEST} WARN 99
-    rhts-abort -t recipe
-    exit 0
+    abort_recipe "Kernel version after reboot (${ckver}) does not match expected version strings!" WARN
   fi
 
   echo "✅ Found the correct kernel version running!"
