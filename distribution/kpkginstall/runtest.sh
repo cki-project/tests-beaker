@@ -111,10 +111,11 @@ function targz_install()
 {
   declare -r kpkg=${KPKG_URL##*/}
   echo "Fetching kpkg from ${KPKG_URL}"
-  curl -OL "${KPKG_URL}" 2>&1
 
-  if [ $? -ne 0 ]; then
-    echo "Failed to fetch package from ${KPKG_URL}"
+  if curl -OL "${KPKG_URL}" 2>&1; then
+    echo "✅ Downloaded kernel package successfully from ${KPKG_URL}"
+  else
+    echo "❌ Failed to download package from ${KPKG_URL}"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -130,10 +131,10 @@ function targz_install()
     echo "Kernel version is ${KVER}"
   fi
 
-  tar xfh ${kpkg} -C / 2>&1
-
-  if [ $? -ne 0 ]; then
-    echo "Failed to extract package ${kpkg}"
+  if tar xfh ${kpkg} -C / 2>&1; then
+    echo "✅ Extracted kernel package successfully: ${kpkg}"
+  else
+    echo "❌ Failed to extract kernel package: ${kpkg}"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -247,9 +248,10 @@ function copr_prepare()
   # set YUM var.
   select_yum_tool
 
-  ${YUM} copr enable -y "${KPKG_URL}"
-  if [ $? -ne 0 ]; then
-    echo "Can't enable COPR repo!"
+  if ${YUM} copr enable -y "${KPKG_URL}"; then
+    echo "✅ Successfully enabled COPR repository: ${KPKG_URL}"
+  else
+    echo "❌ Could not enable COPR repository: ${KPKG_URL}"
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
   fi
@@ -258,11 +260,11 @@ function copr_prepare()
 
 function download_install_package()
 {
-  $YUM install --downloadonly -y $1 2>&1
-
   # If download of a package fails, report warn/abort -> infrastructure issue
-  if [ $? -ne 0 ]; then
-    echo "Failed to download $2!" 2>&1
+  if $YUM install --downloadonly -y $1 2>&1; then
+    echo "✅ Downloaded $1 successfully"
+  else
+    echo "❌ Failed to download ${1}!" 2>&1
     report_result ${TEST} WARN 99
     rhts-abort -t recipe
     exit 0
@@ -270,10 +272,10 @@ function download_install_package()
 
   # If installation of a downloaded package fails, report fail/abort
   # -> distro issue
-
-  $YUM install -y $1 2>&1
-  if [ $? -ne 0 ]; then
-    echo "Failed to install $2!"
+  if $YUM install -y $1 2>&1; then
+    echo "✅ Installed $1 successfully"
+  else
+    echo "❌ Failed to install $1!"
     report_result ${TEST} FAIL 1
     rhts-abort -t recipe
     exit 1
@@ -305,14 +307,16 @@ function rpm_install()
   # download & install kernel, or report result
   download_install_package "${PACKAGE_NAME}-$KVER" "kernel"
 
-  $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1
-  if [ $? -ne 0 ]; then
-    echo "No package kernel-devel-${KVER} found, skipping!"
-    echo "Note that some tests might require the package and can fail!"
+
+  if $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" 2>&1; then
+    echo "✅ Installed ${PACKAGE_NAME}-devel-${KVER} successfully"
+  else
+    echo "❌ No package kernel-devel-${KVER} found, skipping!"
+    echo "⚠️  Note that some tests might require the package and can fail!"
   fi
-  $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" 2>&1
-  if [ $? -ne 0 ]; then
-    echo "No package kernel-headers-${KVER} found, skipping!"
+  if $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" 2>&1; then
+    echo "❌ No package kernel-headers-${KVER} found, skipping!"
+    echo "⚠️  Note that some tests might require the package and can fail!"
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL
