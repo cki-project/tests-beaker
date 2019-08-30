@@ -10,7 +10,7 @@ function abort_recipe()
   #   $1 - the message to print in the log
   #   $2 - 'WARN' or 'FAIL'
   FAILURE_MESSAGE=$1
-  FAILURE_TYPE=${2:FAIL}
+  FAILURE_TYPE=${2:-"FAIL"}
 
   echo "❌ ${FAILURE_MESSAGE}"
   if [[ $FAILURE_TYPE == 'WARN' ]]; then
