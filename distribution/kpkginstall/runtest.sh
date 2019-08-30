@@ -14,6 +14,36 @@ FILE=$(readlink -f ${BASH_SOURCE})
 CDIR=$(dirname $FILE)
 source ${CDIR%}/../../cki_lib/lib.sh
 
+function parse_kpkg_url_variables()
+{
+  # The KPKG_URL can contain variables after a pound sign that are important
+  # for this script. For example:
+  #    https://example.com/job/12345/repo#package_name=kernel-rt&amp;foo=bar
+  # In those situations we need to:
+  #   1) Remove the pound sign and variables from KPKG_URL
+  #   2) Parse those URL variables into shell variables
+
+  # Get the params from the end of KPKG_URL
+  KPKG_PARAMS=$(grep -oP "\#\K(.*)$" <<< $KPKG_URL)
+
+  # Clean up KPKG_URL so that it contains only the URL without variables.
+  KPKG_URL=${KPKG_URL%\#*}
+
+  # Kudos to Dennis for the inspiration here:
+  #   https://stackoverflow.com/questions/3919755/how-to-parse-query-string-from-a-bash-cgi-script
+  saveIFS=$IFS                   # Store the current field separator
+  IFS='=&'                       # Set a new field separate for parameter delimiters
+  parm=(${KPKG_PARAMS/&amp;/&})  # Split the variables into their pieces
+  IFS=$saveIFS                   # Restore the original field separator
+
+  # Loop over the variables we found and set KPKG_VAR_"KEY" = VALUE. We make
+  # all keys uppercase for consistency.
+  for ((i=0; i<${#parm[@]}; i+=2))
+  do
+      readonly KPKG_VAR_${parm[i]^^}=${parm[i+1]}
+  done
+}
+
 function set_package_name()
 {
   # We can't do a simple "grep for anything kernel-like" because of packages like
@@ -28,6 +58,39 @@ function set_package_name()
     PACKAGE_NAME=$(cat /tmp/kpkginstall/KPKG_PACKAGE_NAME)
     return
   fi
+
+  # If the pipeline provides the package name after the # sign in the URL, we
+  # can use that here and be done really fast.
+  if [ ! -z "${KPKG_VAR_PACKAGE_NAME:-}" ]; then
+    PACKAGE_NAME=$KPKG_VAR_PACKAGE_NAME
+  fi
+
+  # If we don't know the package name at this point, then we need to determine
+  # it from the repository itself.
+  # NOTE(mhayden): This is a little less reliable and should be removed in the
+  # future when all instance of KPKG_URL have package names specified.
+  if [ -z "${PACKAGE_NAME:-}" ]; then
+    get_package_name_from_repo
+  fi
+
+  # Append "-debug" if we were asked to install the debug kernel.
+  if [[ "${KPKG_VAR_DEBUG:no}" == "yes" ]]; then
+    echo "Debug kernel was requested -- appending -debug to package name"
+    PACKAGE_NAME=${PACKAGE_NAME}-debug
+  fi
+
+  # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
+  echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
+
+  echo "Package name is ${PACKAGE_NAME}"
+}
+
+function get_package_name_from_repo()
+{
+  # Detemine the package name based on the packages found in the RPM
+  # repository.
+  # NOTE(mhayden): This is a little less reliable and should be removed in the
+  # future when all instance of KPKG_URL have package names specified.
 
   if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
     # COPR
@@ -65,17 +128,6 @@ EOF
   if [[ -z $PACKAGE_NAME ]] ; then
       PACKAGE_NAME=kernel
   fi
-
-  # Append "-debug" if we were asked to install the debug kernel.
-  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
-    echo "Debug kernel was requested -- appending -debug to package name"
-    PACKAGE_NAME=${PACKAGE_NAME}-debug
-  fi
-
-  # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
-  echo -n "${PACKAGE_NAME}" | tee -a /tmp/kpkginstall/KPKG_PACKAGE_NAME
-
-  echo "Package name is ${PACKAGE_NAME}"
 }
 
 function get_kpkg_ver()
@@ -279,7 +331,7 @@ function rpm_install()
 
   # Ensure that the debug kernel is selected as the default kernel in
   # /boot/grub2/grubenv.
-  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
+  if [[ "${KPKG_VAR_DEBUG:no}" == "yes" ]]; then
     echo "Adjusting settings in /etc/sysconfig/kernel to set debug as default"
     echo "UPDATEDEFAULT=yes" | tee /etc/sysconfig/kernel
     echo "DEFAULTKERNEL=kernel-debug" | tee -a /etc/sysconfig/kernel
@@ -325,10 +377,16 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   # Make a directory to hold small bits of information for the test.
   mkdir -p /tmp/kpkginstall
 
+  # If the KPKG_URL contains a pound sign, then we have variables on the end
+  # which need to be removed and parsed.
+  if [[ $KPKG_URL =~ \# ]]; then
+      parse_kpkg_url_variables
+  fi
+
   # If we are installing a debug kernel, make a reminder for us to check for
   # a debug kernel after the reboot
-  if [[ "${KPKG_INSTALL_DEBUG:-}" == "yes" ]]; then
-    touch /tmp/kpkginstall/KPKG_INSTALL_DEBUG
+  if [[ "${KPKG_VAR_DEBUG:no}" == "yes" ]]; then
+    echo "yes" | tee /tmp/kpkginstall/KPKG_VAR_DEBUG
   fi
 
   if [ -z "${KPKG_URL}" ]; then
@@ -371,7 +429,7 @@ else
   uname -a
 
   # Make a list of kernel versions we expect to see after reboot.
-  if [ -f /tmp/kpkginstall/KPKG_INSTALL_DEBUG ]; then
+  if [ -f /tmp/kpkginstall/KPKG_VAR_DEBUG ]; then
     valid_kernel_versions=(
       "${KVER}.debug"           # RHEL 7 style debug kernels
       "${KVER}.${ARCH}.debug"   # RHEL 7 style debug kernels
