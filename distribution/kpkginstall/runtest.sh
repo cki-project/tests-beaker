@@ -10,6 +10,7 @@ YUM=""
 PACKAGE_NAME=""
 
 # Bring in library functions.
+FILE=$(readlink -f ${BASH_SOURCE})
 CDIR=$(dirname $FILE)
 source ${CDIR%}/../../cki_lib/lib.sh
 
