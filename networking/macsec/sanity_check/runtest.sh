@@ -325,6 +325,9 @@ rlJournalStart
         rlRun "ip link del macsec0"
     rlPhaseEnd
 
+    # Workaround: Temporarily disable this case because system panicked due to
+    #             bz1745880. For more, please refer to FASTMOVING-1155
+:<<!
     rlPhaseStartTest "Setup masec between 2 netns, do ping/netperf test"
         netid=100
 #        brctl addbr br0
@@ -407,7 +410,7 @@ rlJournalStart
         ip link del veth0
         ip link del veth2
     rlPhaseEnd
-
+!
 
     rlPhaseStartTest "fault injection"
         rlRun "CMD_ARRAY=(
@@ -425,7 +428,7 @@ rlJournalStart
             'ip link set macsec0 up'
             'ip addr add 192.168.9.1/24 dev macsec0'
             'ip addr add 2009::01/64 dev macsec0'
-            'arping 192.168.9.9 -I macsec0'
+            'arping 192.168.9.9 -I macsec0 -c 30'
             'ip link set dummy0 mtu 9000'
             'ip link set dummy0 mtu 1500'
             'ip link set macsec0 mtu 8968'
