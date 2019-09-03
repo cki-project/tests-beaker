@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Red Hat, Inc. All rights reserved. This copyrighted material 
+# Copyright (c) 2014 Red Hat, Inc. All rights reserved. This copyrighted material
 # is made available to anyone wishing to use, modify, copy, or
 # redistribute it subject to the terms and conditions of the GNU General
 # Public License v.2.
@@ -47,5 +47,5 @@ $(METADATA): Makefile
 	@echo "License:         GPL" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	@echo "Requires:        $(PACKAGE_NAME) make curl grubby tar binutils" >> $(METADATA)
+	@echo "Requires:        make curl grubby tar binutils" >> $(METADATA)
 	@echo "RepoRequires:    cki_lib" >> $(METADATA)
