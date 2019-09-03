@@ -35,3 +35,20 @@ function cki_yum_tool()
   fi
 }
 
+function print_info()
+{
+  # Print an informational message with a friendly emoji.
+  echo "ℹ️ ${1}"
+}
+
+function print_success()
+{
+  # Print a success message with a friendly emoji.
+  echo "✅ ${1}"
+}
+
+function print_warning()
+{
+  # Print an warning message with a friendly emoji.
+  echo "⚠️ ${1}"
+}
