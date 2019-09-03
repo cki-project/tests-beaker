@@ -6,6 +6,7 @@ ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
 YUM=""
 PACKAGE_NAME=""
+REQUIRED_PACKAGES="binutils curl grubby make tar"
 
 # Bring in library functions.
 FILE=$(readlink -f ${BASH_SOURCE})
@@ -275,15 +276,12 @@ function select_yum_tool()
   fi
 
   print_info "Installing package manager prerequisites"
-  ${YUM} install -y ${COPR_PLUGIN_PACKAGE} > /dev/null
+  ${YUM} install -y ${REQUIRED_PACKAGES} ${COPR_PLUGIN_PACKAGE} > /dev/null
   print_success "Package manager prerequisites installed successfully"
 }
 
 function rpm_prepare()
 {
-  # Detect if we have yum or dnf and install packages for managing COPR repos.
-  select_yum_tool
-
   # setup yum repo based on url
   cat > /etc/yum.repos.d/kernel-cki.repo << EOF
 [kernel-cki]
@@ -299,9 +297,6 @@ EOF
 
 function copr_prepare()
 {
-  # set YUM var.
-  select_yum_tool
-
   if ${YUM} copr enable -y "${KPKG_URL}"; then
     print_success "Successfully enabled COPR repository: ${KPKG_URL}"
   else
@@ -384,6 +379,9 @@ function rpm_install()
   return 0
 }
 
+# Select the correct yum tool (yum or dnf) and install basic packages.
+select_yum_tool
+
 if [ ${REBOOTCOUNT} -eq 0 ]; then
 
   # If we haven't rebooted yet, then we shouldn't have the temporary directory
@@ -440,9 +438,6 @@ EOF
   report_result ${TEST}/kernel-in-place PASS 0
   rhts-reboot
 else
-  # set YUM var.
-  select_yum_tool
-
   if [[ ! "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
     set_package_name
   fi
