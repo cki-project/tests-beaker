@@ -79,16 +79,18 @@ else
 fi
 
 KVM_SYSFS=/sys/module/kvm/parameters/
-KVM_OPTIONS_X86="enable_vmware_backdoor force_emulation_prefix"
+KVM_OPTIONS_X86="enable_vmware_backdoor force_emulation_prefix nested"
 
 if [[ $hwpf == "x86_64" ]]; then
     # set the virt kernel parameters
     echo -e "options kvm force_emulation_prefix=1\noptions kvm enable_vmware_backdoor=1" > /etc/modprobe.d/kvm-ci.conf
     # reload the modules
     if (lsmod | grep -q kvm_intel); then
+        echo -e "options kvm_intel nested=1" >> /etc/modprobe.d/kvm-ci.conf
         rmmod kvm_intel kvm
         modprobe kvm_intel kvm
     elif (lsmod | grep -q kvm_amd); then
+        echo -e "options kvm_amd nested=1" >> /etc/modprobe.d/kvm-ci.conf
         rmmod kvm_amd kvm
         modprobe kvm_amd kvm
     fi
