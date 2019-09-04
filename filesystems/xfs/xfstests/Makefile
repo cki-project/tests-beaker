@@ -28,6 +28,10 @@ clean:
 	rm -f *~ *.rpm
 	rm -f $(METADATA)
 
+# Retrieve the OS release.
+OS_DIST=$(shell . /etc/os-release && echo $${ID})
+OS_VER=$(shell . /etc/os-release && echo $${VERSION_ID%.*})
+
 # Include Common Makefile
 include /usr/share/rhts/lib/rhts-make.include
 
@@ -48,7 +52,12 @@ $(METADATA): Makefile
 	@echo "RunFor:       attr"              >> $(METADATA)
 	@echo "Type:         Regression"        >> $(METADATA)
 	@echo "Type:         KernelTier2"       >> $(METADATA)
+# Some packages only make sense for RHEL, not Fedora.
+ifeq ($(OS_DIST),rhel)
 	@echo "Requires:     vdo kmod-kvdo"     >> $(METADATA)
+	@echo "Requires:     e4fsprogs"	        >> $(METADATA)
+	@echo "Requires:     xfs-kmod"          >> $(METADATA)
+endif
 	@echo "Requires:     acl"               >> $(METADATA)
 	@echo "Requires:     attr"              >> $(METADATA)
 	@echo "Requires:     autoconf"          >> $(METADATA)
@@ -56,7 +65,6 @@ $(METADATA): Makefile
 	@echo "Requires:     bind-utils"        >> $(METADATA)
 	@echo "Requires:     btrfs-progs"       >> $(METADATA)
 	@echo "Requires:     e2fsprogs-devel"   >> $(METADATA)
-	@echo "Requires:     e4fsprogs"	        >> $(METADATA)
 	@echo "Requires:     fio"               >> $(METADATA)
 	@echo "Requires:     gcc"               >> $(METADATA)
 	@echo "Requires:     gdbm-devel"        >> $(METADATA)
@@ -90,7 +98,6 @@ $(METADATA): Makefile
 	@echo "Requires:     shadow-utils"      >> $(METADATA)
 	@echo "Requires:     wget"              >> $(METADATA)
 	@echo "Requires:     xfsdump"           >> $(METADATA)
-	@echo "Requires:     xfs-kmod"          >> $(METADATA)
 	@echo "Requires:     xfsprogs"          >> $(METADATA)
 	@echo "Requires:     xfsprogs-devel"    >> $(METADATA)
 	@echo "Requires:     xfsprogs-qa-devel" >> $(METADATA)
