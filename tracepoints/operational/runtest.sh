@@ -169,37 +169,10 @@ function select_yum_tool() {
     return 0
 }
 
-# return 0 when running kernel rt
-is_kernel_rt()
-{
-	local kernel_name=$(uname -r)
-	if [[ "$kernel_name" =~ "rt" ]]; then
-		echo 0
-	else
-		echo 1
-	fi
-}
-
-
 yum=$(select_yum_tool)
 
-kernel=$(uname -r)
 kernbase=$(rpm -q --queryformat '%{name}-%{version}-%{release}.%{arch}\n' -qf /boot/config-$(uname -r))
 stapbase=$(rpm -q --queryformat '%{name}-%{version}-%{release}.%{arch}\n' -qf /usr/bin/stap)
-
-# Checking if running kernel-rt
-if [ $(is_kernel_rt) -eq 0 ]; then
-    ${yum} -y install kernel-rt-devel-${kernel}
-else
-    ${yum} -y install kernel-devel-${kernel}
-fi
-res=$?
-if [ $res -ne 0 ] ; then
-    echo "WARN: failed to install kernel devel-${kernel}" | tee -a $OUTPUTFILE
-    report_result $TEST WARN/ABORTED
-    rhts-abort -t recipe
-    exit
-fi
 
 # Skip test if we are in FIPS mode, unsigned modules will cause kernel panic
 grep "1" /proc/sys/crypto/fips_enabled  > /dev/null

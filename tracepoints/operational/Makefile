@@ -50,6 +50,7 @@ $(METADATA):
 	@echo "Type:		KernelTier1"	>> $(METADATA)
 	@echo "Requires:	kernel-devel"	>> $(METADATA)
 	@echo "Requires:	kernel-rt-devel"	>> $(METADATA)
+	@echo "Requires:	kernel-debug-devel"	>> $(METADATA)
 	@echo "Requires:	systemtap"	>> $(METADATA)
 	@echo "Requires:        python3-lxml"   >> $(METADATA)
 	@echo "RunFor:		kernel"		>> $(METADATA)
