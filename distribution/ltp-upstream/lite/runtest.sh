@@ -72,11 +72,13 @@ function ltp_test_build()
 	fi
 
 	pushd ltp > /dev/null 2>&1
-	git checkout c2049b5c874bc071f8185bffb5fd7dcb042d9ec8
+	git checkout 8b678498cb391d9dc4677bd541e0406cdaf39553
 	make autotools                      &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	./configure --prefix=${TARGET_DIR}  &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	make -j$CPUS_NUM                    &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "build   ltp failed"; fi
 	make install                        &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "install ltp failed"; fi
+	# Timing on systems with shared resources (and high steal time) is not accurate, apply patch for non bare-metal machines
+	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
 	popd > /dev/null 2>&1
 
 	test_msg pass "LTP build/install successful"

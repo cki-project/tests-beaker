@@ -133,19 +133,20 @@ function knownissue_filter()
 	tskip "madvise09" fatal
 	# Issue TBD
 	tskip "ksm0.*" fatal
-	# Issue TBD
+	# Issue http://lists.linux.it/pipermail/ltp/2019-August/013267.html
 	tskip "timer_create01" unfix
-	# Issue TBD
+	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
+	# Issue https://github.com/linux-test-project/ltp/issues/458
 	tskip "mkswap01_sh" unfix
-	# Issue TBD
-	tskip "huge.*" unfix
+	# hugetlb failures should be ignored since that lack of system memory for testing
+	tskip "huge.*" fatal
 	# Issue TBD
 	tskip "read_all_.*" unfix
 	# Issue TBD
 	tskip "memfd_create03" unfix
-	# Issue TBD
+	# https://lore.kernel.org/linux-btrfs/4d97a9bb-864a-edd1-1aff-bdc9c8204100@redhat.com/T/#u 
 	tskip "fs_fill" unfix
-	# Issue TBD
+	# this case always make the beaker task abort with 'incrementing stop' msg
 	tskip "min_free_kbytes" fatal
 	# Issue TBD
 	tskip "msgstress0.*" unfix
@@ -157,6 +158,8 @@ function knownissue_filter()
 	tskip "sync_file_range02" unfix
 	# Issue TBD
 	tskip "signal06" unfix
+	# Issue TBD
+	tskip "statx07" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
