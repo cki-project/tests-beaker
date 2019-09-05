@@ -10,7 +10,7 @@ if cmd == "generate":
   for i in range(0, frames):
     s = i & 65535
     frame = [(s >> 8) & 255, s & 255, ((s >> 8) & 255) ^ 255, (s & 255) ^ 255]
-    fp.write(bytes(frame))
+    fp.write(bytearray(frame))
   fp.close()
 elif cmd == "check":
   fp = open(file, "rb")
