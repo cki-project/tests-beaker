@@ -1,0 +1,17 @@
+PURPOSE pjd-fstest filesystem tests
+Description: Tests POSIX features of file system
+Author: Zorro Lang <zlang@redhat.com>
+
+The original upstream repo is:
+git://git.code.sf.net/p/ntfs-3g/pjd-fstest
+
+There're some forks, please check README in pjd-fstest.
+
+Parameters:
+TEST_PARAM_DEVICE	test device to be used, the default sets to loop device
+TEST_PARAM_FSTYPE	filesystems to be tested, the default sets to "ext3 ext4 xfs"
+TEST_PARAM_FSOPTS	mount options to use, e.g. acl/noacl
+
+Notice:
+= XFS =
+1. xfs can't be mounted by -o acl or noacl, the ACL feature of XFS always on.
