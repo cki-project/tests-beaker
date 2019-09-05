@@ -12,15 +12,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # Author: Artem Savkov <asavkov@redhat.com>
+# Author: Artem Savkov <cki-project@redhat.com>
+export TESTVERSION=1.1
+export TEST=/distribution/kpkginstall
 
-TOPLEVEL_NAMESPACE=distribution
-PACKAGE_NAME=kpkginstall
-
-export TESTVERSION=1.0
-export TEST=/$(TOPLEVEL_NAMESPACE)/$(PACKAGE_NAME)
-
-BUILT_FILES=
-FILES=$(METADATA) runtest.sh Makefile
+FILES=metadata runtest.sh Makefile
 
 .PHONY: all install download clean
 
@@ -31,21 +27,6 @@ build: $(BUILT_FILES)
 	chmod a+x runtest.sh
 
 clean:
-	rm -f *~ $(BUILT_FILES)
+	rm -f *~ metadata
 
 include /usr/share/rhts/lib/rhts-make.include
-
-$(METADATA): Makefile
-	@echo "Owner:           Artem Savkov <asavkov@redhat.com>" > $(METADATA)
-	@echo "Name:            $(TEST)" >> $(METADATA)
-	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
-	@echo "TestVersion:     $(TESTVERSION)" >> $(METADATA)
-	@echo "Description:     Install kernel from a tarball" >> $(METADATA)
-	@echo "TestTime:        30m" >> $(METADATA)
-	@echo "RunFor:          $(TOPLEVEL_NAMESPACE)" >> $(METADATA)
-	@echo "Priority:        Normal" >> $(METADATA)
-	@echo "License:         GPL" >> $(METADATA)
-	@echo "Confidential:    no" >> $(METADATA)
-	@echo "Destructive:     no" >> $(METADATA)
-	@echo "Requires:        make curl grubby tar binutils" >> $(METADATA)
-	@echo "RepoRequires:    cki_lib" >> $(METADATA)

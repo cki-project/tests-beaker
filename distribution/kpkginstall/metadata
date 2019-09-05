@@ -1,0 +1,13 @@
+[General]
+name=/distribution/kpkginstall
+owner=CKI Project <cki-project@redhat.com>
+description=Kernel installation for CKI test pipelines
+license=GPL
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+max_time=30m
+dependencies=binutils;curl;make;grubby;tar
+repoRequires=cki_lib
