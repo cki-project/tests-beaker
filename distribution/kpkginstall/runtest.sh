@@ -3,7 +3,6 @@
 . /usr/bin/rhts_environment.sh
 
 ARCH=$(uname -m)
-REBOOTCOUNT=${REBOOTCOUNT:-0}
 YUM=""
 PACKAGE_NAME=""
 
@@ -384,7 +383,7 @@ function rpm_install()
   return 0
 }
 
-if [ ${REBOOTCOUNT} -eq 0 ]; then
+if [ ! -d "/tmp/kpkginstall" ]; then
 
   # If we haven't rebooted yet, then we shouldn't have the temporary directory
   # present on the system.
@@ -476,6 +475,10 @@ else
   fi
 
   print_success "Found the correct kernel version running!"
+
+  # Clean up the temporary directory.
+  rm -rfv /tmp/kpkginstall
+  print_success "Cleaned up the temporary directory"
 
   # We have the right kernel. Do we have any call traces?
   dmesg | grep -qi 'Call Trace:'
