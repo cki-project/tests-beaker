@@ -202,20 +202,20 @@ else
 	rlRun "$S_CMD fuser -k -n tcp 51110 " "0-255"
 	rlRun "$S_CMD fuser  -6 -k -n tcp 51110 " "0-255"
 	rlRun "$S_CMD socat tcp4-listen:51110 - > server4.log &"
-	rlRun "sleep 1"
+	rlRun "sleep 5"
 	rlRun "$C_CMD nc -4 $gre_s_ip4 51110 <<< h"
 	[ $? -ne 0 ] && rlRun -l "$S_CMD netstat -anp | grep 51110"
-	rlRun "sleep 1"
+	rlRun "sleep 5"
 	rlAssertGrep "h" server4.log
 
 	rlRun "killall -9 socat" "0-255"
 	rlRun "$S_CMD fuser -k -n tcp 51111" "0-255"
 	rlRun "$S_CMD fuser  -6 -k -n tcp 51111" "0-255"
 	rlRun "$S_CMD socat tcp6-listen:51111 - > server6.log &"
-	rlRun "sleep 1"
+	rlRun "sleep 5"
 	rlRun "$C_CMD nc -6 $gre_s_ip6 51111 <<< h"
 	[ $? -ne 0 ] && rlRun -l "$S_CMD netstat -anp | grep 51111"
-	rlRun "sleep 1"
+	rlRun "sleep 5"
 	rlAssertGrep "h" server6.log
 
 	rlRun "$S_CMD iperf -s -B $gre_s_ip4 -D &"
