@@ -44,11 +44,11 @@ PACKAGE="selinux-policy"
 # This should be updated as needed after verifying that the new version
 # doesn't break testing and after applying all necessary tweaks in the TC.
 # Run with GIT_BRANCH=master to run the latest upstream version.
-DEFAULT_COMMIT="ea941e0a1f25be1cc8d1c51be920ead3428b5f93"
+DEFAULT_COMMIT="be0ca8feeb9b5bae8940bb04f1ba2c0b21ee6201"
 # Default pull requests to merge before running the test.
 # If non-empty, then after checking out GIT_BRANCH the listed upstream pull
 # requests (by number) are merged, creating a new temporay local branch.
-DEFAULT_PULLS="54"
+DEFAULT_PULLS="54 58"
 
 # Optional test parametr - location of testuite git.
 GIT_URL=${GIT_URL:-"git://github.com/SELinuxProject/selinux-testsuite"}
@@ -146,6 +146,12 @@ rlJournalStart
             rlRun "sed -i 's/3.18/3.9/' $file" 0 \
                 "Fix up kernel version in nnp test"
         done
+        if rlIsRHEL ; then
+            rlRun "sed -i 's/4.20.17/4.18/' tests/Makefile" 0 \
+                "Fix up kernel version for sctp test"
+            rlRun "sed -i 's/5.2/4.18.0-80.19/' tests/Makefile" 0 \
+                "Fix up kernel version for cgroupfs_label test"
+        fi
         if rlIsRHEL 6 ; then
             # the dev_rw_infiniband_dev macro is not defined in RHEL-6 policy
             # test_policy module compilation fails because of syntax error
@@ -184,10 +190,6 @@ rlJournalStart
             rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_no_execmem_t, tmpfs_t, file)'"
-        fi
-
-        if kver_lt "4.18.0-80.19"; then
-            exclude_tests+=" cgroupfs_label"
         fi
 
         if [ -n "$exclude_tests" ] ; then
