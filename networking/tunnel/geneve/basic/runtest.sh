@@ -263,10 +263,17 @@ else
 		rlRun "$S_CMD netserver -d"
 		rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t UDP_STREAM -- -R 1"
 		rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t TCP_STREAM"
-		rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -- -m 16k"
+		# run only when netperf support sctp_stream
+		if $C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -l 1
+		then
+			rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -- -m 16k"
+		fi
 		rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t UDP_STREAM -- -R 1"
 		rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t TCP_STREAM"
-		rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -- -m 16k"
+		if $C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -l 1
+		then
+			rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -- -m 16k"
+		fi
 		rlRun "$C_CMD ip -d -s link sh $gre_devname"
 		rlRun "$S_CMD ip -d -s link sh $gre_devname"
 
