@@ -204,11 +204,18 @@ rlPhaseStartTest "local_netns"
 			rlRun "ip netns exec client ping 2.2.2.171 -c 5"
 			rlRun "ip netns exec client ping6 2222::171 -c 5"
 			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t TCP_STREAM -l 2 -- -m 16k"
-			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 2 -- -m 16k"
+			# run only when netperf support sctp_stream
+			if ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 1
+			then
+				rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 2 -- -m 16k"
+			fi
 			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t UDP_STREAM -l 2 -- -R 1"
 
 			rlRun "ip netns exec client netperf -6 -H 2222::171 -t TCP_STREAM -l 2 -- -m 16k"
-			rlRun "ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 2 -- -m 16k"
+			if ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 1
+			then
+				rlRun "ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 2 -- -m 16k"
+			fi
 			rlRun "ip netns exec client netperf -6 -H 2222::171 -t UDP_STREAM -l 2 -- -R 1"
 		done
 
