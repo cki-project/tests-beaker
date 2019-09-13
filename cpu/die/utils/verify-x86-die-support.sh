@@ -67,16 +67,16 @@ process_packages()
 }
 
 multidie=false
+die_count=0
 process_dies()
 {
     dies=$(cat /sys/devices/system/cpu/cpu*/topology/die_id | sort -u)
 
-    count=0
     for die in $dies; do
-	count=$((count+1))
+	die_count=$((die_count+1))
     done
 
-    if [ $count -gt 1 ]; then
+    if [ $die_count -gt 1 ]; then
 	echo "this is a multi-die system"
 	multidie=true
     else
@@ -164,11 +164,11 @@ process_cpus()
 }
 
 declare -a numa_node_cpus
-declare numa_index=0
+declare numa_max=0
 build_numa_entry()
 {
-    numa_node_cpus[$numa_index]=$(echo $1)
-    numa_index=$((numa_index+1))
+    numa_node_cpus[$numa_max]=$(echo $1)
+    numa_max=$((numa_max+1))
 }
 
 build_numa_list()
@@ -181,9 +181,9 @@ build_numa_list()
 	build_numa_entry "$data"
     done <<< "$output"
 
-    if [ $numa_index -eq 0 ] || [ $numa_index -ne $numa_count ]; then
+    if [ $numa_max -eq 0 ] || [ $numa_max -ne $numa_count ]; then
 	echo "unable to parse NUMA data"
-	numa_index=0 # don't bother to compare bad data
+	numa_max=0 # don't bother to compare bad data
 	global_error=true
     fi
 
@@ -213,7 +213,6 @@ verify_die_cpu()
     done
 }
 
-curr_index=0
 verify_die_cpu_list()
 {
     die_cpus=$(echo $1 | sed 's/,/ /g')
@@ -224,6 +223,8 @@ verify_die_cpu_list()
 
     echo "physical_package_id: $pkg die_id: $die"
     echo "die_cpu_list: $1"
+
+    numa_index=$(((pkg*die_count)+die))
 
     first=true
     error=false
@@ -238,17 +239,16 @@ verify_die_cpu_list()
     fi
 
     # make sure we match numactl --hardware output
-    if [ $curr_index -lt $numa_index ]; then
-	if [ "${numa_node_cpus[$curr_index]}" != "$1" ]; then
-	    echo "curr_index=$curr_index"
-	    echo "fails to match numa node data: ${numa_node_cpus[$curr_index]}"
+    if [ $numa_index -lt $numa_max ]; then
+	if [ "${numa_node_cpus[$numa_index]}" != "$1" ]; then
+	    echo "numa_index=$numa_index"
+	    echo "fails to match numa node data: ${numa_node_cpus[$numa_index]}"
 	    global_error=true
 	else
 	    echo "numa node data: match"
 	fi
-	curr_index=$((curr_index+1))
     else
-	echo "missing numa node data"
+	echo "missing numa node data: numa_index=$numa_index"
 	global_error=true
     fi
 
