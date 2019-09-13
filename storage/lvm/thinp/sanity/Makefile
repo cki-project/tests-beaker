@@ -63,6 +63,7 @@ $(METADATA):
 	@echo "RunFor:		kernel"		>> $(METADATA)
 	@echo "Requires:	kernel-devel"	>> $(METADATA)
 	@echo "Requires:	lvm2"           >> $(METADATA)
+	@echo "Requires:	wget"           >> $(METADATA)
 	@echo "Requires:	gcc"            >> $(METADATA)
 	@echo "Requires:	make"           >> $(METADATA)
 	@echo "Requires:	glibc-static"   >> $(METADATA)
