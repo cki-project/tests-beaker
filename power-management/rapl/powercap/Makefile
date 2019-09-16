@@ -55,7 +55,7 @@ $(METADATA): Makefile
 	@echo "Requires:     virt-what" >> $(METADATA)
 	@echo "Requires:     python2-lxml" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
-	@echo "RepoRequires: cpu/common" >> $(METADATA)
+	@echo "RepoRequires: cki_lib" >> $(METADATA)
 	@echo "Priority:     Normal" >> $(METADATA)
 	@echo "License:      GPLv2 or above" >> $(METADATA)
 	@echo "Confidential: no" >> $(METADATA)
