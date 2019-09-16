@@ -23,7 +23,7 @@ CDIR=$(dirname $FILE)
 TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
-source ${CDIR%/power-management/rapl/powercap}/cpu/common/libbkrm.sh
+source $CDIR/../../../cki_lib/libcki.sh
 
 # XXX: This function is from power-management/rapl/powercap/cap.sh
 function set_cap
@@ -108,7 +108,7 @@ function loadm
     for (( i = 0; i < $nthreads; i++ )); do
         (load1 $timeout) > /dev/null 2>&1 &
         typeset pid=$!
-        rlLog "load1[$i] is started, pid=$pid"
+        cki_log "load1[$i] is started, pid=$pid"
     done
 }
 
@@ -123,24 +123,24 @@ function test_capping
 
     # 1. no load, no cap
     typeset e_no_no=$(get_energy $measurement_time)
-    rlLog "Power consumtion on uncapped system with no load: $e_no_no microwatts"
+    cki_log "Power consumtion on uncapped system with no load: $e_no_no microwatts"
 
     # 2. load, no cap
     typeset cpus=$(lscpu | grep '^CPU(s):' | \
                    sed 's/^CPU(s):[^0-9]*\([0-9]*\)/\1/')
     loadm $load_time $cpus
     typeset e_full_no=$(get_energy $measurement_time)
-    rlLog "Power consumtion on uncapped system with full load: $e_full_no microwatts"
+    cki_log "Power consumtion on uncapped system with full load: $e_full_no microwatts"
 
     # 3. cap to average between full load and no load
     typeset e_mid=$(( (e_no_no + e_full_no) / 2 ))
-    rlLog "Going to cap the system to: $e_mid microwatts"
+    cki_log "Going to cap the system to: $e_mid microwatts"
 
     typeset old_cap=$(get_cap)
     set_cap $e_mid
     loadm $load_time $cpus
     typeset e_full_cap=$(get_energy $measurement_time)
-    rlLog "Power consumtion on capped system with full load: $e_full_cap microwatts"
+    cki_log "Power consumtion on capped system with full load: $e_full_cap microwatts"
 
     #
     # measured_max is maximal measured value which will not cause fail
@@ -153,17 +153,17 @@ function test_capping
     typeset measured_max=$(( e_mid * 11 / 10 ))
     typeset measured_min=$(( e_mid *  9 / 10 ))
 
-    rlLog "capping back to $old_cap"
+    cki_log "capping back to $old_cap"
     set_cap $old_cap
 
-    rlLog "e_no_no      = $e_no_no"
-    rlLog "e_full_no    = $e_full_no"
-    rlLog "e_mid        = $e_mid"
-    rlLog "e_full_cap   = $e_full_cap"
-    rlLog "measured_max = $measured_max"
-    rlLog "measured_min = $measured_min"
+    cki_log "e_no_no      = $e_no_no"
+    cki_log "e_full_no    = $e_full_no"
+    cki_log "e_mid        = $e_mid"
+    cki_log "e_full_cap   = $e_full_cap"
+    cki_log "measured_max = $measured_max"
+    cki_log "measured_min = $measured_min"
     if (( e_full_cap > measured_max || e_full_cap < measured_min )); then
-        rlLog "FAIL: measured energy consumption doesn't match capped value"
+        cki_log "FAIL: measured energy consumption doesn't match capped value"
         return 1
     fi
 
@@ -191,40 +191,40 @@ function startup
 {
     is_kvm
     if (( $? == 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED "kvm is unsupported"
-        return $BKRM_UNSUPPORTED
+        cki_set_reason $CKI_UNSUPPORTED "kvm is unsupported"
+        return $CKI_UNSUPPORTED
     fi
 
     is_intel
     if (( $? != 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED "non-intel CPU is unsupported"
-        return $BKRM_UNSUPPORTED
+        cki_set_reason $CKI_UNSUPPORTED "non-intel CPU is unsupported"
+        return $CKI_UNSUPPORTED
     fi
 
     if [[ ! -d $TMPDIR ]]; then
-        rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_UNINITIATED
+        cki_run_cmd_pos "mkdir -p -m 0755 $TMPDIR" || return $CKI_UNINITIATED
     fi
 
-    return $BKRM_PASS
+    return $CKI_PASS
 }
 
 function cleanup
 {
-    rlRun "rm -rf $TMPDIR" $BKRM_RC_ANY
-    return $BKRM_PASS
+    cki_run_cmd_neu "rm -rf $TMPDIR"
+    return $CKI_PASS
 }
 
 function runtest
 {
     # For debugging
-    rlRun -l "find /sys/devices/ -name *rapl*" $BKRM_RC_ANY
-    rlRun -l "lsmod" $BKRM_RC_ANY
-    rlRun -l "modprobe intel-rapl" || return $BKRM_UNINITIATED
+    cki_run_cmd_neu "find /sys/devices/ -name *rapl*"
+    cki_run_cmd_neu "lsmod"
+    cki_run_cmd_pos "modprobe intel-rapl" || return $CKI_UNINITIATED
 
     # Check if capping works, it should take approx 1.5 - 2 minutes
-    test_capping || return $BKRM_FAIL
-    return $BKRM_PASS
+    test_capping || return $CKI_FAIL
+    return $CKI_PASS
 }
 
-main
+cki_main
 exit $?
