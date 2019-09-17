@@ -52,7 +52,6 @@
 #     o FAIL otherwise (log examination should yield the cause of the failure)
 #
 global_error=false
-[ ! -z "$BEAKER_JOB_WHITEBOARD" ] && beaker=true || beaker=false
 
 package_count=0
 process_packages()
@@ -89,11 +88,11 @@ process_logical_dies()
 {
     logical_die_count=$((package_count))
 
-    if [ "$beaker" = "false" ]; then
-	output=$(dmesg | grep Converting | grep "to logical die" | tail -1)
-    else
+    output=$(dmesg | grep Converting | grep "to logical die" | tail -1)
+
+    if [ -z "$output" ]; then
 	output=$(grep Converting /var/log/messages | \
-	         grep "to logical die" | tail -1)
+                 grep "to logical die" | tail -1)
     fi
 
     if [ ! -z "$output" ]; then
@@ -164,10 +163,12 @@ process_cpus()
 }
 
 declare -a numa_node_cpus
+declare -a numa_node_verified
 declare numa_max=0
 build_numa_entry()
 {
     numa_node_cpus[$numa_max]=$(echo $1)
+    numa_node_verified[$numa_max]=false
     numa_max=$((numa_max+1))
 }
 
@@ -224,8 +225,6 @@ verify_die_cpu_list()
     echo "physical_package_id: $pkg die_id: $die"
     echo "die_cpu_list: $1"
 
-    numa_index=$(((pkg*die_count)+die))
-
     first=true
     error=false
     for dies in $die_cpus; do
@@ -238,17 +237,18 @@ verify_die_cpu_list()
 	global_error=true
     fi
 
-    # make sure we match numactl --hardware output
-    if [ $numa_index -lt $numa_max ]; then
-	if [ "${numa_node_cpus[$numa_index]}" != "$1" ]; then
-	    echo "numa_index=$numa_index"
-	    echo "fails to match numa node data: ${numa_node_cpus[$numa_index]}"
-	    global_error=true
-	else
-	    echo "numa node data: match"
+    match=false
+    for ((j=0; j<$numa_max; ++j)); do
+	# make sure we match numactl --hardware output
+	if [ "${numa_node_cpus[$j]}" = "$1" ]; then
+	    echo "match numa_index=$j"
+	    numa_node_verified[$j]=true
+	    match=true
 	fi
-    else
-	echo "missing numa node data: numa_index=$numa_index"
+    done
+
+    if [ "$match" = "false" ]; then
+	echo "ERROR: does not match any numa node data"
 	global_error=true
     fi
 
@@ -257,18 +257,30 @@ verify_die_cpu_list()
 
 process_die_cpus_list()
 {
-    die_cpus_lists=$(cat /sys/devices/system/cpu/cpu*/topology/die_cpus_list | sort -u)
+    path='/sys/devices/system/cpu/cpu*/topology/die_cpus_list'
+    die_array=($(cat $path | sort -u))
+    array_len=${#die_array[@]}
 
-    n=0
-    for die_cpu_list in $die_cpus_lists; do
-	verify_die_cpu_list $die_cpu_list
-	n=$((n+1))
+    for ((k=0; k < $array_len; ++k)); do
+	verify_die_cpu_list ${die_array[$k]}
     done
 
-    if [ $n -ne $logical_die_count ]; then
-	echo "logical_die_count: $logical_die_count mismatch found $n"
+    if [ $array_len -ne $logical_die_count ]; then
+	echo "logical_die_count: $logical_die_count mismatch found $array_len"
 	global_error=true
     fi
+}
+
+process_numa_list()
+{
+    match_fail=false
+    for ((i=0; i < $numa_max; ++i)); do
+	if [ "${numa_node_verified[$i]}" != "true" ]; then
+	    match_fail=true
+	    echo "no match for numa index $i"
+	fi
+    done
+    [ "$match_fail" = "true" ] && global_error=true
 }
 
 log_result()
@@ -295,6 +307,7 @@ process_logical_dies
 process_cpus
 build_numa_list
 process_die_cpus_list
+process_numa_list
 
 cd $DIR
 
