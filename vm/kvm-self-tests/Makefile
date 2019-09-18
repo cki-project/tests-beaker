@@ -53,6 +53,7 @@ $(METADATA): Makefile
 	@echo "Requires:        make" >> $(METADATA)
 	@echo "Requires:        gcc" >> $(METADATA)
 	@echo "Requires:        patch" >> $(METADATA)
+	@echo "Requires:	rsync" >> $(METADATA)
 	@echo "Requires:        python2-lxml" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
 	@echo "Requires:        bc" >> $(METADATA)
