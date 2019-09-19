@@ -79,23 +79,39 @@ else
 fi
 
 KVM_SYSFS=/sys/module/kvm/parameters/
-KVM_OPTIONS_X86="enable_vmware_backdoor force_emulation_prefix nested"
+KVM_OPTIONS_X86="enable_vmware_backdoor force_emulation_prefix"
+KVM_ARCH=""
+if (egrep -q 'vmx' /proc/cpuinfo); then
+    KVM_ARCH="kvm_intel"
+elif (egrep -q 'svm' /proc/cpuinfo); then
+    KVM_ARCH="kvm_amd"
+fi
+KVM_ARCH_SYSFS=/sys/module/${KVM_ARCH}/parameters/
+KVM_ARCH_OPTIONS_X86="nested"
 
 if [[ $hwpf == "x86_64" ]]; then
     # set the virt kernel parameters
     echo -e "options kvm force_emulation_prefix=1\noptions kvm enable_vmware_backdoor=1" > /etc/modprobe.d/kvm-ci.conf
+    echo -e "options ${KVM_ARCH} nested=1" >> /etc/modprobe.d/kvm-ci.conf
     # reload the modules
-    if (lsmod | grep -q kvm_intel); then
-        echo -e "options kvm_intel nested=1" >> /etc/modprobe.d/kvm-ci.conf
+    if (egrep -q 'vmx' /proc/cpuinfo); then
         rmmod kvm_intel kvm
         modprobe kvm_intel kvm
-    elif (lsmod | grep -q kvm_amd); then
-        echo -e "options kvm_amd nested=1" >> /etc/modprobe.d/kvm-ci.conf
+    elif (egrep -q 'svm' /proc/cpuinfo); then
         rmmod kvm_amd kvm
         modprobe kvm_amd kvm
     fi
     for opt in $KVM_OPTIONS_X86; do
         if [ ! -f "$KVM_SYSFS/$opt" ]; then
+            echo "kernel option $opt not set" | tee -a $OUTPUTFILE
+            report_result $TEST WARN
+            rhts-abort -t recipe
+        else
+            echo "kernel option $opt is set" | tee -a $OUTPUTFILE
+        fi
+    done
+    for opt in $KVM_ARCH_OPTIONS_X86; do
+        if [ ! -f "$KVM_ARCH_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
             report_result $TEST WARN
             rhts-abort -t recipe
