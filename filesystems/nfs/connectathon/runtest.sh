@@ -113,15 +113,25 @@ function checkServers ()
         # Lets actually WARN/ABORTED the test here and investigate,
         # as we will have incomplete testing results
         #
-        report_result $TEST WARN/ABORTED
-        is_run_byci && rhts-abort -t recipe
+        # report_result $TEST WARN/ABORTED
+        # is_run_byci && rhts-abort -t recipe
+        # We should skip the specific testcase for the offline server instead, a
+        # ton of recipes are aborting. For now, just report a skip until we can
+        # properly work around the issue.
+        rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+        exit 0
     else
         local s390chk=$(/bin/hostname | awk -F. '{print $2}')
         if [ $s390chk = "z900" ]; then
             report_result $TEST PASS
         else
-            report_result $TEST WARN/ABORTED
-            is_run_byci && rhts-abort -t recipe
+            # report_result $TEST WARN/ABORTED
+            # is_run_byci && rhts-abort -t recipe
+            # We should skip the specific testcase for the offline server instead, a
+            # ton of recipes are aborting. For now, just report a skip until we can
+            # properly work around the issue.
+            rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+            exit 0
         fi
         exit 0
     fi
