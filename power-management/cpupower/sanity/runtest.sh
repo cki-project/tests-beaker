@@ -23,7 +23,7 @@ CDIR=$(dirname $FILE)
 TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
-source ${CDIR%/power-management/cpupower/sanity}/cpu/common/libbkrm.sh
+source $CDIR/../../../cki_lib/libcki.sh
 
 #
 # Check CPU vendor is Intel or not
@@ -44,7 +44,7 @@ function is_kvm
 
 function do_sanity_test
 {
-    rlRun -l "bash $CDIR/utils/cpupower_sanity_test.sh" || return 1
+    cki_run_cmd_pos "bash $CDIR/utils/cpupower_sanity_test.sh" || return 1
     return 0
 }
 
@@ -52,43 +52,43 @@ function startup
 {
     is_kvm
     if (( $? == 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED "kvm is unsupported"
-        return $BKRM_UNSUPPORTED
+        cki_set_reason $CKI_UNSUPPORTED "kvm is unsupported"
+        return $CKI_UNSUPPORTED
     fi
 
     is_intel
     if (( $? != 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED "non-intel CPU is unsupported"
-        return $BKRM_UNSUPPORTED
+        cki_set_reason $CKI_UNSUPPORTED "non-intel CPU is unsupported"
+        return $CKI_UNSUPPORTED
     fi
 
     cpupower -c 0 frequency-info | egrep "Active:.*yes" > /dev/null 2>&1
     if (( $? != 0 )); then
-        rlSetReason $BKRM_UNSUPPORTED "cpufreq driver is not active"
-        return $BKRM_UNSUPPORTED
+        cki_set_reason $CKI_UNSUPPORTED "cpufreq driver is not active"
+        return $CKI_UNSUPPORTED
     fi
 
-    rlRun -l "uname -srvm" $BKRM_RC_ANY
-    rlRun -l "cpupower -c 0 frequency-info" $BKRM_RC_ANY
+    cki_run_cmd_neu "uname -srvm"
+    cki_run_cmd_neu "cpupower -c 0 frequency-info"
 
     if [[ ! -d $TMPDIR ]]; then
-        rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_UNINITIATED
+        cki_run_cmd_pos "mkdir -p -m 0755 $TMPDIR" || return $CKI_UNINITIATED
     fi
 
-    return $BKRM_PASS
+    return $CKI_PASS
 }
 
 function cleanup
 {
-    rlRun "rm -rf $TMPDIR" $BKRM_RC_ANY
-    return $BKRM_PASS
+    cki_run_cmd_neu "rm -rf $TMPDIR"
+    return $CKI_PASS
 }
 
 function runtest
 {
-    do_sanity_test || return $BKRM_FAIL
-    return $BKRM_PASS
+    do_sanity_test || return $CKI_FAIL
+    return $CKI_PASS
 }
 
-main
+cki_main
 exit $?

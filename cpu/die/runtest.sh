@@ -17,35 +17,30 @@
 # Boston, MA 02110-1301, USA.
 #
 
-# Include the BeakerLib environment
-. /usr/share/beakerlib/beakerlib.sh
-
 FILE=$(readlink -f ${BASH_SOURCE})
 NAME=$(basename $FILE)
 CDIR=$(dirname $FILE)
 TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
-source ${CDIR%/cpu/die}/cpu/common/libbkrm.sh
-source ${CDIR%/cpu/die}/cpu/common/libutil.sh
-source ${CDIR%}/../../cki_lib/lib.sh
+source $CDIR/../../cpu/common/libutil.sh
 
 rlJournalStart
     # Setup phase: Prepare test directory
     rlPhaseStartSetup
     if [ ! -e /sys/devices/system/cpu/cpu0/topology/die_id ]; then
-        rlSkip "the operating system does not have die support"
+        cki_skip_task "the operating system does not have die support"
     fi
     rlPhaseEnd
 
     # Test phase: verifying die layout
     rlPhaseStartTest
-        rlRun "bash $CDIR/utils/verify-x86-die-support.sh"
+        cki_run_cmd_pos "bash $CDIR/utils/verify-x86-die-support.sh"
     rlPhaseEnd
 
     # Cleanup phase: Remove test directory
     rlPhaseStartCleanup
-        rlRun "rm -f $TMPDIR" $BKRM_RC_ANY
+        cki_run_cmd_neu "rm -f $TMPDIR"
     rlPhaseEnd
 rlJournalEnd
 

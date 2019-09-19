@@ -10,7 +10,7 @@ PACKAGE_NAME=""
 # Bring in library functions.
 FILE=$(readlink -f ${BASH_SOURCE})
 CDIR=$(dirname $FILE)
-source ${CDIR%}/../../cki_lib/lib.sh
+source ${CDIR}/../../cki_lib/libcki.sh
 
 function parse_kpkg_url_variables()
 {
@@ -38,7 +38,7 @@ function parse_kpkg_url_variables()
   # all keys uppercase for consistency.
   for ((i=0; i<${#parm[@]}; i+=2))
   do
-    print_success "Found URL parameter: ${parm[i]^^}=${parm[i+1]}"
+    cki_print_success "Found URL parameter: ${parm[i]^^}=${parm[i+1]}"
     readonly KPKG_VAR_${parm[i]^^}=${parm[i+1]}
   done
 }
@@ -55,7 +55,7 @@ function set_package_name()
   # Recover the saved package name from /tmp/KPKG_PACKAGE_NAME if it exists.
   if [ -f "/tmp/kpkginstall/KPKG_PACKAGE_NAME" ]; then
     PACKAGE_NAME=$(cat /tmp/kpkginstall/KPKG_PACKAGE_NAME)
-    print_success "Found cached package name on disk: ${PACKAGE_NAME}"
+    cki_print_success "Found cached package name on disk: ${PACKAGE_NAME}"
     return
   fi
 
@@ -63,7 +63,7 @@ function set_package_name()
   # can use that here and be done really fast.
   if [ ! -z "${KPKG_VAR_PACKAGE_NAME:-}" ]; then
     PACKAGE_NAME=$KPKG_VAR_PACKAGE_NAME
-    print_success "Found package name in URL variables: ${PACKAGE_NAME}"
+    cki_print_success "Found package name in URL variables: ${PACKAGE_NAME}"
   fi
 
   # If we don't know the package name at this point, then we need to determine
@@ -76,13 +76,13 @@ function set_package_name()
 
   # Append "-debug" if we were asked to install the debug kernel.
   if [[ "${KPKG_VAR_DEBUG:no}" == "yes" ]]; then
-    print_info "Debug kernel was requested -- appending -debug to package name"
+    cki_print_info "Debug kernel was requested -- appending -debug to package name"
     PACKAGE_NAME=${PACKAGE_NAME}-debug
   fi
 
   # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
   echo -n "${PACKAGE_NAME}" > /tmp/kpkginstall/KPKG_PACKAGE_NAME
-  print_success "Package name is set: ${PACKAGE_NAME} (cached to disk)"
+  cki_print_success "Package name is set: ${PACKAGE_NAME} (cached to disk)"
 }
 
 function get_package_name_from_repo()
@@ -116,13 +116,13 @@ function get_package_name_from_repo()
 *******************************************************************************
 *******************************************************************************
 EOF
-    abort_recipe "RPM repository is unavailable" FAIL
+    cki_abort_recipe "RPM repository is unavailable" FAIL
   fi
 
   for possible_name in "kernel-rt" ; do
     if echo "$ALL_PACKAGES" | grep $possible_name ; then
       PACKAGE_NAME=$possible_name
-      print_success "Found package name in repository: ${PACKAGE_NAME}"
+      cki_print_success "Found package name in repository: ${PACKAGE_NAME}"
       break
     fi
   done
@@ -136,7 +136,7 @@ function get_kpkg_ver()
   # Recover the saved package name from /tmp/KPKG_KVER if it exists.
   if [ -f "/tmp/kpkginstall/KPKG_KVER" ]; then
     KVER=$(cat /tmp/kpkginstall/KPKG_KVER)
-    print_success "Found kernel version string in cache on disk: ${KVER}"
+    cki_print_success "Found kernel version string in cache on disk: ${KVER}"
     return
   fi
 
@@ -168,29 +168,29 @@ function get_kpkg_ver()
 function targz_install()
 {
   declare -r kpkg=${KPKG_URL##*/}
-  print_info "Fetching kpkg from ${KPKG_URL}"
+  cki_print_info "Fetching kpkg from ${KPKG_URL}"
 
   if curl -sOL "${KPKG_URL}" 2>&1; then
-    print_success "Downloaded kernel package successfully from ${KPKG_URL}"
+    cki_print_success "Downloaded kernel package successfully from ${KPKG_URL}"
   else
-    abort_recipe "Failed to download package from ${KPKG_URL}" WARN
+    cki_abort_recipe "Failed to download package from ${KPKG_URL}" WARN
   fi
 
-  print_info "Extracting kernel version from ${KPKG_URL}"
+  cki_print_info "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    abort_recipe "Failed to extract kernel version from the package" FAIL
+    cki_abort_recipe "Failed to extract kernel version from the package" FAIL
   else
-    print_success "Kernel version is ${KVER}"
+    cki_print_success "Kernel version is ${KVER}"
   fi
 
   if tar xfh ${kpkg} -C / 2>&1; then
-    print_success "Extracted kernel package successfully: ${kpkg}"
+    cki_print_success "Extracted kernel package successfully: ${kpkg}"
   else
-    abort_recipe "Failed to extract kernel package: ${kpkg}" WARN
+    cki_abort_recipe "Failed to extract kernel package: ${kpkg}" WARN
   fi
 
-  print_info "Applying architecture-specific workarounds (if needed)"
+  cki_print_info "Applying architecture-specific workarounds (if needed)"
   case ${ARCH} in
     ppc64|ppc64le)
       for xname in $(ls /boot/vmlinux-*${KVER}); do
@@ -236,16 +236,16 @@ function targz_install()
       fi
       ;;
   esac
-  print_success "Architecture-specific workarounds applied successfully"
+  cki_print_success "Architecture-specific workarounds applied successfully"
 
-  print_info "Finishing boot loader configuration for the new kernel"
+  cki_print_info "Finishing boot loader configuration for the new kernel"
   if [ ! -x /sbin/new-kernel-pkg ]; then
     kernel-install add ${KVER} /boot/vmlinuz-${KVER} 2>&1
     grubby --set-default /boot/vmlinuz-${KVER} 2>&1
   else
     new-kernel-pkg -v --mkinitrd --dracut --depmod --make-default --host-only --install ${KVER} 2>&1
   fi
-  print_success "Boot loader configuration complete"
+  cki_print_success "Boot loader configuration complete"
 
   # Workaround for kernel-install problem when it's not sourcing os-release
   # file, no official bug number yet.
@@ -255,7 +255,7 @@ function targz_install()
       for f in /boot/loader/entries/*"${KVER}".conf ; do
         title=$(grep title "${f}" | sed "s/[[:space:]]*$//")
         sed -i "s/title.*/$title/" "${f}"
-        print_success "Removed trailing whitespace in title record of $f"
+        cki_print_success "Removed trailing whitespace in title record of $f"
       done
   fi
 }
@@ -271,12 +271,12 @@ function select_yum_tool()
     ALL="all"
     COPR_PLUGIN_PACKAGE=yum-plugin-copr
   else
-    abort_recipe "No tool to download kernel from a repo" WARN
+    cki_abort_recipe "No tool to download kernel from a repo" WARN
   fi
 
-  print_info "Installing package manager prerequisites"
+  cki_print_info "Installing package manager prerequisites"
   ${YUM} install -y ${COPR_PLUGIN_PACKAGE} > /dev/null
-  print_success "Package manager prerequisites installed successfully"
+  cki_print_success "Package manager prerequisites installed successfully"
 }
 
 function rpm_prepare()
@@ -292,7 +292,7 @@ baseurl=${KPKG_URL}
 enabled=1
 gpgcheck=0
 EOF
-  print_success "Kernel repository file deployed"
+  cki_print_success "Kernel repository file deployed"
 
   return 0
 }
@@ -303,9 +303,9 @@ function copr_prepare()
   select_yum_tool
 
   if ${YUM} copr enable -y "${KPKG_URL}"; then
-    print_success "Successfully enabled COPR repository: ${KPKG_URL}"
+    cki_print_success "Successfully enabled COPR repository: ${KPKG_URL}"
   else
-    abort_recipe "Could not enable COPR repository: ${KPKG_URL}" WARN
+    cki_abort_recipe "Could not enable COPR repository: ${KPKG_URL}" WARN
   fi
   return 0
 }
@@ -314,28 +314,28 @@ function download_install_package()
 {
   # If download of a package fails, report warn/abort -> infrastructure issue
   if $YUM install --downloadonly -y $1 > /dev/null; then
-    print_success "Downloaded $1 successfully"
+    cki_print_success "Downloaded $1 successfully"
   else
-    abort_recipe "Failed to download ${1}!" WARN
+    cki_abort_recipe "Failed to download ${1}!" WARN
   fi
 
   # If installation of a downloaded package fails, report fail/abort
   # -> distro issue
   if $YUM install -y $1 > /dev/null; then
-    print_success "Installed $1 successfully"
+    cki_print_success "Installed $1 successfully"
   else
-    abort_recipe "Failed to install $1!" FAIL
+    cki_abort_recipe "Failed to install $1!" FAIL
   fi
 }
 
 function rpm_install()
 {
-  print_info "Extracting kernel version from ${KPKG_URL}"
+  cki_print_info "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    abort_recipe "Failed to extract kernel version from the package" FAIL
+    cki_abort_recipe "Failed to extract kernel version from the package" FAIL
   else
-    print_success "Kernel version is ${KVER}"
+    cki_print_success "Kernel version is ${KVER}"
   fi
 
   # Ensure that the debug kernel is selected as the default kernel in
@@ -345,7 +345,7 @@ function rpm_install()
     echo "UPDATEDEFAULT=yes" > /etc/sysconfig/kernel
     echo "DEFAULTKERNEL=kernel-debug" >> /etc/sysconfig/kernel
     echo "DEFAULTDEBUG=yes" >> /etc/sysconfig/kernel
-    print_success "Updated /etc/sysconfig/kernel to set debug kernels as default"
+    cki_print_success "Updated /etc/sysconfig/kernel to set debug kernels as default"
   fi
 
   # download & install kernel, or report result
@@ -353,16 +353,16 @@ function rpm_install()
 
 
   if $YUM install -y "${PACKAGE_NAME}-devel-${KVER}" > /dev/null; then
-    print_success "Installed ${PACKAGE_NAME}-devel-${KVER} successfully"
+    cki_print_success "Installed ${PACKAGE_NAME}-devel-${KVER} successfully"
   else
-    print_warning "No package kernel-devel-${KVER} found, skipping!"
-    print_warning "Note that some tests might require the package and can fail!"
+    cki_print_warning "No package kernel-devel-${KVER} found, skipping!"
+    cki_print_warning "Note that some tests might require the package and can fail!"
   fi
   if $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" > /dev/null; then
-    print_success "Installed ${PACKAGE_NAME}-headers-${KVER} successfully"
+    cki_print_success "Installed ${PACKAGE_NAME}-headers-${KVER} successfully"
   else
-    print_warning "No package kernel-headers-${KVER} found, skipping!"
-    print_warning "Note that some tests might require the package and can fail!"
+    cki_print_warning "No package kernel-headers-${KVER} found, skipping!"
+    cki_print_warning "Note that some tests might require the package and can fail!"
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL"
@@ -371,14 +371,14 @@ function rpm_install()
   else
     FIRMWARE_PKG=linux-firmware
   fi
-  print_info "Installing kernel firmware package"
+  cki_print_info "Installing kernel firmware package"
   $YUM install -y $FIRMWARE_PKG > /dev/null
-  print_success "Kernel firmware package installed"
+  cki_print_success "Kernel firmware package installed"
 
   # Workaround for BZ 1698363
   if [[ "${ARCH}" == s390x ]] ; then
     grubby --set-default /boot/"${KVER}" > /dev/null && zipl > /dev/null
-    print_success "Grubby workaround for s390x completed"
+    cki_print_success "Grubby workaround for s390x completed"
   fi
 
   return 0
@@ -406,7 +406,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   if [ -z "${KPKG_URL}" ]; then
-    abort_recipe "No KPKG_URL specified" FAIL
+    cki_abort_recipe "No KPKG_URL specified" FAIL
   fi
 
   if [[ "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
@@ -422,10 +422,10 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   fi
 
   if [ $? -ne 0 ]; then
-    abort_recipe "Failed installing kernel ${KVER}" WARN
+    cki_abort_recipe "Failed installing kernel ${KVER}" WARN
   fi
 
-  print_success "Installed kernel ${KVER}, rebooting (this may take a while)"
+  cki_print_success "Installed kernel ${KVER}, rebooting (this may take a while)"
   cat << EOF
 *******************************************************************************
 *******************************************************************************
@@ -446,10 +446,10 @@ else
   if [[ ! "${KPKG_URL}" =~ .*\.tar\.gz ]] ; then
     set_package_name
   fi
-  print_info "Extracting kernel version from ${KPKG_URL}"
+  cki_print_info "Extracting kernel version from ${KPKG_URL}"
   get_kpkg_ver
   if [ -z "${KVER}" ]; then
-    abort_recipe  "Failed to extract kernel version from the package" FAIL
+    cki_abort_recipe  "Failed to extract kernel version from the package" FAIL
   fi
 
   # Make a list of kernel versions we expect to see after reboot.
@@ -467,15 +467,15 @@ else
     )
   fi
   ckver=$(uname -r)
-  print_info "Acceptable kernel version strings: ${valid_kernel_versions[@]} "
-  print_info "Running kernel version string:     ${ckver}"
+  cki_print_info "Acceptable kernel version strings: ${valid_kernel_versions[@]} "
+  cki_print_info "Running kernel version string:     ${ckver}"
 
   # Did we get the right kernel running after reboot?
   if [[ ! " ${valid_kernel_versions[@]} " =~ " ${ckver} " ]]; then
-    abort_recipe "Kernel version after reboot (${ckver}) does not match expected version strings!" WARN
+    cki_abort_recipe "Kernel version after reboot (${ckver}) does not match expected version strings!" WARN
   fi
 
-  print_success "Found the correct kernel version running!"
+  cki_print_success "Found the correct kernel version running!"
 
   # We have the right kernel. Do we have any call traces?
   dmesg | grep -qi 'Call Trace:'
@@ -484,7 +484,7 @@ else
     DMESGLOG=/tmp/dmesg.log
     dmesg > ${DMESGLOG}
     rhts_submit_log -l ${DMESGLOG}
-    print_warning "Call trace found in dmesg, see dmesg.log"
+    cki_print_warning "Call trace found in dmesg, see dmesg.log"
     report_result ${TEST} WARN 7
   else
     report_result ${TEST}/reboot PASS 0

@@ -17,8 +17,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
-source ../../cki_lib/lib.sh
+source $(dirname $(readlink -f $BASH_SOURCE))/../../cki_lib/libcki.sh
 
 TMPDIR=${TMPDIR:-"/tmp"}
 MSR_TOOLS_SRC_URL="https://github.com/intel/msr-tools.git"
@@ -26,10 +25,12 @@ MSR_TOOLS_DST_DIR="$TMPDIR/msr-tools"
 
 function is_rhel7
 {
-    [ ! -e /etc/redhat-release ] && return 0
-    rel=$(cat /etc/redhat-release)
-    ver=$(echo "${rel##*release}" | awk '{$1=$1;print}' | cut -d '.' -f 1)
-    [ "$ver" -eq 7 ] && return 1 || return 0
+    [[ ! -e /etc/redhat-release ]] && return 1
+
+    typeset ver=$(sed 's/.*release//' /etc/redhat-release | \
+                  awk '{print $1}' | \
+                  awk -F'.' '{print $1}')
+    [[ $ver == 7 ]] && return 0 || return 1
 }
 
 function msr_tools_install
@@ -54,64 +55,54 @@ function msr_tools_install
     exit 0
 EOF
 
-    rlRun "chmod +x $script" $BKRM_RC_ANY
-    rlRun "cat -n $script" $BKRM_RC_ANY
-    rlRun "bash $script" || return $BKRM_UNINITIATED
+    cki_run_cmd_neu "chmod +x $script"
+    cki_run_cmd_neu "cat -n $script"
+    cki_run_cmd_pos "bash $script" || return $CKI_UNINITIATED
 
-    return $BKRM_PASS
+    return $CKI_PASS
 }
 
 function msr_tools_uninstall
 {
     typeset dst_dir=$MSR_TOOLS_DST_DIR
-    [[ ! -d $dst_dir ]] && return $BKRM_PASS
+    [[ ! -d $dst_dir ]] && return $CKI_PASS
 
-    rlCd "$dst_dir"
-    rlRun "make uninstall" $BKRM_RC_ANY
-    rlPd
+    cki_cd "$dst_dir"
+    cki_run_cmd_neu "make uninstall"
+    cki_pd
 
-    return $BKRM_PASS
+    return $CKI_PASS
 }
 
+YUM=""
 EPEL="http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
 function msr_tools_epel_install()
 {
-    [ ! -e /etc/yum.repos.d/epel.repo ] && add_repo=true || add_repo=false
+    typeset add_repo=false
+    [[ ! -e /etc/yum.repos.d/epel.repo ]] && add_repo=true
 
-    if [ "$add_repo" = "true" ]; then
-	rlRun "${YUM} -y install $EPEL" $BKRM_RC_ANY
-    fi
+    [[ "$add_repo" == "true" ]] && \
+        cki_run_cmd_neu "${YUM} -y install $EPEL"
+    cki_run_cmd_neu "${YUM} -y install msr-tools"
+    [[ "$add_repo" == "true" ]] && \
+        cki_run_cmd_neu "${YUM} -y remove epel-release"
 
-    rlRun "${YUM} -y install msr-tools" $BKRM_RC_ANY
-
-    if [ "$add_repo" = "true" ]; then
-	rlRun "${YUM} -y remove epel-release" $BKRM_RC_ANY
-    fi
-
-    rlRun "which rdmsr"
-
-    [ $? -eq 0 ] && return $BKRM_PASS || return $BKRM_UNINITIATED
-
+    cki_run_cmd_pos "which rdmsr"
+    (( $? == 0 )) && return $CKI_PASS || return $CKI_UNINITIATED
 }
 
 function msr_tools_epel_uninstall
 {
-    rlRun "${YUM} -y remove msr-tools" $BKRM_RC_ANY
+    cki_run_cmd_neu "${YUM} -y remove msr-tools"
 }
 
 function msr_tools_setup
 {
-    is_rhel7
-    if [ $? -eq 1 ]; then
-	cki_yum_tool
-	msr_tools_epel_install
-    else
-	msr_tools_install
-    fi
+    YUM=$(cki_get_yum_tool)
+    is_rhel7 && msr_tools_epel_install || msr_tools_install
 }
 
 function msr_tools_cleanup
 {
-    is_rhel7
-    [ $? -eq 1 ] && msr_tools_epel_uninstall || msr_tools_uninstall
+    is_rhel7 && msr_tools_epel_uninstall || msr_tools_uninstall
 }

@@ -23,55 +23,54 @@ CDIR=$(dirname $FILE)
 TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
-source ${CDIR%/cpu/driver}/cpu/common/libbkrm.sh
-source ${CDIR%/cpu/driver}/cpu/common/libutil.sh
+source $CDIR/../../cpu/common/libutil.sh
 
 function verify_intel_cpufreq_driver
 {
     typeset driver=$1
 
-    rlLog "Start to verify intel cpu freq driver"
+    cki_log "Start to verify intel cpu freq driver"
 
     typeset vendor=$(dmidecode -t 0 | grep Vendor: | \
                      cut -d: -f 2 | awk '{print tolower($1)}')
 
     if [[ $driver != "intel_pstate" ]]; then
 	if [ "$vendor" = "lenovo" ]; then
-	    rlLog "lenovo intel system is running: $driver"
-	    rlLog "PASS"
-	    return $BKRM_PASS
+	    cki_log "lenovo intel system is running: $driver"
+	    cki_log "PASS"
+	    return $CKI_PASS
 	fi
-        rlSetReason $BKRM_FAIL \
+        cki_set_reason $CKI_FAIL \
             "intel system is running: $driver"
-        return $BKRM_FAIL
+        return $CKI_FAIL
     fi
 
-    rlRun "lscpu | grep 'hwp '" $BKRM_RC_ANY
+    cki_run_cmd_neu "lscpu | grep 'hwp '"
     if (( $? == 0 )); then
-        rlRun "rdmsr 0x770"
+        cki_run_cmd_pos "rdmsr 0x770"
         if (( $? != 0 )); then
-            rlSetReason $BKRM_UNSUPPORTED \
+            cki_set_reason $CKI_UNSUPPORTED \
                 "intel system has HWP, but it is not enabled"
-            return $BKRM_UNSUPPORTED
+            return $CKI_UNSUPPORTED
         fi
     else
-        rlRun "ls /sys/devices/system/cpu/intel_pstate/"
+        cki_run_cmd_pos "ls /sys/devices/system/cpu/intel_pstate/"
         if (( $? != 0 )); then
-            rlSetReason $BKRM_FAIL \
+            cki_set_reason $CKI_FAIL \
                 "intel system does not have HWP, intel_pstate is not active"
-            return $BKRM_FAIL
+            return $CKI_FAIL
         fi
     fi
 
-    rlLog "PASS"
-    return $BKRM_PASS
+    cki_log "PASS"
+    return $CKI_PASS
 }
 
 function verify_amd_cpufreq_driver
 {
     typeset driver=$1
 
-    rlLog "Start to verify amd cpu freq driver"
+    cki_log "Start to verify amd cpu freq driver"
 
     typeset family=$(cat /proc/cpuinfo | grep family | \
                      sort -u | awk '{print $4}')
@@ -79,18 +78,18 @@ function verify_amd_cpufreq_driver
     # verify family is >= 15h
     if (( $family >= 0x15 )); then
         if [[ $driver != "acpi-cpufreq" ]]; then
-            rlSetReason $BKRM_FAIL \
+            cki_set_reason $CKI_FAIL \
                 "amd system is running: $driver"
-            return $BKRM_FAIL
+            return $CKI_FAIL
         fi
     else
-        rlSetReason $BKRM_UNSUPPORTED \
+        cki_set_reason $CKI_UNSUPPORTED \
             "this test is not valid for the AMD family"
-        return $BKRM_UNSUPPORTED
+        return $CKI_UNSUPPORTED
     fi
 
-    rlLog "PASS"
-    return $BKRM_PASS
+    cki_log "PASS"
+    return $CKI_PASS
 }
 
 function runtest
@@ -116,9 +115,9 @@ function runtest
         ;;
 
     *) # UNSUPPORTED
-        rlSetReason $BKRM_UNSUPPORTED \
+        cki_set_reason $CKI_UNSUPPORTED \
             "it is an unsupported vendor: $vendor_str"
-        typeset -i ret=$BKRM_UNSUPPORTED
+        typeset -i ret=$CKI_UNSUPPORTED
         ;;
     esac
 
@@ -128,31 +127,31 @@ function runtest
 function startup
 {
     if [[ $(virt-what) == "kvm" ]]; then
-        rlSetReason $BKRM_UNSUPPORTED \
+        cki_set_reason $CKI_UNSUPPORTED \
             "this test is unsupported in kvm"
-        return $BKRM_UNSUPPORTED
+        return $CKI_UNSUPPORTED
     fi
 
     if [[ ! -d $TMPDIR ]]; then
-        rlRun "mkdir -p -m 0755 $TMPDIR" || return $BKRM_UNINITIATED
+        cki_run_cmd_pos "mkdir -p -m 0755 $TMPDIR" || return $CKI_UNINITIATED
     fi
 
     # setup msr tools as package 'msr-tools' is not installed by default
     msr_tools_setup
     if (( $? != 0 )); then
-        rlSetReason $BKRM_UNINITIATED "fail to setup msr tools"
-        return $BKRM_UNINITIATED
+        cki_set_reason $CKI_UNINITIATED "fail to setup msr tools"
+        return $CKI_UNINITIATED
     fi
 
-    return $BKRM_PASS
+    return $CKI_PASS
 }
 
 function cleanup
 {
     msr_tools_cleanup
-    rlRun "rm -rf $TMPDIR" $BKRM_RC_ANY
-    return $BKRM_PASS
+    cki_run_cmd_neu "rm -rf $TMPDIR"
+    return $CKI_PASS
 }
 
-main
+cki_main
 exit $?
