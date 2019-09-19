@@ -17,8 +17,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
-source /usr/share/beakerlib/beakerlib.sh
-source $(dirname $(readlink -f $BASH_SOURCE))/libbkrm.sh
+source $(dirname $(readlink -f $BASH_SOURCE))/../../cki_lib/libcki.sh
 
 STQE_GIT="https://gitlab.com/rh-kernel-stqe/python-stqe.git"
 STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"f1ddf69b"}
@@ -36,11 +35,12 @@ function stqe_init_fwroot
 
     # clone the framework
     typeset fwroot=$(stqe_get_fwroot)
-    rlRun "rm -rf $fwroot"
-    rlRun "git clone $STQE_GIT $fwroot" || rlAbort "fail to clone $STQE_GIT"
+    cki_run_cmd_neu "rm -rf $fwroot"
+    cki_run_cmd_pos "git clone $STQE_GIT $fwroot" || \
+        cki_abort_task "fail to clone $STQE_GIT"
 
     # install the framework
-    pushd "." && rlRun "cd $fwroot"
+    cki_cd $fwroot
 
     #
     # XXX: On RHEL7, should use python2 instead because python3
@@ -51,27 +51,27 @@ function stqe_init_fwroot
     for cmd in python python3 python2; do
         $cmd -V > /dev/null 2>&1 && python=$cmd && break
     done
-    [[ -n $python ]] || rlSkip "python not found"
+    [[ -n $python ]] || cki_skip_task "python not found"
 
     typeset pip_cmd=$([[ $python == python3 ]] && echo pip3 || echo pip)
     if [[ $fwbranch != "master" ]]; then
         if [[ -n $STQE_STABLE_VERSION ]]; then
-            rlRun "git checkout $STQE_STABLE_VERSION" || \
-                rlAbort "fail to checkout $STQE_STABLE_VERSION"
+            cki_run_cmd_pos "git checkout $STQE_STABLE_VERSION" || \
+                cki_abort_task "fail to checkout $STQE_STABLE_VERSION"
         fi
         if [[ -n $LIBSAN_STABLE_VERSION ]]; then
-            rlRun "$pip_cmd install libsan==$LIBSAN_STABLE_VERSION" || \
-                rlAbort "fail to install libsan==$LIBSAN_STABLE_VERSION"
+            cki_run_cmd_pos "$pip_cmd install libsan==$LIBSAN_STABLE_VERSION" || \
+                cki_abort_task "fail to install libsan==$LIBSAN_STABLE_VERSION"
         fi
     fi
 
     # install required packages
-    rlRun "bash env_setup.sh" $BKRM_RC_ANY
+    cki_run_cmd_neu "bash env_setup.sh"
 
-    rlRun "$python setup.py install --prefix=" || \
-        rlAbort "fail to install test framework"
+    cki_run_cmd_pos "$python setup.py install --prefix=" || \
+        cki_abort_task "fail to install test framework"
 
-    popd
+    cki_pd
 
     return 0
 }
@@ -79,5 +79,5 @@ function stqe_init_fwroot
 function stqe_fini_fwroot
 {
     typeset fwroot=$(stqe_get_fwroot)
-    rlRun "rm -rf $fwroot"
+    cki_run_cmd_neu "rm -rf $fwroot"
 }

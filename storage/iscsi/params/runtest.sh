@@ -21,9 +21,7 @@ FILE=$(readlink -f ${BASH_SOURCE})
 NAME=$(basename $FILE)
 CDIR=$(dirname $FILE)
 
-source ${CDIR%/storage/iscsi/*}/storage/include/libdebug.sh
-source ${CDIR%/storage/iscsi/*}/storage/include/libbkrm.sh
-source ${CDIR%/storage/iscsi/*}/storage/include/libstqe.sh
+source $CDIR/../../../storage/include/libstqe.sh
 
 function startup
 {
@@ -38,12 +36,13 @@ function cleanup
 function runtest
 {
     typeset fwroot=$(stqe_get_fwroot)
-    pushd "." && rlRun "cd $fwroot"
-    rlRun "stqe-test run -t iscsi/iscsi_params.py"
-    popd
+    cki_cd $fwroot
+    cki_run_cmd_pos "stqe-test run -t iscsi/iscsi_params.py"
+    typeset -i rc=$?
+    cki_pd
+    (( rc != 0 )) && return $CKI_FAIL || return $CKI_PASS
 }
 
-DEBUG
-tc_hook_init startup cleanup runtest
-tc_main
-tc_hook_fini
+cki_debug
+cki_main
+exit $?
