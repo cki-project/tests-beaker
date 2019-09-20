@@ -167,6 +167,7 @@ fi
 cp ../x86_unittests.cfg x86/unittests.cfg
 cp ../aarch64_unittests.cfg arm/unittests.cfg
 cp ../s390x_unittests.cfg s390x/unittests.cfg
+cp ../ppc64le_unittests.cfg powerpc/unittests.cfg
 
 # run the tests
 if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
