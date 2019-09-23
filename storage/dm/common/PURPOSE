@@ -1,0 +1,32 @@
+#===========================================================================
+#
+# PURPOSE file for:
+#   /kernel/storage/dm/common
+#
+# Description:
+#   Test device-mapper with parameters
+#
+# Bugs related:
+#
+# Author(s):
+#   Jakub Krysl
+#   <jkrysl@redhat.com>
+#
+#===========================================================================
+# Note:
+# As with all DM tests, at the end of the test it will check
+# for errors on the logs.
+# This check is implemented in python-stqe/host/tc
+#
+# To avoid DM tests reporting error that were caused before the test
+# started it is recommended to run /kernel/storage/misc/log_checker
+# just before running the test
+#===========================================================================
+# This task takes optional parameters:
+#    --filter=$FMF_FILTER
+#        examples: --filter='tier:1|tier:2'
+#                  --filter='compose:RHEL-$OS'
+#
+#===========================================================================
+# EndFile
+
