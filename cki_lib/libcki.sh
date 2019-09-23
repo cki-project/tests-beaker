@@ -228,6 +228,20 @@ function cki_pd()
     rlRun "popd"
 }
 
+#
+# Enable to debug bash script by resetting PS4. If user wants to turn debug
+# switch on, just set env DEBUG, e.g.
+# $ export DEBUG=yes
+#
+function cki_debug
+{
+    typeset -l s=$DEBUG
+    if [[ $s == @(yes|true) ]]; then
+        export PS4='__DEBUG__: [$FUNCNAME@$BASH_SOURCE:$LINENO|$SECONDS]+ '
+        set -x
+    fi
+}
+
 function cki_get_yum_tool()
 {
     if [[ -x /usr/bin/dnf ]]; then
