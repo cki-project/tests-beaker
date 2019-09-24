@@ -78,11 +78,11 @@ data_tests(){
 	ipsec_stat tcp before
 	rlRun "$HB socat -u -$TEST_VER tcp-l:$tcpport open:tcprecv,creat &"
 	rlRun "sleep 1"
-	bytes_10M="10485760" # (10M) for tcp test
-	[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=$bytes_10M tcp-connect:${HB_IP[$TEST_VER]}:$tcpport"
-	[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=$bytes_10M tcp-connect:[${HB_IP[$TEST_VER]}]:$tcpport"
+	bytes_1M="1048576" # (1M) for tcp test
+	[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=$bytes_1M tcp-connect:${HB_IP[$TEST_VER]}:$tcpport"
+	[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=$bytes_1M tcp-connect:[${HB_IP[$TEST_VER]}]:$tcpport"
 	rlRun "sleep 2"
-	rlRun "ls -l tcprecv | grep $bytes_10M" 0 "tcp should receive $bytes_10M bytes, received `ls -l tcprecv | awk '{print $5}'` bytes"
+	rlRun "ls -l tcprecv | grep $bytes_1M" 0 "tcp should receive $bytes_1M bytes, received `ls -l tcprecv | awk '{print $5}'` bytes"
 	rm -f tcprecv
 	ipsec_stat tcp after
 	rlLog "***** udp ******"
