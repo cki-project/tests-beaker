@@ -81,6 +81,8 @@ function checkServers ()
 {
     local foundserver=0
     local offlineserver=0
+    local onlineservers=""
+    local offlineservers=""
     local thisdom=`dnsdomainname`
 
     echo "" | tee -a $OUTPUTFILE
@@ -88,14 +90,16 @@ function checkServers ()
     echo " ***** INFO: Current domain is \"$thisdom\" *****" | tee -a $OUTPUTFILE
 
     for S in $servers; do
-        local server=$(echo $S| cut -f1 -d:)
+        local server=$(echo $S | cut -f1 -d:)
         ping -c 3 $server >> $OUTPUTFILE 2>&1
         if [ $? != 0 ]; then
             echo " ***** Warn: $server not online or unavailable in this domain *****" | tee -a $OUTPUTFILE
             offlineserver=$(expr "$offlineserver" + 1)
+            offlineservers=${offlineservers}"$server "
         else
             echo " ***** Confirmed: $server is online *****" | tee -a $OUTPUTFILE
             foundserver=$(expr "$foundserver" + 1)
+            onlineservers=${onlineservers}"$S "
         fi
     done
 
@@ -109,29 +113,55 @@ function checkServers ()
         echo " ***** Warn: Some servers are offline or unavailable in this domain *****" | tee -a $OUTPUTFILE
         echo " ========== Continue testing with online servers only... ==========" | tee -a $OUTPUTFILE
         echo "" | tee -a $OUTPUTFILE
-        #
-        # Lets actually WARN/ABORTED the test here and investigate,
-        # as we will have incomplete testing results
-        #
-        # report_result $TEST WARN/ABORTED
-        # is_run_byci && rhts-abort -t recipe
-        # We should skip the specific testcase for the offline server instead, a
-        # ton of recipes are aborting. For now, just report a skip until we can
-        # properly work around the issue.
-        rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
-        exit 0
+
+        # Update online servers list
+        servers=${onlineservers}
+
+        if is_run_byci ; then
+            if [[ -z $servers ]]; then
+                # Not found online nfs servers
+                echo "Not found online nfs server from the list, aborting the task" | tee -a $OUTPUTFILE
+                report_result $TEST WARN/ABORTED
+                # Abort the task
+                rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+                exit 0
+            else
+                # Found online nfs servers
+                echo ""
+                echo "===================================="
+                echo "Testing on online nfs servers:" | tee -a $OUTPUTFILE
+                for S in $servers; do
+                    local server=$(echo $S | cut -f1 -d:)
+                    echo "   |__"${server} | tee -a $OUTPUTFILE
+                done
+                echo ""
+
+                # if found offline servers
+                if [[ ! -z $offlineservers ]]; then
+                    echo ""
+                    echo "================================="
+                    echo "Skipping offline nfs servers:" | tee -a $OUTPUTFILE
+                    for S in $offlineservers; do
+                        echo "   |__"${S} | tee -a $OUTPUTFILE
+                    done
+                    echo ""
+                fi
+            fi
+       else
+          report_result $TEST WARN/ABORTED
+       fi
     else
         local s390chk=$(/bin/hostname | awk -F. '{print $2}')
         if [ $s390chk = "z900" ]; then
             report_result $TEST PASS
         else
-            # report_result $TEST WARN/ABORTED
-            # is_run_byci && rhts-abort -t recipe
-            # We should skip the specific testcase for the offline server instead, a
-            # ton of recipes are aborting. For now, just report a skip until we can
-            # properly work around the issue.
-            rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
-            exit 0
+            report_result $TEST WARN/ABORTED
+            if  is_run_byci ; then
+                # nfs server list is empty
+                echo "nfs server list is empty, aborting the task" | tee -a $OUTPUTFILE
+                # Abort the task
+                rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+            fi
         fi
         exit 0
     fi
@@ -344,7 +374,12 @@ function get_supported_server_versions ()
                 echo "Unexpected error from v41 mount of $server" | tee -a $OUTPUTFILE
                 cat $mount_pnfs_err_file | tee -a $OUTPUTFILE
                 report_result server_unexpected_v41_mount_err WARN/ABORTED
-                is_run_byci && rhts-abort -t recipe
+                if  is_run_byci ; then
+                    # Abort the task
+                   rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+                   exit 0
+                fi
+
             fi
         fi
     fi
@@ -353,7 +388,11 @@ function get_supported_server_versions ()
     if [ -z "$_nfsvers" ]; then
             echo "No supported NFS versions for $server?" | tee -a $OUTPUTFILE
             report_result NoSupportedNFSVersions WARN/ABORTED
-            is_run_byci && rhts-abort -t recipe
+            if  is_run_byci ; then
+                # Abort the task
+                rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+                exit 0
+            fi
     fi
     eval "$2='$_nfsvers'"
 }
