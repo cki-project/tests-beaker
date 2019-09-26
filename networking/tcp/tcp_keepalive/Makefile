@@ -81,7 +81,7 @@ $(METADATA): Makefile
 	@echo "Requires:     texinfo rsync nmap socat" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "Requires:     kernel-modules-extra" >> $(METADATA)
-	@echo "Requires:     kernel-rt-modules-extra" >> $(METADATA)
+	@echo "RepoRequires: cki_lib" >> $(METADATA)
 
 # You may need other fields here; see the documentation
 	rhts-lint $(METADATA)

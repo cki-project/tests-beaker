@@ -65,7 +65,6 @@ $(METADATA): Makefile
 	@echo "Requires:     net-tools socat" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "Requires:     kernel-modules-extra" >> $(METADATA)
-	@echo "Requires:     kernel-rt-modules-extra" >> $(METADATA)
 # add any other requirements for the script to run here
 
 # You may need other fields here; see the documentation

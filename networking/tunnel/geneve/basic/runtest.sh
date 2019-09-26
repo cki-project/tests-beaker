@@ -31,6 +31,15 @@
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../../common/include.sh || exit 1
 . ../../common/include.sh || exit 1
+. ../../../../cki_lib/libcki.sh || exit 1
+
+YUM=$(cki_get_yum_tool)
+
+kernel_name=$(uname -r)
+if [[ $kernel_name =~ "rt" ]]; then
+     echo "running the $kernel_name" | tee -a $OUTPUTFILE
+     $YUM install -y kernel-rt-modules-extra
+fi
 
 # Functions
 

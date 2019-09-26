@@ -10,5 +10,5 @@ destructive=no
 entry_point=make run
 max_time=60m
 dependencies=beakerlib;beakerlib-redhat;net-tools;tcpdump;wget;bzip2;gcc;git;patch
-softDependencies=python3-lxml;kernel-modules-extra;kernel-rt-modules-extra
-repoRequires=networking/common;networking/tunnel/common
+softDependencies=python3-lxml;kernel-modules-extra
+repoRequires=networking/common;networking/tunnel/common;cki_lib

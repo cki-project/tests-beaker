@@ -84,8 +84,7 @@ $(METADATA):
 	@echo "License:         GPLv3" >>$(METADATA)
 	@echo "Requires:        automake autoconf procmail flex bison rsyslog sysklogd util-linux-ng rpm-build" >> $(METADATA)
 	@echo "Requires:        ntpdate kernel-headers redhat-lsb bc numactl time gcc" >> $(METADATA)
-	@echo "Requires:        kernel-devel kernel-rt-devel libaio-devel libcap-devel numactl-devel strace" >> $(METADATA)
+	@echo "Requires:        kernel-devel libaio-devel libcap-devel numactl-devel strace" >> $(METADATA)
 	@echo "Owner:           Jan Stancek <jstancek@redhat.com>" >>$(METADATA)
 	@echo "Releases:        RHEL7 RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7" >>$(METADATA)
 	@echo "Type:            KernelTier1" >>$(METADATA)
-
