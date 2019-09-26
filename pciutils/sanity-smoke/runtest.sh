@@ -28,12 +28,20 @@
 # Include rhts environment
 . /usr/bin/rhts-environment.sh
 . /usr/lib/beakerlib/beakerlib.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 PACKAGE="pciutils"
+
+YUM=$(cki_get_yum_tool)
+kernel_name=$(uname -r)
 
 rlJournalStart
     rlPhaseStartSetup
         rlAssertRpm $PACKAGE
+        if [[ $kernel_name =~ "rt" ]]; then
+            echo "running the $kernel_name" | tee -a $OUTPUTFILE
+            $YUM install -y kernel-rt-modules-extra
+        fi
     rlPhaseEnd
 
     rlPhaseStartTest

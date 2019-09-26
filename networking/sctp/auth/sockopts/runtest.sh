@@ -19,7 +19,7 @@
 . /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ./common/include.sh || exit 1
-
+. ../../../../cki_lib/libcki.sh || exit 1
 
 rlJournalStart
 
@@ -27,9 +27,11 @@ rlJournalStart
 OUTPUTFILE=$(new_outputfile)
 
 rlPhaseStartSetup
-    YUM=/usr/bin/yum
-    if [ -x /usr/bin/dnf ]; then
-        YUM=/usr/bin/dnf
+    YUM=$(cki_get_yum_tool)
+    kernel_name=$(uname -r)
+    if [[ $kernel_name =~ "rt" ]]; then
+        echo "running the $kernel_name" | tee -a $OUTPUTFILE
+        $YUM install -y kernel-rt-modules-extra
     fi
     rlRun "$YUM install -y lksctp-tools-devel gcc" 0
     rlRun "lsmod | grep sctp || modprobe sctp" "0-255"

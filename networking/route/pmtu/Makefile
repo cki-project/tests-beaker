@@ -80,10 +80,10 @@ $(METADATA): Makefile
 	@echo "Requires:     git patch rsync" >> $(METADATA)
 	@echo "Requires:     texinfo" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
-	@echo "Requires:     kernel-rt-modules-extra" >> $(METADATA)
 	@echo "RhtsRequires: beakerlib-redhat" >> $(METADATA)
 	@echo "RhtsRequires: kernel-kernel-networking-common" >> $(METADATA)
 	@echo "RhtsRequires: library(kernel/network)" >> $(METADATA)
+	@echo "RepoRequires: cki_lib" >> $(METADATA)
 # add any other requirements for the script to run here
 
 # You may need other fields here; see the documentation

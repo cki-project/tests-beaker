@@ -53,7 +53,7 @@ $(METADATA): Makefile
 	@echo "Type:            Sanity" >> $(METADATA)
 	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "RunFor:          perf" >> $(METADATA)
-	@echo "Requires:        perf virt-what elfutils kernel-debuginfo kernel-debug-debuginfo kernel-rt-debuginfo git bc gcc-c++" >> $(METADATA)
+	@echo "Requires:        perf virt-what elfutils kernel-debuginfo kernel-debug-debuginfo git bc gcc-c++" >> $(METADATA)
 	@echo "Requires:        coreutils-debuginfo yum-utils dnf-utils" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)

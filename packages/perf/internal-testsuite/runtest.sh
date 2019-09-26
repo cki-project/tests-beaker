@@ -105,8 +105,6 @@ rlJournalStart
 			which debuginfo-install || rlRun "yum -y install yum-utils dnf-utils" 0 "Installing {yum,dnf}-utils (it has not been present)"
 			which debuginfo-install # now it should be installed, but what if it fails...
 			if [ $? -eq 0 ]; then
-				rlRun "debuginfo-install -y $KERNEL_PKG_NAME" 0 "Installing debuginfo for $KERNEL_PKG_NAME via debuginfo-install (it has not been present)"
-			else
 				rlRun "yum install -y $KERNEL_DEBUGINFO_PKG_NAME" 0 "Installing debuginfo for $KERNEL_PKG_NAME via yum/dnf (unable to obtain debuginfo-install)"
 			fi
 		fi

@@ -67,7 +67,6 @@ $(METADATA): Makefile
 	@echo "Requires:     git patch rsync" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "Requires:     kernel-modules-extra" >> $(METADATA)
-	@echo "Requires:     kernel-rt-modules-extra" >> $(METADATA)
 	@echo "Requires:     tcpdump" >> $(METADATA)
 # add any other requirements for the script to run here
 
