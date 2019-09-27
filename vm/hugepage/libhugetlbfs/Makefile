@@ -117,14 +117,17 @@ $(METADATA): Makefile
 	@echo "Description:     Test libhugetlbfs with upstream testsuite" >> $(METADATA)
 	@echo "TestTime:        40m" >> $(METADATA)
 	@echo "RunFor:          $(PACKAGE_NAME) $(PACKAGE_NAME)-utils" >> $(METADATA)
-	@echo "Requires:        glibc" >> $(METADATA)
-	@echo "Requires:        glibc-common" >> $(METADATA)
-	@echo "Requires:        glibc-headers" >> $(METADATA)
-	@echo "Requires:        glibc-devel" >> $(METADATA)
-	@echo "Requires:        glibc-static" >> $(METADATA)
+	@echo "Requires:        @development \
+		libgcc.i686    glibc-devel.i686    glibc-static.i686 \
+		libgcc.x86_64  glibc-devel.x86_64  glibc-static.x86_64 \
+		libgcc.ppc     glibc-devel.ppc     glibc-static.ppc \
+		libgcc.ppc64   glibc-devel.ppc64   glibc-static.ppc64 \
+		libgcc.ppc64le glibc-devel.ppc64le glibc-static.ppc64le \
+		libgcc.s390    glibc-devel.s390    glibc-static.s390 \
+		libgcc.s390x   glibc-devel.s390x   glibc-static.s390x \
+		libgcc.aarch64 glibc-devel.aarch64 glibc-static.aarch64" >> $(METADATA)
 	@echo "Requires:        wget" >> $(METADATA)
 	@echo "Requires:        patch" >> $(METADATA)
-	@echo "Requires:        libgcc" >> $(METADATA)
 	@echo "Requires:        gcc" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPL-v2" >> $(METADATA)
