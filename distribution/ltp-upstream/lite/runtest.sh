@@ -79,6 +79,8 @@ function ltp_test_build()
 	make install                        &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "install ltp failed"; fi
 	# Timing on systems with shared resources (and high steal time) is not accurate, apply patch for non bare-metal machines
 	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
+	# Debug kernels will fail dmesg check when greping for BUG
+	patch -p1 < ../patches/dynamic_debug_dmesg_check.patch
 	popd > /dev/null 2>&1
 
 	test_msg pass "LTP build/install successful"
