@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Networking Driver Sanity Test" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        10m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        kernel" >> $(METADATA)
 	@echo "Requires:        ethtool" >> $(METADATA)

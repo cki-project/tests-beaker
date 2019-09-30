@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Tests POSIX features of file system" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
-	@echo "TestTime:        1h" >> $(METADATA)
 	@echo "RunFor:          filesystems" >> $(METADATA)
 	@echo "Requires:        filesystems" >> $(METADATA)
 	@echo "Requires:        library(kernel/fs)" >> $(METADATA)

@@ -69,7 +69,6 @@ $(METADATA): Makefile
 	@echo "License:      GPLv3" >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"    >> $(METADATA)
 	@echo "Description:  test the function trim support">> $(METADATA)
-	@echo "TestTime:     2h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here
 	@echo "Requires:	 mdadm" >> $(METADATA)

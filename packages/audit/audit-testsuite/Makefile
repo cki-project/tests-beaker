@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Execute audit-testsuite" >> $(METADATA)
 	@echo "Type:            Sanity Regression" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          audit" >> $(METADATA)
 	@echo "Requires:        kernel git audit perl perl-Test perl-Test-Harness perl-File-Which perl-Time-HiRes gcc libgcc glibc-devel glibc-devel.i686 libgcc.i686 glibc-devel.s390 libgcc.s390 glibc-devel.ppc libgcc.ppc expect nmap-ncat" >> $(METADATA)
 	@echo "Requires:        gcc autoconf automake binutils gettext libtool make patch pkgconfig bison flex" >> $(METADATA)

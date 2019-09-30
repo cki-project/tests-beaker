@@ -73,7 +73,6 @@ $(METADATA): Makefile
 	@echo "License:      GPLv2" >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)" >> $(METADATA)
 	@echo "Description:  firewall/000infralib" >> $(METADATA)
-	@echo "TestTime:     30m" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)

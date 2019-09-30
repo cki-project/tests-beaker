@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     IPMI driver load stress test" >> $(METADATA)
 	@echo "Type:            Stress" >> $(METADATA)
-	@echo "TestTime:        60m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        dmidecode" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

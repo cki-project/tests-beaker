@@ -40,7 +40,6 @@ $(METADATA):
 	@echo "Name:		$(TEST)"	> $(METADATA)
 	@echo "Description:	Ensure tracepoints are working" >> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"	>> $(METADATA)
-	@echo "TestTime:	150m"		>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "Releases:        RHELServer5 RHEL6 Fedora16 RHEL7 RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7 RedHatEnterpriseLinux8" >> $(METADATA)
 	@echo "#Architectures:	All"		>> $(METADATA)

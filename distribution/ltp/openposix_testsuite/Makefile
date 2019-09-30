@@ -79,7 +79,6 @@ $(METADATA):
 	@echo "Name:            $(TEST)" >$(METADATA)
 	@echo "Description:     Open posix testsuite (from LTP)" >>$(METADATA)
 	@echo "Path:            $(TEST_DIR)" >>$(METADATA)
-	@echo "TestTime:        90m" >>$(METADATA)
 	@echo "TestVersion:     $(TESTVERSION)" >>$(METADATA)
 	@echo "License:         GPLv3" >>$(METADATA)
 	@echo "Requires:        automake autoconf procmail flex bison rsyslog sysklogd util-linux-ng rpm-build" >> $(METADATA)

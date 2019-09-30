@@ -54,7 +54,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test setting and getting of socket options for multicast and IGMP." >> $(METADATA)
 	@echo "Type:            Function" >> $(METADATA)
-	@echo "TestTime:        1h" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        kernel" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

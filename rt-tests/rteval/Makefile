@@ -45,7 +45,6 @@ $(METADATA): Makefile
 	@echo "License:		GPLv2" >> $(METADATA)
 	@echo "Description:	PRE Verification for Real Time" >> $(METADATA)
 	@echo "Architectures:	x86_64" >>$(METADATA)
-	@echo "TestTime:	1h" >> $(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)  
 
 	rhts-lint $(METADATA)

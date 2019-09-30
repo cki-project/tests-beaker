@@ -51,7 +51,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     internal-testsuite" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
-	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "RunFor:          perf" >> $(METADATA)
 	@echo "Requires:        perf perf-debuginfo" >> $(METADATA)
 	@echo "Requires:        python-perf python3-perf" >> $(METADATA)

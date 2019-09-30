@@ -77,7 +77,6 @@ $(METADATA): Makefile
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  udp socket testing" >> $(METADATA)
 	@echo "Type:         Functional" >> $(METADATA)
-	@echo "TestTime:     5m" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     make" >> $(METADATA)
 	@echo "Requires:     gcc" >> $(METADATA)

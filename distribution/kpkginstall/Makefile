@@ -41,7 +41,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "TestVersion:     $(TESTVERSION)" >> $(METADATA)
 	@echo "Description:     Install kernel from a tarball" >> $(METADATA)
-	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "RunFor:          $(TOPLEVEL_NAMESPACE)" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPL" >> $(METADATA)

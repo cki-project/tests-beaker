@@ -8,7 +8,6 @@ destructive=no
 
 [restraint]
 entry_point=make run
-max_time=20m
 dependencies=beakerlib;beakerlib-redhat;tuned
 softDependencies=python3-lxml
 repoRequires=packages/tuned/basic

@@ -8,6 +8,5 @@ destructive=no
 
 [restraint]
 entry_point=make run
-max_time=120m
 dependencies=
 repoRequires=

@@ -58,7 +58,6 @@ $(METADATA):
 	@echo "Name:		$(TEST)"	> $(METADATA)
 	@echo "Description:	Sanity test for loop device" >> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"	>> $(METADATA)
-	@echo "TestTime:	15m"		>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "Releases:	RHEL7 Fedorarawhide" >> $(METADATA)
 	@echo "#Architectures:	All"		>> $(METADATA)

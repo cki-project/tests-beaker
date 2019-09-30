@@ -71,7 +71,6 @@ $(METADATA): Makefile
 	@echo "License:      GPLv2" >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"	>> $(METADATA)
 	@echo "Description:  tcp/tcp_keepalive">> $(METADATA)
-	@echo "TestTime:     20m" >> $(METADATA)
 	@echo "Type:         Function" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here

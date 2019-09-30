@@ -51,7 +51,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test for BZ#1619235 (Incorrect kernel module symbol Requires generation)" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          redhat-rpm-config" >> $(METADATA)
 	@echo "Requires:        redhat-rpm-config kernel-rpm-macros rpm-build kernel-devel kernel-abi-whitelists gcc kernel-devel elfutils-libelf-devel" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

@@ -140,7 +140,6 @@ $(METADATA):
 	@echo "Name:            $(TEST)" >$(METADATA)
 	@echo "Description:     Latest LTP test KernelTier1" >>$(METADATA)
 	@echo "Path:            $(TEST_DIR)" >>$(METADATA)
-	@echo "TestTime:        180m" >>$(METADATA)
 	@echo "TestVersion:     $(TESTVERSION)" >>$(METADATA)
 	@echo "License:         GPLv3" >>$(METADATA)
 	@echo "RhtsRequires:    kernel-kernel-distribution-ltp-include" >> $(METADATA)

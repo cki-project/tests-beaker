@@ -45,6 +45,5 @@ $(METADATA):
 	@echo "License:		GPLv3" >>$(METADATA)
 	@echo "Description: 	Make sure rt env setup." >>$(METADATA)
 	@echo "Architectures:	x86_64" >>$(METADATA)
-	@echo "TestTime:	10m" >>$(METADATA)
 
 	rhts-lint $(METADATA)

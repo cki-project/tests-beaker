@@ -35,7 +35,6 @@ $(METADATA): Makefile
 	@echo "TestVersion:  $(TESTVERSION)" >> $(METADATA)
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  Tests device-mapper, mainly Core">> $(METADATA)
-	@echo "TestTime:     1h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     git" >> $(METADATA)

@@ -46,7 +46,6 @@ $(METADATA): Makefile
 	@echo "Description:	Test to verify CPUs should be running the highest\
 			        possible priority task that it can run." >> $(METADATA)
 	@echo "Architectures:   x86_64" >>$(METADATA)
-	@echo "TestTime:	1h"	>> $(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)
 
 	rhts-lint $(METADATA)

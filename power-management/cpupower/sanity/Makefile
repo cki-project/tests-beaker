@@ -50,7 +50,6 @@ $(METADATA): Makefile
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  Check, that output of cpupower is sane" >> $(METADATA)
 	@echo "Type:         Sanity" >> $(METADATA)
-	@echo "TestTime:     5m" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     kernel" >> $(METADATA)
 	@echo "Requires:     kernel-tools" >> $(METADATA)

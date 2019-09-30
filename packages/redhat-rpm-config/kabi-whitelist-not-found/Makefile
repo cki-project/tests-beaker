@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test for BZ#1126086 (KERNEL ABI COMPATIBILITY WARNING when building any)" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          redhat-rpm-config" >> $(METADATA)
 	@echo "Requires:        redhat-rpm-config kernel-abi-whitelists kernel-rpm-macros" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

@@ -115,7 +115,6 @@ $(METADATA): Makefile
 	@echo "TestVersion:     $(TESTVERSION)" >> $(METADATA)
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test libhugetlbfs with upstream testsuite" >> $(METADATA)
-	@echo "TestTime:        40m" >> $(METADATA)
 	@echo "RunFor:          $(PACKAGE_NAME) $(PACKAGE_NAME)-utils" >> $(METADATA)
 	@echo "Requires:        @development \
 		libgcc.i686    glibc-devel.i686    glibc-static.i686 \

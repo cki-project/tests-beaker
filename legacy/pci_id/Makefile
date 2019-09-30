@@ -45,7 +45,6 @@ $(METADATA): Makefile
 	@echo "Path:            /tmp/" >> $(METADATA)
 	@echo "Description:     Ensure no pci id gets removed." >> $(METADATA)
 	@echo "Type:            Misc" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        kernel" >> $(METADATA)
 	@echo "Requires:        kmod" >> $(METADATA)

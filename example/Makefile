@@ -32,6 +32,5 @@ $(METADATA):
 	@echo "License:		GPLv3" >>$(METADATA)
 	@echo "Description: 	Dummy test." >>$(METADATA)
 	@echo "Architectures:	x86_64" >>$(METADATA)
-	@echo "TestTime:	1m" >>$(METADATA)
 
 	rhts-lint $(METADATA)

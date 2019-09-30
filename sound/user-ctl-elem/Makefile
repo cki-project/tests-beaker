@@ -40,7 +40,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     ALSA Control (mixer) Userspace Element test" >> $(METADATA)
 	@echo "Type:            Functional" >> $(METADATA)
-	@echo "TestTime:        2m" >> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

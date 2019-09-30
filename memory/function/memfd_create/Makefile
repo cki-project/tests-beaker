@@ -62,7 +62,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test for memfd_create syscall." >> $(METADATA)
 	@echo "Type:            Function" >> $(METADATA)
-	@echo "TestTime:        20m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        @development" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

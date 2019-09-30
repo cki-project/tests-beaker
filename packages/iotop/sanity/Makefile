@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     verifies that iotop can detect heavy disk load simulated by dd" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        10m" >> $(METADATA)
 	@echo "RunFor:          iotop" >> $(METADATA)
 	@echo "Requires:        iotop" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
