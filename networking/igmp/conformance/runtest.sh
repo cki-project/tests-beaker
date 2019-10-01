@@ -401,17 +401,6 @@ then
             rlAssertEquals "Block src Membership--Received $number_of_blockSource packets" $number_of_blockSource 0
             rlAssertGreater "Unblock src Membership--Received $number_of_unblockSource packets" $number_of_unblockSource 0
    rlPhaseEnd
-
-   rlPhaseStartTest "igmp_max limit"
-	    rlRun "sysctl -w net.ipv4.igmp_max_memberships=$MAX_LIMIT"
-	    rlRun "sysctl -w net.core.optmem_max=2048000"
-
-	    echo  "sysctl taking effect..."
-
-	    rlRun "./test_tools/igmp_capacity -a 239.1.1.1 -p $MAX_LIMIT > $OUTFILE 2>/tmp/err_4_igmp" 1
-	    rlAssertGrep "i=$MAX_LIMIT" $OUTFILE
-	    rlAssertGrep "setsockopt: No buffer space available" /tmp/err_4_igmp
-   rlPhaseEnd
 fi
 
 
