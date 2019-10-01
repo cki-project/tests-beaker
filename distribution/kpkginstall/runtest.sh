@@ -361,8 +361,14 @@ function rpm_install()
   if $YUM install -y "${PACKAGE_NAME}-headers-${KVER}" > /dev/null; then
     cki_print_success "Installed ${PACKAGE_NAME}-headers-${KVER} successfully"
   else
-    cki_print_warning "No package kernel-headers-${KVER} found, skipping!"
-    cki_print_warning "Note that some tests might require the package and can fail!"
+    cki_print_warning "No package kernel-headers-${KVER} found, trying without exact ${KVER}"
+    ALT_HEADERS=`ls ${PACKAGE_NAME}-headers* | grep -v src.rpm | head -1`
+    if $YUM install -y "${ALT_HEADERS}" > /dev/null; then
+        cki_print_success "Installed ${ALT_HEADERS} successfully"
+    else
+        cki_print_warning "No package kernel-headers-${KVER} found, skipping!"
+        cki_print_warning "Note that some tests might require the package and can fail!"
+    fi
   fi
 
   # The package was renamed (and temporarily aliased) in Fedora/RHEL"
