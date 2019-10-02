@@ -58,7 +58,7 @@ function ltp_test_build()
 		pushd ltp; git pull  > /dev/null 2>&1; popd
 	else
 		if [ $GIT_USER_ADDR = 0 ]; then
-			git clone https://github.com/linux-test-project/ltp ltp  --depth=1\
+			git clone https://github.com/linux-test-project/ltp ltp \
 				> /dev/null 2>&1 || test_msg fail "git clone ltp upstream failed"
 
 			test_msg pass "git clone LTP upstream"
@@ -81,6 +81,8 @@ function ltp_test_build()
 	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
 	# Debug kernels will fail dmesg check when greping for BUG
 	patch -p1 < ../patches/dynamic_debug_dmesg_check.patch
+	# OOM kills runtest.sh
+	patch -p1 < ../patches/oom_aborts_runtest.patch
 	popd > /dev/null 2>&1
 
 	test_msg pass "LTP build/install successful"
