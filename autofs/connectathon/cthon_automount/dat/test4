@@ -1,0 +1,29 @@
+#
+#ident	"$Id: test4,v 1.1 2005/10/25 22:34:27 jmoyer Exp $"
+#
+#  Input Syntax: <path> <0|1>
+#                       0 means success expected
+#                       1 means failure expected
+#
+# Combination of indirect and direct map entries
+#
+AUTO_CLIENT_MNTPNT/test4/indirect/g3	0
+AUTO_CLIENT_MNTPNT/test4/indirect/g4	0
+AUTO_CLIENT_MNTPNT/test4/indirect/no_such_entry	1
+AUTO_CLIENT_MNTPNT/test4/indirect/g5	0
+AUTO_CLIENT_MNTPNT/test4/indirect/g5/s1	0
+AUTO_CLIENT_MNTPNT/test4/indirect/g5	0
+AUTO_CLIENT_MNTPNT/test4/indirect/g5a/s1	0
+AUTO_CLIENT_MNTPNT/test4/indirect/g8	0
+AUTO_CLIENT_MNTPNT/test4/indirect/g9j	0
+AUTO_CLIENT_MNTPNT/test4/indirect/no_such_entry1	1
+
+AUTO_CLIENT_MNTPNT/test4/direct/g3	0
+AUTO_CLIENT_MNTPNT/test4/direct/no_such_entry	1
+AUTO_CLIENT_MNTPNT/test4/direct/g5	0
+AUTO_CLIENT_MNTPNT/test4/direct/g5/s1	0
+AUTO_CLIENT_MNTPNT/test4/direct/g5	0
+AUTO_CLIENT_MNTPNT/test4/direct/g5a/s1	0
+AUTO_CLIENT_MNTPNT/test4/direct/g8	0
+AUTO_CLIENT_MNTPNT/test4/direct/g9j	0
+AUTO_CLIENT_MNTPNT/test4/direct/no_such_entry1	1

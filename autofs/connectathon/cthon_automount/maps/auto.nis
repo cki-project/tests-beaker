@@ -1,0 +1,209 @@
+#
+#ident	"$Id: auto_icthon,v 1.1 2005/10/25 22:36:03 jmoyer Exp $"
+#
+# indirect map
+#
+
+#
+# POSITIVE TESTS
+#
+
+#
+# basic tests
+#
+n-g1					SERVER1:/AUTO_SERVER_DIR/export1
+n-g1a	/				SERVER1:/AUTO_SERVER_DIR/export1
+n-g1b					SERVER1:/AUTO_SERVER_DIR/export1/
+
+#
+# option support
+#
+n-g2		-ro			SERVER1:/AUTO_SERVER_DIR/export1
+n-g2b		-rw			SERVER1:/AUTO_SERVER_DIR/export1
+n-g2c	/	-ro			SERVER1:/AUTO_SERVER_DIR/export1
+n-g2d	-ro \
+	/				SERVER1:/AUTO_SERVER_DIR/export1
+
+#
+# subdir support
+#
+n-g3	 \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+n-g3a	 \
+	/				SERVER1:/AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+n-g3b					SERVER1:/AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+n-g3c	 \
+	/				SERVER1:/AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export/testing/test/s1 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export5/testing/test/s2 \
+	/s1/ss1				SERVER1:/AUTO_SERVER_DIR/export1 \
+	/s2/ss2				SERVER1:/AUTO_SERVER_DIR/export2
+n-g3d	 \
+	/				SERVER1:/AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2
+
+#
+# subdir-option support 
+#
+n-g4	-ro  \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+n-g4a	-ro  \
+	/				SERVER1:/AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+n-g4b	-ro 				SERVER1:/AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+
+#
+# offset support
+#
+n-g5	 \
+	/s1/ss1				SERVER1:/AUTO_SERVER_DIR/export1
+n-g5a	/s1/ss1				SERVER1:/AUTO_SERVER_DIR/export5/testing/test/s1/ss1 \
+	/s1/ss1/sss1/			SERVER1:/AUTO_SERVER_DIR/export5/testing/test/s1/ss1/sss1 \
+	/s1/ss1/sss1/ssss1/sssss1	SERVER1:/AUTO_SERVER_DIR/export2
+
+#
+# replicated server support
+#
+n-g6					SERVER1,eagle:/AUTO_SERVER_DIR/export1
+n-g6a					SERVER1:/AUTO_SERVER_DIR/export1 \
+					eagle:/AUTO_SERVER_DIR/export1
+n-g6b					SERVER1:/AUTO_SERVER_DIR/export1 \
+					eagle:/AUTO_SERVER_DIR/export1
+n-g6c 					SERVER1,eagle(10):/AUTO_SERVER_DIR/export1
+n-g6d	 \
+	/s1				SERVER1,eagle:/AUTO_SERVER_DIR/export1
+
+#
+# multihomed host support
+#
+
+#
+# macro support (also provided a wildcard at the end)
+#
+n-g8	/$ARCH				SERVER1:/AUTO_SERVER_DIR/export1
+n-g8a	/$CPU				SERVER1:/AUTO_SERVER_DIR/export1
+n-g8b	/$HOST				SERVER1:/AUTO_SERVER_DIR/export1
+n-g8c	/$OSREL				SERVER1:/AUTO_SERVER_DIR/export1
+n-g8d	/$OSNAME			SERVER1:/AUTO_SERVER_DIR/export1
+n-g8e	/$OSVERS			SERVER1:/AUTO_SERVER_DIR/export1
+n-g8f	/$CPU$OSVERS			SERVER1:/AUTO_SERVER_DIR/export1
+n-g8g	/$HOST				$HOST:/AUTO_SERVER_DIR/
+
+#
+# special characters
+#
+n-g9					SERVER1:/AUTO_SERVER_DIR/"export1"
+n-g9a					SERVER1:/AUTO_SERVER_DIR/export5/testing/test/exp#ort1
+n-g9b					SERVER1:/AUTO_SERVER_DIR/export1	# comment test
+n-g9c					SERVER1:/AUTO_SERVER_DIR//export1
+n-g9-d					SERVER1:/AUTO_SERVER_DIR/export1
+n-g9#e					SERVER1:/AUTO_SERVER_DIR/export1
+"n-g9f"					SERVER1:/AUTO_SERVER_DIR/export1
+n-g9g					SERVER1:/AUTO_SERVER_DIR/export1////
+n-g9j	\
+        //s1			       	SERVER1:/AUTO_SERVER_DIR/export5/testing/test \
+        //s2				SERVER1:/AUTO_SERVER_DIR/export5/testing/test
+
+#
+# long paths
+#
+n-g10b					SERVER1:/AUTO_SERVER_DIR/export5/testing/test/s1/ss1/sss1/ssss1/sssss1
+
+#
+# NEGATIVE PARSER TESTS
+#
+
+#
+# basic
+#
+b1
+b1a	/
+b1b				SERVER1/export1
+b1c				/SERVER1
+b1d	/			/SERVER1
+
+#
+# option support
+#
+b2	/	-ro
+b2a		-ro		/SERVER1
+b2b	/	-ro		/SERVER1
+b2c		-ro		SERVER1/export1
+b2d		ro		SERVER1:/AUTO_SERVER_DIR/export1
+b2e	/	ro		SERVER1:/AUTO_SERVER_DIR/export1
+b2f		-ro
+
+
+#
+# subdir support
+#
+b3	    \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export1 \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export1
+b3a	 \
+	b3b				SERVER1:/AUTO_SERVER_DIR/export1
+b3b	 \
+	/b3c
+b3c	 \
+	/				
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+b3d	/s1	-ro			SERVER1:/AUTO_SERVER_DIR/export1 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export2 \	
+	/s1				SERVER1:/AUTO_SERVER_DIR/export3	
+
+#
+# subdir-option support
+#
+b4	    \
+	/s1	-ro			SERVER1:/AUTO_SERVER_DIR/export1 \
+	/s1	-ro			SERVER1:/AUTO_SERVER_DIR/export1
+b4a	/	-ro  \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+b4b	-ro 				/SERVER1:/AUTO_SERVER_DIR/export1 \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+	/s2				SERVER1:/AUTO_SERVER_DIR/export3
+b4c	-ro 				/SERVER1:/AUTO_SERVER_DIR/export1 \
+	/s1				SERVER1:/AUTO_SERVER_DIR/export2 \
+
+#
+# offset support
+#
+b5	 \				SERVER1:/AUTO_SERVER_DIR/export6 \
+	/s1/ssbad			SERVER1:/AUTO_SERVER_DIR/export6
+b5a	/s1/ss1				SERVER1:/AUTO_SERVER_DIR/export6 \
+	/s1/ss1/sss1/ssss1/sssssbad	SERVER1:/AUTO_SERVER_DIR/export2
+
+
+#
+# macro support
+#
+b8	/$ARCB				SERVER1:/AUTO_SERVER_DIR/export1
+
+#
+# special character support
+#
+b9c \
+	*				SERVER1:/AUTO_SERVER_DIR/export1/
+b9e   \
+        /  s1			       	SERVER1:/AUTO_SERVER_DIR/export1 \
+        /  s2				SERVER1:/AUTO_SERVER_DIR/export1
+#    ### b9h				SERVER1:/AUTO_SERVER_DIR/export1
+    #   b9i				SERVER1:/AUTO_SERVER_DIR/export1
+
+#
+# paths to be used with trailing space tests
+#
+space_test1				SERVER1:/AUTO_SERVER_DIR/space/test1
+space_test2				SERVER1:/AUTO_SERVER_DIR/space/test2
+

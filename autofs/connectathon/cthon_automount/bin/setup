@@ -1,0 +1,241 @@
+#!/bin/bash
+#
+#ident	"$Id: setup,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+# Run this setup script to setup the automounter testing environment.
+#
+# setup [-a|-c] [-f server_name] [-s server_name] [-m mntpoint]
+# 	-a		perform complete setup. Need to be run as "root".
+#	-c		perform partial setup. Need to complete setup manually.
+#	-f server_name	server to failover to.
+#	-s server_name	server to test against.
+#	-m mntpoint	path to automount on locally
+# 
+# If no command line arguments are provided, then the environment variables 
+# must be defined in "../src/tests.init"
+#
+# This script installs all the necessary automounter maps in
+# ${AUTOMAP_DIR}. If automounter was not started automatically, you are 
+# responsible for manually modifying your /etc/auto_master map with the 
+# required changes (given by this script) and have your automounter mount 
+# the new mountpoints (by either restarting it, or running the "automount -v" 
+# command on autofs based systems.
+#
+# This script also creates the necessary directories on your server to
+# run the tests, provided ${AUTO_SERVER_DIR} is shared.
+#
+# This script also installs all the necessary data files for this testing
+# environment in ${AUTOMAP_DIR}/dat directory.
+#
+
+Progname=`basename $0`
+NSPC=`echo $Progname | sed 's/./ /g'`
+
+#
+# maps directory
+#
+mapDir=../maps
+
+MKDIR="mkdir"
+if [ -z "${MASTER_MAP}" ] ; then
+	MASTER_MAP=auto_master
+fi
+
+InitFile="../src/tests.init"
+USAGE="usage: $Program [-a|-c] [-f server_name] [-s server_name] [-m mntpoint]"
+SETUP=-a
+
+if [ ! -f ${InitFile} ]; then
+	echo "{Err} 'tests.init' not found - cannot proceed without defaults file"
+	exit 1
+fi
+
+echo "{Info} Reading default environment variables from 'tests.init'..."
+. $InitFile
+
+if [ $# -ne 0 ]; then
+	set - `getopt acf:m:s: $*`
+	if [ $? != 0 ]; then
+		echo $USAGE
+		exit 1
+	fi
+	for c in $*; do
+		case $c in
+			-a|-c)	SETUP=$c; shift	;;
+			-f)	SERVER2=$2; shift; shift	;;
+			-s)	SERVER1=$2; AUTO_CLIENT_MNTPNT=/auto_test/$2; shift; shift	;;
+			-m)	AUTO_CLIENT_MNTPNT=$2; shift	;;
+			--)	shift; break	;;
+		esac
+	done
+fi
+
+if [ "x$SERVER1" = "x" ]; then
+	echo "{Err} SERVER1 environment variable not set."
+	echo "Please set in 'tests.init'."
+	exit 1
+fi
+MYSERVER1=${SERVER1}
+
+if [ "x$SERVER2" = "x" ]; then
+	SERVER2=${SERVER1}
+fi
+MYSERVER2=${SERVER2}
+
+if [ "x$AUTOMAP_DIR" = "x" ]; then
+	echo "{Err} AUTOMAP_DIR environment variable not set."
+	echo "      Please set in 'tests.init'."
+	exit 1
+fi
+
+if [ "x$AUTO_SERVER_DIR" = "x" ]; then
+	echo "{Err} AUTO_SERVER_DIR environment variable not set."
+	echo "      Please set in 'tests.init'."
+	exit 1
+fi
+
+if [ "x$AUTO_CLIENT_MNTPNT" = "x" ]; then
+	echo "{Err} AUTO_CLIENT_MNTPNT environment variable not set."
+	echo "      Please set in 'tests.init'."
+	exit 1
+fi
+
+
+#
+# customize maps with specified servers
+#
+mkdir -p $AUTOMAP_DIR
+echo "{Info} Installing automounter Connectathon test maps in ${AUTOMAP_DIR}..."
+echo "       myserver1($MYSERVER1),automap_dir($AUTOMAP_DIR)"
+echo "       auto_server_dir($AUTO_SERVER_DIR),auto_client_mntpnt($AUTO_CLIENT_MNTPNT)"
+for mapfile in `cd ${mapDir}; ls auto*`; do
+	echo -e "{Info} -setup ${AUTOMAP_DIR}/${mapfile} ..."
+	sed -e "s%SERVER1%${MYSERVER1}%g" \
+	    -e "s%SERVER2%${MYSERVER2}%g" \
+	    -e "s%AUTOMAP_DIR%${AUTOMAP_DIR}%g" \
+	    -e "s%AUTO_SERVER_DIR%${AUTO_SERVER_DIR}%g" \
+	    -e "s%AUTO_CLIENT_MNTPNT%${AUTO_CLIENT_MNTPNT}%g" \
+		${mapDir}/${mapfile} > ${AUTOMAP_DIR}/${mapfile}
+done
+
+#
+# executable map
+#
+chmod +x ${AUTOMAP_DIR}/auto.ecthon
+
+mapmaster=${MASTER_MAP}
+rm -f ${AUTOMAP_DIR}/${mapmaster}
+sed -e "s%AUTOMAP_DIR%${AUTOMAP_DIR}%g" \
+    -e "s%AUTO_CLIENT_MNTPNT%${AUTO_CLIENT_MNTPNT}%g" \
+	 ${mapDir}/${mapmaster} > ${AUTOMAP_DIR}/${mapmaster}
+
+echo "{Info} Setting up directories on servers..."
+#
+# create the directories needed for automounter tests
+#
+for host in ${MYSERVER1} ${MYSERVER2}; do
+	# Make sure nothing is mounted on the mountpoint
+	if [ ! -d ${MNTPOINT} ]; then
+		echo "{Err} $Progname: mountpoint ${MNTPOINT} not found"
+		echo "      Terminating - setup did not complete"
+		exit 1
+	fi
+
+	eval $UMOUNTCMD ${MNTPOINT} > /dev/null 2>&1
+
+	# Create test directory on server if necessary
+	if [ ! -d /net/${host}/${AUTO_SERVER_DIR} ]; then
+		mkdir -p /net/${host}/${AUTO_SERVER_DIR}
+		if [ $? -ne 0 ]; then
+			echo "{Err} Can't create test directory on server"
+			echo "      exiting"
+			exit 1
+		fi
+		chmod 777 /net/${host}/${AUTO_SERVER_DIR}
+	fi
+
+	eval $MOUNTCMD ${host}:${AUTO_SERVER_DIR} ${MNTPOINT}
+	case $? in
+	   0)
+		;;
+	   *)
+		echo "{Err} Can't mount ${host}:${AUTO_SERVER_DIR} on ${MNTPOINT}"
+		echo "      Terminating - setup did not complete"
+		exit 1
+	esac
+
+	NEW_DIR_LIST=`cat ${mapDir}/server_directories`
+	for NEW_DIR in ${NEW_DIR_LIST}; do
+		if [ ! -d ${MNTPOINT}/${NEW_DIR} ]; then
+			${MKDIR} -p ${MNTPOINT}/${NEW_DIR}
+		fi
+	done
+
+	if [ ! -d ${MNTPOINT}/space/test1/'trailing_space ' ]; then
+		${MKDIR} -p ${MNTPOINT}/space/test1/'trailing_space '
+	fi
+
+	if [ ! -d ${MNTPOINT}/space/test2/'double_trailing_space  ' ]; then
+		${MKDIR} -p ${MNTPOINT}/space/test2/'double_trailing_space  '
+	fi
+
+	eval $UMOUNTCMD ${MNTPOINT}
+done
+
+#
+# create the data files
+#
+dataDir="../dat"
+echo "{Info} Installing data files in ${AUTOMAP_DIR}/dat (${AUTO_CLIENT_MNTPNT}) ..."
+mkdir -p ${AUTOMAP_DIR}/dat && rm -rf ${AUTOMAP_DIR}/dat/*
+
+for DATFILE in autoparse autoparse-n test1 test2 test3 test4 test5_autofs test5_nfs badnames exception
+do
+	echo -e "{Info} -setup ${AUTOMAP_DIR}/dat/${DATFILE}"
+	sed -e "s%AUTO_CLIENT_MNTPNT%${AUTO_CLIENT_MNTPNT}%g" \
+	   ${dataDir}/${DATFILE} > ${AUTOMAP_DIR}/dat/${DATFILE}
+done
+
+if [ $SETUP = "-c" ]; then
+	echo
+	echo
+	echo -e "Make sure your /etc/${MASTER_MAP} includes all of the following"
+	echo -e "automount mountpoints. Make sure your automounter is either"
+	echo -e "restarted, or if running autofs, the 'automount -v' command"
+	echo -e "is run after modifying your /etc/${MASTER_MAP}"
+	echo -e "You can either cut and paste the following automount mountpoints"
+	echo -e "into your /etc/${MASTER_MAP}, or use the one provided at"
+	echo -e "${AUTOMAP_DIR}/${mapmaster}"
+	echo
+	echo -e "You may also add the following line to your /etc/${MASTER_MAP} and"
+	echo -e "run the 'automount -v' command afterwards."
+	echo -e "\t+${AUTOMAP_DIR}/${mapmaster}"
+	echo
+	echo
+	cat ${AUTOMAP_DIR}/${mapmaster}
+
+	echo
+	echo -e "Press <enter> to continue. \c"
+	read ans
+else
+	if [ $SETUP = "-a" ]; then
+		echo "{Info} Updating /etc/${MASTER_MAP}..."
+		check=`grep ${AUTOMAP_DIR}/${mapmaster} /etc/${MASTER_MAP} | grep -v \^\#`
+		if [ -z "$check" ]; then
+			grep -v ${MASTER_MAP} /etc/${MASTER_MAP} >/tmp/${MASTER_MAP}.$$
+			echo "+${AUTOMAP_DIR}/${mapmaster}"	>> /tmp/${MASTER_MAP}.$$
+			mv -f /tmp/${MASTER_MAP}.$$ /etc/${MASTER_MAP}
+			if [ $? -ne 0 ]; then
+				echo "{Err} ${MASTER_MAP} could not be updated."
+				exit 1
+			fi
+
+		fi
+		#echo "{Info} show /etc/auto.master"
+		#cat /etc/auto.master
+	fi
+fi
+
+echo
+echo "- Setup done."
+echo

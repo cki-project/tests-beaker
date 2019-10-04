@@ -1,0 +1,100 @@
+#ident	"$Id: tests.init.Linux,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+# Contains environment variables for use with connectathon automounter
+# testing
+#
+
+INSTALL_DIR=/usr/local
+
+#
+# Set this variable to any non-NULL string to have the tests be more
+# verbose on their output.
+# Comment it out to be less verbose.
+VERBOSE="vvv"
+
+#
+# This is the client-side directory that the automounter tests use as
+# the starting mountpoint. This is the starting mountpoint for the paths
+# the test expect to touch and verify were mounted correctly.
+#
+AUTO_CLIENT_MNTPNT="/automount"
+
+#
+# This is the directory which the automounter tests use to mount from
+# SERVER1 and SERVER2. The directory must be shared on both servers.
+# Must be an absolute path.
+#
+AUTO_SERVER_DIR=/server/autofs
+
+#
+# This is the directory where the testsuite automounter maps will
+# be copied to. It's cleaner if you make this a temporary directory
+# like /tmp.
+# Must be an absolute path
+#
+AUTOMAP_DIR=/cthon_automount/maps
+AUTOMAP_DIR=/etc
+
+#
+# Default tests
+# See ../README for description of TESTS string
+#
+TESTS=-a
+
+# Use this path for Solaris 2.x systems
+#PATH=/opt/teamware/ParallelMake/bin:/opt/SUNWspro/bin:/usr/ccs/bin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/ucb:/etc:.
+
+# Use this path for Red Hat Linux systems
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/kerberos/bin:/usr/local/bin:/usr/local/sbin:/usr/local/cthon_automount/bin
+
+MNTOPTIONS="rw,hard,intr"
+
+# MNTPOINT is only used by the 'setup' script
+MNTPOINT="/mnt"
+
+# ------------------------------------------------------------------
+# Defines for various variables used in scripts and makefiles
+#
+# Do not remove the following three lines. They may be overriden by
+# other configuration parameters lower in this file, but these three
+# variables must be defined
+CC=gcc
+CFLAGS=-Wall
+LIBS=
+
+# Use this mount command if using:
+MOUNTCMD='/bin/mount -t nfs -o ${MNTOPTIONS} '
+UMOUNTCMD='/bin/umount '
+
+# Set this to 1 if using autofs-ng
+AUTOFSNG=0
+# Use this automount command if using Linux Autofs NG
+#AUTOMOUNTCMD='/sbin/automountng'
+
+# Use this automount command if using the Linux automounter v4
+AUTOMOUNTCMD='service autofs restart'
+
+# Set this to auto.master if using the Linux automounter v4
+MASTER_MAP=auto.master
+
+# For portability, we support both mntent and mnttab forms of getmntent
+# Comment this line to use the mntent form (found on Linux).
+#USE_MNTTAB=-DUSE_MNTTAB
+
+# For portability, we support both statvfs and statfs.
+# Comment this line to use the statfs form (found on Linux).
+#USE_STATVFS=-DUSE_STATVFS
+
+# Specifies where the mounttable is
+MOUNT_TABLE="/etc/mtab"
+
+# Linux autofsng uses tmpfs for scaffolding of multimounts with no root offset
+# defined.
+USE_TMPFS_SCAFFOLDING=0
+
+#
+# servers to use while testing
+#
+SERVER1=${SERVER1:-shark}
+SERVER2=${SERVER2:-zeus}
+

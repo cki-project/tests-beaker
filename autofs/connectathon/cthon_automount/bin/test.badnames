@@ -1,0 +1,58 @@
+#!/bin/bash
+
+tname=`basename $0`
+datname="badnames"
+InitFile="../src/tests.init"
+source $InitFile
+Err=0
+ls $AUTOMAP_DIR/dat/$datname || exit 1
+
+mntpoint=$AUTO_CLIENT_MNTPNT/$datname
+ls $mntpoint || {
+	tail -n 30 /var/log/messages
+	mkdir -p $mntpoint  #fix me, if automount should create this dir
+}
+mountpoint $mntpoint && umount $mntpoint
+
+while read name count; do
+	test -z "$name" && continue
+	echo $name|grep '^#' && continue
+
+	echo -e "\n{Info} Looking at dir=$name, expect=$count"
+	echo "{debug} automount -m | awk get the maps:"
+	automount -m 2>/dev/null|
+		awk 'BEGIN { RS="\n\n\n" } /'"Mount point: ${mntpoint//\//.}"'/{print}'
+
+[ -n "$DEDUG" ] && {
+	echo "{debug} mkdir -p the mnt dir: [$mntpoint/$name]"
+	mkdir -p $mntpoint/$name
+
+	expAddr=$(automount -m 2>/dev/null|
+		awk 'BEGIN { RS="\n\n\n" } /'"Mount point: ${mntpoint//\//.}"'/{print}'|
+		awk "/^  ${name//\//\\\/} \|/"'{print $3}')
+	echo "{debug} nfs export address->[$expAddr]"
+	echo "{debug} manually mount [$expAddr] [$mntpoint/$name] && ls -l"
+	mount $expAddr $mntpoint/$name && ls -l $mntpoint/$name
+	echo "{debug} umount the mnt dir: [$mntpoint/$name]"
+	umount $mntpoint/$name
+	echo "{debug} remove the mnt dir [$mntpoint/$name]"
+	\rm -r $mntpoint/$name
+}
+
+	echo "{debug} ls [$mntpoint/$name] to automount:"
+	ls $mntpoint/$name
+	actual=$(ls -a $mntpoint 2>/dev/null|grep "^${name}$"|wc -l)
+	if [ "$actual" != "${count:-0}" ]; then
+		echo "{Err} Expected [$name] '$count' times but saw it '$actual' times";
+		tail -n 20 /var/log/messages
+		((Err++))
+	fi
+done < $AUTOMAP_DIR/dat/$datname
+
+if [ "$ERR" = 0 ]; then
+	echo "$tname: SUCCEEDED"
+else
+	echo "$tname: FAILED"
+fi
+
+exit $Err

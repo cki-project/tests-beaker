@@ -1,0 +1,500 @@
+#
+#ident	"$Id: README,v 1.1 2005/10/25 22:23:07 jmoyer Exp $"
+#
+Connectathon is a trademark of Sun Microsystems, Inc.
+
+1) Introduction to the Connectathon Automounter Testsuites
+   -------------------------------------------------------
+
+This set of tests is intended to verify the basic automounter functionality.
+The tests check the correct parsing of automounter maps, direct, indirect,
+nested and executable; the actual mount of the expected entries, one at a time,
+and concurrently; as well as test the proper behavior of the /net path.
+
+This directory hierarchy contains programs, data and automounter maps that
+can be used to test an implementation of the automounter. The tests run on a
+UNIX client and test basic automounting of NFS filesystems.
+
+The needed files are provided in the following directories:
+
+	src		- Contains all the C programs, and shell scripts.
+	maps		- Contains the automounter map templates used to
+			  generate the automounter maps to use during the
+			  tests.
+	dat		- test data files
+	bin		- directory where executables get installed
+
+Please read the "3) Required Setup" section in this file before running or
+compiling the tests.
+
+
+2) Test Description
+   ----------------
+
+The testsuite consists of thirteen tests, some check the correct parsing of
+automounter maps, others test /net.
+
+Some implementations of autofs have an interesting bug where lookups of
+files with trailing spaces fail, we test for that as well.
+
+NFS clients testing against servers which support both Version 2 and Version 3
+and/or NFS over TCP/UDP should use tests vers_check and proto_check to verify
+the automounter is mounting with the expected version and protocol.
+
+Test			Area tested
+----			-----------
+parser			- correct parsing of various kinds of acceptable and
+			  unacceptable entries in direct and indirect maps.
+			- correct parsing of map entries containing interesting
+			  options such as version, protocol, and port number.
+			  Note that some of these may be different between
+			  vendors, so you may need to do some substitution in
+			  the appropriate map (see below).
+
+parser-n		- same as 'parser' except that it uses the
+			  'auto_icthon' map from the name service instead
+			  of the one installed in AUTOMOUNT_DIR.
+
+test1			- basic serial mounting of indirect map entries.
+			  Calls opendir(3C) for each path specified
+			  in the data file.
+
+test2			- same as test1 but for executable map entries.
+			- ONLY USEFUL IF YOU ARE TESTING AN AUTOFS
+			  IMPLEMENTATION
+
+test3			- same as test1 but for direct map entries.
+
+test4			- Similar to test1 where filesystems are mounted
+			  serially, but the MOUNT_TABLE (see Required Setup)
+			  is not checked.
+			- This is useful for offset mounts which are not
+			  added to MOUNT_TABLE.
+			- Tests both direct and indirect entries
+
+test5			- Tests various incantations of nested mounts, serially.
+			  This test is performed in two stages, the first checks
+			  for positive access to the nested autofs filesystems.
+			  The second phase checks to see if those nested autofs
+			  mounts work by doing positive and negative tests on a
+			  couple entries.  The nested map is the same as that
+			  used in test1.
+
+trailing_space		- performs an opendir(3C) of various paths with one and
+			  two trailing spaces. Some implementations of autofs
+			  have a bug where such path lookups are not successful.
+
+net			- Performs an "ls /net/<server>" for every server
+			  specified. If the list of servers is not specified
+			  on the command line, the script will use the name
+			  service host table (YP, NIS+ or /etc/hosts) to list
+			  the available servers.
+
+net1			- lists every filesystem exported by the servers
+			  specified.
+			  Differs from net in that EVERY filesystem exported
+			  is listed/mounted, not only "/net/<server>"
+
+badnames		- This test uses a map that has keys that should be
+			  errors.  These keys are checked to see if they
+			  succeeded by using browsing, performing an 'ls -a
+			  /path/badnames' and counting the results.  Names
+			  include '.', '..', and 'foo/bar'.
+
+vers_check		- checks that the automounter indeed mounts with the
+			  NFS version specified in the map. The test currently
+			  uses the output of "nfsstat -m" which reads the
+			  contents of kernel structures to gather the
+			  information. REFER TO 5) PORTING section.
+
+proto_check		- similar to vers_check except it checks that
+			  the expected protocol is used for the mounts.
+			  REFER TO 5) PORTING section.
+
+Most of these tests use the opendir programs provided.
+
+opendir <datafile> <fstype> <0|1>
+	where <datafile> - contains a list of directory entries to open
+	      <fstype>   - filesystem type expected
+	      <0|1> 	 - 1 indicates MNT_TABLE should contain entry for
+			     this directory after mount has been triggered
+			   0 indicates MNT_TABLE should not contain entry
+
+	the <datafile> contains a list of entries that should be opendir(3C),
+	sequentially. The <fstype> is then compared against the filesystem
+	type actually mounted (through the use of statvfs(2)).
+
+
+3) Building and installing the executables
+   ---------------------------------------
+
+All the source files are provided in the 'src' directory.
+The header file 'test.h' contains one important definitions:
+You may need to modify it, if your system differs
+
+	AUTO_MNTPNT	- Mountpoint where the automounter will install its
+			  mounts. (/tmp_mnt, etc, in Solaris 1.X)
+			          ("" in autofs systems since mounts are
+				   done in place)
+
+The 'tests.init' file holds a lot of configuration information. This file is not
+distributed in this package.  You must copy the 'tests.init.<platform>' or
+'tests.init.sample' file to tests.init and edit its configuration.  Be sure to
+set the appropriate values before building the test suite. Refer to 'tests.init'
+for a detailed description.
+	PATH, CC, CFLAGS, LIBS
+The above must be set before doing a 'make'. The following must be set before
+doing the setup.
+	- MNTPOINT, MNTOPTIONS
+	- MOUNT, UMOUNT, MOUNTCMD, UMOUNTCMD
+	- SERVER1 and SERVER2
+	- VERBOSE
+	- AUTO_SERVER_DIR
+	- AUTO_CLIENT_MNTPNT
+	- AUTOMAP_DIR
+	- MOUNT_TABLE
+
+The 'setup' script uses the 'domount' and 'doautomount' program to mount and 
+unmount ${AUTO_SERVER_DIR} (see description below). Since mount and automount 
+can only be executed by root, 'domount' and 'doautomount' must have root 
+permission. The Makefile will attempt to setuid these programs to root. 
+Therefore build the 'domount' and 'doautomount' programs as root.
+Assuming you are in the 'src' directory, run the following to compile and 
+install the executables:
+
+	% make install
+
+This will build the executables in the 'src' directory and copy them to the
+'bin' directory. It will also copy the necessary shell scripts to run
+the tests.
+	
+Do the following make as root, as they are setuid programs.
+	
+	% make domount doautomount
+
+3) Required Setup
+   --------------
+
+There is a fair amount of setup required to run the testsuite. Use the 
+autotest shell script to setup the environment. The environment  variables 
+can be provided as command line arguments or in the 'tests.init' file.
+'autotest' will perform all the required setup. This script needs
+to be run as root, as it edits the auto_master file and restarts the
+automounter. Alternatively, the setup script could be used, which will prepare
+the environment for the testsuite, but might require you to make that 
+environment effective by updating the auto_master file and running the 
+automounter.
+
+During the setup process automounter template maps and data files customized
+for the test environment are created. The values of SERVER1, SERVER2, 
+AUTO_SERVER_DIR, AUTO_CLIENT_MNTPNT, AUTOMAP_DIR are plugged into these maps,
+and data files that are created. The values for SERVER1, SERVER2 and 
+AUTO_CLIENT_MNTPNT values can be provided as arguments to the 'setup' script. 
+These arguments will override the respective definitions in tests.init. 
+The modified maps are then installed in the directory specified by AUTOMAP_DIR. An auto_master file is also installed in the AUTOMAP_DIR directory, you will 
+have to either make the appropriate changes to your own auto_master map, or 
+use the one provided and restart your automounter.
+
+Note that your automounter may complain with bad entries in the maps. This is 
+expected, as some tests perform negative testing. 
+
+The 'setup' script will also create the required directories on the servers
+specified by SERVER1 and SERVER2. This is done by first NFS mounting
+${SERVER[1,2]}:$AUTO_SERVER_DIR path on ${MNTPOINT} via the 'domount'
+program. Once the mount is in place, the required directories on the
+remote servers are created. Upon success, the NFS mount is unmounted.
+
+The testsuite mounts all test directories under the directory specified in
+the ${AUTO_CLIENT_MNTPNT} variable in 'tests.init'. Thus by specifying a
+different AUTO_CLIENT_MNTPNT, one has the flexibility of testing with a new 
+server environment without having to wait for any previously automounted 
+test directories to be unmounted. 
+
+The only NIS/NIS+ automounter map/table required is auto_icthon which has
+already been setup at Connectathon.
+
+
+5) Porting
+   -------
+
+The programs have been developed under Solaris 2.X. You may need to
+modify the source to get it to compile and execute correctly under a different
+architecture. If you make any changes, please notify Mike Waychison
+(Michael.Waychison@Sun.COM) so that we can incorporate your changes into the
+distribution.
+
+All shell scripts include a platform specific shell include 'src/`uname`' if
+available.  If not available, 'src/default_os' is included.  This file at
+minimum must implement make_version and make_proto (see (e) below).
+
+	Potential areas of conflict:
+
+	a) subr.c: search_mnttab() uses getmntent() to check if a given
+		   string is in MOUNT_TABLE. Your OS may not understand
+		   'struct mnttab'. You may have to replace with
+		   'struct mntent' or equivalent.  This can be done by unsetting
+		   the 'USE_MNTTAB' environment variable in your tests.init and
+		   rebuilding.
+
+	b) subr.c: the do_opendir() function calls statvfs(2) to assure that
+		   the expected filesystem type has indeed been mounted. This
+		   function is defined by SVr4. If you're using SunOS 4.X
+		   statfs() needs to be called.  This can be done by unsetting
+		   the 'USE_STATVFS' environment variable in your tests.init and
+		   rebuilding.  You may also need to add your platform's fs
+		   magic values to 'src/magicdefs.h'
+	
+	c) subr.c: some systems, such as Linux's autofsng does not use "autofs"
+		   as a filesystem name.  You can override this in a platform
+		   specific block by redefining "AUTOFS" in 'src/magicdefs.h'.
+
+	d) vers_check and proto_check:
+		   These two shell scripts make use of the "nfsstat(1M)"
+		   command. They are highly dependent on the format of
+		   its output, which make them not very portable. If your system
+		   does not have "nfsstat(1M)" or its output is different,
+		   simply override nfsstat calls with a shell function.  An
+		   example of this is available in 'src/Linux'.
+	
+	e) vers_check and proto_check:
+		   Some systems have different formats for reporting nfs version
+		   and protocol in the reported option strings.  This can be
+		   handled by implementing make_version and make_proto shell
+		   functions in your system dependent shell include.
+		   make_version receives '2' or '3' as $1 and it output on
+		   stdout is used for option matching.  Similarly, make_proto
+		   receives 'udp' or 'tcp' as $1.
+
+For recap, most of the porting effort should only include the following:
+  - Creation of a platform specific 'src/tests.init'
+  - Possible creation of 'src/`uname`' templated from 'src/default_os'
+  - If USE_STATVFS is not used, platform specific filesystem superblock magic
+    defines will be required in 'src/magicdefs.h'
+
+6) Data files
+   ----------
+
+Data files are located in the dat subdirectory. Each file contains a list
+of test items, with each test item consisting of a path which exercises
+the automounter, and the expected result for that path. Paths are absolute
+with respect to the root of the filesystem, while the expected result should
+be either 0 (for expected success) or 1 (for expected failure). Lines that
+begin with a '#' are considered to be comments, and blank lines are ignored.
+
+The only exception currently is dat/badnames.  This file contains path name
+components and counts used by the 'badnames' test.  The count is the expected
+number of times each entry is expected to be seen in the output of
+"ls -a badnames/".
+
+7) The maps
+   --------
+
+Map templates are provided in the 'maps' subdirectory. These are only templates
+used to construct the maps to be used during testing. The setup script will
+read these maps, replace the AUTO_SERVER_DIR, SERVER1 and SERVER2 with the
+values specified in the 'src/tests.init' file. The built maps will then be
+installed in the AUTOMAP_DIR directory.
+
+The following maps are provided in the 'maps' subdirectory.
+	auto.badnames		- indirect map with badly named keys
+	auto_dcthon		- direct map to use with parsing
+	auto_test3_direct	- another direct map
+	auto_test4_direct	- direct map to use with offset testing
+	auto_icthon		- indirect map
+	auto_octhon		- indirect map with interesting options
+	auto_ecthon		- executable map
+				  (only for autofs implementations)
+	auto_nested		- indirect map of nested autofs (-fstype=autofs)
+				  automounted filesystems
+	auto_master		- master map
+
+The 'server_directories' file contains the name of the directories required
+on the server. These are the server directories mounted by the automounter
+during the tests. If you modify any of the maps, and add a new server path
+to mount, you should add the complete path to this file so it can be
+automatically created by the setup script.
+
+All map names should start with 'auto_', since it's how the setup script
+finds them to install them in the AUTOMAP_DIR directory.
+
+
+8) How to run the Testsuite
+   ------------------------
+
+There are essentially two ways to run the tests: use the 'autotest'
+shell script, or use the 'setup' script followed by 'runtests' script.
+The autotest script is the recommended way to run the tests.
+
+autotest script:
+
+The autotest script performs all the setup using the 'setup' script and
+runs the tests using the 'runtests' script. Currently, the autotest executes
+the setup script which could edit the auto_master map. Since editing the
+auto_master map requires root permissions, autotest much by run as root.
+
+autotest [-a|-b|-e|-p|-n|-v] [-s|-c] [-f servername] [-m mntpoint] [servername]
+
+	-a|-b|-e|-p|-n|-v	test selector, will be passed on to runtests.
+				This is an optional argument. The default is
+				gotten from the TESTS variable in the 
+				configuration file, tests.init.
+	-c	run tests with current environment, do not perform any setup.
+		This will cause only runtests to be run. In this case runtests 
+		will use the existing maps and the existing test environment 
+		as previously created. 
+	-s	setup the automount test environment, do not run any tests.	
+		This option can be used if only the setup process needs to be
+		done. This will cause only the maps, etc., to be created. Be 
+		aware that the auto_master is not updated and the automounter
+		not restarted in this setup process. 
+
+		-s and -c are optional arguments. If neither is specified,
+		the default action is to perform a full setup (including 
+		updating the auto_master and restarting automounter) and 
+		running the tests.
+
+	-f servername	name of server to specify in the maps for failover 
+			purposes. This is an optional argument. The default
+			failover server is the primary servername. 
+
+	-m mntpoint	path to automount on locally. If not specified, the
+			default to the AUTO_CLIENT_MNTPNT variable value set
+			in the configuration file tests.init
+	
+	servername	server to automount from. Defaults to the SERVER1
+			variable value set in the configuration file tests.init
+
+Examples:
+	%autotest	<--- picks up all configuration from tests.init
+	%autotest someserver	<--- setup and run tests against someserver
+	%autotest -s someserver <--- setup environment to test against server
+	%autotest -m /some/dir -f secondserver someserver
+
+Run setup and runtests:
+
+We recommend using the autotest script to run the tests. However, if some
+manual setup needs to be performed, the setup script could be used followed by
+runtests.  
+
+The setup script will setup the test environment using the information provided
+through the arguments or through the variables in tests.init file. However, 
+since eventually the tests.init file is consulted by runtests, we highly 
+recommend setting the variables in tests.init.
+
+setup [-a|-c] [-f server_name] [-s server_name] [-m mntpoint]
+ 	-a		perform complete setup. Need to be run as "root". This
+			is the default setup option. Here setup create the maps,
+			data files, directories on the server, updates the
+			auto_master map and restarts automounter.
+	-c		perform partial setup. Here setup creates the maps, 
+			data files and directories on the server. Need to 
+			manually update auto_master map and restart automounter.
+	-f server_name	server to failover to. If not specified, the SERVER2
+			value from configuration file tests.init becomes
+			effective.
+	-s server_name	server to test against. If not specified, the SERVER1
+			value from configuration file tests.init becomes
+			effective.
+	-m mntpoint	path to automount on locally. If not specified, the
+			AUTO_CLIENT_MNTPNT value from tests.init becomes
+			effective.
+Examples:
+	%setup 		<--- picks up all configuration from tests.init 
+	%setup -s srv1 -f srv2	<--- does setup to test against srv1, failing
+				<--- over to srv2. Rest of configuration is
+				<--- picked up from tests.init
+	%setup -c -m /some/dir -s srv1 -s srv2  
+
+The 'runtests' script can be executed as nonprivileged user. It gets some
+environment information, particularly SERVER1 and AUTO_CLIENT_MNTPNT, from
+tests.init. 
+
+runtests [ -a|-b|-e|-p|-n|-v ]
+
+-a|-b|-e|-p|-n|-v	This argument specifies which set of tests to run.
+			The desired test set can also be specified by
+			defining the 'TESTS' environment variable in
+			'src/tests.init' (for example: TESTS=-a).
+
+			This argument selects which set of tests to run:
+			  -a	run all tests
+			  -b 	run the basic tests
+			  -e	run the executable map test
+			  -p	run the parser checking test
+			  -n	run the /net tests and nis tests
+			  -v    run the version and protocol checking tests
+
+Alternatively each test can be manually run by simply executing its
+shell script.
+
+Note that tests should be run from the 'bin' directory.
+
+
+9) We want to hear from you
+   ------------------------
+
+If you need to make any changes to the source, please notify us, this way 
+we can incorporate your changes into the distribution. We also would like
+to know if you find a bug in the testsuite, especially if you have the fix.
+You are particularly welcome to send us suggestions or source code to extend
+the coverage of this test suite. Also let us know of your porting efforts, we
+would like to make the test suite more vendor neutral and portable. 
+Please send the information to Mike Waychison at Sun Microsystems 
+(Michael.Waychison@Sun.COM)
+
+
+10) Update log to test suite
+    ------------------------
+
+[ January 4, 2005 ]
+1) Added some tests for nested (-fstype=autofs) entries.
+
+2) Added a badnames test
+
+3) Added flag for using statvfs vs. statfs
+
+4) Added flag for using mnttab vs. mntent
+
+5) Added broken out shell includes for per-platform overrides and option
+   formatting.  'src/`uname`' is included by all shell scripts if it exists.
+   The default is 'src/default_os'.
+
+6) Added a way to override the autofs filesystem name, AUTOFS defined in
+   'src/magicdefs.h'.
+
+7) Added a way to have tmpfs be used for scaffolding for multimount entries that
+   have no filesystem mounted at the root offset.
+
+[ January 13, 1997 ]
+
+1) Use 'domount' to mount/unmount filesystem and perform remote directory
+   setup via NFS instead of rsh.
+	a) Included domount.c from NFS Cthon test suite.
+	b) Updated Makefile to build domount
+	c) Updated tests.init with MOUNT, UMOUNT, MOUNTCMD, UMOUNTCMD
+	   variables.
+	d) Updated README file (this file) to reflect changes in setup.
+
+2) Fixed bug in test 'net1' which did not handle expected failures correctly.
+
+3) Modified test 'net' and 'net1' to automatically identify the name service
+   in use (YP, NIS+ or files) and gather the server list from it.
+
+[ February 28, 1997 ]
+
+1) Modified trailing_space script to source tests.init to set PATH.
+2) Modified 'setup' script to create server test directory if it does
+   not exist.
+3) Modified 'setup' script to take SERVER1 and SERVER2 as parameters
+   which override the test.init definitions.
+4) Change definition of basic tests. Removed test?m and test?m-r.
+5) Updated README file (this file) to reflect changes in setup.
+
+[March 2, 1999 ]
+
+1) Created the autotest script.
+2) Modified setup to provide two levels of setup - just preparation of the
+   environment, or preparation of the environment and make if effective.
+3) Modified runtests to be runnable from autotest script.
+4) Updated README (this file).
+5) Created doautomount - a setuid program that executes the automounter. 

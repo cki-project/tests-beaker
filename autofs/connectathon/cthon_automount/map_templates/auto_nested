@@ -1,0 +1,144 @@
+#
+#ident	"$Id$"
+#
+# indirect map
+#
+
+#
+# POSITIVE TESTS
+#
+
+#
+# basic tests
+#
+g1	-fstype=autofs			:AUTOMAP_DIR/auto_icthon
+g1a	-fstype=autofs	/		:AUTOMAP_DIR/auto_icthon
+g1b	/	-fstype=autofs		:AUTOMAP_DIR/auto_icthon
+
+##
+## subdir support
+##
+g2	 \
+	/s1	-fstype=autofs		:AUTOMAP_DIR/auto_icthon \
+	/s2	-fstype=autofs		:AUTOMAP_DIR/auto_icthon
+g2a	 \
+	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1	-fstype=autofs		:AUTOMAP_DIR/auto_icthon \
+	/s2	-fstype=autofs		:AUTOMAP_DIR/auto_icthon
+g3b					SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1	-fstype=autofs		:AUTOMAP_DIR/auto_icthon \
+	/s2	-fstype=autofs		:AUTOMAP_DIR/auto_icthon
+g3c	 \
+	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s2				SERVER1:AUTO_SERVER_DIR/export5/testing/test/s2 \
+	/s1/ss1	-fstype=autofs		:AUTOMAP_DIR/auto_icthon \
+	/s2/ss2	-fstype=autofs		:AUTOMAP_DIR/auto_icthon
+
+##
+## subdir-option support 
+##
+g4	-fstype=autofs  \
+	/s1				:AUTOMAP_DIR/auto_icthon \
+	/s2				:AUTOMAP_DIR/auto_icthon
+g4a	-fstype=autofs \
+	/				:AUTOMAP_DIR/auto_icthon
+g4b	-fstype=autofs / -fstype=nfs	SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1				:AUTOMAP_DIR/auto_icthon \
+	/s2				:AUTOMAP_DIR/auto_icthon
+
+## NEGATIVE PARSER TESTS
+##
+#
+##
+## basic
+##
+#b1
+#b1a	/
+#b1b				SERVER1/export1
+#b1c				/SERVER1
+#b1d	/			/SERVER1
+#
+##
+## option support
+##
+#b2	/	-ro
+#b2a		-ro		/SERVER1
+#b2b	/	-ro		/SERVER1
+#b2c		-ro		SERVER1/export1
+#b2d		ro		SERVER1:AUTO_SERVER_DIR/export1
+#b2e	/	ro		SERVER1:AUTO_SERVER_DIR/export1
+#b2f		-ro
+#
+#
+##
+## subdir support
+##
+#b3	    \
+#	/s1				SERVER1:AUTO_SERVER_DIR/export1 \
+#	/s1				SERVER1:AUTO_SERVER_DIR/export1
+#b3a	 \
+#	b3b				SERVER1:AUTO_SERVER_DIR/export1
+#b3b	 \
+#	/b3c
+#b3c	 \
+#	/				
+#	/s1				SERVER1:AUTO_SERVER_DIR/export2 \
+#	/s2				SERVER1:AUTO_SERVER_DIR/export3
+#b3d	/s1	-ro			SERVER1:AUTO_SERVER_DIR/export1 \
+#	/s2				SERVER1:AUTO_SERVER_DIR/export2 \	
+#	/s1				SERVER1:AUTO_SERVER_DIR/export3	
+#
+##
+## subdir-option support
+##
+#b4	    \
+#	/s1	-ro			SERVER1:AUTO_SERVER_DIR/export1 \
+#	/s1	-ro			SERVER1:AUTO_SERVER_DIR/export1
+#b4a	/	-ro  \
+#	/s1				SERVER1:AUTO_SERVER_DIR/export2 \
+#	/s2				SERVER1:AUTO_SERVER_DIR/export3
+#b4b	-ro 				/SERVER1:AUTO_SERVER_DIR/export1 \
+#	/s1				SERVER1:AUTO_SERVER_DIR/export2 \
+#	/s2				SERVER1:AUTO_SERVER_DIR/export3
+#b4c	-ro 				/SERVER1:AUTO_SERVER_DIR/export1 \
+#	/s1				SERVER1:AUTO_SERVER_DIR/export2 \
+#
+##
+## offset support
+##
+#b5	 \				SERVER1:AUTO_SERVER_DIR/export6 \
+#	/s1/ssbad			SERVER1:AUTO_SERVER_DIR/export6
+#b5a	/s1/ss1				SERVER1:AUTO_SERVER_DIR/export6 \
+#	/s1/ss1/sss1/ssss1/sssssbad	SERVER1:AUTO_SERVER_DIR/export2
+#
+#
+##
+## macro support
+##
+#b8	/$ARCB				SERVER1:AUTO_SERVER_DIR/export1
+#
+##
+## special character support
+##
+#b9c \
+#	*				SERVER1:AUTO_SERVER_DIR/export1/
+#b9e   \
+#        /  s1			       	SERVER1:AUTO_SERVER_DIR/export1 \
+#        /  s2				SERVER1:AUTO_SERVER_DIR/export1
+##    ### b9h				SERVER1:AUTO_SERVER_DIR/export1
+#    #   b9i				SERVER1:AUTO_SERVER_DIR/export1
+#
+##
+## paths to be used with trailing space tests
+##
+#space_test1				SERVER1:AUTO_SERVER_DIR/space/test1
+#space_test2				SERVER1:AUTO_SERVER_DIR/space/test2
+#
+#
+##
+## long paths
+##
+#b10ammmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm	SERVER1:AUTO_SERVER_DIR/export1
+#+auto_icthon
+#*					SERVER1:AUTO_SERVER_DIR/export1/&

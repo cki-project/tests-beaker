@@ -1,0 +1,116 @@
+#!/bin/bash
+#
+#ident	"$Id: net1,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+#       Automount Test Script
+#
+# It takes a list of NFS servers from the
+# command line.  If no command line args
+# are given, it takes the list from /etc/hosts,
+# NIS, or NIS+, depending on which is selected
+# in the script below (see commented-out lines).
+#
+# This script just iterates through a list
+# of NFS servers testing whether the client
+# on which it runs can automount their
+# NFS exports.
+#
+# It assumes that the hosts in the list are
+# NFS servers and that each server will allow
+# this client to mount its exported filesystems.
+#
+# Note that this script tests only that the
+# /net directory works.  It does not test other
+# automounter features like map support, replicated
+# mounts or loopback mounts (except when it finds
+# its own host in the list).
+#
+# set VERBOSE if you care to see the result of the
+# directory listing.
+# set VERBOSE if you don't want to see the directory
+# listing output
+
+TIMEOUT="-W 2"	# (sec)
+MAXCOUNT="-c 2"
+
+check() {
+	if [ $1 = $2 ]; then
+		echo "\n\t- OK -"
+	else
+		echo "\n\t- FAILED -"
+		fail=`expr $fail + 1`
+	fi	
+}
+
+do_ls(){
+	if [ x$VERBOSE = x ]; then
+		ls $1 > /dev/null
+	else
+		ls $1
+	fi
+}
+
+InitFile="../src/tests.init"
+[ -f ${InitFile} ] && . ${InitFile}
+
+trap "rm -f /tmp/*.$$; exit 1" 2 9
+
+if [ $# -gt 0 ]; then
+	HOSTLIST=`for h do echo $h ; done`
+else
+	ypwhich > /dev/null 2>&1
+	if [ $? = 0 ]; then
+		echo "using YP hosts list"
+		HOSTLIST=`ypcat hosts | awk '{print $2}'`
+	else
+		nistest `domainname` > /dev/null 2>&1
+		if [ $? = 0 ]; then
+			echo "using NIS+ hosts list"
+			HOSTLIST=`niscat hosts.org_dir | awk '{print $1}'`
+		else
+			echo "using /etc/hosts file"
+			HOSTLIST=`cat /etc/hosts | sed -e '/^#/d' | awk '{print $2}'`
+		fi
+	fi
+fi
+
+fail=0
+for HOST in ${HOSTLIST}
+do
+	echo ------------  $HOST  --------------
+	ping $TIMEOUT $MAXCOUNT $HOST >/dev/null || continue
+
+	showmount -e $HOST > /tmp/showmount.$$ 2>&1
+	rc=$?
+	if [ $HOST = `uname -n` ]; then
+		echo "\tLocal Host - Skipping\n"
+		continue
+	fi
+	if  [ $rc = 0 ]; then
+		grep -v "list " /tmp/showmount.$$ > /tmp/new.$$
+		EXPLIST=`awk '{printf("/net/%s%s ", "HOST", $1)}' /tmp/new.$$`
+ 
+		NEXPLIST=`echo $EXPLIST | sed "s/HOST/$HOST/g"`
+		for i in $NEXPLIST
+		do
+			echo "[ ls $i - expect success ]"
+		        do_ls $i
+			check $? 0
+			echo
+		done
+	else
+		echo "\tNothing exported"
+		echo "[ ls /net/$HOST - expect failure ]"
+		do_ls /net/${HOST}
+		check $? 2
+	fi	
+	echo
+done
+
+if [ $fail = 0 ]; then
+	echo "`basename $0`: SUCCEEDED"
+else
+	echo "`basename $0`: FAILED"
+fi
+rm -f /tmp/*.$$
+exit $fail

@@ -1,0 +1,162 @@
+#!/bin/bash
+#
+#ident	"$Id: vers_check,v 1.2 2005/10/26 18:17:24 jmoyer Exp $"
+#
+# checks that the expected NFS version has
+# indeed been mounted
+#
+# This test is heavily dependent on the output
+# of the nfsstat -m command. If and when the output
+# changes this test will likely need to be revised.
+#
+# If anybody knows a more generic way of finding the version
+# number used for the NFS mount, feel free to modify this test.
+#
+
+. ../src/func.common
+
+#check the rhel version
+#@$1: the version to check, such as 6, 6.7, 7, 7.1
+#@ret: 0 if yes
+is_rhel() {
+    grep "$1" /etc/redhat-release 1>/dev/null 2>&1
+}
+
+check_vers() {
+	Vers=$1
+	Ln=`nawk -F\: '{print $1}' /tmp/grepn.out.$$`
+	Ln=`expr $Ln + 1`
+	head -$Ln /tmp/nfsstat.out.$$ | tail -1 > /tmp/vers.out.$$
+	Vs=`nawk '{print $2}' /tmp/vers.out.$$`
+	Vers=`make_version $Vers`
+
+	echo "\tExpect ${Vers}, got ${Vs}"
+	Found=`try_to_grock "$Vers" "$Vs"`
+	if [ "$Found" != "found" ]; then
+		echo "\tFAILED"
+		fail=`expr ${fail} + 1`
+	else
+		echo "\tPASSED"
+	fi
+}
+	
+do_nfsstat() {
+	if [ x${VERBOSE} != x ]; then
+		echo "\texamine nfsstat -m output..."
+	fi
+	nfsstat -m > /tmp/nfsstat.out.$$
+
+	grep -n "^$1" /tmp/nfsstat.out.$$ > /tmp/grepn.out.$$ 2>&1
+	if [ $? -ne 0 ]; then
+		echo "$1 not found in nfsstat, exiting."
+		exit 1
+	fi
+}
+
+fail=0
+NAME=`basename $0`
+InitFile="../src/tests.init"
+. ${InitFile}
+
+if [ "x${SERVER1}" = "x" ]; then
+	if [ "x$SERVER1" = "x" ]; then
+		echo "SERVER1 environment variable not set."
+		echo "Please set in 'tests.init'."
+		exit 2
+	fi
+	if [ "x$AUTO_CLIENT_MNTPNT" = "x" ]; then
+		AUTO_CLIENT_MNTPNT=/auto_test/${SERVER1}
+	fi
+fi
+
+if [ "x$AUTO_CLIENT_MNTPNT" = "x" ]; then
+	echo "AUTO_CLIENT_MNTPNT environment variable not set."
+	echo "Please set in 'tests.init'."
+	exit 2
+fi
+
+if [ ${SERVER1} = `uname -n` ]; then
+	echo "Test is useless over Loopback Transport, exiting."
+	exit 2
+fi
+
+DIR="${AUTO_CLIENT_MNTPNT}/vers"
+Path4="${DIR}/g3a ${DIR}/g3b/s1/ss1 ${DIR}/g3c"
+Path3=${DIR}/g3d
+
+trap "rm -f /tmp/*.$$; exit 1" 2 9
+
+#
+# Does server support version 3?
+#
+rpcinfo -u ${SERVER1} nfs 2 > /dev/null 2>&1
+V3_SUPPORTED=$?
+
+for i in ${Path3}
+do
+	echo
+	echo "------------ ${i} ------------"
+	if [ x${VERBOSE} != x ]; then
+		echo "\tTriggering mount..."
+	fi
+	ls ${i} > /dev/null
+	if [ $? -eq 0 ]; then
+		do_nfsstat ${i}
+		check_vers "3"
+	else
+		if [ $V3_SUPPORTED -eq 0 ]; then
+			echo "\tFAILED"
+			fail=`expr ${fail} + 1`
+		else
+			echo "Version 3 not supported by server - continuing..."
+		fi
+	fi
+
+	rm -f /tmp/*.$$
+done
+
+#
+# Does server support version 4?
+#
+rpcinfo -u ${SERVER1} nfs 4 > /dev/null 2>&1
+V4_SUPPORTED=$?
+
+for i in ${Path4}
+do
+	echo
+	echo "------------ ${i} ------------"
+	if [ x${VERBOSE} != x ]; then
+		echo "\tTriggering mount..."
+	fi
+	ls ${i} > /dev/null
+	if [ $? -eq 0 ]; then
+		do_nfsstat ${i}
+		if is_rhel "7"; then
+			#rhel7 both support 4.0 & 4.1, so the ver number becomes 4.0, not 4
+			check_vers "4.1"
+		elif is_rhel "8"; then
+			#rhel8 supports 4.0, 4.1 & 4.2 with 4.2 being default
+		        #so the ver number becomes 4.2, not 4
+			check_vers "4.2"
+		else
+			check_vers "4"
+		fi
+	else
+		if [ $V4_SUPPORTED -eq 0 ]; then
+			echo "\tFAILED"
+			fail=`expr ${fail} + 1`
+		else
+			echo "Version 4 not supported by server - continuing..."
+		fi
+	fi
+
+	rm -f /tmp/*.$$
+done
+
+if [ ${fail} -ne 0 ]; then
+	echo "${NAME}: FAILED"
+else
+	echo "${NAME}: SUCCEEDED"
+fi
+
+exit ${fail}

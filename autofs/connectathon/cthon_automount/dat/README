@@ -1,0 +1,21 @@
+#ident	"$Id: README,v 1.1 2005/10/25 22:34:27 jmoyer Exp $"
+
+Files included in this directory:
+
+	README			- This file	
+	test1		- exercises indirect map entries
+	test2 		- exercises executable map entries
+	test3		- exercises direct map entries
+	test4		- exercises direct and indirect map entries with
+			  offsets
+	autoparse	- exercises the daemon's parsing functions
+	badnames	- keys and counts for badnames test
+	test5_autofs	- nested tests for autofs filesystems
+	test5_nfs	- nested tests for nfs filesystems
+
+Each file contains a list of test items, with each test item consisting of
+a path which exercises the automounter in different ways, and the expected
+result for that path. Paths are absolute with respect to the root of the
+filesystem, while the expected result should be either 0 (for expected success)
+or 1 (for expected failure). Lines that begin with a '#' are considered to be
+comments, and blank lines are ignored.
