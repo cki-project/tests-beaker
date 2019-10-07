@@ -22,7 +22,7 @@
 
 TARGET_DIR=/mnt/testarea/ltp
 GIT_USER_ADDR=${GIT_USER_ADDR:-0}
-RUNTESTS=${RUNTESTS:-"sched syscalls can commands containers dio fs fsx math hugetlb mm nptl pty ipc tracing"}
+RUNTESTS=${RUNTESTS:-"cve sched syscalls can commands containers dio fs fsx math hugetlb mm nptl pty ipc tracing"}
 CPUS_NUM=$(getconf _NPROCESSORS_ONLN || echo 1)
 
 function test_msg()
