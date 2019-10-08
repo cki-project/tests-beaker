@@ -160,6 +160,9 @@ function knownissue_filter()
 	tskip "signal06" unfix
 	# Issue TBD
 	tskip "statx07" unfix
+	# Issue read_all_sys is triggering hard lockups on mustangs while reading /sys
+	# https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
+        is_arch "aarch64" && tskip "read_all_sys" fatal
 
 	if is_rhel8; then
                 # ------- unfix ---------
