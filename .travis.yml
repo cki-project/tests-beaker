@@ -1,0 +1,14 @@
+language: generic
+dist: xenial
+script:
+    - |
+        found=false
+        grep -r --color --include Makefile TestTime . && found=true || true
+        grep -r --color --include metadata max_time . && found=true || true
+        if "$found"; then
+            tput setaf 1
+            echo "Test time limit specification detected," \
+                 "please remove and specify in kpet-db instead." >&2
+            tput setaf 7
+            false
+        fi
