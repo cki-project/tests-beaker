@@ -79,7 +79,7 @@ void test_if_v6()
 	test_setsockopt_error("IPV6_MULTICAST_IF bad optlen",
 			IPV6_MULTICAST_IF, &addr6, 3, EINVAL, 6);
 
-	addr6 = 50;
+	addr6 = 9999;
 	test_setsockopt_error("IPV6_MULTICAST_IF index 50",
 			IPV6_MULTICAST_IF, &addr6, size, ENODEV, 6);
 
