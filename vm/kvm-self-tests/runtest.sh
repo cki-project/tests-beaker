@@ -41,12 +41,18 @@ function getTests
 
     # List of tests to run on aarch64 architecture
     AARCH64_TESTS=()
+    while IFS=  read -r -d $'\0'; do
+        AARCH64_TESTS+=("$REPLY")
+    done < <(find ${BINDIR}/aarch64 -maxdepth 1 -type f -executable -printf "aarch64/%f\0")
 
     # List of tests to run on ppc64 architecture
     PPC64_TESTS=()
 
     # List of tests to run on s390x architecture
     S390X_TESTS=()
+    while IFS=  read -r -d $'\0'; do
+        S390X_TESTS+=("$REPLY")
+    done < <(find ${BINDIR}/s390x -maxdepth 1 -type f -executable -printf "s390x/%f\0")
 }
 
 function disableTests
@@ -55,11 +61,12 @@ function disableTests
 
     # Disable tests for RHEL8 Kernel (4.18.X)
     if uname -r | grep --quiet '^4'; then
-        # Disable test clear_dirty_log_test
-        # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718479
-        mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "clear_dirty_log_test")
-
+        # Disabled x86_64 tests for Intel & AMD machines due to bugs
         if [[ $hwpf == "x86_64" ]]; then
+            # Disable test clear_dirty_log_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718479
+            mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "clear_dirty_log_test")
+
             # Disable test x86_64/vmx_set_nested_state_test
             # due to https://bugzilla.redhat.com/show_bug.cgi?id=1740235
             mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/vmx_set_nested_state_test")
@@ -283,7 +290,7 @@ function setup
         modprobe kvm; modprobe kvm_amd
     fi
     rlRun "rm -rf $TMPDIR && mkdir $TMPDIR"
-    rlRun "rm -rf ${BINDIR} && mkdir -p ${BINDIR}/x86_64"
+    rlRun "rm -rf ${BINDIR} && mkdir -p ${BINDIR}/x86_64 && mkdir -p ${BINDIR}/s390x && mkdir ${BINDIR}/aarch64"
 
     rlRun "pushd '.'"
 
