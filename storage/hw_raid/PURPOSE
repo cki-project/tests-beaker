@@ -1,0 +1,4 @@
+PURPOSE of /tests-beaker/storage/hw_raid
+Description: This test generates I/O with FIO at the device level and then trigger a panic. Additionally performs kexec boot while generating I/O
+Author: Marco Patalano <mpatalan@redhat.com>
+
