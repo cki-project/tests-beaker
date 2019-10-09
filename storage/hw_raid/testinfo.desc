@@ -1,0 +1,10 @@
+Owner:           Marco Patalano <mpatalan@redhat.com>
+Name:            /tests-beaker/storage/hw_raid
+TestVersion:     0.1
+Path:            /mnt/tests/tests-beaker/storage/hw_raid
+Description:     This test will generate I/O using FIO at the device level and trigger a panic as well as kexec boot.
+License:		GPL v3
+RunFor:		storage
+Requires:	storage
+RepoRequires:    cki_lib
+RhtsRequires:	hw_raid
