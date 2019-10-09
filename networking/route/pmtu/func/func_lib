@@ -15,7 +15,7 @@ rlPhaseStartTest "basic_pmtu_$DO_SEC"
 	[ x"$DO_SEC" != x"ipsec" ] && rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do | grep \"Frag needed and DF set (mtu = 1400)\"" || rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do" "1"
 	rlRun "$CLIENTNS ip route get ${veth0_server_ip[4]} | grep -E \"expires [0-9]*sec mtu 1400\""
 	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1400 -M do &>ping.log" "1"
-	[ x"$DO_SEC" == x"ipsec" ] || rlAssertGrep "Message too long, mtu=1400" ping.log
+	[ x"$DO_SEC" == x"ipsec" ] || rlAssertGrep "Message too long, mtu=1400" ping.log -i
 	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1 -s 1300 -M do"
 	rlRun "$CLIENTNS ip route flush cache"
 	rlRun "$CLIENTNS ping ${veth0_server_ip[4]} -c 1"
