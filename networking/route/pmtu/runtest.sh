@@ -63,9 +63,6 @@ rlPhaseStartSetup
 
     rlRun "netperf_install"
 
-    if ! [ -z "$TESTMASK" ]; then
-        TEST_ITEMS="basic_pmtu mtu_expire multi_pmtu del_route_while_pmtu pmtu_traffic ip_mtu_lock  min_pmtu_test"
-    fi
 
     rlLog "items include:$TEST_ITEMS"
 rlPhaseEnd
