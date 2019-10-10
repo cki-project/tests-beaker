@@ -12,7 +12,7 @@ lib_service()
 	fi
 }
 
-# TODO: save iptales on RHEL7, then iptables -F
+# TODO: save iptables on RHEL7, then iptables -F
 disable_firewall()
 {
 	if [ "$(GetDistroRelease)" -ge 7 ];then

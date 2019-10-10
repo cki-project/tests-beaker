@@ -84,8 +84,10 @@ reset_network_env()
 		ip link del $TEAM_NAME
 		ip link del $BOND_NAME
 	else
-		 # remove ovs
-	        ovs-vsctl del-br ovsbr0 2>/dev/null && service openvswitch restart
+		# remove ovs
+		if ovs-vsctl del-br ovsbr0 2>/dev/null; then
+			rlServiceStop openvswitch && rlServiceStart openvswitch
+		fi
 
 		# remove netns
 		ip netns list &> /dev/null && for i in `ip netns list | awk '{print $1}'`; do ip netns del $i; done
@@ -109,7 +111,7 @@ reset_network_env()
 		pkill -f "nc -l"
 	
 		rsync -a --delete $networkLib/network-scripts.no_nm/ /etc/sysconfig/network-scripts/
-		 service network restart
+		 rlServiceStop network && rlServiceStart network
 	fi
 
 	return $exitcode
@@ -640,7 +642,7 @@ setup_ovs()
 	topo_ret="$option"
 	#setup
 	ovs_install
-	service openvswitch start
+	rlServiceStart openvswitch
 	# create
 	ovs-vsctl add-br $topo_ret         || let exitcode++
 	link_up $topo_ret                  || let exitcode++

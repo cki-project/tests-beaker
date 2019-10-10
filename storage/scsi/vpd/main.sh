@@ -26,7 +26,7 @@ function setup_mp(){
     rlRun "rpm -q device-mapper-multipath" 0 "check the device-mapper-multipath if installed"
     rlRun "rpm -q sg3_utils" 0 "check the sg3_utils if installed"
     rlRun "mpathconf --enable --find_multipaths y --with_module y --with_multipathd y"
-    rlRun "service multipathd restart"
+    rlServiceStop multipathd && rlServiceStart multipathd
     rlRun "multipath -l"
     rlRun "lsmod |grep scsi_debug && rmmod scsi_debug" $g_rc_any "remove scsi_debug"
 }
@@ -77,7 +77,7 @@ function scsi_level(){
             rlRun "multipath -f $mpath_name"
         fi
         rlRun "multipath -F"
-        rlRun "service multipathd stop"
+        rlServiceStop multipathd
         rlRun "systemctl disable multipathd"
         rlRun "multipath -F"
         rlRun "multipath  -l |grep $mpath_name" "$g_rc_any" "test scsi_debug if removed "
@@ -87,7 +87,7 @@ function scsi_level(){
             rlLog "can not remove scsi_debug"
             sleep 1
             rlRun "multipath -F"
-            rlRun "service multipathd stop"
+            rlServiceStop multipathd
             rlRun "dmsetup remove_all"
             rlRun "echo -1 > /sys/bus/pseudo/drivers/scsi_debug/add_host"
             rLrun "modprobe -r scsi_debug" "$g_rc_any" "remove scsi_debug"
