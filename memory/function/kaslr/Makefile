@@ -67,7 +67,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     This is a general regression test for VM" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
-	@echo "TestTime:        1h" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        kernel" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

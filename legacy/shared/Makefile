@@ -44,7 +44,6 @@ $(METADATA):
 	@echo "TestVersion:	$(TESTVERSION)"	>>$(METADATA)
 	@echo "License:		GPLv3" >>$(METADATA)
 	@echo "Description: 	Make sure legacy env is setup." >>$(METADATA)
-	@echo "TestTime:	5m" >>$(METADATA)
 
 	rhts-lint $(METADATA)
 

@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "License:      GPLv2" >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"	>> $(METADATA)
 	@echo "Description:  test ltp patches using git version ">> $(METADATA)
-	@echo "TestTime:     48h" >> $(METADATA)
 	@echo "RunFor:       kernel glibc" >> $(METADATA)  
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)  
 	@echo "Requires:     git autoconf automake"      >> $(METADATA)

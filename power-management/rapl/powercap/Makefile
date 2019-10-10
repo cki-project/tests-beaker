@@ -49,7 +49,6 @@ $(METADATA): Makefile
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  Confirm RAPL is supported" >> $(METADATA)
 	@echo "Type:         Sanity" >> $(METADATA)
-	@echo "TestTime:     5m" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     kernel" >> $(METADATA)
 	@echo "Requires:     virt-what" >> $(METADATA)

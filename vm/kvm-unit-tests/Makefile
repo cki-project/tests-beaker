@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     kvm unit testing" >> $(METADATA)
 	@echo "Type:            Stress" >> $(METADATA)
-	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        qemu-kvm" >> $(METADATA)
 	@echo "Requires:        git" >> $(METADATA)

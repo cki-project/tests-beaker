@@ -54,7 +54,6 @@ $(METADATA): Makefile
 	@echo "Description:  ipvlan basic">> $(METADATA)
 	@echo "License:      GPLv2 or above" >> $(METADATA)
 	@echo "Type:         Functional" >> $(METADATA)
-	@echo "TestTime:     3h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     net-tools" >> $(METADATA)

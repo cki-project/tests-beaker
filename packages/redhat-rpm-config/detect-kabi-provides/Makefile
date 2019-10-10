@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test for BZ#1004930 (kernel-tools-3.10.0-11.el7.x86_64 requires)" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          redhat-rpm-config" >> $(METADATA)
 	@echo "Requires:        redhat-rpm-config rpm-build kernel-devel" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

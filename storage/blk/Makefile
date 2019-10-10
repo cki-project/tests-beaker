@@ -66,7 +66,6 @@ $(METADATA):
 	@echo "License:      GPLv2 or above"    >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"    >> $(METADATA)
 	@echo "Description:  blktests"          >> $(METADATA)
-	@echo "TestTime:     10m"               >> $(METADATA)
 	@echo "Requires:     fio"		>> $(METADATA)
 	@echo "Requires:     blktrace"		>> $(METADATA)
 	@echo "Requires:     gcc"		>> $(METADATA)

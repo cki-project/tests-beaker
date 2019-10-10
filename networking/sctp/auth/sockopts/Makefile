@@ -49,7 +49,6 @@ $(METADATA): Makefile
 	@echo "Description:     sctp auth socket ops test" >> $(METADATA)
 	@echo "Type:            functional" >> $(METADATA)
 	@echo "Type:            Singlehost" >> $(METADATA)
-	@echo "TestTime:        60m" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)

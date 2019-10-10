@@ -54,7 +54,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     This test will generate I/O using FIO at the device level." >> $(METADATA)
 	@echo "License:		GPL v3" >> $(METADATA)
-	@echo "TestTime:	1h" >> $(METADATA)
 	@echo "RunFor:		$(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:        python2-lxml" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)

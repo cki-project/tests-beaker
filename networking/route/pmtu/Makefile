@@ -58,7 +58,6 @@ $(METADATA): Makefile
 	@echo "License:      GPL" >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"	>> $(METADATA)
 	@echo "Description:  pmtu tests">> $(METADATA)
-	@echo "TestTime:     1h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA) 
 # add any other packages for which your test ought to run here
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)

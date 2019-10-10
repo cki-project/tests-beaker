@@ -58,7 +58,6 @@ $(METADATA): Makefile
 	@echo "Name:		$(TEST)"	> $(METADATA)
 	@echo "Description:	"Checking the boottime after the system suspend >> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"	>> $(METADATA)
-	@echo "TestTime:	240m"		>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "Destructive:	no"		>> $(METADATA)
 	@echo "Confidential:	no"		>> $(METADATA)

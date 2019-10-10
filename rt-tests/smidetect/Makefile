@@ -46,7 +46,6 @@ $(METADATA): Makefile
 	@echo "License:		GPLv2"		>> $(METADATA)
 	@echo "Description:	Test to detect System Management Interrupts (SMIs)" >> $(METADATA)
 	@echo "Architectures:	x86_64" >> $(METADATA)
-	@echo "TestTime:	1h"	>> $(METADATA)
 	@echo "repoRequires:	rt-tests/include"  >> $(METADATA)
 
 	rhts-lint $(METADATA)

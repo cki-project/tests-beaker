@@ -53,7 +53,6 @@ $(METADATA):
 	@echo "Name:		$(TEST)"	> $(METADATA)
 	@echo "Description:	Sanity test for lvm thinp" >> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"	>> $(METADATA)
-	@echo "TestTime:	60m"		>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "Releases:	RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7 Fedora25 Fedora26 Fedorarawhide" >> $(METADATA)
 	@echo "#Architectures:	All"		>> $(METADATA)

@@ -37,7 +37,6 @@ $(METADATA):
 	@echo "Description:	boot kernel with different iommu options" \
 				>>$(METADATA)
 	@echo "Path:		$(TEST_DIR)" >>$(METADATA)
-	@echo "TestTime:	1h" >>$(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>>$(METADATA)
 	@echo "Destructive:	no" >>$(METADATA)
 	@echo "Confidential:	no" >>$(METADATA)

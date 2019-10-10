@@ -40,7 +40,6 @@ $(METADATA): Makefile
 	@echo "License:      GPLv2"             >> $(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"    >> $(METADATA)
 	@echo "Description:  $(DESCRIPTION)"    >> $(METADATA)
-	@echo "TestTime:     24h"               >> $(METADATA)
 	@echo "RunFor:       kernel"            >> $(METADATA)
 	@echo "RunFor:       xfsprogs"          >> $(METADATA)
 	@echo "RunFor:       xfsdump"           >> $(METADATA)

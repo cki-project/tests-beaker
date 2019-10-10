@@ -49,7 +49,6 @@ $(METADATA): Makefile
 	@echo "Description:  Simple kernel sanity\
 		check that loads and unloads various\
 		kernel modules"			>> $(METADATA)
-	@echo "TestTime:     60m"		>> $(METADATA)
 	@echo "Releases:     -RHEL2.1"		>> $(METADATA)
 	@echo "#Architectures: All"		>> $(METADATA)
 	@echo "Destructive:  no"		>> $(METADATA)

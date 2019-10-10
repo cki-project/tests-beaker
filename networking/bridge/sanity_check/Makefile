@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  bridge sanity test" >> $(METADATA)
 	@echo "Type:         Functional" >> $(METADATA)
-	@echo "TestTime:     1h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "RepoRequires: networking/common" >> $(METADATA)

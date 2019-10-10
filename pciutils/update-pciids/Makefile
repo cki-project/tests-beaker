@@ -49,7 +49,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Checks if update-pciids runs successfully" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        10m" >> $(METADATA)
 	@echo "RunFor:          pciutils" >> $(METADATA)
 	@echo "Requires:        pciutils" >> $(METADATA)
 	@echo "Requires:        python2-lxml" >> $(METADATA)

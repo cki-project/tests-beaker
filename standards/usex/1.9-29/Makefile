@@ -220,7 +220,6 @@ $(METADATA): Makefile
 	@echo "Name:		$(TEST)"	>> $(METADATA)
 	@echo "Description:	Dave Anderson's Usex test 1.9-29"	>> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"	>> $(METADATA)
-	@echo "TestTime:	30m"		>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "Releases:	-RHEL3"		>> $(METADATA)
 	@echo "#Architectures:	All"		>> $(METADATA)

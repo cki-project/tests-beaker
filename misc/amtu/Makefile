@@ -43,7 +43,6 @@ $(METADATA):
 	@echo "Name:		$(TEST)"	> $(METADATA)
 	@echo "Description:	Abstract Machine Test Utility" >> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"	>> $(METADATA)
-	@echo "TestTime:	10m"		>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "Releases:	-RHEL2.1 -RHEL3" >> $(METADATA)
 	@echo "Destructive:	no"		>> $(METADATA)

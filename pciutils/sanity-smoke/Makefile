@@ -51,7 +51,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     test whether lspci works" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        15m" >> $(METADATA)
 	@echo "RunFor:          pciutils" >> $(METADATA)
 	@echo "Requires:        pciutils" >> $(METADATA)
 	@echo "Requires:        python2-lxml" >> $(METADATA)

@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test if we can tune new process via perf" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          tuned" >> $(METADATA)
 	@echo "Requires:        tuned" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

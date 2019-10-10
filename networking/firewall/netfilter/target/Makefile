@@ -77,7 +77,6 @@ $(METADATA): Makefile
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  Basic netfilter tests" >> $(METADATA)
 	@echo "Type:         Functional" >> $(METADATA)
-	@echo "TestTime:     24h" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     nmap-ncat socat lksctp-tools" >> $(METADATA)
 	@echo "Requires:     tree" >> $(METADATA)

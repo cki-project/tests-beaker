@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Loads i2c-dev module, tries i2cdetect -l. If something is detected probes for more info." >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          i2c-tools" >> $(METADATA)
 	@echo "Requires:        i2c-tools" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)

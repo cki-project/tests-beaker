@@ -80,7 +80,6 @@ $(METADATA):
 	@echo "TestVersion:  $(TESTVERSION)"	>> $(METADATA)
 	@echo "Description:  Connectathon Testsuite\
 		 to test NFS versions 2,3 and 4." >> $(METADATA)
-	@echo "TestTime:     240m"		>> $(METADATA)
 	@echo "RunFor:       kernel"		>> $(METADATA)
 	@echo "RunFor:       nfs-utils"		>> $(METADATA)
 	@echo "Requires:     nfs-utils"		>> $(METADATA)

@@ -8,6 +8,5 @@ destructive=no
 
 [restraint]
 entry_point=make run
-max_time=60m
 dependencies=net-tools;iproute;tcpdump;ethtool
 repoRequires=networking/common

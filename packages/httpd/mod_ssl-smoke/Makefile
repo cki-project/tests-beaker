@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     try to reinstall mod_ssl and run httpd with mod_ssl" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          httpd" >> $(METADATA)
 	@echo "Requires:        httpd mod_ssl python" >> $(METADATA)
 	@echo "Requires:        python2 python3" >> $(METADATA)

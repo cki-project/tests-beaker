@@ -46,7 +46,6 @@ $(METADATA):
 	@echo "Name:		$(TEST)"				>> $(METADATA)
 	@echo "Description:	Run stress-ng tests"			>> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"				>> $(METADATA)
-	@echo "TestTime:	160m"					>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"				>> $(METADATA)
 	@echo "Releases:	RHEL7"					>> $(METADATA)
 	@echo "Architectures:	aarch64 ppc64le s390x x86_64"		>> $(METADATA)

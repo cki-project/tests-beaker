@@ -48,7 +48,6 @@ $(METADATA): Makefile
 	@echo "TestVersion:     $(TESTVERSION)" >> $(METADATA)
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Enable ftrace tracers to see if it works" >> $(METADATA)
-	@echo "TestTime:        60m" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)

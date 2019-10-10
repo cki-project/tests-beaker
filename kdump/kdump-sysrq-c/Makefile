@@ -42,7 +42,6 @@ $(METADATA):
 	@echo "Name:         $(TEST)"                            > $(METADATA)
 	@echo "Path:         $(TEST_DIR)"                        >>$(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"                     >>$(METADATA)
-	@echo "TestTime:     30m"                                >>$(METADATA)
 	@echo "License:      GPLv3"                              >>$(METADATA)
 	@echo "Owner:        Kdump QE <kdump-qe-list@redhat.com>"      >>$(METADATA)
 	@echo "repoRequires: kdump/include"      >> $(METADATA)

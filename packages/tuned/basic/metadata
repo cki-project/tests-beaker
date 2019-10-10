@@ -8,5 +8,4 @@ destructive=no
 
 [restraint]
 entry_point=make run
-max_time=10m
 dependencies=beakerlib;beakerlib-redhat;tuned

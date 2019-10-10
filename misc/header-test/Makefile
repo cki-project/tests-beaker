@@ -42,7 +42,6 @@ $(METADATA):
 	@echo "Name:		$(TEST)"				>> $(METADATA)
 	@echo "Description:	Sanity test for kernel-headers" 	>> $(METADATA)
 	@echo "Path:		$(TEST_DIR)"				>> $(METADATA)
-	@echo "TestTime:	10m"					>> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"				>> $(METADATA)
 	@echo "Releases:	RHEL6 RHEL7 RHEL8 RedHatEnterpriseLinux6 RedHatEnterpriseLinux7 RedHatEnterpriseLinux8" >> $(METADATA)
 	@echo "Architectures:	i386 x86_64 ppc64 ppc64le s390x aarch64"	>> $(METADATA)

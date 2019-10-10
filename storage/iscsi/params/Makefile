@@ -48,7 +48,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     iSCSI parameters testing" >> $(METADATA)
 	@echo "Type:            Functional" >> $(METADATA)
-	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "RunFor:          kernel" >> $(METADATA)
 	@echo "Requires:        git" >> $(METADATA)
 	@echo "Requires:        wget" >> $(METADATA)

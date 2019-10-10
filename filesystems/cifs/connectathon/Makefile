@@ -71,7 +71,6 @@ $(METADATA): Makefile
 	@echo "TestVersion:  $(TESTVERSION)"	>> $(METADATA)
 	@echo "Description:  Connectathon for CIFS ">> $(METADATA)
 	@echo "Releases:     -RHEL2.1 -RHEL3" >> $(METADATA)
-	@echo "TestTime:     1h" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     wget git samba time patch" >> $(METADATA)
 	@echo "Requires:     cups samba-client cifs-utils" >> $(METADATA)

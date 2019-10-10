@@ -48,7 +48,6 @@ $(METADATA): Makefile
 	@echo "Path:         $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:  cpu die testing" >> $(METADATA)
 	@echo "Type:         Functional" >> $(METADATA)
-	@echo "TestTime:     5m" >> $(METADATA)
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     python2-lxml" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)

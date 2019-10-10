@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     test fetching data from mysqldb/mariadb through php" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          httpd" >> $(METADATA)
 	@echo "Requires:        httpd php php-zts php-mysqlnd mariadb-server" >> $(METADATA)
 	@echo "RhtsRequires:    library(httpd/http)" >> $(METADATA)

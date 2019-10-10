@@ -55,7 +55,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     check the scsi device vpd" >> $(METADATA)
 	@echo "Type:            Regression" >> $(METADATA)
-	@echo "TestTime:        10m" >> $(METADATA)
 	@echo "RunFor:          $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:        device-mapper-multipath sg3_utils" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

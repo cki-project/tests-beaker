@@ -42,7 +42,6 @@ $(METADATA): Makefile
 	@echo "Name:            $(TEST)" >> $(METADATA)
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     jvm tests" >> $(METADATA)
-	@echo "TestTime:        30m" >> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "RunFor:          $(TOPLEVEL_NAMESPACE)" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

@@ -52,7 +52,6 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Library for tuned" >> $(METADATA)
 	@echo "Type:            Library" >> $(METADATA)
-	@echo "TestTime:        5m" >> $(METADATA)
 	@echo "RunFor:          tuned" >> $(METADATA)
 	@echo "Requires:        tuned" >> $(METADATA)
 	@echo "Provides:        library(tuned/basic)" >> $(METADATA)

@@ -43,7 +43,6 @@ $(METADATA): Makefile
 	@echo "Name:            $(TEST)" >> $(METADATA)
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Podman System Test" >> $(METADATA)
-	@echo "TestTime:        15m" >> $(METADATA)
 	@echo "TestVersion:	$(TESTVERSION)"	>> $(METADATA)
 	@echo "RunFor:          $(TOPLEVEL_NAMESPACE)" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)

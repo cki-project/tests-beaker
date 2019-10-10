@@ -45,7 +45,6 @@ $(METADATA):
 	@echo "License:		GPLv3" >>$(METADATA)
 	@echo "Description:	Special deadline_test on rt kernel." >>$(METADATA)
 	@echo "Architectures:	x86_64" >>$(METADATA)
-	@echo "TestTime:	10m" >>$(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)
 
 	rhts-lint $(METADATA)
