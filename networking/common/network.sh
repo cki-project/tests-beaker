@@ -111,7 +111,7 @@ reset_network_env()
 		ip link del $TEAM_NAME
 		ip link del $BOND_NAME
 	else
-		 # remove ovs
+		# remove ovs
 	        ovs-vsctl del-br ovsbr0 2>/dev/null && service openvswitch restart
 
 		# remove netns
@@ -136,7 +136,7 @@ reset_network_env()
 		pkill -f "nc -l"
 	
 		rsync -a --delete $networkLib/network-scripts.no_nm/ /etc/sysconfig/network-scripts/
-		 service network restart
+		service network restart
 	fi
 
 	return $exitcode

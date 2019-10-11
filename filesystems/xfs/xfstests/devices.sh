@@ -289,12 +289,12 @@ function get_test_dev()
 		mkdir -p /export/test
 		echo '/export/test  *(rw,no_root_squash)' >> /etc/exports
 		# stop iptables, service name is iptables on RHEL6, firewalld on RHEL7
-		service iptables stop
-		service firewalld stop
-		xlog service rpcbind restart
+		rlServiceStop iptables
+		rlServiceStop firewalld
+		xlog rlServiceStop rpcbind && xlog rlServiceStart rpcbind
 		# restart rpc.statd on RHEL7 for PPC64, it's not running by default
-		service nfs-lock restart
-		xlog service nfs restart
+		rlServiceStop nfs-lock && rlServiceStart nfs-lock
+		xlog rlServiceStop nfs && xlog rlServiceStart nfs
 		TEST_DEV=localhost:/export/test
 		DEV_TYPE=nfs
 		;;
@@ -309,7 +309,7 @@ function get_test_dev()
 	path = /export/test
 	writable = yes
 EOF
-		xlog service smb restart
+		xlog rlServiceStop smb && xlog rlServiceStart smb
 		TEST_DEV=//$HOSTNAME/test
 		DEV_TYPE=cifs
 		;;
@@ -511,12 +511,12 @@ function get_scratch_dev()
 		mkdir -p /export/scratch
 		echo '/export/scratch  *(rw,no_root_squash)' >> /etc/exports
 		# stop iptables, service name is iptables on RHEL6, firewalld on RHEL7
-		service iptables stop
-		service firewalld stop
-		xlog service rpcbind restart
+		rlServiceStop iptables
+		rlServiceStop firewalld
+		xlog rlServiceStop rpcbind && xlog rlServiceStart rpcbind
 		# restart rpc.statd on RHEL7 for PPC64, it's not running by default
-		service nfs-lock restart
-		xlog service nfs restart
+		rlServiceStop nfs-lock && rlServiceStart nfs-lock
+		xlog rlServiceStop nfs && xlog rlServiceStart nfs
 		SCRATCH_DEV=localhost:/export/scratch
 		DEV_TYPE=nfs
 		;;
@@ -531,7 +531,7 @@ function get_scratch_dev()
 	path = /export/scratch
 	writable = yes
 EOF
-		xlog service smb restart
+		xlog rlServiceStop smb && xlog rlServiceStart smb
 		SCRATCH_DEV=//$HOSTNAME/scratch
 		DEV_TYPE=cifs
 		;;

@@ -39,7 +39,7 @@ function VerboseCupsLog()
    # so file ends up with wrong label
    restorecon /etc/cups/cupsd.conf
    # start service before using cupsctl
-   /sbin/service cups restart | tee -a ${OUTPUTFILE}
+   (rlServiceStop cups && rlServiceStart cups) | tee -a ${OUTPUTFILE}
    echo "cupsctl: " | tee -a ${OUTPUTFILE}
    cupsctl | tee -a ${OUTPUTFILE}
 }

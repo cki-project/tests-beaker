@@ -45,7 +45,7 @@ exitcleanup() {
    	make clean
 
 	rlJournalStart
-	   rlServiceStop $TESTSERVICE || service $TESTSERVICE stop
+	   rlServiceStop $TESTSERVICE
 
 	   if [ ${TESTLOCAL} -eq 1 ] ; then
 		   if [ -e /etc/samba/smb.conf-${TESTNAME} ]; then
@@ -158,7 +158,7 @@ Server()
 
 	echo -e "redhat\nredhat" | smbpasswd -s -a root || failexit "Fail to add test samba account"
 
-	service $TESTSERVICE restart
+	rlServiceStop $TESTSERVICE && rlServiceStart $TESTSERVICE
 
 	sleep 20
 }
@@ -173,7 +173,7 @@ echo "Browsing No" >> /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
 echo "DefaultShared No" >> /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
 restorecon /etc/cups/cupsd.conf
 
-service cups restart | tee -a ${OUTPUTFILE}
+(rlServiceStop cups && rlServiceStart cups) | tee -a ${OUTPUTFILE}
 echo "cupsctl: " | tee -a ${OUTPUTFILE}
 cupsctl | tee -a ${OUTPUTFILE}
 
