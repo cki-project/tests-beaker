@@ -53,7 +53,9 @@
 --handle 0 --timeout 5 --log-file handle.log
 --hdd 0 --timeout 5 --log-file hdd.log
 --icmp-flood 0 --timeout 5 --log-file icmp-flood.log
---idle-page 0 --timeout 5 --log-file idle-page.log
+# blacklist idle-page for https://bugzilla.redhat.com/1760459
+# TODO: re-enable idle-page when RHBZ 1760459 is fixed
+#--idle-page 0 --timeout 5 --log-file idle-page.log
 # inode-flags reports errors
 #--inode-flags 0 --timeout 5 --log-file inode-flags.log
 --inotify 0 --timeout 5 --log-file inotify.log
