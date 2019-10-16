@@ -28,7 +28,14 @@ source $CDIR/../../cpu/common/libutil.sh
 function runtest
 {
     cki_run_cmd_pos "bash $CDIR/utils/idle-power-test.sh $CDIR/utils/busy.sh"
-    [ $? -eq 0 ] && return $CKI_PASS || return $CKI_FAIL
+    status=$?
+    if [ $status -eq 0 ]; then
+	return $CKI_PASS
+    elif [ $status -eq 2 ]; then
+	# maps to SKIP
+	return $CKI_UNSUPPORTED
+    fi
+    return $CKI_FAIL
 }
 
 function startup
