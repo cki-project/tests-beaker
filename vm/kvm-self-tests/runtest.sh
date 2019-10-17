@@ -102,6 +102,13 @@ function disableTests
                 mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/evmcs_test")
             fi
         fi
+
+        # Disabled s390x tests due to bugs
+        if [[ $hwpf == "s390x" ]]; then
+            # Disable test dirty_log_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741201
+            mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "dirty_log_test")
+        fi
     fi
 
     # Disable tests for ARK Kernel (5.X)
