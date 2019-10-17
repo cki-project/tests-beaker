@@ -96,14 +96,26 @@ get_energy_status_units()
     echo "energy status units = $esu joules"
 }
 
+INTMAX=4294967296
+last_reg=-1
+handle_overflow()
+{
+    updated_reg=$1
+    if [ $last_reg -eq -1 ]; then
+	last_reg=$updated_reg
+    else
+	[ $updated_reg -lt $last_reg ] && updated_reg=$((updated_reg+INTMAX))
+	last_reg=-1
+    fi
+}
+
 get_pkg_energy()
 {
     reg=$(rdmsr 0x611)
     reg=$((16#$reg))
-    mask=$((16#ffffffff))
-    reg=$((reg & mask))
+    handle_overflow $reg
+    reg=$updated_reg
     energy=$(echo "$reg*$esu" | bc -l)
-    echo $energy
 }
 
 average=
@@ -111,10 +123,12 @@ monitor_power()
 {
     duration=60 # seconds
 
-    last=$(get_pkg_energy)
+    get_pkg_energy
+    last=$energy
     last_time=$(date +%s%N | cut -b1-13)
     sleep $duration
-    curr=$(get_pkg_energy)
+    get_pkg_energy
+    curr=$energy
     curr_time=$(date +%s%N | cut -b1-13)
     milliseconds=$((curr_time - last_time))
     joules=$(echo $curr-$last | bc -l)
@@ -133,8 +147,12 @@ start_load_test
 monitor_power
 busy_ave=$average
 end_load_test
-busy_ave=$((busy_ave/2))
-if [ $idle_ave -ge $busy_ave ]; then
+max_expected=$((busy_ave/2))
+if [ $idle_ave -ge $max_expected ]; then
+    if [[ $idle_ave -lt $busy_ave ]] && [[ $busy_ave -lt 20 ]]; then
+	echo "SKIP - system power draw is too low"
+	exit 2
+    fi
     echo "FAIL"
     exit 1
 else
