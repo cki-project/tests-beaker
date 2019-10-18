@@ -383,7 +383,7 @@ function rpm_install()
 
   # Workaround for BZ 1698363
   if [[ "${ARCH}" == s390x ]] ; then
-    grubby --set-default /boot/"${KVER}" > /dev/null && zipl > /dev/null
+    grubby --set-default /boot/vmlinuz-"${KVER}" && zipl
     cki_print_success "Grubby workaround for s390x completed"
   fi
 
