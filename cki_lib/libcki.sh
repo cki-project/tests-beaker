@@ -83,7 +83,7 @@ function cki_report_result
             rlPass "$argv"
             ;;
         $CKI_FAIL)
-            rlFail "$argv"
+            rlFail "$argv $g_reason_fail"
             ;;
         #
         # NOTE: If a task is aborted or skipped, its cleanup should be done,
