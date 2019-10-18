@@ -250,7 +250,7 @@ function get_test_cases_nvme
 testcases_default=""
 testcases_default+=" $(get_test_cases_block)"
 testcases_default+=" $(get_test_cases_loop)"
-testcases_default+=" $(get_test_cases_nvme)"
+uname -ri | grep -qE "3.10.0-862.*s390x" || testcases_default+=" $(get_test_cases_nvme)"
 testcases=${_DEBUG_MODE_TESTCASES:-"$(echo $testcases_default)"}
 test_ws=$CDIR/blktests
 ret=0
