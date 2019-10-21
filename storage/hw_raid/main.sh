@@ -120,6 +120,20 @@ PrepareReboot()
     fi
 }
 
+#Function to clear next boot if on EFI based system
+RemoveBootNext()
+{
+    if [ -e "/usr/sbin/efibootmgr" ]; then
+        EFI=$(efibootmgr -v | grep BootNext | awk '{ print $2}')
+        if [ -n "$EFI" ]; then
+            rlLog "Deleting efibootmgr Boot Next option"
+            efibootmgr -N
+        else
+            rlLog "BootNext not set - continue"
+        fi
+    fi
+}    
+
 #function to trigger panic
 trigger_panic()
 {
@@ -136,7 +150,7 @@ kexec_boot_graceful()
     rlRun "unr=$(uname -r)"
     rlRun "initrd=/boot/initramfs-$unr.img"
     rlRun "kexec -l /boot/vmlinuz-$unr --initrd=$initrd --reuse-cmdline"
-    rlWatchdog "rhts-reboot" 600
+    rlWatchdog "reboot" 600
 }
 
 #function to load kernel, then abruptly start the new kernel without issuing a shutdown
@@ -168,6 +182,7 @@ rlJournalStart
             sleep 5
             kexec_boot_exec
         else
+            RemoveBootNext
             echo "Continue to Asserts"
         fi
     rlPhaseEnd
