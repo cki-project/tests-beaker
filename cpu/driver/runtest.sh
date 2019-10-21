@@ -25,6 +25,19 @@ TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
 source $CDIR/../../cpu/common/libutil.sh
 
+NON_PSTATE_PROCESSORS="26 31 46"
+check_pstate_support()
+{
+    for m in $NON_PSTATE_PROCESSORS; do
+	if [ $m -eq $1 ]; then
+	    cki_log "model: $model - does not support intel_pstate"
+	    return 1
+	fi
+    done
+
+    return 0
+}
+
 function verify_intel_cpufreq_driver
 {
     typeset driver=$1
@@ -33,6 +46,25 @@ function verify_intel_cpufreq_driver
 
     typeset vendor=$(dmidecode -t 0 | grep Vendor: | \
                      cut -d: -f 2 | awk '{print tolower($1)}')
+
+    typeset model=$(lscpu | grep Model: | awk '{print $2}')
+    if [ -z "$model" ]; then
+	cki_log "unable to determine cpu model"
+	return $CKI_FAIL
+    fi
+
+    # make sure the given system supports p-state
+    check_pstate_support $model
+    if [ $? -ne 0 ]; then
+	# older systems do not support intel pstate
+	if [ $driver != "acpi-cpufreq" ]; then
+	    cki_log "intel (non-pstate) system is running: $driver"
+	    # maps to SKIP
+	    return $CKI_UNSUPPORTED
+	fi
+	cki_log "intel system is running: $driver"
+	return $CKI_PASS
+    fi
 
     if [[ $driver != "intel_pstate" ]]; then
 	if [ "$vendor" = "lenovo" ]; then
