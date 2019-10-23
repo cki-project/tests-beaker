@@ -1,0 +1,8 @@
+#This file was generated automatically,do not manually change it.
+export TOPLEVEL_NAMESPACE=autofs
+export PKG_NAMESPACE=autofs
+export RELATIVE_PATH=connectathon
+export PACKAGE=autofs
+export PACKAGE_NAME=autofs
+export PKG_LIST=autofs
+export TEST=/autofs/connectathon

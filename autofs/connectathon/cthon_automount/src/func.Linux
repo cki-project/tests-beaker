@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+#ident "$Id: Linux,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+
+shopt -s xpg_echo
+
+nawk() {
+	exec awk "$@"
+}
+
+make_version() {
+	echo "vers=$1"
+}
+
+make_proto() {
+	echo "$1"
+}
+
+ping() {
+	/bin/ping -w $2 $1
+}

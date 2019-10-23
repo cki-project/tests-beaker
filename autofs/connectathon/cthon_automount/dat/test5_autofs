@@ -1,0 +1,31 @@
+#
+#ident	"$Id: test5_autofs,v 1.1 2005/10/25 22:34:27 jmoyer Exp $"
+#
+#  Input Syntax: <path> <0|1>
+#                       0 means success expected
+#                       1 means failure expected
+#
+#  Check for autofs filesystems in nested maps
+#
+AUTO_CLIENT_MNTPNT/nested		0
+AUTO_CLIENT_MNTPNT/nested/g1		0
+AUTO_CLIENT_MNTPNT/nested/g1a		0
+AUTO_CLIENT_MNTPNT/nested/g1b		0
+AUTO_CLIENT_MNTPNT/nested/g2/s1		0
+AUTO_CLIENT_MNTPNT/nested/g2/s2		0
+AUTO_CLIENT_MNTPNT/nested/g2/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g2a/s1		0
+AUTO_CLIENT_MNTPNT/nested/g2a/s2		0
+AUTO_CLIENT_MNTPNT/nested/g2a/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3b/s1		0
+AUTO_CLIENT_MNTPNT/nested/g3b/s2		0
+AUTO_CLIENT_MNTPNT/nested/g3b/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3c/s1/ss1		0
+AUTO_CLIENT_MNTPNT/nested/g3c/s2/ss2		0
+AUTO_CLIENT_MNTPNT/nested/g4/s1		0
+AUTO_CLIENT_MNTPNT/nested/g4/s2		0
+AUTO_CLIENT_MNTPNT/nested/g4/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g4a		0
+AUTO_CLIENT_MNTPNT/nested/g4a/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g4b/s1	0
+AUTO_CLIENT_MNTPNT/nested/g4b/s2	0

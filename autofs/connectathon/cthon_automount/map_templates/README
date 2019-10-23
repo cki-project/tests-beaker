@@ -1,0 +1,29 @@
+#ident	"$Id$"
+
+Map templates provided in this subdirectory are only templates
+used to construct the maps to be used during testing. The setup script will
+read these maps, replace the AUTO_SERVER_DIR, SERVER1, SERVER2 and
+AUTO_CLIENT_MNTPNT strings with the values specified in the 'src/tests.init'
+file. The built maps will then be installed in the AUTOMAP_DIR directory.
+ 
+The following maps are provided in the 'maps' subdirectory.
+	auto_nested		- indirect map of nested autofs mountpoints
+	auto.badnames		- indirect map with keys with bad names
+	auto_dcthon		- direct map
+	auto_test3_direct	- another direct map
+	auto_test3_direct	- direct map to use with offset testing
+	auto_icthon		- indirect map
+	auto_octhon		- indirect map with interesting options
+	auto_ecthon		- executable map
+				  (only for autofs implementations)
+	auto_master		- master map
+ 
+The 'server_directories' file contains the name of the directories required
+on the server. These are the server directories mounted by the automounter
+during the tests. If you modify any of the maps, and add a new server path
+to mount, you should add the complete path to this file so it can be
+automatically created by the setup script.
+
+All map names should start with 'auto_', since it's how the setup script
+finds them to install them in the AUTOMAP_DIR directory.
+

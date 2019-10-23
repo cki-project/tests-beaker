@@ -59,7 +59,7 @@ function cki_abort_task()
     typeset reason="$*"
     [[ -z $reason ]] && reason="unknown reason"
     cki_log "Aborting current task: $reason"
-    rhts-report-result "$TEST" WARN "$OUTPUTFILE"
+    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
     exit $CKI_STATUS_ABORTED
 }
 

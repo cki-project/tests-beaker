@@ -1,0 +1,19 @@
+#
+#ident	"$Id: test2,v 1.1 2005/10/25 22:34:27 jmoyer Exp $"
+#
+# Input Syntax: <path> <0|1>
+#                       0 means success expected
+#                       1 means failure expected
+#
+# Executable map entries
+#
+AUTO_CLIENT_MNTPNT/test2/g1				0
+AUTO_CLIENT_MNTPNT/test2/g2				0
+AUTO_CLIENT_MNTPNT/test2/g3				0
+AUTO_CLIENT_MNTPNT/test2/g4/s1				0
+AUTO_CLIENT_MNTPNT/test2/g5/s1/ss1			0
+AUTO_CLIENT_MNTPNT/test2/b1				1
+AUTO_CLIENT_MNTPNT/test2/b2				1
+AUTO_CLIENT_MNTPNT/test2/b3				1
+AUTO_CLIENT_MNTPNT/test2/b4				1
+AUTO_CLIENT_MNTPNT/test2/b5				1

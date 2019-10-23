@@ -1,0 +1,144 @@
+#!/bin/bash
+#
+#ident	"$Id: trailing_space,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+# Very simple script which simply lists a few files with
+# trailing blanks and checks that the 'ls' was successful
+# This test is particularly prone to fail on autofs implementations
+# due to the mis-use of the 'space protocol'
+#
+
+mounted() {
+	mount | grep ${DIR} > /dev/null
+	if [ $? -ne 0 ]; then
+		echo "Unexpected failure - Mount Failed, exiting."
+		echo "`basename $0`: FAILED"
+		echo
+		exit 1
+	fi
+}
+
+check() {
+	if [ $1 -ne 0 ]; then
+		echo -e "\t\t- FAILED -"
+		FAIL=1
+	else
+		echo -e "\t\t- OK -"
+	fi
+	echo
+}
+	
+FAIL=0
+InitFile="../src/tests.init"
+. ${InitFile}
+
+if [ "x${SERVER1}" = "x" ]; then
+	if [ "x$SERVER1" = "x" ]; then
+		echo "SERVER1 environment variable not set."
+		echo "Please set in 'tests.init'."
+		exit 2
+	fi
+	if [ "x$AUTO_CLIENT_MNTPNT" = "x" ]; then
+		AUTO_CLIENT_MNTPNT=/auto_test/${SERVER1}
+	fi
+fi
+
+if [ "x$AUTO_CLIENT_MNTPNT" = "x" ]; then
+	echo "AUTO_CLIENT_MNTPNT environment variable not set."
+	echo "Please set in 'tests.init'."
+	exit 2
+fi
+
+#
+# Test direct map entries
+#
+echo
+echo ++++++++++++++ Direct Map entries ++++++++++++++++++
+#
+# test 'ls' with trailing space
+#
+echo -------- traling space -------------
+DIR=${AUTO_CLIENT_MNTPNT}/dparse/space_test1
+echo "Before ${DIR} has been mounted..."
+echo "	ls  ${DIR}/'trailing_space '"
+ls "${DIR}/trailing_space "
+check $?
+
+ls ${DIR} > /dev/null
+mounted dummy
+
+echo 'After mount has been forced...'
+echo "	ls  ${DIR}/'trailing_space '"
+ls "${DIR}/trailing_space "
+check $?
+
+#
+# test 'ls' with double trailing space
+#
+echo
+echo ------ double traling space ---------
+DIR=${AUTO_CLIENT_MNTPNT}/dparse/space_test2
+echo "Before ${DIR} has been mounted..."
+echo "	ls  ${DIR}/'double_trailing_space  '"
+ls "${DIR}/double_trailing_space  "
+check $?
+
+ls ${DIR} > /dev/null
+mounted dummy
+
+echo 'After mount has been forced...'
+echo "	ls  ${DIR}/'double_trailing_space  '"
+ls "${DIR}/double_trailing_space  "
+check $?
+
+#
+# Test indirect map entries
+#
+echo
+echo
+echo ++++++++++++++ Indirect Map entries ++++++++++++++++++
+#
+# test 'ls' with trailing space
+#
+echo -------- traling space -------------
+DIR=${AUTO_CLIENT_MNTPNT}/iparse/space_test1
+echo "Before ${DIR} has been mounted..."
+echo "	ls  ${DIR}/'trailing_space '"
+ls "${DIR}/trailing_space "
+check $?
+
+ls ${DIR} > /dev/null
+mounted dummy
+
+echo 'After mount has been forced...'
+echo "	ls  ${DIR}/'trailing_space '"
+ls "${DIR}/trailing_space "
+check $?
+
+#
+# test 'ls' with double trailing space
+#
+echo
+echo ------ double traling space ---------
+DIR=${AUTO_CLIENT_MNTPNT}/iparse/space_test2
+echo "Before ${DIR} has been mounted..."
+echo "	ls  ${DIR}/'double_trailing_space  '"
+ls "${DIR}/double_trailing_space  "
+check $?
+
+ls ${DIR} > /dev/null
+mounted dummy
+
+echo 'After mount has been forced...'
+echo "	ls  ${DIR}/'double_trailing_space  '"
+ls "${DIR}/double_trailing_space  "
+check $?
+
+if [ ${FAIL} = 0 ]; then
+	echo "`basename $0`: SUCCEEDED"
+	echo
+else
+	echo "`basename $0`: FAILED"
+	echo
+	exit 1
+fi
