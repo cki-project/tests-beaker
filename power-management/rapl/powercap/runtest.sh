@@ -23,7 +23,7 @@ CDIR=$(dirname $FILE)
 TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
-source $CDIR/../../../cki_lib/libcki.sh
+source $CDIR/../../common/libpwmgmt.sh
 
 # XXX: This function is from power-management/rapl/powercap/cap.sh
 function set_cap
@@ -170,23 +170,6 @@ function test_capping
     return 0
 }
 
-#
-# Check CPU vendor is Intel or not
-#
-function is_intel
-{
-    typeset vendor=$(grep vendor /proc/cpuinfo | sort -u | awk '{print $3}')
-    [[ $vendor == "GenuineIntel" ]] && return 0 || return 1
-}
-
-#
-# Check the system is kvm or not
-#
-function is_kvm
-{
-    [[ $(virt-what) == "kvm" ]] && return 0 || return 1
-}
-
 function startup
 {
     is_kvm
@@ -198,6 +181,13 @@ function startup
     is_intel
     if (( $? != 0 )); then
         cki_set_reason $CKI_UNSUPPORTED "non-intel CPU is unsupported"
+        return $CKI_UNSUPPORTED
+    fi
+
+    has_kmod_intel_rapl
+    if (( $? != 0 )); then
+        cki_set_reason $CKI_UNSUPPORTED \
+            "kernel module 'intel-rapl' is not loaded"
         return $CKI_UNSUPPORTED
     fi
 
@@ -219,7 +209,6 @@ function runtest
     # For debugging
     cki_run_cmd_neu "find /sys/devices/ -name *rapl*"
     cki_run_cmd_neu "lsmod"
-    cki_run_cmd_pos "modprobe intel-rapl" || return $CKI_UNINITIATED
 
     # Check if capping works, it should take approx 1.5 - 2 minutes
     test_capping || return $CKI_FAIL
