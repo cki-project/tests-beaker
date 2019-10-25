@@ -23,24 +23,7 @@ CDIR=$(dirname $FILE)
 TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
-source $CDIR/../../../cki_lib/libcki.sh
-
-#
-# Check CPU vendor is Intel or not
-#
-function is_intel
-{
-    typeset vendor=$(grep vendor /proc/cpuinfo | sort -u | awk '{print $3}')
-    [[ $vendor == "GenuineIntel" ]] && return 0 || return 1
-}
-
-#
-# Check the system is kvm or not
-#
-function is_kvm
-{
-    [[ $(virt-what) == "kvm" ]] && return 0 || return 1
-}
+source $CDIR/../../common/libpwmgmt.sh
 
 function do_sanity_test
 {
@@ -59,6 +42,13 @@ function startup
     is_intel
     if (( $? != 0 )); then
         cki_set_reason $CKI_UNSUPPORTED "non-intel CPU is unsupported"
+        return $CKI_UNSUPPORTED
+    fi
+
+    has_kmod_intel_rapl
+    if (( $? != 0 )); then
+        cki_set_reason $CKI_UNSUPPORTED \
+            "kernel module 'intel-rapl' is not loaded"
         return $CKI_UNSUPPORTED
     fi
 
