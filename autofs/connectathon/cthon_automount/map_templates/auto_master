@@ -1,0 +1,23 @@
+#
+#ident	"$Id$"
+#
+# Master map for automounter testing at connectathon
+#
+/net		-hosts	-nosuid
+/home		auto_home	-nosuid
+/-			AUTOMAP_DIR/auto_dcthon
+/-			AUTOMAP_DIR/auto_test3_direct
+/-			AUTOMAP_DIR/auto_test4_direct
+AUTO_CLIENT_MNTPNT/iparse	AUTOMAP_DIR/auto_icthon
+AUTO_CLIENT_MNTPNT/eparse	AUTOMAP_DIR/auto_ecthon
+AUTO_CLIENT_MNTPNT/oparse	AUTOMAP_DIR/auto_octhon
+
+AUTO_CLIENT_MNTPNT/test1	AUTOMAP_DIR/auto_icthon
+AUTO_CLIENT_MNTPNT/test2	AUTOMAP_DIR/auto_ecthon
+AUTO_CLIENT_MNTPNT/test4/indirect	AUTOMAP_DIR/auto_icthon
+AUTO_CLIENT_MNTPNT/options	AUTOMAP_DIR/auto_octhon
+AUTO_CLIENT_MNTPNT/nested	AUTOMAP_DIR/auto_nested
+AUTO_CLIENT_MNTPNT/badnames	AUTOMAP_DIR/auto.badnames
+
+AUTO_CLIENT_MNTPNT/vers		AUTOMAP_DIR/auto_octhon
++auto_master

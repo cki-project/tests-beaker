@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+#ident "$Id: default_os,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+
+make_version() {
+	echo "vers=$1"
+}
+
+make_proto() {
+	echo "proto=$1"
+}

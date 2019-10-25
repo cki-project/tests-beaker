@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+#ident	"$Id: test5,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+# opendir() of nested autofs filesystems
+# We don't check the fstype for autofs filesystems because nothing is mounted.
+#
+
+tname=`basename $0`
+datname=test5
+InitFile="../src/tests.init"
+. ${InitFile}
+PATH=.:$PATH
+
+if [ x$VERBOSE = x ]; then
+	opendir ${AUTOMAP_DIR}/dat/${datname}_autofs ${AUTOMAP_DIR}/dat/exception autofs 0 > /dev/null \
+     && opendir ${AUTOMAP_DIR}/dat/${datname}_nfs ${AUTOMAP_DIR}/dat/exception nfs 1 > /dev/null
+else
+	opendir ${AUTOMAP_DIR}/dat/${datname}_autofs ${AUTOMAP_DIR}/dat/exception autofs 0 \
+     && opendir ${AUTOMAP_DIR}/dat/${datname}_nfs ${AUTOMAP_DIR}/dat/exception nfs 1
+fi
+if [ $? -ne 0 ]; then
+	echo "$tname: FAILED"
+	exit 1
+else
+	echo "$tname: SUCCEEDED"
+fi

@@ -1,0 +1,141 @@
+#
+# Makefile for the NIS databases
+#
+# This Makefile should only be run on the NIS master server of a domain.
+# All updated maps will be pushed to all NIS slave servers listed in the
+# /var/yp/ypservers file. Please make sure that the hostnames of all
+# NIS servers in your domain are listed in /var/yp/ypservers.
+#
+# This Makefile can be modified to support more NIS maps if desired.
+#
+
+# Set the following variable to "-b" to have NIS servers use the domain
+# name resolver for hosts not in the current domain. This is only needed,
+# if you have SunOS slave YP server, which gets here maps from this
+# server. The NYS YP server will ignore the YP_INTERDOMAIN key.
+#B=-b
+B=
+
+# If we have only one server, we don't have to push the maps to the
+# slave servers (NOPUSH=true). If you have slave servers, change this
+# to "NOPUSH=false" and put all hostnames of your slave servers in the file
+# /var/yp/ypservers.
+NOPUSH=true
+
+# yppush copies updated NIS databases (or maps) from the master NIS server 
+# to the slave servers within a NIS domain and listens for their answer. 
+# yppush will ask portmap to assign it a random port number to listen on 
+# by default. To specify a fixed port number or any aditional options, 
+# edit variable YPPUSH_ARGS.
+# e.g. YPPUSH_ARGS = --port 836
+YPPUSH_ARGS = 
+
+# We do not put password entries with lower UIDs (the root and system
+# entries) in the NIS password database, for security. MINUID is the
+# lowest uid that will be included in the password maps. If you
+# create shadow maps, the UserID for a shadow entry is taken from
+# the passwd file. If no entry is found, this shadow entry is
+# ignored.
+# MINGID is the lowest gid that will be included in the group maps.
+# You can either set values directly (e.g. MINUID=1000) or pick up
+# current values from /etc/login.defs
+MINUID=$(shell TMP=`egrep '^UID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^UID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
+MINGID=$(shell TMP=`egrep '^GID_MIN\s+[0-9]+' /etc/login.defs|sed -e 's/^GID_MIN//'` ; [ -n "$$TMP" ] && echo "$$TMP" || echo 1000)
+
+# Don't export this uid/guid (nfsnobody).
+# Set to 0 if you want to
+NFSNOBODYUID=65534
+NFSNOBODYGID=65534
+
+# Should we merge the passwd file with the shadow file ?
+# MERGE_PASSWD=true|false
+MERGE_PASSWD=true
+
+# Should we merge the group file with the gshadow file ?
+# MERGE_GROUP=true|false
+MERGE_GROUP=true
+
+# These are commands which this Makefile needs to properly rebuild the
+# NIS databases. Don't change these unless you have a good reason.
+AWK = /usr/bin/gawk
+MAKE = /usr/bin/gmake
+UMASK = umask 066
+
+#
+# These are the source directories for the NIS files; normally
+# that is /etc but you may want to move the source for the password
+# and group files to (for example) /var/yp/ypfiles. The directory
+# for passwd, group and shadow is defined by YPPWDDIR, the rest is
+# taken from YPSRCDIR.
+#
+YPSRCDIR = /etc
+YPPWDDIR = /etc
+YPBINDIR = /usr/lib64/yp
+YPSBINDIR = /usr/sbin
+YPDIR = /var/yp
+YPMAPDIR = $(YPDIR)/$(DOMAIN)
+
+AMD_HOME    = $(YPSRCDIR)/amd.home
+AUTO_MASTER = $(YPSRCDIR)/auto.master
+AUTO_NIS= $(YPSRCDIR)/auto.nis
+TIMEZONE    = $(YPSRCDIR)/timezone
+LOCALE      = $(YPSRCDIR)/locale
+NETMASKS    = $(YPSRCDIR)/netmasks
+
+YPSERVERS = $(YPDIR)/ypservers	# List of all NIS servers for a domain
+
+target: Makefile
+ifeq ($(shell /bin/domainname), (none))
+	@echo "Domain name cannot be (none)"
+else
+ifeq ($(shell /bin/domainname), )
+	@echo "Domain name must be set"
+else
+	@test ! -d $(LOCALDOMAIN) && mkdir $(LOCALDOMAIN) ; \
+	cd $(LOCALDOMAIN)  ; \
+	$(NOPUSH) || $(MAKE) -f ../Makefile ypservers; \
+	$(MAKE) -f ../Makefile all
+endif
+endif
+
+# If you don't want some of these maps built, feel free to comment
+# them out from this list.
+
+all: auto.master auto.nis
+
+########################################################################
+#                                                                      #
+#  DON'T EDIT ANYTHING BELOW IF YOU DON'T KNOW WHAT YOU ARE DOING !!!  #
+#                                                                      #
+########################################################################
+
+DBLOAD = $(YPBINDIR)/makedbm -c -m `$(YPBINDIR)/yphelper --hostname`
+MKNETID = $(YPBINDIR)/mknetid
+YPPUSH = $(YPSBINDIR)/yppush $(YPPUSH_ARGS)
+MERGER = $(YPBINDIR)/yphelper
+DOMAIN = `basename \`pwd\``
+LOCALDOMAIN = `/bin/domainname`
+REVNETGROUP = $(YPBINDIR)/revnetgroup
+CREATE_PRINTCAP = $(YPBINDIR)/create_printcap
+
+ypservers: $(YPSERVERS) $(YPDIR)/Makefile
+	@echo "Updating $@..."
+	@$(AWK) '{ if ($$1 != "" && $$1 !~ "#") print $$0"\t"$$0 }' \
+	    $(YPSERVERS) | $(DBLOAD) -i $(YPSERVERS) -o $(YPMAPDIR)/$@ - $@
+	-@$(NOPUSH) || $(YPPUSH) -d $(DOMAIN) $@
+
+$(YPSERVERS):
+	@echo -n "Generating $*..."
+	@uname -n > $(YPSERVERS)
+
+auto.master: $(AUTO_MASTER) $(YPDIR)/Makefile
+	@echo "Updating $@..."
+	-@sed -e "/^#/d" -e s/#.*$$// $(AUTO_MASTER) | $(DBLOAD) \
+		-i $(AUTO_MASTER) -o $(YPMAPDIR)/$@ - $@
+	-@$(NOPUSH) || $(YPPUSH) -d $(DOMAIN) $@
+
+auto.nis: $(AUTO_NIS) $(YPDIR)/Makefile
+	@echo "Updating $@..."
+	-@sed -e "/^#/d" -e s/#.*$$// $(AUTO_NIS) | $(DBLOAD) \
+		-i $(AUTO_NIS) -o $(YPMAPDIR)/$@ - $@
+	-@$(NOPUSH) || $(YPPUSH) -d $(DOMAIN) $@

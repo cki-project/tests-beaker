@@ -1,0 +1,137 @@
+#!/bin/bash
+#
+#ident	"$Id: proto_check,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+# checks that the expected transport has been used
+# for the NFS mount.
+#
+# This test is heavily dependent on the output
+# of the nfsstat -m command. If and when the output
+# changes this test will likely need to be revised.
+#
+
+. ../src/func.common
+
+check_proto() {
+	Proto=$1
+	Ln=`nawk -F\: '{print $1}' /tmp/grepn.out.$$`
+	Ln=`expr $Ln + 1`
+	head -$Ln /tmp/nfsstat.out.$$ | tail -1 > /tmp/proto.out.$$
+	Po=`nawk '{print $2}' /tmp/proto.out.$$`
+	echo "\tExpect proto=${Proto}, got $Po"
+	Found=`try_to_grock "proto=$Proto" "$Po"`
+	# Consider <proto>6 equivalent to <proto> from protocol POV.
+	if [ -z "$Found" ]; then
+		Found=`try_to_grock "proto=${Proto}6" "$Po"`
+	fi
+	if [ "$Found" != "found" ]; then
+		echo "\tFAILED"
+		fail=`expr ${fail} + 1`
+	else
+		echo "\tPASSED."
+	fi
+}
+	
+do_nfsstat() {
+	if [ x${VERBOSE} != x ]; then
+		echo "\texamine nfsstat -m output..."
+	fi
+	nfsstat -m > /tmp/nfsstat.out.$$
+
+	grep -n "^$1" /tmp/nfsstat.out.$$ > /tmp/grepn.out.$$ 2>&1
+	if [ $? -ne 0 ]; then
+		echo "$1 not found in nfsstat, exiting."
+		exit 1
+	fi
+}
+
+fail=0
+NAME=`basename $0`
+InitFile="../src/tests.init"
+
+if [ "x${AUTO_CLIENT_MNTPNT}" = "x" ]; then
+	if [ -f ${InitFile} ]; then
+		. ${InitFile}
+	fi
+	if [ "x$SERVER1" = "x" ]; then
+		echo "SERVER1 environment variable not set."
+		echo "Please set in 'tests.init'."
+		exit 2
+	fi
+	if [ "x$AUTO_CLIENT_MNTPNT" = "x" ]; then
+		AUTO_CLIENT_MNTPNT=/auto_test/${SERVER1}
+	fi
+fi
+
+if [ ${SERVER1} = `uname -n` ]; then
+	echo "Test is useless over Local Transport, exiting."
+	exit 2
+fi
+
+DIR="${AUTO_CLIENT_MNTPNT}/vers"
+Path_udp="${DIR}/g4c"
+Path_tcp="${DIR}/g4a ${DIR}/g4b/s1/ss1 ${DIR}/g4d"
+
+trap "rm -f /tmp/*.$$; exit 1" 2 9
+
+# Does server support UDP protocol?
+rpcinfo -T udp ${SERVER1} nfs > /dev/null 2>&1
+UDP_SUPPORTED=$?
+
+for i in ${Path_udp}
+do
+	echo
+	echo "------------ ${i} ------------"
+	if [ x${VERBOSE} != x ]; then
+		echo "\tTriggering mount..."
+	fi
+	ls ${i} > /dev/null
+	if [ $? -eq 0 ]; then 
+		do_nfsstat ${i}
+		check_proto udp
+	else
+		if [ $UDP_SUPPORTED -eq 0 ]; then
+			echo "\tFAILED"
+			fail=`expr ${fail} + 1`
+		else
+			echo "\tUDP protocol not supported - ignoring..."
+		fi
+	fi 
+
+	rm -f /tmp/*.$$
+done
+
+# Does server support TCP protocol?
+rpcinfo -T tcp ${SERVER1} nfs > /dev/null 2>&1
+TCP_SUPPORTED=$?
+
+for i in ${Path_tcp}
+do
+	echo
+	echo "------------ ${i} ------------"
+	if [ x${VERBOSE} != x ]; then
+		echo "\tTriggering mount..."
+	fi
+	ls ${i} > /dev/null
+	if [ $? -eq 0 ]; then
+		do_nfsstat ${i}
+		check_proto tcp
+	else
+		if [ $TCP_SUPPORTED -eq 0 ]; then
+			echo "\tFAILED"
+			fail=`expr ${fail} + 1`
+		else
+			echo "\tTCP protocol not supported - ignoring..."
+		fi
+	fi
+
+	rm -f /tmp/*.$$
+done
+
+if [ ${fail} -ne 0 ]; then
+	echo "${NAME}: FAILED"
+else
+	echo "${NAME}: SUCCEEDED"
+fi
+
+exit ${fail}

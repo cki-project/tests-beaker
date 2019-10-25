@@ -1,0 +1,77 @@
+#
+#ident	"$Id: test5_nfs,v 1.1 2005/10/25 22:34:27 jmoyer Exp $"
+#
+#  Input Syntax: <path> <0|1>
+#                       0 means success expected
+#                       1 means failure expected
+#
+#  Check for nfs filesystems in nested maps
+#  Assumes 'g1' is a working nfs entry in auto_icthon
+#  Assumes 'b1' is a broken nfs entry in auto_icthon
+#
+AUTO_CLIENT_MNTPNT/nested/g1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g1a/g1		0
+AUTO_CLIENT_MNTPNT/nested/g1a/b1		1
+AUTO_CLIENT_MNTPNT/nested/g1b/g1		0
+AUTO_CLIENT_MNTPNT/nested/g1b/b1		1
+AUTO_CLIENT_MNTPNT/nested/g2/s1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g2/s1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g2/s2/g1		0
+AUTO_CLIENT_MNTPNT/nested/g2/s2/b1		1
+AUTO_CLIENT_MNTPNT/nested/g2/no_such_entry/g1	1
+AUTO_CLIENT_MNTPNT/nested/g2/no_such_entry/b1	1
+AUTO_CLIENT_MNTPNT/nested/g2/s1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g2/s2/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g2a			0
+AUTO_CLIENT_MNTPNT/nested/g2a/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g2a/s1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g2a/s1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g2a/s1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g2a/s2/g1		0
+AUTO_CLIENT_MNTPNT/nested/g2a/s2/b1		1
+AUTO_CLIENT_MNTPNT/nested/g2a/s2/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g2a/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3b			0
+AUTO_CLIENT_MNTPNT/nested/g3b/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3b/s1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g3b/s1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g3b/s1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3b/s2/g1		0
+AUTO_CLIENT_MNTPNT/nested/g3b/s2/b1		1
+AUTO_CLIENT_MNTPNT/nested/g3b/s2/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3b/no_such_entry	1
+
+AUTO_CLIENT_MNTPNT/nested/g3c			0
+AUTO_CLIENT_MNTPNT/nested/g3c/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3c/s1		0
+AUTO_CLIENT_MNTPNT/nested/g3c/s1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3c/s2		0
+AUTO_CLIENT_MNTPNT/nested/g3c/s2/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3c/s1/ss1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g3c/s1/ss1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g3c/s1/ss1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g3c/s2/ss2/g1		0
+AUTO_CLIENT_MNTPNT/nested/g3c/s2/ss2/b1		1
+AUTO_CLIENT_MNTPNT/nested/g3c/s2/ss2/no_such_entry	1
+
+AUTO_CLIENT_MNTPNT/nested/g4/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g4/s1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g4/s1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g4/s1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g4/s2/g1		0
+AUTO_CLIENT_MNTPNT/nested/g4/s2/b1		1
+AUTO_CLIENT_MNTPNT/nested/g4/s2/no_such_entry	1
+
+AUTO_CLIENT_MNTPNT/nested/g4a/g1		0
+AUTO_CLIENT_MNTPNT/nested/g4a/b1		1
+AUTO_CLIENT_MNTPNT/nested/g4a/no_such_entry	1
+
+AUTO_CLIENT_MNTPNT/nested/g4b			0
+AUTO_CLIENT_MNTPNT/nested/g4b/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g4b/s1/g1		0
+AUTO_CLIENT_MNTPNT/nested/g4b/s1/b1		1
+AUTO_CLIENT_MNTPNT/nested/g4b/s1/no_such_entry	1
+AUTO_CLIENT_MNTPNT/nested/g4b/s2/g1		0
+AUTO_CLIENT_MNTPNT/nested/g4b/s2/b1		1
+AUTO_CLIENT_MNTPNT/nested/g4b/s2/no_such_entry	1

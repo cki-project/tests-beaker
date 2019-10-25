@@ -1,0 +1,87 @@
+#
+#ident	"$Id: auto_octhon,v 1.1 2005/10/25 22:36:03 jmoyer Exp $"
+#
+# indirect map with interesting options
+# tests options like "port", "vers" and "proto"
+#
+# Note: Some of this functions may not be supported by all automounters,
+#       or may need to be modified.
+#
+
+#
+# no options
+#
+g1				SERVER1:AUTO_SERVER_DIR/export1
+
+#
+# use of port option (assumes nfsd is running on port 2049)
+#
+g2		-port=2049		SERVER1:AUTO_SERVER_DIR/export1
+g2a	/	-port=2049		SERVER1:AUTO_SERVER_DIR/export5/testing/test  \
+	/s1	-port=2049		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1/ss1	-port=2049		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1/ss1
+g2b		-port=2049   		SERVER1:AUTO_SERVER_DIR/export1 	# trailing spaces
+
+#
+# bad port (assumes nfsd is on port 2049)
+#
+b2		-port=10000		SERVER1:AUTO_SERVER_DIR/export1
+b2c		-port=-5		SERVER1:AUTO_SERVER_DIR/export1
+b2d	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test  \
+	/s1	-port=10000		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1
+b2e	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test  \
+	/s1	-port=2049		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1/ss1	-port=10000		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1/ss1
+b2f		-port= 2049		SERVER1:AUTO_SERVER_DIR/export1	# embedded spaces
+b2g		port= 2049		SERVER1:AUTO_SERVER_DIR/export1	# embedded spaces
+
+#
+# version tests
+#
+g3		-vers=2			SERVER1:AUTO_SERVER_DIR/export1
+g3a		-vers=3			SERVER1:AUTO_SERVER_DIR/export1
+g3b	/	-vers=3			SERVER1:AUTO_SERVER_DIR/export5/testing/test  \
+	/s1	-vers=2			SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1/ss1	-vers=3			SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1/ss1
+g3c		-vers=3    		SERVER1:AUTO_SERVER_DIR/export1	# trailing spaces
+g3d		-vers=2    		SERVER1:AUTO_SERVER_DIR/export1	# trailing spaces
+
+#
+# bad version tests
+#
+b3		-vers=10000		SERVER1:AUTO_SERVER_DIR/export1
+b3c		-vers=-5		SERVER1:AUTO_SERVER_DIR/export1
+b3d	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1	-vers=10000		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1
+b3e	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1/ss1	-vers=10000		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1/ss1
+b3f		-vers=   2		SERVER1:AUTO_SERVER_DIR/export1
+b3g		vers=   2		SERVER1:AUTO_SERVER_DIR/export1
+
+#
+# proto tests
+#
+g4		-proto=udp		SERVER1:AUTO_SERVER_DIR/export1
+g4a		-proto=tcp		SERVER1:AUTO_SERVER_DIR/export1
+g4b	/	-proto=tcp		SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1	-proto=udp		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1/ss1	-proto=tcp		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1/ss1
+g4c		-proto=udp   		SERVER1:AUTO_SERVER_DIR/export1	# traling spaces
+g4d		-proto=tcp   		SERVER1:AUTO_SERVER_DIR/export1	# traling spaces
+
+#
+# bad proto tests
+#
+b4		-proto=10000		SERVER1:AUTO_SERVER_DIR/export1
+b4a		-proto=0		SERVER1:AUTO_SERVER_DIR/export1
+b4b		-proto=unknown		SERVER1:AUTO_SERVER_DIR/export1
+b4c		-proto=-5		SERVER1:AUTO_SERVER_DIR/export1
+b4d	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1	-proto=10000		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1
+b4e	/				SERVER1:AUTO_SERVER_DIR/export5/testing/test \
+	/s1				SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1 \
+	/s1/ss1	-proto=10000		SERVER1:AUTO_SERVER_DIR/export5/testing/test/s1/ss1
+b4f		-proto=  udp		SERVER1:AUTO_SERVER_DIR/export1	#embedded spaces
+b4g		-proto=  tcp		SERVER1:AUTO_SERVER_DIR/export1	#embedded spaces
++auto_octhon

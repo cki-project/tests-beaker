@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+#ident	"$Id: auto_ecthon,v 1.1 2005/10/25 22:36:03 jmoyer Exp $"
+#
+# executable map for automounter connectathon testsuite
+#
+
+case $1 in
+	g1) echo '-nosuid,hard SERVER1:AUTO_SERVER_DIR/export1:' ;;
+	g2) echo '/	-nosuid,hard SERVER1:AUTO_SERVER_DIR/export1:' ;;
+	g3) echo 'SERVER1:AUTO_SERVER_DIR/export1:' ;;
+	g4) echo '/s1	SERVER1:AUTO_SERVER_DIR/export1:' ;;
+	g5) echo '/s1/ss1	SERVER1:AUTO_SERVER_DIR/export1:' ;;
+	g6) echo '/		SERVER1:AUTO_SERVER_DIR/export5
+		  /s1		SERVER1:AUTO_SERVER_DIR/export5/s1' ;;
+	b1) echo '' ;;
+	b2) echo '/'  ;;
+	b3) echo 'SERVER1AUTO_SERVER_DIR/export1' ;;
+	b4) echo '/s1:';;
+esac
+#b5	SERVER1:AUTO_SERVER_DIR/export1

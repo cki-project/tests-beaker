@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+#ident "$Id: func.common,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+
+os=`uname`
+if [ -f ../src/func.$os ] ; then
+	. ../src/func.$os
+else 
+	echo "Warning: no platform shell include found.  Using default_os"
+	. ../src/func.default_os
+fi
+
+# find $1 in options $2
+try_to_grock() {
+	arg=$1
+	options=$2
+	for token in `echo $options | sed -e 's/,/ /g'` ; do
+		if [ "x$arg" = "x$token" ] ; then
+			echo "found"
+			break
+		fi
+	done
+}

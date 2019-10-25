@@ -1,0 +1,29 @@
+[ bz1124083,bz1205600,bz1577700 ]
+#duplicate entries will map successfully with the patch of this bug
+#The first two bugs are rhel-6 and rhel-7 bugs, but subsequent imports
+#from fedora over major releases won't contain these even though the
+#change is present. So add an arbitrary rhel-8 bug so the exceptions
+#still match.
+#Beware, a similar change will be needed for rhel-9 and beyond assuming
+#this change remains in the upstream code.
+auto.icthon {
+    b3 = 0, 1
+    b3/s1 = 0
+    b3d/s1 = 0
+    b4 = 0, 1
+    b4/s1 = 0
+}
+
+auto.dcthon {
+    AUTO_CLIENT_MNTPNT/dparse/b3 = 0, 1
+    AUTO_CLIENT_MNTPNT/dparse/b3/s1 = 0
+    AUTO_CLIENT_MNTPNT/dparse/b4 = 0, 1
+    AUTO_CLIENT_MNTPNT/dparse/b4/s1 = 0
+}
+
+auto.test3.direct {
+    AUTO_CLIENT_MNTPNT/test3/b3	= 0, 1
+    AUTO_CLIENT_MNTPNT/test3/b3/s1 = 0
+    AUTO_CLIENT_MNTPNT/test3/b4 = 0, 1
+    AUTO_CLIENT_MNTPNT/test3/b4/s1 = 0
+}

@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+#ident	"$Id: parser-n,v 1.1 2005/10/25 22:38:34 jmoyer Exp $"
+#
+# basic parsing test using the name service
+#
+
+tname=`basename $0`
+InitFile="../src/tests.init"
+. ${InitFile}
+PATH=.:$PATH
+
+if [ "x$VERBOSE" = "x" ]; then
+	autoparse ${AUTOMAP_DIR}/dat/autoparse-n ${AUTOMAP_DIR}/dat/exception > /dev/null
+else
+	autoparse ${AUTOMAP_DIR}/dat/autoparse-n ${AUTOMAP_DIR}/dat/exception
+fi
+if [ $? -ne 0 ]; then
+	echo "$tname: FAILED"
+	exit 1
+else
+	echo "$tname: SUCCEEDED"
+fi
