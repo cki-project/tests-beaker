@@ -220,9 +220,10 @@ else
 		rlRun "$S_CMD ip -6 route add $gre_c_ip6net dev $gre_devname"
 		rlRun "s_geneve1_mac=`$S_CMD ip link sh $gre_devname | grep link/ether | awk '{print $2}'`"
 
-		rlRun "$C_CMD tcpdump -i any -w grev4.pcap &"
+		rlRun "$C_CMD tcpdump -U -i any -w grev4.pcap &"
 		rlRun "sleep 5"
 		rlRun "$C_CMD ping $gre_s_ip4 -c 5"
+		rlRun "sleep 5"
 		rlRun "pkill tcpdump"
 		rlRun "sleep 5"
 		if [ $version == "4" ]
@@ -235,8 +236,10 @@ else
 			rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$s_geneve1_mac > $c_geneve1_mac.*$gre_s_ip4 > $gre_c_ip4\""
 			[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
 		fi
-		rlRun "$C_CMD tcpdump -i any -w grev6.pcap &"
+		rlRun "$C_CMD tcpdump -U -i any -w grev6.pcap &"
+		rlRun "sleep 5"
 		rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
+		rlRun "sleep 5"
 		rlRun "pkill tcpdump"
 		rlRun "sleep 5"
 		if [ $version == "4" ]

@@ -201,8 +201,26 @@ rlPhaseStartTest "local_netns"
 		do
 			rlRun "ip netns exec server ethtool -K ipvlan_s ${dev_features[$feature_id]}"
 			rlRun "ip netns exec server ethtool -k ipvlan_s"
-			rlRun "ip netns exec client ping 2.2.2.171 -c 5"
-			rlRun "ip netns exec client ping6 2222::171 -c 5"
+			for i in {1..10}
+			do
+				if ip netns exec client ping 2.2.2.171 -c 1
+				then
+					break
+				else
+					sleep 1
+				fi
+			done
+			rlRun "ip netns exec client ping 2.2.2.171 -c 2"
+			for i in {1..10}
+			do
+				if ip netns exec client ping6 2222::171 -c 1
+				then
+					break
+				else
+					sleep 1
+				fi
+			done
+			rlRun "ip netns exec client ping6 2222::171 -c 2"
 			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t TCP_STREAM -l 2 -- -m 16k"
 			# run only when netperf support sctp_stream
 			if ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 1
