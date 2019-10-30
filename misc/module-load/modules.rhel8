@@ -33,7 +33,6 @@ ceph
 ch
 chacha20_generic
 chacha20poly1305
-cifs
 cmac
 cmtp
 cramfs
