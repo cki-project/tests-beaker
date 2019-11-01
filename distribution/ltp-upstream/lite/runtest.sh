@@ -72,7 +72,7 @@ function ltp_test_build()
 	fi
 
 	pushd ltp > /dev/null 2>&1
-	git checkout c9707b465a08397569920b676345474f44327200
+	git checkout 6dbcc428f15e62d09ff8c02b1506a47b8ab7dea7
 	make autotools                      &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	./configure --prefix=${TARGET_DIR}  &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	make -j$CPUS_NUM                    &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "build   ltp failed"; fi
