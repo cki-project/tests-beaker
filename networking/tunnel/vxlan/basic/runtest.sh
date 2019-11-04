@@ -253,9 +253,10 @@ else
 			rlRun "$S_CMD ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "$S_CMD ip -6 route add $gre_c_ip6net dev $gre_devname"
 
-			rlRun "$C_CMD tcpdump -i any -w grev4.pcap &"
+			rlRun "$C_CMD tcpdump -U -i any -w grev4.pcap &"
 			rlRun "sleep 5"
 			rlRun "$C_CMD ping $gre_s_ip4 -c 5"
+			rlRun "sleep 5"
 			rlRun "pkill tcpdump"
 			rlRun "sleep 5"
 			if [ $ipversion == "4" ]
@@ -268,8 +269,10 @@ else
 				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*OTV.*instance 42\""
 				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
 			fi
-			rlRun "$C_CMD tcpdump -i any -w grev6.pcap &"
+			rlRun "$C_CMD tcpdump -U -i any -w grev6.pcap &"
+			rlRun "sleep 5"
 			rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
+			rlRun "sleep 5"
 			rlRun "pkill tcpdump"
 			rlRun "sleep 5"
 			if [ $ipversion == "4" ]
@@ -355,9 +358,10 @@ else
 			rlRun "$S_CMD ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "$S_CMD ip -6 route add $gre_c_ip6net dev $gre_devname"
 
-			rlRun "$C_CMD tcpdump -i any -w grev4.pcap &"
+			rlRun "$C_CMD tcpdump -U -i any -w grev4.pcap &"
 			rlRun "sleep 5"
 			rlRun "$C_CMD ping $gre_s_ip4 -c 5"
+			rlRun "sleep 5"
 			rlRun "pkill tcpdump"
 			rlRun "sleep 5"
 			if [ $ipversion == "4" ]
@@ -370,8 +374,10 @@ else
 				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*OTV.*instance 42\""
 				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
 			fi
-			rlRun "$C_CMD tcpdump -i any -w grev6.pcap &"
+			rlRun "$C_CMD tcpdump -U -i any -w grev6.pcap &"
+			rlRun "sleep 5"
 			rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
+			rlRun "sleep 5"
 			rlRun "pkill tcpdump"
 			rlRun "sleep 5"
 			if [ $ipversion == "4" ]

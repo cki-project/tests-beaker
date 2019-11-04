@@ -32,6 +32,24 @@ ipvlan_get_test_netid()
 	netid=$(host -4 $(echo $SERVERS |cut -d' ' -f1)| awk -F. '{print $(NF-1)$NF}' | awk '{print $1 % 255}' | head -n 1)
 }
 
+# first para: wait times before exit
+# second para: the command to be executed in every try
+# waitbeforepass 10 "ping 1.1.1.1 -c 1"
+waitbeforepass()
+{
+	try_num=${1:-10}
+	try_cmd=${2:-":"}
+	for i in {1..$try_num}
+	do
+		if $try_cmd
+		then
+			break
+		else
+			sleep 1
+		fi
+	done
+}
+
 multihost_netns()
 {
 rlPhaseStartTest "multihost_netns"
@@ -187,11 +205,17 @@ rlPhaseStartTest "local_netns"
 	rlRun "ip netns exec client ping 2.2.2.171 -c 5"
 	rlRun "ip netns exec client ping6 2222::171 -c 5"
 	rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t TCP_STREAM -l 2 -- -m 16k"
-	rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 2 -- -m 16k"
+	if ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 1
+	then
+		rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 2 -- -m 16k"
+	fi
 	rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t UDP_STREAM -l 2 -- -R 1"
 
 	rlRun "ip netns exec client netperf -6 -H 2222::171 -t TCP_STREAM -l 2 -- -m 16k"
-	rlRun "ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 2 -- -m 16k"
+	if ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 1
+	then
+		rlRun "ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 2 -- -m 16k"
+	fi
 	rlRun "ip netns exec client netperf -6 -H 2222::171 -t UDP_STREAM -l 2 -- -R 1"
 
 	for mode in l2 l3s
@@ -201,8 +225,10 @@ rlPhaseStartTest "local_netns"
 		do
 			rlRun "ip netns exec server ethtool -K ipvlan_s ${dev_features[$feature_id]}"
 			rlRun "ip netns exec server ethtool -k ipvlan_s"
-			rlRun "ip netns exec client ping 2.2.2.171 -c 5"
-			rlRun "ip netns exec client ping6 2222::171 -c 5"
+			waitbeforepass 10 "ip netns exec client ping 2.2.2.171 -c 1"
+			rlRun "ip netns exec client ping 2.2.2.171 -c 2"
+			waitbeforepass 10 "ip netns exec client ping6 2222::171 -c 1"
+			rlRun "ip netns exec client ping6 2222::171 -c 2"
 			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t TCP_STREAM -l 2 -- -m 16k"
 			# run only when netperf support sctp_stream
 			if ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 1

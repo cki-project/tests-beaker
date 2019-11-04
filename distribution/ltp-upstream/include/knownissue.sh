@@ -163,6 +163,8 @@ function knownissue_filter()
 	# Issue read_all_sys is triggering hard lockups on mustangs while reading /sys
 	# https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
         is_arch "aarch64" && tskip "read_all_sys" fatal
+	# OOM tests result in oom errors killing the test harness
+	tskip "oom.*" fatal
 
 	if is_rhel8; then
                 # ------- unfix ---------
