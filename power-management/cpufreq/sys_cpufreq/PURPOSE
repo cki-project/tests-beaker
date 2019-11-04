@@ -1,0 +1,6 @@
+PURPOSE of /kernel/power-management/cpufreq/sys_cpufreq
+Description: Confirm RAPL is supported
+Author: Erik Hamera <ehamera@redhat.com>
+
+Check, that current frequency is between min and max frequency and these two
+frequencies has plausible values.
