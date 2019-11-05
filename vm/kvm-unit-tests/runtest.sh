@@ -137,6 +137,8 @@ fi
 # set the qemu-kvm path
 if [ -e /usr/libexec/qemu-kvm ]; then
     export QEMU="/usr/libexec/qemu-kvm"
+elif [ -e /usr/bin/qemu-kvm ]; then
+    export QEMU="/usr/bin/qemu-kvm"
 fi
 
 if [ -z "$QEMU" ]; then
