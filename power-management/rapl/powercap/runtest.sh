@@ -17,10 +17,8 @@
 # Boston, MA 02110-1301, USA.
 #
 
-FILE=$(readlink -f ${BASH_SOURCE})
-NAME=$(basename $FILE)
+FILE=$(readlink -f $BASH_SOURCE)
 CDIR=$(dirname $FILE)
-TEST=${TEST:-"$0"}
 TMPDIR=/var/tmp/$(date +"%Y%m%d%H%M%S")
 
 source $CDIR/../../common/libpwmgmt.sh
