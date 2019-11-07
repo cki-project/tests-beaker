@@ -1,0 +1,6 @@
+PURPOSE of /kernel/power-management/cpufreq/cpufreq_governor
+Description: Confirm that cpufreq changes frequency of CPU
+Author: Erik Hamera <ehamera@redhat.com>
+
+Check, that frequency is lower on idle with powersave governor, than in full load with performance governor.
+
