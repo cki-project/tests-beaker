@@ -33,30 +33,32 @@
 TEST="/kernel/ipmi/stress/driver"
 
 rlJournalStart
-    # Exit if not ipmi compatible
     rlPhaseStartSetup
-        rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
+    # Exit if not ipmi compatible
+        if [ "$(uname -m)" != "ppc64le" ]; then
+            rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
             if grep -i ipmi /tmp/dmidecode.log ; then
                 rlPass "Moving on, host is ipmi compatible"
-            else
-		rlLog "Exiting, host is not ipmi compatible"
-                rhts-report-result $TEST SKIP
+             else
+                rlLog "Exiting, host is not ipmi compatible"
+                rstrnt-report-result $TEST SKIP
                 exit
-            fi
+             fi
+        fi
     rlPhaseEnd
 
- rlPhaseStartTest
-        # Load and unload ipmi drivers in a loop
-    	modules="ipmi_ssif ipmi_devintf ipmi_poweroff ipmi_watchdog ipmi_si"
-        rlRun -l "modprobe -r $modules"
-        for i in $(seq 0 10); do
-            for i in $modules; do
-                rlRun -l "modprobe $i"
-                rlRun -l "lsmod | grep ipmi"
-            done
-            rlRun -l "modprobe -r $modules"
-            rlLogInfo "Loop $i Complete"
-        done
+    rlPhaseStartTest
+    # Load and unload ipmi drivers in a loop
+    modules="ipmi_ssif ipmi_devintf ipmi_poweroff ipmi_watchdog ipmi_si"
+    rlRun -l "modprobe -r $modules"
+    for i in $(seq 0 10); do
+        for i in $modules; do
+            rlRun -l "modprobe $i" 0,1
+            rlRun -l "lsmod | grep ipmi" 0,1
+         done
+        rlRun -l "modprobe -r $modules" 0,1
+        rlLogInfo "Loop $i Complete"
+    done
     rlPhaseEnd
 rlJournalPrintText
 rlJournalEnd
