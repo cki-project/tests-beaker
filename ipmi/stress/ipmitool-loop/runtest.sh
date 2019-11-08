@@ -33,40 +33,44 @@
     TEST="/kernel/ipmi/stress/ipmitool-loop"
 
 rlJournalStart
-# Exit if not ipmi compatible
+    # Exit if not ipmi compatible
     rlPhaseStartSetup
-        rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
-            if grep -i ipmi /tmp/dmidecode.log ; then
-                rlPass "Moving on, host is ipmi compatible"
-            else
-                rlLog "Exiting, host is not ipmi compatible"
-		rhts-report-result $TEST SKIP
-		exit
-            fi
+        if [ "$(uname -m)" != "ppc64le" ]; then
+            rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
+                if grep -i ipmi /tmp/dmidecode.log ; then
+                    rlPass "Moving on, host is ipmi compatible"
+                else
+                    rlLog "Exiting, host is not ipmi compatible"
+                    rstrnt-report-result $TEST SKIP
+                    exit
+                fi
+        fi
         # reload ipmi modules
         modules="ipmi_ssif ipmi_devintf ipmi_poweroff ipmi_watchdog ipmi_si"
-	rlRun "modprobe -r $modules"
+	    rlRun "modprobe -r $modules" 0,1
             for i in $modules; do
-                rlRun -l "modprobe $i"
+                rlRun -l "modprobe $i" 0,1
             done
     rlPhaseEnd
 
 # Execute various ipmitool commands in a loop
     for i in $(seq 0 10); do
     rlPhaseStartTest
-        rlRun "ipmitool sel clear"
-        rlRun "ipmitool sel list"
-        rlRun "ipmitool chassis selftest"
-        rlRun "ipmitool chassis status"
-        rlRun "ipmitool chassis bootparam"
-        rlRun "ipmitool chassis identify"
-        rlRun "ipmitool sensor list -v"
-        rlRun "ipmitool mc selftest"
-        rlRun "ipmitool mc getenables"
-        rlRun "ipmitool mc info"
-        rlRun "ipmitool mc guid"
-        rlRun "ipmitool mc getenables system_event_log"
-        rlRun "ipmitool sdr"
+        if [ "$(uname -m)" != "ppc64le" ]; then
+            rlRun "ipmitool sel clear"
+            rlRun "ipmitool sel list" 0,1
+            rlRun "ipmitool chassis selftest"
+            rlRun "ipmitool mc selftest"
+            rlRun "ipmitool mc getenables"
+            rlRun "ipmitool mc guid"
+            rlRun "ipmitool mc getenables system_event_log"
+	fi
+            rlRun "ipmitool chassis status"
+            rlRun "ipmitool chassis bootparam"
+            rlRun "ipmitool chassis identify"
+            rlRun "ipmitool sensor list -v"
+            rlRun "ipmitool mc info"
+            rlRun "ipmitool sdr"
     rlLogInfo "Loop $i Complete"
     done
     rlPhaseEnd
