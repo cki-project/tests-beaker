@@ -61,6 +61,8 @@ $(METADATA): Makefile
 	@echo "Requires:        git" >> $(METADATA)
 	@echo "Requires:        grep" >> $(METADATA)
 	@echo "Requires:        ipsec-tools" >> $(METADATA)
+	@echo "Requires:        keyutils-libs-devel" >> $(METADATA)
+	@echo "Requires:        libbpf-devel" >> $(METADATA)
 	@echo "Requires:        libibverbs-devel" >> $(METADATA)
 	@echo "Requires:        libselinux" >> $(METADATA)
 	@echo "Requires:        libselinux-devel" >> $(METADATA)
