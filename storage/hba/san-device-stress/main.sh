@@ -52,23 +52,23 @@ function fio_device_level_test
 
         rlLog "INFO: Executing fio_device_level_test() with device: $test_dev"
 
-        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=write -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -size=-group_reporting -name=mytest -numjobs=$numjobs"
+	rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=write -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -time_based -size=1G -group_reporting -name=mytest -numjobs=$numjobs"
         if [ $? -ne 0 ]; then
                 rlLog "FAIL: fio device level write testing for $test_dev failed"
                 ret=1
         fi
-        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=randwrite -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -size=-group_reporting -name=mytest -numjobs=$numjobs"
-        if [ $? -ne 0 ]; then
+        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=randwrite -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -time_based -size=1G -group_reporting -name=mytest -numjobs=$numjobs"
+	if [ $? -ne 0 ]; then
                 rlLog "FAIL: fio device level randwrite testing for $test_dev failed"
                 ret=1
         fi
-        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=read -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -size=-group_reporting -name=mytest -numjobs=$numjobs"
-        if [ $? -ne 0 ]; then
+        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=read -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -time_based -size=1G -group_reporting -name=mytest -numjobs=$numjobs"
+	if [ $? -ne 0 ]; then
                 rlLog "FAIL: fio device level read testing for $test_dev failed"
                 ret=1
         fi
-        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=randread -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -size=-group_reporting -name=mytest -numjobs=$numjobs"
-        if [ $? -ne 0 ]; then
+        rlRun "fio -filename=$test_dev -iodepth=1 -thread -rw=randread -ioengine=psync -bssplit=5k/10:9k/10:13k/10:17k/10:21k/10:25k/10:29k/10:33k/10:37k/10:41k/10 -direct=1 -runtime=$runtime -time_based -size=1G -group_reporting -name=mytest -numjobs=$numjobs"
+	if [ $? -ne 0 ]; then
                 rlLog "FAIL: fio device level randread testing for $test_dev failed"
                 ret=1
         fi
