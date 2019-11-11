@@ -55,7 +55,6 @@ rlJournalStart
     for i in $(seq 0 10); do
     rlPhaseStartTest
         rlRun "ipmitool sel clear"
-        rlRun "ipmitool event 1"
         rlRun "ipmitool sel list"
         rlRun "ipmitool chassis selftest"
         rlRun "ipmitool chassis status"
