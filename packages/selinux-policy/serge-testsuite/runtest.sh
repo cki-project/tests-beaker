@@ -44,16 +44,16 @@ PACKAGE="selinux-policy"
 # This should be updated as needed after verifying that the new version
 # doesn't break testing and after applying all necessary tweaks in the TC.
 # Run with GIT_BRANCH=master to run the latest upstream version.
-DEFAULT_COMMIT="be0ca8feeb9b5bae8940bb04f1ba2c0b21ee6201"
+DEFAULT_COMMIT="2d7aad8a1f8cf9234d053fcc646c2303afe9899c"
 # Default pull requests to merge before running the test.
 # If non-empty, then after checking out GIT_BRANCH the listed upstream pull
-# requests (by number) are merged, creating a new temporay local branch.
-DEFAULT_PULLS="54 58"
+# requests (by number) are merged, creating a new temporary local branch.
+DEFAULT_PULLS=""
 
-# Optional test parametr - location of testuite git.
+# Optional test parameter - location of testuite git.
 GIT_URL=${GIT_URL:-"git://github.com/SELinuxProject/selinux-testsuite"}
 
-# Optional test paramenter - branch containing tests.
+# Optional test parameter - branch containing tests.
 if [ -z "$GIT_BRANCH" ]; then
     GIT_BRANCH="$DEFAULT_COMMIT"
     # Use default cherries only if branch is default and they are not overriden
@@ -70,14 +70,23 @@ else
     PIPEFAIL_DISABLE=""
 fi
 
-function version_le() {
-    { echo "$1"; echo "$2"; } | sort -V | tail -n 1 | grep -qx "$2"
-}
+if rlIsRHEL 5 ; then
+    # On RHEL-5 sort -V doesn't work, so just pretend we have the oldest kernel
+    function kver_ge() { false; }
+    function kver_lt() { true;  }
+    function kver_le() { true;  }
+    function kver_gt() { false; }
+else
+    function version_le() {
+        { echo "$1"; echo "$2"; } | sort -V | tail -n 1 | grep -qx "$2"
+    }
 
-function kver_ge() { version_le "$1" "$(uname -r)"; }
-function kver_lt() { ! kver_ge "$1"; }
-function kver_le() { version_le "$(uname -r)" "$1"; }
-function kver_gt() { ! kver_le "$1"; }
+    function kver_ge() { version_le "$1" "$(uname -r)"; }
+    function kver_lt() { ! kver_ge "$1"; }
+    function kver_le() { version_le "$(uname -r)" "$1"; }
+    function kver_gt() { ! kver_le "$1"; }
+fi
+
 
 rlJournalStart
     rlPhaseStartSetup
@@ -89,17 +98,27 @@ rlJournalStart
         # rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         # rlRun "pushd $TmpDir"
 
-        # version_le() sanity check:
-        rlRun "version_le 4.10 4.10"
-        rlRun "version_le 4.10 4.10.0"
-        rlRun "version_le 4.10 4.10.1"
-        rlRun "! version_le 4.10 4.9"
-        rlRun "! version_le 4.10.0 4.10"
+        if ! rlIsRHEL 5 ; then
+            # version_le() sanity check:
+            rlRun "version_le 4.10 4.10"
+            rlRun "version_le 4.10 4.10.0"
+            rlRun "version_le 4.10 4.10.1"
+            rlRun "! version_le 4.10 4.9"
+            rlRun "! version_le 4.10.0 4.10"
+        fi
+
+        PKG_SUFFIX=""
+        KERNEL_VERSION="$(uname -r)"
+        PKG_VERSION="${KERNEL_VERSION%+debug}"
+        if [ "$PKG_VERSION" != "$KERNEL_VERSION" ]; then
+            rlLog "Detected debug kernel running."
+            PKG_SUFFIX="-debug"
+        fi
 
         # make sure the right version of kernel[-rt]-modules-extra is installed
         if rlRun "yum=\$(which yum) || yum=\$(which dnf)"; then
-            rlRun "$yum install -y kernel-modules-extra-$(uname -r)" 0-255
-            rlRun "$yum install -y kernel-rt-modules-extra-$(uname -r)" 0-255
+            rlRun "$yum install -y kernel$PKG_SUFFIX-modules-extra-$PKG_VERSION" 0-255
+            rlRun "$yum install -y kernel-rt$PKG_SUFFIX-modules-extra-$PKG_VERSION" 0-255
         fi
 
         # test turns this boolean off
@@ -109,7 +128,11 @@ rlJournalStart
 
         rlRun "setenforce 1"
         rlRun "sestatus"
-        rlRun "sed -i 's/^expand-check[ ]*=.*$/expand-check = 0/' /etc/selinux/semanage.conf"
+        if grep 'expand-check' /etc/selinux/semanage.conf; then
+            rlRun "sed -i 's/^expand-check[ ]*=.*$/expand-check = 0/' /etc/selinux/semanage.conf"
+        else
+            rlRun "echo 'expand-check = 0' >>/etc/selinux/semanage.conf"
+        fi
         if [ ! -d selinux-testsuite ] ; then
             rlRun "git clone $GIT_URL" 0
             rlRun "pushd selinux-testsuite"
@@ -151,12 +174,23 @@ rlJournalStart
                 "Fix up kernel version for sctp test"
             rlRun "sed -i 's/5.2/4.18.0-80.19/' tests/Makefile" 0 \
                 "Fix up kernel version for cgroupfs_label test"
+            rlRun "sed -i '/SUBDIRS += bpf/d;/export CFLAGS += -DHAVE_BPF/d' tests/Makefile" 0 \
+                "Disable BPF tests on RHEL(-8)"
+            # CONFIG_KEYS_DH_COMPUTE not enabled on RHEL-8 :(
+            exclude_tests+=" keys"
         fi
-        if rlIsRHEL 6 ; then
-            # the dev_rw_infiniband_dev macro is not defined in RHEL-6 policy
-            # test_policy module compilation fails because of syntax error
-            rlRun "sed -i 's/test_ibpkey.te//' ./policy/Makefile" 0 \
-                "Disable test_ibpkey.te on RHEL6"
+        if rlIsRHEL 5 ; then
+            rlRun "sed -i '/unconfined_devpts_t/d' policy/test_policy.if" 0
+
+            rlRun "sed -i 's/read_file_perms/r_file_perms/'  policy/*.te" 0
+            rlRun "sed -i 's/mmap_file_perms/rx_file_perms/' policy/*.te" 0
+            rlRun "sed -i 's/list_dir_perms/r_dir_perms/'    policy/*.te" 0
+            rlRun "sed -i 's/ open / /'                      policy/*.te" 0
+
+            rlRun "sed -i 's/^sysadm_bin_spec_domtrans_to/userdom_sysadm_bin_spec_domtrans_to/' policy/*.te" 0
+
+            rlRun "sed -i 's/^corecmd_exec_bin(\(.*\))$/corecmd_exec_bin(\1)\ncorecmd_exec_sbin(\1)/' policy/*.te" 0
+            rlRun "sed -i 's/^corecmd_bin_entry_type(\(.*\))$/corecmd_bin_entry_type(\1)\ncorecmd_sbin_entry_type(\1)/' policy/*.te" 0
         fi
         if ! [ -x /usr/bin/python3 ]; then
             # to avoid error messages like runcon: ‘overlay/access’: No such file or directory
