@@ -133,8 +133,6 @@ function knownissue_filter()
 	tskip "madvise09" fatal
 	# Issue TBD
 	tskip "ksm0.*" fatal
-	# Issue http://lists.linux.it/pipermail/ltp/2019-August/013267.html
-	tskip "timer_create01" unfix
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
 	# Issue https://github.com/linux-test-project/ltp/issues/458
 	tskip "mkswap01_sh" unfix
