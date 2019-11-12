@@ -53,6 +53,7 @@ $(METADATA): Makefile
 	@echo "Requires:     kernel" >> $(METADATA)
 	@echo "Requires:     kernel-tools" >> $(METADATA)
 	@echo "Requires:     virt-what" >> $(METADATA)
+	@echo "Requires:     dmidecode" >> $(METADATA)
 	@echo "Requires:     python2-lxml" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "RepoRequires: cki_lib" >> $(METADATA)
