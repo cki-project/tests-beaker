@@ -174,8 +174,6 @@ rlJournalStart
                 "Fix up kernel version for sctp test"
             rlRun "sed -i 's/5.2/4.18.0-80.19/' tests/Makefile" 0 \
                 "Fix up kernel version for cgroupfs_label test"
-            rlRun "sed -i '/SUBDIRS += bpf/d;/export CFLAGS += -DHAVE_BPF/d' tests/Makefile" 0 \
-                "Disable BPF tests on RHEL(-8)"
             # CONFIG_KEYS_DH_COMPUTE not enabled on RHEL-8 :(
             exclude_tests+=" keys"
         fi
@@ -224,6 +222,11 @@ rlJournalStart
             rlRun "cat >>policy/test_ipc.te <<<'allow_map(ipcdomain, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_execmem_t, tmpfs_t, file)'"
             rlRun "cat >>policy/test_mmap.te <<<'allow_map(test_no_execmem_t, tmpfs_t, file)'"
+        fi
+
+        if rlIsRHEL || [ "$(rlGetPrimaryArch)" != x86_64 ]; then
+            rlRun "sed -i '/SUBDIRS += bpf/d;/export CFLAGS += -DHAVE_BPF/d' tests/Makefile" 0 \
+                "Disable BPF tests on RHEL and non-x86_64 Fedora"
         fi
 
         if [ -n "$exclude_tests" ] ; then
