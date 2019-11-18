@@ -131,7 +131,7 @@ function knownissue_filter()
 	is_arch "s390x" && tskip "fallocate05" fatal
 	# Issue TBD
 	tskip "madvise09" fatal
-	# Issue TBD
+	# https://github.com/linux-test-project/ltp/issues/611
 	tskip "ksm0.*" fatal
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
 	# Issue https://github.com/linux-test-project/ltp/issues/458
@@ -156,13 +156,17 @@ function knownissue_filter()
 	tskip "sync_file_range02" unfix
 	# Issue TBD
 	tskip "signal06" unfix
-	# Issue TBD
-	tskip "statx07" unfix
 	# Issue read_all_sys is triggering hard lockups on mustangs while reading /sys
 	# https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
         is_arch "aarch64" && tskip "read_all_sys" fatal
 	# OOM tests result in oom errors killing the test harness
 	tskip "oom.*" fatal
+	# http://lists.linux.it/pipermail/ltp/2019-November/014381.html
+	tskip "futex_cmp_requeue01" unfix
+	# http://lists.linux.it/pipermail/ltp/2019-November/014470.html
+	tskip "perf_event_open02" unfix
+	# http://lists.linux.it/pipermail/ltp/2019-November/014492.html
+	tskip "pivot_root01" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
