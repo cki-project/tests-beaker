@@ -224,7 +224,7 @@ function get_test_cases_nvme
 		#testcases+=" nvme/005" modprobe/modprobe -r nvme-core will be failed
 		testcases+=" nvme/006"
 		testcases+=" nvme/007"
-		testcases+=" nvme/008"
+		uname -ri | grep -qE "4.18.0-.*ppc64le" || testcases+=" nvme/008"
 		testcases+=" nvme/009"
 		testcases+=" nvme/010"
 		uname -r | grep -Eq "5\.|4.18.0" || testcases+=" nvme/011"
