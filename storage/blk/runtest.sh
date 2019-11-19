@@ -228,7 +228,7 @@ function get_test_cases_nvme
 		testcases+=" nvme/009"
 		testcases+=" nvme/010"
 		uname -r | grep -Eq "5\.|4.18.0" || testcases+=" nvme/011"
-		testcases+=" nvme/012"
+		uname -r | grep -q "4.18.0-80" || testcases+=" nvme/012"
 		uname -r | grep -qE "5\.|4.18.0" || testcases+=" nvme/013"
 		testcases+=" nvme/014"
 		uname -r | grep -qE "5\.|4.18.0" || testcases+=" nvme/015"
