@@ -19,6 +19,30 @@
 
 # Global variables
 ret=0
+BATS_RPM="http://mirrors.kernel.org/fedora/releases/31/Everything/x86_64/os/Packages/b/bats-1.1.0-3.fc31.noarch.rpm"
+TEST_REGISTRY="docker.io"
+TEST_IMAGE_NAME="alpine"
+TEST_IMAGE_TAG="latest"
+
+# x86_64 alpine images are all in docker.io/library/alpine:latest
+# non-x86_64 alpine image are in docker.io/$(uname -m)/alpine:latest
+function multi_arch_wrap {
+    if [[ $(uname -m) == "x86_64" ]]; then
+        env \
+            PODMAN_TEST_IMAGE_REGISTRY=$TEST_REGISTRY \
+            PODMAN_TEST_IMAGE_USER="library" \
+            PODMAN_TEST_IMAGE_NAME=$TEST_IMAGE_NAME \
+            PODMAN_TEST_IMAGE_TAG=$TEST_IMAGE_TAG \
+            "$@"
+    else
+        env \
+            PODMAN_TEST_IMAGE_REGISTRY=$TEST_REGISTRY \
+            PODMAN_TEST_IMAGE_USER=$(uname -m) \
+            PODMAN_TEST_IMAGE_NAME=$TEST_IMAGE_NAME \
+            PODMAN_TEST_IMAGE_TAG=$TEST_IMAGE_TAG \
+            "$@"
+    fi
+}
 
 # Verify that podman-tests is installed
 pkg=$(rpm -qa | grep podman-tests)
@@ -33,11 +57,13 @@ podman --version
 echo "Podman debug info:"
 podman info --debug
 
+
 # RHEL 8 will install podman-tests, but it will not install bats. We can use
-# the Fedora 30 package instead.
+# the Fedora 31 package instead. Attempt the installation five times.
 if [ ! -x /usr/bin/bats ]; then
-    dnf -y --nogpgcheck install \
-        http://mirrors.kernel.org/fedora/releases/30/Everything/x86_64/os/Packages/b/bats-1.1.0-2.fc30.noarch.rpm
+    for i in {1..5}; do
+        dnf -y --nogpgcheck install $BATS_RPM && break
+    done
 fi
 
 # NOTE(mhayden): The 'metacopy=on' mount option may be causing issues with
@@ -48,22 +74,33 @@ if [[ $PODMAN_RPM_NAME =~ el8 ]]; then
     grep ^mountopt /etc/containers/storage.conf || true
 fi
 
-# Use the multi-arch Fedora image to ensure podman's tests pass
-# on non-x86 architectures.
-export PODMAN_TEST_IMAGE_REGISTRY="docker.io"
-export PODMAN_TEST_IMAGE_USER="library"
-export PODMAN_TEST_IMAGE_NAME="fedora"
-export PODMAN_TEST_IMAGE_TAG="latest"
-
 # Run the podman system tests.
-bats /usr/share/podman/test/system/ | tee -a "${OUTPUTFILE}"
-ret=$?
+TEST_DIR=/usr/share/podman/test/system
+for TEST_FILE in ${TEST_DIR}/*.bats; do
+    echo -e "\n📊  $(basename $TEST_FILE):"
+
+    # NOTE(mhayden): On non-x86 architectures, all tests must use an
+    # architecture-specific container image. However, the history test
+    # throws an error due to a bug in the bats script and it must use the
+    # generic x86_64 image.
+    if [[ $TEST_FILE =~ "history" ]]; then
+        bats $TEST_FILE  | tee -a "${OUTPUTFILE}"
+    else
+        multi_arch_wrap bats $TEST_FILE  | tee -a "${OUTPUTFILE}"
+    fi
+
+    # Save a marker if this test failed.
+    if [[ $? != 0 ]]; then
+        TEST_FAILED=1
+    fi
+done
 
 echo "Test finished" | tee -a "${OUTPUTFILE}"
 
-if [ $ret != 0 ] ; then
-    report_result "${TEST}" FAIL $ret
+if [[ ${TEST_FAILED:-} == 1 ]] ; then
+    echo "😭 One or more tests failed."
+    report_result "${TEST}" FAIL 1
 else
-    # all is well
+    echo "😎 All tests passed."
     report_result "${TEST}" PASS 0
 fi
