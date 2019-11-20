@@ -35,16 +35,16 @@ TEST="/kernel/ipmi/stress/driver"
 rlJournalStart
     rlPhaseStartSetup
     # Exit if not ipmi compatible
-        if [ "$(uname -m)" != "ppc64le" ]; then
-            rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
-            if grep -i ipmi /tmp/dmidecode.log ; then
-                rlPass "Moving on, host is ipmi compatible"
-             else
-                rlLog "Exiting, host is not ipmi compatible"
-                rstrnt-report-result $TEST SKIP
-                exit
-             fi
+    if [[ $(uname -m) != "ppc64le" ]]; then
+        rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
+        if grep -i ipmi /tmp/dmidecode.log ; then
+            rlPass "Moving on, host is ipmi compatible"
+        else
+            rlLog "Exiting, host is not ipmi compatible"
+            rstrnt-report-result $TEST SKIP
+            exit
         fi
+    fi
     rlPhaseEnd
 
     rlPhaseStartTest
@@ -55,10 +55,12 @@ rlJournalStart
         for i in $modules; do
             rlRun -l "modprobe $i" 0,1
             rlRun -l "lsmod | grep ipmi" 0,1
-         done
+        done
         rlRun -l "modprobe -r $modules" 0,1
         rlLogInfo "Loop $i Complete"
     done
     rlPhaseEnd
-rlJournalPrintText
 rlJournalEnd
+
+# Print the test report
+rlJournalPrintText

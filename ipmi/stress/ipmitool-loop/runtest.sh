@@ -30,12 +30,12 @@
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # Set the full test name
-    TEST="/kernel/ipmi/stress/ipmitool-loop"
+TEST="/kernel/ipmi/stress/ipmitool-loop"
 
 rlJournalStart
     # Exit if not ipmi compatible
     rlPhaseStartSetup
-        if [ "$(uname -m)" != "ppc64le" ]; then
+        if [[ $(uname -m) != "ppc64le" ]]; then
             rlRun -l "dmidecode --type 38 > /tmp/dmidecode.log"
                 if grep -i ipmi /tmp/dmidecode.log ; then
                     rlPass "Moving on, host is ipmi compatible"
@@ -45,18 +45,19 @@ rlJournalStart
                     exit
                 fi
         fi
-        # reload ipmi modules
+
+        # Reload ipmi modules
         modules="ipmi_ssif ipmi_devintf ipmi_poweroff ipmi_watchdog ipmi_si"
-	    rlRun "modprobe -r $modules" 0,1
-            for i in $modules; do
-                rlRun -l "modprobe $i" 0,1
-            done
+        rlRun "modprobe -r $modules" 0,1
+        for i in $modules; do
+            rlRun -l "modprobe $i" 0,1
+        done
     rlPhaseEnd
 
-# Execute various ipmitool commands in a loop
-    for i in $(seq 0 10); do
     rlPhaseStartTest
-        if [ "$(uname -m)" != "ppc64le" ]; then
+    # Execute various ipmitool commands in a loop
+    for i in $(seq 0 10); do
+        if [[ $(uname -m) != "ppc64le"]]; then
             rlRun "ipmitool sel clear"
             rlRun "ipmitool sel list" 0,1
             rlRun "ipmitool chassis selftest"
@@ -64,23 +65,24 @@ rlJournalStart
             rlRun "ipmitool mc getenables"
             rlRun "ipmitool mc guid"
             rlRun "ipmitool mc getenables system_event_log"
-	fi
-            rlRun "ipmitool chassis status"
-            rlRun "ipmitool chassis bootparam"
-            rlRun "ipmitool chassis identify"
-            rlRun "ipmitool sensor list -v"
-            rlRun "ipmitool mc info"
-            rlRun "ipmitool sdr"
-    rlLogInfo "Loop $i Complete"
+        fi
+        rlRun "ipmitool chassis status"
+        rlRun "ipmitool chassis bootparam"
+        rlRun "ipmitool chassis identify"
+        rlRun "ipmitool sensor list -v"
+        rlRun "ipmitool mc info"
+        rlRun "ipmitool sdr"
+        rlLogInfo "Loop $i Complete"
     done
     rlPhaseEnd
 
-# Verify no errors are aseen in the logs
+    # Verify no errors are aseen in the logs
     rlPhaseStartTest
         rlRun "journalctl -b -p err | grep ipmi  > /tmp/error.log" 0,1
         rlRun "cat /tmp/error.log"
         rlAssertNotGrep "error|fail|warn" /tmp/error.log -i
     rlPhaseEnd
-
- rlJournalPrintText
 rlJournalEnd
+
+# Print the test report
+rlJournalPrintText
