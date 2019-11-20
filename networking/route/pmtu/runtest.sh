@@ -59,9 +59,7 @@ rlJournalStart
 rlPhaseStartSetup
 
     rlRun "lsmod | grep sctp || modprobe sctp" "0-255"
-    rlRun "iproute_upstream_install"
 
-    rlRun "netperf_install"
 
 
     rlLog "items include:$TEST_ITEMS"

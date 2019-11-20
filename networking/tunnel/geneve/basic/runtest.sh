@@ -220,76 +220,12 @@ else
 		rlRun "$S_CMD ip -6 route add $gre_c_ip6net dev $gre_devname"
 		rlRun "s_geneve1_mac=`$S_CMD ip link sh $gre_devname | grep link/ether | awk '{print $2}'`"
 
-		rlRun "$C_CMD tcpdump -U -i any -w grev4.pcap &"
 		rlRun "sleep 5"
 		rlRun "$C_CMD ping $gre_s_ip4 -c 5"
-		rlRun "sleep 5"
-		rlRun "pkill tcpdump"
-		rlRun "sleep 5"
-		if [ $version == "4" ]
-		then
-			rlRun "tcpdump -r grev4.pcap -nnle | grep \"$CLI_ADDR4.*> $SER_ADDR4.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$c_geneve1_mac > $s_geneve1_mac.*$gre_c_ip4 > $gre_s_ip4\""
-			rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR4.*> $CLI_ADDR4.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$s_geneve1_mac > $c_geneve1_mac.*$gre_s_ip4 > $gre_c_ip4\""
-			[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
-		else
-			rlRun "tcpdump -r grev4.pcap -nnle | grep \"$CLI_ADDR6.*> $SER_ADDR6.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$c_geneve1_mac > $s_geneve1_mac.*$gre_c_ip4 > $gre_s_ip4\""
-			rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$s_geneve1_mac > $c_geneve1_mac.*$gre_s_ip4 > $gre_c_ip4\""
-			[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
-		fi
-		rlRun "$C_CMD tcpdump -U -i any -w grev6.pcap &"
-		rlRun "sleep 5"
 		rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
-		rlRun "sleep 5"
-		rlRun "pkill tcpdump"
-		rlRun "sleep 5"
-		if [ $version == "4" ]
-		then
-			rlRun "tcpdump -r grev6.pcap -nnle | grep \"$CLI_ADDR4.*> $SER_ADDR4.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$c_geneve1_mac > $s_geneve1_mac.*$gre_c_ip6 > $gre_s_ip6\""
-			rlRun "tcpdump -r grev6.pcap -nnle | grep \"$SER_ADDR4.*> $CLI_ADDR4.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$s_geneve1_mac > $c_geneve1_mac.*$gre_s_ip6 > $gre_c_ip6\""
-			[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
-		else
-			rlRun "tcpdump -r grev6.pcap -nnle | grep \"$CLI_ADDR6.*> $SER_ADDR6.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$c_geneve1_mac > $s_geneve1_mac.*$gre_c_ip6 > $gre_s_ip6\""
-			rlRun "tcpdump -r grev6.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*Geneve.*vni 0x4d2, proto TEB (0x6558).*$s_geneve1_mac > $c_geneve1_mac.*$gre_s_ip6 > $gre_c_ip6\""
-			[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
-		fi
-
-		rlRun "$S_CMD iperf -s -B $gre_s_ip4 -D &"
-		rlRun "sleep 5"
-		rlRun "$C_CMD iperf -c $gre_s_ip4"
-		rlRun "pkill -9 iperf" "0-255"
-		rlRun "$S_CMD iperf -s -B $gre_s_ip4 -u -D &"
-		rlRun "sleep 5"
-		rlRun "$C_CMD iperf -u -c $gre_s_ip4"
-		rlRun "pkill -9 iperf" "0-255"
-
-		rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -D &"
-		rlRun "sleep 5"
-		rlRun "$C_CMD iperf -V -c $gre_s_ip6"
-		rlRun "pkill -9 iperf" "0-255"
-		rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -u -D &"
-		rlRun "sleep 5"
-		rlRun "$C_CMD iperf -u -V -c $gre_s_ip6"
-		rlRun "pkill -9 iperf" "0-255"
-
-		rlRun "$S_CMD pkill -9 netserver" "0-255"
-		rlRun "$S_CMD netserver -d"
-		rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t UDP_STREAM -- -R 1"
-		rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t TCP_STREAM"
-		# run only when netperf support sctp_stream
-		if $C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -l 1
-		then
-			rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -- -m 16k"
-		fi
-		rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t UDP_STREAM -- -R 1"
-		rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t TCP_STREAM"
-		if $C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -l 1
-		then
-			rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -- -m 16k"
-		fi
 		rlRun "$C_CMD ip -d -s link sh $gre_devname"
 		rlRun "$S_CMD ip -d -s link sh $gre_devname"
 
-		rlRun "pkill -9 netserver"
 		rlRun "$C_CMD ip link del $gre_devname"
 		rlRun "$C_CMD ip link del $gre_devname" "0-255"
 		rlRun "$S_CMD ip link del $gre_devname"
@@ -314,8 +250,6 @@ TEST_ITEMS=${TEST_ITEMS:-$TEST_ITEMS_ALL}
 rlJournalStart
 	rlPhaseStartSetup
         rlRun "lsmod | grep sctp || modprobe sctp" "0-255"
-	rlRun "netperf_install"
-	which iperf || rlRun "iperf_install"
 	rlPhaseEnd
 
 
