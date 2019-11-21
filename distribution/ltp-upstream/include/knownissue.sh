@@ -165,8 +165,6 @@ function knownissue_filter()
 	tskip "futex_cmp_requeue01" unfix
 	# http://lists.linux.it/pipermail/ltp/2019-November/014470.html
 	tskip "perf_event_open02" unfix
-	# http://lists.linux.it/pipermail/ltp/2019-November/014492.html
-	tskip "pivot_root01" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
