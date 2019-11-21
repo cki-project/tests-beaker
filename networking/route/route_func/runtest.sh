@@ -45,8 +45,9 @@ TEST_TOPO=${TEST_TOPO:-"default"}
 rlJournalStart
 rlPhaseStartSetup
 	[ x"$TEST_TYPE" == x"netns" ] && netns_clean.sh
-	rlRun "netperf_install"
-	rlRun "which iperf || iperf_install"
+	# would fail sometimes
+	# only used in route_fuzz_test which would not run
+	#rlRun "which iperf || iperf_install"
 	rlRun "nl_fib_lookup_install"
 	rlLog "test_items:$TEST_ITEMS"
 	rlLog "test_topo:$TEST_TOPO"
