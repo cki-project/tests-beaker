@@ -57,7 +57,7 @@ rlJournalStart
     rlPhaseStartTest
     # Execute various ipmitool commands in a loop
     for i in $(seq 0 10); do
-        if [[ $(uname -m) != "ppc64le"]]; then
+        if [[ $(uname -m) != "ppc64le" ]]; then
             rlRun "ipmitool sel clear"
             rlRun "ipmitool sel list" 0,1
             rlRun "ipmitool chassis selftest"
