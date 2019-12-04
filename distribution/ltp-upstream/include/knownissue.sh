@@ -125,21 +125,13 @@ function knownissue_filter()
 	# http://lists.linux.it/pipermail/ltp/2019-July/012907.html  --- patch pending on review in upstream
 	# http://lists.linux.it/pipermail/ltp/2019-July/012962.html  --- kernel bug in upstream kernel
 	tskip "move_pages12" unfix
-	# Bug 1657032 - fallocate05 intermittently failing in ltp lite
-	is_arch "ppc64" && tskip "fallocate05" fatal
-	is_arch "ppc64le" && tskip "fallocate05" fatal
-	is_arch "s390x" && tskip "fallocate05" fatal
 	# Issue TBD
 	tskip "madvise09" fatal
 	# https://github.com/linux-test-project/ltp/issues/611
 	tskip "ksm0.*" fatal
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
-	# Issue https://github.com/linux-test-project/ltp/issues/458
-	tskip "mkswap01_sh" unfix
 	# hugetlb failures should be ignored since that lack of system memory for testing
 	tskip "huge.*" fatal
-	# Issue TBD
-	tskip "read_all_.*" unfix
 	# Issue TBD
 	tskip "memfd_create03" unfix
 	# https://lore.kernel.org/linux-btrfs/4d97a9bb-864a-edd1-1aff-bdc9c8204100@redhat.com/T/#u 
@@ -154,8 +146,6 @@ function knownissue_filter()
 	tskip "ftrace-stress-test" fatal
 	# Issue TBD
 	tskip "sync_file_range02" unfix
-	# Issue TBD
-	tskip "signal06" unfix
 	# Issue read_all_sys is triggering hard lockups on mustangs while reading /sys
 	# https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
         is_arch "aarch64" && tskip "read_all_sys" fatal
@@ -163,8 +153,6 @@ function knownissue_filter()
 	tskip "oom.*" fatal
 	# http://lists.linux.it/pipermail/ltp/2019-November/014381.html
 	tskip "futex_cmp_requeue01" unfix
-	# http://lists.linux.it/pipermail/ltp/2019-November/014470.html
-	tskip "perf_event_open02" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
