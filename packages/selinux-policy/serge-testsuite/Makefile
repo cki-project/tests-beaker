@@ -25,7 +25,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 export TEST=/CoreOS/selinux-policy/Sanity/serge-testsuite
-export TESTVERSION=1.1
+export TESTVERSION=1.2
 
 BUILT_FILES=
 
@@ -53,49 +53,13 @@ $(METADATA): Makefile
 	@echo "Description:     functional test suite for the LSM-based SELinux security module" >> $(METADATA)
 	@echo "Type:            Sanity" >> $(METADATA)
 	@echo "RunFor:          selinux-policy" >> $(METADATA)
-	@echo "Requires:        attr" >> $(METADATA)
-	@echo "Requires:        audit" >> $(METADATA)
-	@echo "Requires:        checkpolicy" >> $(METADATA)
-	@echo "Requires:        expect" >> $(METADATA)
-	@echo "Requires:        gcc" >> $(METADATA)
-	@echo "Requires:        git" >> $(METADATA)
-	@echo "Requires:        grep" >> $(METADATA)
-	@echo "Requires:        ipsec-tools" >> $(METADATA)
-	@echo "Requires:        keyutils-libs-devel" >> $(METADATA)
-	@echo "Requires:        libbpf-devel" >> $(METADATA)
-	@echo "Requires:        libibverbs-devel" >> $(METADATA)
-	@echo "Requires:        libselinux" >> $(METADATA)
-	@echo "Requires:        libselinux-devel" >> $(METADATA)
-	@echo "Requires:        libselinux-utils" >> $(METADATA)
-	@echo "Requires:        libsemanage" >> $(METADATA)
-	@echo "Requires:        libsepol-devel" >> $(METADATA)
-	@echo "Requires:        lksctp-tools-devel" >> $(METADATA)
-	@echo "Requires:        mktemp" >> $(METADATA)
-	@echo "Requires:        nc" >> $(METADATA)
-	@echo "Requires:        netlabel_tools" >> $(METADATA)
-	@echo "Requires:        net-tools" >> $(METADATA)
-	@echo "Requires:        nmap-ncat" >> $(METADATA)
-	@echo "Requires:        perl-Test" >> $(METADATA)
-	@echo "Requires:        perl-Test-Harness" >> $(METADATA)
-	@echo "Requires:        perl-Test-Simple" >> $(METADATA)
-	@echo "Requires:        platform-python" >> $(METADATA)
-	@echo "Requires:        policycoreutils" >> $(METADATA)
-	@echo "Requires:        policycoreutils-devel" >> $(METADATA)
-	@echo "Requires:        policycoreutils-python" >> $(METADATA)
-	@echo "Requires:        python3" >> $(METADATA)
-	@echo "Requires:        python2-lxml" >> $(METADATA)
-	@echo "Requires:        python3-lxml" >> $(METADATA)
-	@echo "Requires:        rdma-core-devel" >> $(METADATA)
-	@echo "Requires:        selinux-policy" >> $(METADATA)
-	@echo "Requires:        selinux-policy-devel" >> $(METADATA)
-	@echo "Requires:        setools-console" >> $(METADATA)
-	@echo "Requires:        which" >> $(METADATA)
+	@echo "Requires:        git rpm" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Environment:     AVC_ERROR=+no_avc_check" >> $(METADATA)
-	@echo "Releases:        -RHEL4" >> $(METADATA)
+	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5" >> $(METADATA)
 	@echo "Bug:             1251546" >> $(METADATA) # RHEL-7
 	@echo "Bug:             1373368" >> $(METADATA) # RHEL-7
 	@echo "Bug:             1480521" >> $(METADATA) # RHEL-7
