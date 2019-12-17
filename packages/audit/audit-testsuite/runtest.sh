@@ -133,6 +133,9 @@ rlJournalStart
             if rlIsRHEL "<8" || [ -z "$exclude_exe_filter_supported" ]; then
                 TESTS="$(echo $TESTS | sed 's/exec_name//g')"
             fi
+            if rlIsRHEL "<8.1"; then
+                TESTS="$(echo $TESTS | sed 's/filter_saddr_fam//g')"
+            fi
 
             # Test lost_reset is unstable.
             TESTS="$(echo $TESTS | sed 's/lost_reset//g')"

@@ -31,7 +31,8 @@ include /usr/share/rhts/lib/rhts-make.include
 
 # data files, .c files, scripts anything needed to either compile the test and/or run it.
 FILES=$(METADATA) runtest.sh knownissue.sh Makefile PURPOSE stagecase \
-	  kvercmp.sh /
+	  kvercmp.sh \
+	  ltp_log_parser.py
 
 .PHONY: all install download clean
 

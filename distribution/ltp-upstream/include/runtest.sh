@@ -350,3 +350,11 @@ RunFiltTest ()
 
     return 1
 }
+
+GetFailureLog ()
+{
+    local logfile=${1?"*** log file ***"}
+    local thisdir=$(dirname $(readlink -f $BASH_SOURCE))
+    local parser=$thisdir/ltp_log_parser.py
+    python3 $parser -F -t 0 $logfile
+}
