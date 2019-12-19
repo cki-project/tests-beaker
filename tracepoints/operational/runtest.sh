@@ -182,6 +182,32 @@ if [ $? -eq 0 ]; then
     exit 0
 fi
 
+# Warn if gcc does not have retpoline (x86_64) or expoline (s390x) support.
+# SystemTap cannot find any tracepoints in newer kernels with Spectre v2
+# mitigations without retpoline/expoline support in gcc.
+# aarch64 and ppc64le mitigated Spectre v2 through other means so we do
+# not need to check those platforms for gcc support.
+if [ -e /sys/devices/system/cpu/vulnerabilities/spectre_v2 ]; then
+  CFLAGS=""
+  if [ "`uname -i`" = "x86_64" ]; then
+    CFLAGS="-mindirect-branch=thunk-extern"
+    CFLAGS+=" -mindirect-branch-register"
+    MITIGATION="retpoline"
+  elif [ "`uname -i`" = "s390x" ]; then
+    CFLAGS="-mindirect-branch=thunk-extern"
+    CFLAGS+=" -mindirect-branch-table"
+    CFLAGS+=" -mfunction-return=thunk-extern"
+    MITIGATION="expoline"
+  fi
+
+  if [ -n "$CFLAGS" ]; then
+    if ! gcc -Werror $CFLAGS -E -x c /dev/null -o /dev/null >/dev/null 2>&1
+    then
+      report_result "gcc does not have $MITIGATION support" WARN 1
+    fi
+  fi
+fi
+
 # Skip test if we are running an earlier distro (Supported in RHEL5.4)
 OSREL=`grep -o 'release [[:digit:]]\+' /etc/redhat-release | awk '{print $2}'`
 KERNVER=`/bin/uname -r | /bin/awk -F- {'print $2'} | /bin/awk -F. {'print $1'}`
