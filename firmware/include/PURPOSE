@@ -1,0 +1,10 @@
+This is a library for firmware tests.
+It provides setup, beaker reporting and cleanup functions.
+fwts comprises of a set of tests that are designed to 
+exercise and test different aspects of a machine's firmware:
+* ACPI tests
+* Batch tests
+* Interactive tests
+* Power States tests
+* Utilities
+* UEFI tests
