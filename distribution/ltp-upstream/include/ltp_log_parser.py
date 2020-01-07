@@ -4,11 +4,32 @@
 import sys
 import getopt
 from itertools import groupby
+import re
 
 TC_START = "<<<test_start>>>"
 TC_END = "<<<test_end>>>"
 TC_NAME_FLAG = "tag="
-TC_RESULT_FAIL_FLAG = "TFAIL"
+TC_RESULT_FLAG = r'termination_type=exited\s+termination_id=\d+'
+#
+# XXX: Right here we define some result code according to source file:
+# https://github.com/linux-test-project/ltp/blob/master/include/tst_res_flags.h
+# /* Use low 6 bits to encode test type */
+# #define TTYPE_MASK	0x3f
+# #define TPASS	0	/* Test passed flag */
+# #define TFAIL	1	/* Test failed flag */
+# #define TBROK	2	/* Test broken flag */
+# #define TWARN	4	/* Test warning flag */
+# #define TINFO	16	/* Test information flag */
+# #define TCONF	32	/* Test not appropriate for configuration flag */
+# #define TTYPE_RESULT(ttype) ((ttype) & TTYPE_MASK)
+#
+TTYPE_MASK = 0x3f
+TPASS = 0
+TFAIL = 1
+TBROK = 2
+TWARN = 4
+TINFO = 16
+TCONF = 32
 TC_LOG_OUTPUT_INDENT = 4
 TC_LOG_SUMMARY_WIDTH = 79
 TC_LOG_OUTPUT_RAW = False
@@ -24,13 +45,34 @@ def get_tc_name(l_tc):
     return tc_name
 
 
-def get_tc_result(l_tc):
-    tc_result = "PASS"
+def get_tc_term_id(l_tc):
+    term_id = TPASS
+    l_res = []
     for text in l_tc:
         text = text.strip().rstrip()
-        if text.find(TC_RESULT_FAIL_FLAG) != -1:
-            tc_result = "FAIL"
+        l_res = re.findall(TC_RESULT_FLAG, text)
+        if l_res:
             break
+    if l_res:
+        s = l_res[0].split('=')[-1]
+        term_id = int(s)
+    return term_id
+
+
+def get_tc_result(l_tc):
+    term_id = get_tc_term_id(l_tc)
+
+    tc_result = "PASS"
+    rc = term_id & TTYPE_MASK
+    if rc & TFAIL != 0:
+        tc_result = "FAIL"
+    elif rc & TBROK != 0:
+        tc_result = "BROK"
+    elif rc & TWARN != 0:
+        tc_result = "WARN"
+    elif rc & TCONF != 0:
+        tc_result = "CONF"
+
     return tc_result
 
 
@@ -140,10 +182,10 @@ def main(argc, argv):
         usage(argv[0])
         return 1
 
-    portion_flag = None
+    portion_flags = None
     for opt, arg in options:
         if opt in ("-F", "--fail"):
-            portion_flag = "FAIL"
+            portion_flags = ["FAIL", "BROK", "WARN"]
         elif opt in ("-r", "--raw"):
             global TC_LOG_OUTPUT_RAW
             TC_LOG_OUTPUT_RAW = True
@@ -173,12 +215,18 @@ def main(argc, argv):
         }
 
         # Dump test log of all test cases by default
-        if portion_flag is None:
+        if portion_flags is None:
             dump(d_tc_metadata, l_tc)
             continue
 
-        # Dump test log of those test cases marked as 'FAIL'
-        if d_tc_metadata['result'] == portion_flag:
+        #
+        # Dump test log of those test cases regared as 'FAIL' by beaker
+        # Here is the map between 'PASS/FAIL' from beaker's perspective and
+        # 'TPASS/TFAIL/TBROK/TWARN/TINFO/TCONF' from  ltp's perspective:
+        # o 'PASS': ['TPASS', 'TINFO', 'TCONF']
+        # o 'FAIL': ['TFAIL', 'TBROK', 'TWARN']
+        #
+        if d_tc_metadata['result'] in portion_flags:
             dump(d_tc_metadata, l_tc)
 
     return 0
