@@ -22,6 +22,9 @@ dmesg -c >/dev/null
 # Source the common test script helpers
 . /usr/bin/rhts_environment.sh
 
+mkdir -p /usr/share/rhts/
+echo "MAX_LOCKDEP_CHAIN_HLOCKS" >> /usr/share/rhts/falsestrings
+
 . ./dep-install.sh
 . ./misc.sh
 . ./devices.sh
