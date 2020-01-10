@@ -151,8 +151,6 @@ function knownissue_filter()
         is_arch "aarch64" && tskip "read_all_sys" fatal
 	# OOM tests result in oom errors killing the test harness
 	tskip "oom.*" fatal
-	# http://lists.linux.it/pipermail/ltp/2019-November/014381.html
-	tskip "futex_cmp_requeue01" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
