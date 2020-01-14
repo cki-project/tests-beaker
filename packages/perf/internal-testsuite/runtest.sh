@@ -158,8 +158,9 @@ rlJournalStart
 			if check_whitelisted "$TEST_DESC"; then
 				rlLog "[ WHITELISTED ] :: $TEST_NUMBER: $TEST_DESC  (known issue)"
 			else
-				perf test -vv $TEST_NUMBER |& tee $TEST_NUMBER.log
+				perf test -vv $TEST_NUMBER &>  $TEST_NUMBER.log
 				RETVAL=$?
+				cat $TEST_NUMBER.log
 				RESULT=`tail -n 1 $TEST_NUMBER.log | awk -F':' '{print $NF}' | tr -d ' '`
 				printf "%8s -- %s\n" $RESULT "$line" | tee -a results.log
 				echo $RESULT | grep -qi FAIL
