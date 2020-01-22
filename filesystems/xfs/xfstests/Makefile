@@ -96,7 +96,6 @@ $(METADATA): Makefile
 	@echo "Requires:     samba samba-client cifs-utils" >> $(METADATA)
 	@echo "Requires:     rpcbind nfs-utils" >> $(METADATA)
 	@echo "Requires:     lvm2 beakerlib" >> $(METADATA)
-	@echo "environment:  FAILUREFILENM=/usr/share/rhts/falsestrings" >> $(METADATA)
 	@echo "RhtsRequires: test(/kernel/filesystems/xfs/include)" >> $(METADATA)
 	rhts-lint $(METADATA)
 #	The include package takes care of all the dependencies
