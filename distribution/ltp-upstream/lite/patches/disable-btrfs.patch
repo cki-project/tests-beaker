@@ -1,0 +1,11 @@
+diff --git a/lib/tst_supported_fs_types.c b/lib/tst_supported_fs_types.c
+--- a/lib/tst_supported_fs_types.c	2020-02-07 09:02:45.954708393 +0100
++++ b/lib/tst_supported_fs_types.c	2020-02-07 09:04:01.476581594 +0100
+@@ -18,7 +18,6 @@
+ 	"ext3",
+ 	"ext4",
+ 	"xfs",
+-	"btrfs",
+ 	"vfat",
+ 	"exfat",
+ 	"ntfs",
