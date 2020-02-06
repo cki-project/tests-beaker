@@ -236,7 +236,7 @@ function cki_pd()
 function cki_debug
 {
     typeset -l s=$DEBUG
-    if [[ $s == @(yes|true) ]]; then
+    if [[ "$s" == "yes" || "$s" == "true" ]]; then
         export PS4='__DEBUG__: [$FUNCNAME@$BASH_SOURCE:$LINENO|$SECONDS]+ '
         set -x
     fi
