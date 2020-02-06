@@ -46,5 +46,5 @@ $(METADATA): Makefile
 	@echo "License:         GPL" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	@echo "Requires:        make curl grubby tar binutils" >> $(METADATA)
+	@echo "Requires:        make curl grubby tar binutils yum-utils" >> $(METADATA)
 	@echo "RepoRequires:    cki_lib" >> $(METADATA)
