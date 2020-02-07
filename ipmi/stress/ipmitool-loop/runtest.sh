@@ -58,20 +58,20 @@ rlJournalStart
     # Execute various ipmitool commands in a loop
     for i in $(seq 0 10); do
         if [[ $(uname -m) != "ppc64le" ]]; then
-            rlRun "ipmitool sel clear"
+            rlRun "ipmitool sel clear" 0,1
             rlRun "ipmitool sel list" 0,1
-            rlRun "ipmitool chassis selftest"
-            rlRun "ipmitool mc selftest"
-            rlRun "ipmitool mc getenables"
-            rlRun "ipmitool mc guid"
-            rlRun "ipmitool mc getenables system_event_log"
+            rlRun "ipmitool chassis selftest" 0,1
+            rlRun "ipmitool mc selftest" 0,1
+            rlRun "ipmitool mc getenables" 0,1
+            rlRun "ipmitool mc guid" 0,1
+            rlRun "ipmitool mc getenables system_event_log" 0,1
         fi
-        rlRun "ipmitool chassis status"
-        rlRun "ipmitool chassis bootparam"
-        rlRun "ipmitool chassis identify"
-        rlRun "ipmitool sensor list -v"
-        rlRun "ipmitool mc info"
-        rlRun "ipmitool sdr"
+        rlRun "ipmitool chassis status" 0,1
+        rlRun "ipmitool chassis bootparam" 0,1
+        rlRun "ipmitool chassis identify" 0,1
+        rlRun "ipmitool sensor list -v" 0,1
+        rlRun "ipmitool mc info" 0,1
+        rlRun "ipmitool sdr" 0,1
         rlLogInfo "Loop $i Complete"
     done
     rlPhaseEnd

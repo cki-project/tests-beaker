@@ -42,8 +42,16 @@ rlJournalStart
     rlRun -l "mvn archetype:generate  -DinteractiveMode=false  -DarchetypeGroupId=org.openjdk.jcstress \
               -DarchetypeArtifactId=jcstress-java-test-archetype  -DgroupId=org.sample \
               -DartifactId=test  -Dversion=1.0"
+    if [ $? -ne 0 ]; then
+        rhts-abort -t recipe
+        exit 0
+    fi
     rlRun -l "cd test"
     rlRun -l "mvn clean install"
+    if [ $? -ne 0 ]; then
+        rhts-abort -t recipe
+        exit 0
+    fi
     rlRun -l "java -jar target/jcstress.jar"
   rlPhaseEnd
 
