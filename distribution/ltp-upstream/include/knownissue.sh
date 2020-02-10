@@ -134,8 +134,6 @@ function knownissue_filter()
 	tskip "huge.*" fatal
 	# Issue TBD
 	tskip "memfd_create03" unfix
-	# https://lore.kernel.org/linux-btrfs/4d97a9bb-864a-edd1-1aff-bdc9c8204100@redhat.com/T/#u 
-	tskip "fs_fill" unfix
 	# this case always make the beaker task abort with 'incrementing stop' msg
 	tskip "min_free_kbytes" fatal
 	# Issue TBD
