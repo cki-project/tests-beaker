@@ -137,13 +137,20 @@ RprtRslt ()
     TEST=$1
     result=$2
 
+    logfile_run=$OUTPUTDIR/$TEST.run.log
+    logfile_fail=$OUTPUTDIR/$TEST.fail.log
+
+    # Always upload parsed test log for those failed test cases
+    GetFailureLog $logfile_run > $logfile_fail
+    [ -s $logfile_fail ] && SubmitLog $logfile_fail
+
     # File the results in the database
     if [ "$result" = "PASS" ]; then
         # I want to see the succeeded running log as well
-        SubmitLog "$OUTPUTDIR/$TEST.run.log"
+        SubmitLog $logfile_run
         report_result $TEST $result
     else
-        SubmitLog "$OUTPUTDIR/$TEST.run.log"
+        SubmitLog $logfile_run
         score=$(cat $OUTPUTDIR/$RUNTEST.log | grep "Total Failures:" |cut -d ' ' -f 3)
         report_result $TEST $result $score
     fi
