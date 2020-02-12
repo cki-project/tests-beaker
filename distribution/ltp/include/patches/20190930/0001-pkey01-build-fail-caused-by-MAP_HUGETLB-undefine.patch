@@ -1,0 +1,30 @@
+From 5fec1a4b980a4de78ca1a7aa6dc3f6ce0496321f Mon Sep 17 00:00:00 2001
+From: Ping Fang <pifang@redhat.com>
+Date: Wed, 23 Oct 2019 10:56:06 +0800
+Subject: [PATCH] pkey01: build fail caused by MAP_HUGETLB undefine
+
+build fail on old distro(based glibc-2.12.1 2010-08-03)
+MAP_HUGELTB introduced in glibc-2.11.3 2010-11-30.
+include lapi/mmap.h to fix it.
+
+Signed-off-by: Ping Fang <pifang@redhat.com>
+Acked-by: Li Wang <liwang@redhat.com>
+---
+ testcases/kernel/syscalls/pkeys/pkey.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/testcases/kernel/syscalls/pkeys/pkey.h b/testcases/kernel/syscalls/pkeys/pkey.h
+index 3c1204978..6e32326b6 100644
+--- a/testcases/kernel/syscalls/pkeys/pkey.h
++++ b/testcases/kernel/syscalls/pkeys/pkey.h
+@@ -9,6 +9,7 @@
+ 
+ #include "tst_test.h"
+ #include "lapi/syscalls.h"
++#include "lapi/mmap.h"
+ 
+ #ifndef PKEY_DISABLE_ACCESS
+ # define PKEY_DISABLE_ACCESS 0x1
+-- 
+2.21.0
+

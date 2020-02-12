@@ -43,82 +43,10 @@ patch: patch-inc-tolerant patch-lite
 
 patch-lite:
 	@echo "============ Patch ltp-lite test suite. ============"
-ifeq ($(TESTVERSION),20120822)
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/proc01.c $(TARGET)/testcases/kernel/fs/proc/
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/clone_platform.h $(TARGET)/testcases/kernel/syscalls/clone/
-	cp -vrf $(PATCHDIR)/$(TESTVERSION)/readahead $(TARGET)/testcases/kernel/syscalls/
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/send01.c $(TARGET)/testcases/kernel/syscalls/send/
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/sendto01.c $(TARGET)/testcases/kernel/syscalls/sendto/
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/sendmsg01.c $(TARGET)/testcases/kernel/syscalls/sendmsg/
-else ifeq ($(TESTVERSION),20130109)
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/waitid02.c $(TARGET)/testcases/kernel/syscalls/waitid
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/clone02.c $(TARGET)/testcases/kernel/syscalls/clone
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/clone07.c $(TARGET)/testcases/kernel/syscalls/clone
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/proc01.c $(TARGET)/testcases/kernel/fs/proc
-else ifeq ($(TESTVERSION),20130904)
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/proc01.c $(TARGET)/testcases/kernel/fs/proc
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/kernel_Makefile $(TARGET)/testcases/kernel/Makefile
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/sendmsg01.c $(TARGET)/testcases/kernel/syscalls/sendmsg/
-else ifeq ($(TESTVERSION),20140115)
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/readahead02.c $(TARGET)/testcases/kernel/syscalls/readahead/
-else ifeq ($(TESTVERSION),20150119)
-	cp -vf configs/RHELKT1LITE.20150119 RHELKT1LITE
-	cp -vf $(PATCHDIR)/$(TESTVERSION)/proc01.c $(TARGET)/testcases/kernel/fs/proc/
-else ifeq ($(TESTVERSION),20150420)
-	cp -vf $(PATCHDIR)/20150420/proc01.c $(TARGET)/testcases/kernel/fs/proc/
-	cp -vf configs/RHELKT1LITE.20150420 RHELKT1LITE
-else ifeq ($(TESTVERSION),20160126)
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf configs/RHELKT1LITE.20150903 RHELKT1LITE
-else ifeq ($(TESTVERSION),20160510)
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf configs/RHELKT1LITE.20160510 RHELKT1LITE
-else ifeq ($(TESTVERSION),20160920)
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf configs/RHELKT1LITE.20160920 RHELKT1LITE
-else ifeq ($(TESTVERSION),20170116)
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf configs/RHELKT1LITE.20170116 RHELKT1LITE
-else ifeq ($(TESTVERSION),20170516)
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround.patch
-	cp -vf configs/RHELKT1LITE.20170516 RHELKT1LITE
-else ifeq ($(TESTVERSION),20170929)
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/oom_hang_workaround2.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
-	cp -vf configs/RHELKT1LITE.20170929 RHELKT1LITE
-else ifeq ($(TESTVERSION),2018018)
-	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	patch -d $(TARGET) -p1 < $(PATCHDIR)/oom_hang_workaround2.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
-	# RHEL5 gcc has trouble with this test
-	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
-	# RHEL5 doesn't have timeout
-	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
-	cp -vf configs/RHELKT1LITE.20180118 RHELKT1LITE
-else ifeq ($(TESTVERSION),20180515)
-	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
-	# RHEL5 gcc has trouble with this test
-	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
-	# RHEL5 doesn't have timeout
-	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
-	cp -vf configs/RHELKT1LITE.20180515 RHELKT1LITE
+ifeq ($(TESTVERSION),20190930)
+	cp -vf configs/RHELKT1LITE.20190930 RHELKT1LITE
 else
-	patch -d $(TARGET) -p1 < $(PATCHDIR)/20150903/proc01_ignore_bus_usb.patch
-	if ! ./is_baremetal.sh; then patch -d $(TARGET) -p1 --merge < $(PATCHDIR)/dont_fail_timing.patch; fi
-	# RHEL5 gcc has trouble with this test
-	if grep -q "release 5" /etc/redhat-release; then rm -f $(TARGET)/testcases/cve/cve-2016-7117.c; fi
-	# RHEL5 doesn't have timeout
-	if grep -q "release 5" /etc/redhat-release; then cp -f timeout.my /usr/bin/timeout; fi
-	# work around Bug 1672242 - clash between linux/in.h and netinet/in.h
-	if grep -q "release 7" /etc/redhat-release; then rm -f $(TARGET)/testcases/kernel/syscalls/setsockopt/setsockopt03.c || true; fi
-	cp -vf configs/RHELKT1LITE.20190115 RHELKT1LITE
+	cp -vf configs/RHELKT1LITE.20200120 RHELKT1LITE
 endif
 
 build: $(TARGET) build-all

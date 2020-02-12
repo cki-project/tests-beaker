@@ -1,7 +1,7 @@
 # Beaker parameter TEST_VERSION can override the default
 TESTVERSION   = $(shell echo $$TEST_VERSION)
 ifeq (,$(TESTVERSION))
-TESTVERSION   = 20190115
+TESTVERSION   = 20200120
 endif
 export TESTVERSION
 # the task path may be different under the restraint harness if the task
@@ -62,116 +62,22 @@ patch-generic:
 	@echo "============ General Patch ============"
 	@echo " === applying general upstream fixes. ==="
 	@echo " === applying general internal fixes. ==="
-ifeq ($(TESTVERSION),20150903)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/disable-testcases.patch
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/rhel-fs-quota_remount-solve-SELinux-issue.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-mem.c-handle-mlock-returning-EAGAIN.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mtest01-sigchld.patch
-endif
-ifeq ($(TESTVERSION),20160126)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-add-SAFE_PFUNC-macro.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-use-SAFE_PFUNC.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-remove-useless-waiting.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-remove-duplicit-setsched.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/open_posix-condvar-schedule-remove-signal-handlers.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/syscalls-readahead02-use-bdi-max-readahead-limit.patch
-	@# Tips: this patch should be applied in single on ltp-next(version > 20160126)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/readahead02-use-per-device-readahead-limit-in-RHEL7.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mm-ksm-extend-max_page_sharing-before-ksm-testing.patch
-endif
-ifeq ($(TESTVERSION),20160510)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/readahead02-use-per-device-readahead-limit-in-RHEL7.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/creat05-don-t-assume-number-of-opened-fds.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mem-oom-fork-may-fail-before-test.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/handle-EOPNOTSUPP-if-hugepages_supported.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/mem-lib-skip-oom-KSM-for-lite-1-single-TESTMEM-MB-al.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/fanotify06-create-a-mount-for-test.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-add-SAFE_-FILE_LINES_SCANF.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/syscalls-madvise06-Convert-to-new-test-API.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/zram01-extend-the-zram3-disksize-to-40MB.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/madvise06-make-bug-detection-more-reliable.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/swapping01-replace-mem_free-by-mem_available.patch
-endif
-ifeq ($(TESTVERSION),20160920)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-Add-optional-minimal-size-for-test-device.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/utimensat-fix-immutable-file-retcodes-for-4.8.0-and-.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/move_pages04-fix-zero-page-status-code-for-kernels-4.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/lib-add-tst_res_hexd-for-newlib.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/syscalls-new-test-writev07.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/writev-remove-writev03-and-writev04.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/writev01-rewrite-and-drop-partially-valid-iovec-test.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/kernel-zram-Fix-testcase-for-kernels-v4.7.patch
-endif
-ifeq ($(TESTVERSION),20170116)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-quotactl02-flags-for-Q_XQUOTA-ON-OFF-is-32bit-int.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-getrandom02-relax-check-for-returned-data.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-checkpoints-Add-TST_SAFE_CHECKPOINT_WAIT2.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mmap16-extend-checkpoint-wait-time-during-fs-fill.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-kmsg01-fix-race-in-SEEK_SET-0-test.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-sem_post-8-1-improve-child-blocked-on-semaphore-dete.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-syslog02-fix-typo.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-syslog-added-debugging-and-message-loss-che.patch
-endif
-ifeq ($(TESTVERSION),20170516)
-	@$(PATCH) < $(ABS_DIR)/INTERNAL/ltp-pan-ltp-testname-stamps-in-dmesg-and-console.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pipeio-avoid-SAFE-macros-in-cleanup.patch
-	@$(PATCH) < $(ABS_DIR)/20170116/0001-syscalls-syslog-added-debugging-and-message-loss-che.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-memfd_create-test-memfd-flags-separately.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-move_pages12-replace-memset-with-mlock.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-recvmsg03-avoid-close-and-recvmsg-racing.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-configure.ac-Generate-linux_syscall_headers.h.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-dio-reduce-the-number-of-cycles.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-kmsg01-convert-to-newlib.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-add_key02-update-to-test-fix-for-nonempty-N.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-add_key02-add-the-logon-key-type.patch
-endif
-ifeq ($(TESTVERSION),20170929)
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-kmsg01-set-restore-console-log-level.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-kmsg01-specify-read-timeout-in-usec.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0003-kmsg01-use-lower-timeout-for-test_read_block.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-clone08-don-t-treat-EWOULDBLOCK-as-failure.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-lib-fix-kernel-bit-detection-on-s390-platform.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mm-raise-mmap-HIGH_ADDR-value-for-s390-arch.patch
-endif
-ifeq ($(TESTVERSION),20180118)
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-safe_macros-make-is_fuse-return-zero-if-fs_type-is-N.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mallocstress-extend-test-time.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-times03-don-t-assume-process-initial-us-time-is-0.patch
-endif
-ifeq ($(TESTVERSION),20180515)
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-cve-2017-5669-shmat-for-0-or-PAGESIZE-with-RND-flag-.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pthread_cancel_3-1-rewrite.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-open_posix-add-LTP_ATTRIBUTE-macros-to-supress-warni.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-cve-meltdown-read-saved_command_line.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-fs-read_all-Clear-suplementary-groups-before-droping.patch
-endif
-ifeq ($(TESTVERSION),20180926)
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-statx-fix-compile-errors.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-sigwaitinfo01-recent-glibc-calls-syscall-directly.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-keyctl02-wait-for-last-key-to-be-garbage-co.patch
-endif
-ifeq ($(TESTVERSION),20190115)
+ifeq ($(TESTVERSION),20190930)
 	@# Tips: this patch should be applied in single on ltp-next(version > 20180926)
 	@$(PATCH) < $(ABS_DIR)/INTERNAL/0001-rhel_only-migrate_page02-avoid-warning.patch
 	@$(PATCH) < $(ABS_DIR)/INTERNAL/0001-shmat03-ignore-EACCES.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-lapi-regen.sh-Fix-s390-check.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-lapi-syscalls-s390x-Fix-u-getrlimit-syscall-numbers.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-fcntl36-make-sure-write-threads-complete-at-least-1-.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-cma-fix-the-failure-of-compiling-with-O2-op.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-migrate_pages03-skip-migratition-of-shared-.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-fanotify03-defined-additional-tcase-members.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0002-syscalls-fanotify03-included-execve-to-generate_even.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0003-syscalls-fanotify03-add-FAN_OPEN_EXEC_PERM-tcase-sup.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-fanotify03-Small-cleanup.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-fanotify0-135-contain-effects-of-FAN_MARK_M.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-syscalls-readahead02-set-readahead-to-min-bdi-limit-.patch
-	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-shmctl01-dont-use-hardcoded-index-0-for-SHM_STAT-test.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-acct-fix-version-check-on-big-endian-system.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-dynamic_debug-update-dmesg-grep-check.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-include-undefine-_LINUX_TYPES_H-if-including-old-sys.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pcrypt_aead01-break-early-when-approaching-timeout.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pkey01-build-fail-caused-by-MAP_HUGETLB-undefine.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-pt_test-skip-pt_disable_branch-on-Broadwell-CPUs.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-acct02-relax-ac_btime-checks.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-mbind04-terminate-child-processes.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-fallocate05-increase-FALLOCATE_SIZE.patch
+	@$(PATCH) < $(ABS_DIR)/$(TESTVERSION)/0001-sync_file_range02-remove-the-toplimit-of-write-back.patch
 endif
+
 	@# The following ones are for specific hardware/release
 ifneq (,$(filter 4 5 s390 s390x, $(OS_MAJOR_RELEASE) $(ARCH)))
 	@echo " - remove cfs sched hacbench in RHEL[45] and s390x"
