@@ -47,8 +47,8 @@ function multi_arch_wrap {
 # Verify that podman-tests is installed
 pkg=$(rpm -qa | grep podman-tests)
 if [ -z "$pkg" ] ; then
-    report_result "${TEST}" WARN
-    rhts-abort -t recipe
+    rstrnt-report-result "${TEST}" WARN
+    rstrnt-abort -t recipe
 fi
 
 # Bug reports require this information.
@@ -99,8 +99,8 @@ echo "Test finished" | tee -a "${OUTPUTFILE}"
 
 if [[ ${TEST_FAILED:-} == 1 ]] ; then
     echo "😭 One or more tests failed."
-    report_result "${TEST}" FAIL 1
+    rstrnt-report-result "${TEST}" FAIL 1
 else
     echo "😎 All tests passed."
-    report_result "${TEST}" PASS 0
+    rstrnt-report-result "${TEST}" PASS 0
 fi

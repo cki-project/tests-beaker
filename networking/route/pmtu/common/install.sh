@@ -65,7 +65,7 @@ lksctp-tools_install()
     if ! [ -a /usr/local/bin/bindx_test ];then
        echo "WARN : lksctp-tools install fail"
        test_warn "lksctp-tools_install_fail"
-       rhts-abort -t recipe
+       rstrnt-abort -t recipe
     fi
 
     test_pass "lksctp-tools_install_pass"
@@ -99,7 +99,7 @@ netperf_install()
         if ! netperf -V;then
                 echo "WARN : Netperf install fail" | tee -a $OUTPUTFILE
                 test_warn "Netperf_install_fail"
-                rhts-abort -t recipe
+                rstrnt-abort -t recipe
         fi
 
         test_pass "Netperf_install_pass"

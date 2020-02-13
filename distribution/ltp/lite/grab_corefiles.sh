@@ -25,7 +25,7 @@ echo "List of files to pack: $bin_core_list"
 if [ -n "$bin_core_list" ]; then
     tar cfvz binaries_and_corefiles.tar.gz $bin_core_list
     rhts_submit_log -l binaries_and_corefiles.tar.gz
-    report_result unexpected_corefile_found PASS 0
+    rstrnt-report-result unexpected_corefile_found PASS 0
 else
     echo "No cores to submit"
 fi

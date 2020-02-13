@@ -174,7 +174,7 @@ function ltp_test_end()
 [ -z "${REBOOTCOUNT##*[!0-9]*}" ] && REBOOTCOUNT=0
 if [ "${REBOOTCOUNT}" -ge 1 ]; then
     test_msg log "======= Test has already been run, Check logs for possible failures ========="
-    report_result CHECKLOGS FAIL 99
+    rstrnt-report-result CHECKLOGS FAIL 99
     exit 0
 fi
 

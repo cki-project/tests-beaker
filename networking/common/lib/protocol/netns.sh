@@ -98,7 +98,7 @@ test_pass()
         echo -e "PASS\t${1}" >> summary.log
         echo -e "\n[  Test '"$1"' PASS  ]" | tee -a $OUTPUTFILE
         if [ $JOBID ]; then
-                report_result "${TEST}/$1" "PASS" $PASS
+                rstrnt-report-result "${TEST}/$1" "PASS" $PASS
         else
                 echo -e "\n\n********\n\n"
                 echo -e "[ Test '"${TEST}/$1"' PASS $PASS ]\n"
@@ -114,7 +114,7 @@ test_fail()
         echo -e "\n[  Test '"$1"' FAIL  ]" | tee -a $OUTPUTFILE
         # we only care how many test failed
         if [ $JOBID ]; then
-                report_result "${TEST}/$1" "FAIL" "$FAIL"
+                rstrnt-report-result "${TEST}/$1" "FAIL" "$FAIL"
         else
                 echo -e "\n\n********\n\n"
                 echo -e "[ Test '"${TEST}/$1"' FAIL $FAIL ]"
@@ -158,8 +158,8 @@ setup_net_default()
 	SERVER_IFACE=$(tail -n1 /tmp/test_iface | tr -d '\r\n')
 	if [ $? -ne 0 ]; then
         	echo -e "\nNo SERVER IFACE"
-		report_result $TEST WARN
-		rhts-abort -t recipe
+		rstrnt-report-result $TEST WARN
+		rstrnt-abort -t recipe
 	fi
 	SERVER_ADDR4="192.168.1.1"
 	SERVER_ADDR6="2001::1"
@@ -172,8 +172,8 @@ setup_net_default()
 	CLIENT_IFACE=$(tail -n1 /tmp/test_iface | tr -d '\r\n')
 	if [ $? -ne 0 ]; then
 		echo -e "\nNo CLIENT IFACE"
-		report_result $TEST WARN
-		rhts-abort -t recipe
+		rstrnt-report-result $TEST WARN
+		rstrnt-abort -t recipe
 	fi
 	CLIENT_ADDR4="192.168.1.2"
 	CLIENT_ADDR6="2001::2"

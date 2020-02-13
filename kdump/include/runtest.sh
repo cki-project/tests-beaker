@@ -244,8 +244,8 @@ FatalError() {
     echo "- fatal error: aborting the recipe set." | tee -a "${OUTPUTFILE}"
 
     error=$((error + 1))
-    report_result "${TEST}" "FAIL" "${error}"
-    rhts-abort -t recipeset
+    rstrnt-report-result "${TEST}" "FAIL" "${error}"
+    rstrnt-abort -t recipeset
 }
 
 Report() {
@@ -272,9 +272,9 @@ Report() {
     skip=0
 
     if [ -n "${stage}" ]; then
-        report_result "${TEST}/${stage}" "${result}" "${code}"
+        rstrnt-report-result "${TEST}/${stage}" "${result}" "${code}"
     else
-        report_result "${TEST}" "${result}" "${code}"
+        rstrnt-report-result "${TEST}" "${result}" "${code}"
         exit 0
     fi
 }
@@ -286,9 +286,9 @@ RhtsSubmit() {
     if [ "$size" -ge 100000000 ]; then
         Log "- Size of File $1 is larger than 100M. Uploading the zipped file."
         zip "${1}.zip" "${1}"
-        rhts-submit-log -l "${1}.zip"
+        rstrnt-report-log -l "${1}.zip"
     else
-        rhts-submit-log -l "${1}"
+        rstrnt-report-log -l "${1}"
     fi
 }
 
@@ -380,7 +380,7 @@ PrepareKdump()
             } || FatalError "Error changing boot loader."
 
             Report 'pre-reboot'
-            Log "- Rebooting\n"; sync; rhts-reboot
+            Log "- Rebooting\n"; sync; rstrnt-reboot
         }
     fi
 
@@ -499,7 +499,7 @@ AppendConfig()
         shift
     done
 
-    rhts-submit-log -l "${KDUMP_CONFIG}"
+    rstrnt-report-log -l "${KDUMP_CONFIG}"
 }
 
 ReportKdumprd()

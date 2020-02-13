@@ -69,7 +69,7 @@ br_check()
         ifconfig $br mtu 1400
         mtu=`cat /sys/class/net/$br/mtu`
         if [ $mtu = 1400 ]; then
-                report_result $TEST/decrease_mtu "PASS" 0
+                rstrnt-report-result $TEST/decrease_mtu "PASS" 0
         fi
         for eth in `ls /sys/class/net/$br/brif/`
         do
@@ -77,7 +77,7 @@ br_check()
         done
         mtu=`cat /sys/class/net/$br/mtu`
         if [ $mtu = 1800 ]; then
-                report_result $TEST/increase_mtu "PASS" 0
+                rstrnt-report-result $TEST/increase_mtu "PASS" 0
         fi
 
 

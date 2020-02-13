@@ -104,8 +104,8 @@ if [[ $hwpf == "x86_64" ]]; then
     for opt in $KVM_OPTIONS_X86; do
         if [ ! -f "$KVM_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
-            report_result $TEST WARN
-            rhts-abort -t recipe
+            rstrnt-report-result $TEST WARN
+            rstrnt-abort -t recipe
         else
             echo "kernel option $opt is set" | tee -a $OUTPUTFILE
         fi
@@ -113,8 +113,8 @@ if [[ $hwpf == "x86_64" ]]; then
     for opt in $KVM_ARCH_OPTIONS_X86; do
         if [ ! -f "$KVM_ARCH_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
-            report_result $TEST WARN
-            rhts-abort -t recipe
+            rstrnt-report-result $TEST WARN
+            rstrnt-abort -t recipe
         else
             echo "kernel option $opt is set" | tee -a $OUTPUTFILE
         fi
@@ -143,8 +143,8 @@ fi
 
 if [ -z "$QEMU" ]; then
     echo "Can't find qemu binary" | tee -a $OUTPUTFILE
-    report_result $TEST WARN
-    rhts-abort -t recipe
+    rstrnt-report-result $TEST WARN
+    rstrnt-abort -t recipe
 fi
 
 # if running on rhel8, use python3
@@ -161,8 +161,8 @@ cd kvm-unit-tests
 git checkout dc9841d08fa1796420a64ad5d5ef652de337809d
 if [ $? -ne 0 ]; then
     echo "Failed to clone and checkout commit from kvm-unit-tests" | tee -a $OUTPUTFILE
-    report_result $TEST WARN
-    rhts-abort -t recipe
+    rstrnt-report-result $TEST WARN
+    rstrnt-abort -t recipe
 fi
 
 # update unittests.cfg to exclude known failures
@@ -185,7 +185,7 @@ cat test.log | tee -a $OUTPUTFILE
 grep FAIL test.log >> failures.txt
 
 # submit logs to beaker
-which rhts-submit-log > /dev/null 2>&1
+which rstrnt-report-log > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     logs=$(ls logs/*.log)
     testlog="tests_run.log"
@@ -200,14 +200,14 @@ if [[ $? -eq 0 ]]; then
         printf "[END ${log} LOG]\n\n" >> ${testlog}
     done
     echo "Submitting the following log to beaker: ${testlog}"
-    rhts-submit-log -l ${testlog}
+    rstrnt-report-log -l ${testlog}
 fi
 
 # number of failures is our return code
 ret=$(wc -l failures.txt  | awk '{print $1}')
 if [ $ret -gt 0 ]; then
-        report_result "done" "FAIL" 1
+        rstrnt-report-result "done" "FAIL" 1
 else
-        report_result "done" "PASS" 0
+        rstrnt-report-result "done" "PASS" 0
 fi
 exit 0

@@ -46,11 +46,11 @@ function cki_abort_recipe()
 
     echo "❌ ${failure_message}"
     if [[ $failure_type == 'WARN' ]]; then
-        report_result ${TEST} WARN 99
+        rstrnt-report-result ${TEST} WARN 99
     else
-        report_result ${TEST} FAIL 1
+        rstrnt-report-result ${TEST} FAIL 1
     fi
-    rhts-abort -t recipe
+    rstrnt-abort -t recipe
     exit $CKI_STATUS_ABORTED
 }
 
@@ -250,7 +250,7 @@ function cki_get_yum_tool()
         echo /usr/bin/yum
     else
         echo "No tool to download kernel from a repo" >&2
-        rhts-abort -t recipe
+        rstrnt-abort -t recipe
         exit 0
     fi
 }

@@ -31,13 +31,13 @@ result=FAIL
 # Helper functions
 function result_fail() {
 	export result=FAIL
-	report_result $TEST $result 0
+	rstrnt-report-result $TEST $result 0
 	exit 0
 }
 
 function result_pass () {
 	export result=PASS
-	report_result $TEST $result 0
+	rstrnt-report-result $TEST $result 0
 	exit 0
 }
 
@@ -221,7 +221,7 @@ RC=$?
 if [ $RC -ne 0 ] ; then
         echo "*** There is a problem with lsmod, no need to continue further ***" | tee -a $OUTPUTFILE
         rhts-report-result $TEST WARN $OUTPUTFILE
-        rhts-abort -t recipe
+        rstrnt-abort -t recipe
         exit 0
 fi
 

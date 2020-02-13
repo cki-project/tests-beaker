@@ -52,7 +52,7 @@ exitcleanup() {
 			   cp -fr /etc/samba/smb.conf-${TESTNAME} /etc/samba/smb.conf
 		   fi
 	   else
-			   rhts-restore
+			   rstrnt-restore
 	   fi
 	   rlServiceRestore $TESTSERVICE
 	rlJournalEnd
@@ -62,7 +62,7 @@ function passexit() {
 
 	outputecho "$@"
 
-	report_result $TEST PASS
+	rstrnt-report-result $TEST PASS
 
 	exitcleanup
 
@@ -72,7 +72,7 @@ function passexit() {
 function failexit() {
 
 	outputecho "$@"
-	report_result $TEST FAIL
+	rstrnt-report-result $TEST FAIL
 
 	exitcleanup
 
@@ -91,7 +91,7 @@ function Make()
    pushd cthon04
    if [ $? -ne 0 ]; then
       outputecho "Failed to clone cthon04"
-      report_result $TEST WARN
+      rstrnt-report-result $TEST WARN
       # Abort the task
       rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
       exit 0
@@ -137,7 +137,7 @@ Server()
 		if [ ${TESTLOCAL} -eq 1 ] ; then
 			cp -fr ${TESTCONFIGFILE} ${TESTCONFIGFILE}-${TESTNAME}
 		else
-			rhts-backup ${TESTCONFIGFILE}
+			rstrnt-backup ${TESTCONFIGFILE}
 		fi
 	fi
 
@@ -186,7 +186,7 @@ outputecho "Building connectathon test suite"
 Make
 if [ $result = "FAIL" ] ; then
    outputecho "Failed to compile cthon04"
-   report_result $TEST WARN
+   rstrnt-report-result $TEST WARN
    # Abort the task
    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
    exit 0

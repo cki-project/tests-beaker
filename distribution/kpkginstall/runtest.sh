@@ -443,8 +443,8 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 *******************************************************************************
 *******************************************************************************
 EOF
-  report_result ${TEST}/kernel-in-place PASS 0
-  rhts-reboot
+  rstrnt-report-result ${TEST}/kernel-in-place PASS 0
+  rstrnt-reboot
 else
   # set YUM var.
   select_yum_tool
@@ -490,8 +490,8 @@ else
     dmesg > ${DMESGLOG}
     rhts_submit_log -l ${DMESGLOG}
     cki_print_warning "Call trace found in dmesg, see dmesg.log"
-    report_result ${TEST} WARN 7
+    rstrnt-report-result ${TEST} WARN 7
   else
-    report_result ${TEST}/reboot PASS 0
+    rstrnt-report-result ${TEST}/reboot PASS 0
   fi
 fi

@@ -17,9 +17,9 @@ function runtest()
 
     dmesg | grep 'Call Trace'
     if [ $? -eq 0 ]; then
-        report_result $TEST "FAIL" "1"
+        rstrnt-report-result $TEST "FAIL" "1"
     else
-        report_result $TEST "PASS" "0"
+        rstrnt-report-result $TEST "PASS" "0"
     fi
 }
 
