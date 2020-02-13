@@ -142,9 +142,9 @@ rcmd pvs
 echo "Test finished" | tee -a $OUTPUTFILE
 
 if [ $ret -eq 0 ]; then
-	report_result finished PASS 0
+	rstrnt-report-result finished PASS 0
 else
-	report_result finished FAIL $ret
+	rstrnt-report-result finished FAIL $ret
 fi
 
 exit 0

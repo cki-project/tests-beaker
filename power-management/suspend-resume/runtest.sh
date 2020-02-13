@@ -36,14 +36,14 @@ NOT_SUPPORT=0
 function result_fail()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
-    report_result $TEST FAIL 1
+    rstrnt-report-result $TEST FAIL 1
     exit 0
 }
 
 function result_pass ()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
-    report_result $TEST PASS 0
+    rstrnt-report-result $TEST PASS 0
     exit 0
 }
 
@@ -87,7 +87,7 @@ function setup ()
         is_baremetal
         if (( $? != 0 )); then
             echo "Not running on baremetal machine" | tee -a ${OUTPUTFILE}
-            report_result $TEST SKIP 0
+            rstrnt-report-result $TEST SKIP 0
             exit 0
         fi
 
@@ -103,7 +103,7 @@ function setup ()
 
 	echo "Rebooting now..." | tee -a ${OUTPUTFILE}
 
-	rhts-reboot
+	rstrnt-reboot
 
 	echo "Finish Rebooting !" | tee -a ${OUTPUTFILE}
 
@@ -277,7 +277,7 @@ function runTest ()
 	if [[ $NOT_SUPPORT = 1 ]]; then
 		echo "Please Refers to BZ: https://bugzilla.redhat.com/show_bug.cgi?id=891967" | tee -a ${OUTPUTFILE}
 		echo "This is not Supported"| tee -a {OUTPUTFILE}
-		report_result $TEST SKIP 0
+		rstrnt-report-result $TEST SKIP 0
 		exit 0
 	fi
 

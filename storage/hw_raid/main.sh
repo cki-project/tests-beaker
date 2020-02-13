@@ -140,7 +140,7 @@ trigger_panic()
     #First, enable sysrq:
     rlRun -l 'echo "1" > /proc/sys/kernel/sysrq'
     #trigger panic:
-    report_result PANIC PASS 0
+    rstrnt-report-result PANIC PASS 0
     rlRun -l "echo c > /proc/sysrq-trigger"
 }
 

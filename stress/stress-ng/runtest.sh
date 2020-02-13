@@ -54,7 +54,7 @@ rlPhaseStartSetup
     # if stress-ng triggers a panic and reboot, then abort the test
     if [ $REBOOTCOUNT -ge 1 ] ; then
         rlDie "Aborting due to system crash and reboot"
-        rhts-abort -t recipe
+        rstrnt-abort -t recipe
     fi
 
     rlLog "Downloading stress-ng from source"
@@ -62,7 +62,7 @@ rlPhaseStartSetup
     if [ $? != 0 ]; then
         echo "Failed to git clone $GIT_URL." | tee -a $OUTPUTFILE
         rhts-report-result $TEST WARN $OUTPUTFILE
-        rhts-abort -t recipe
+        rstrnt-abort -t recipe
     fi
 
     # build

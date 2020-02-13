@@ -37,7 +37,7 @@ function result_fail()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
     export result=FAIL
-    report_result $TEST $result 1
+    rstrnt-report-result $TEST $result 1
     exit 0
 }
 
@@ -45,7 +45,7 @@ function result_pass ()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
     export result=PASS
-    report_result $TEST $result 0
+    rstrnt-report-result $TEST $result 0
     exit 0
 }
 
@@ -155,8 +155,8 @@ if [ -z "$amtubin" -o ! -e "$amtubin" ]; then
     build_amtu
     # Add task param, needed for kernel-ci/CKI, e.g. <params><param name="CI" value="yes"/><params>
     if [ $? -ne 0 ] && [ "$CI" = "yes" ]; then
-        report_result $TEST WARN
-        rhts-abort -t recipe
+        rstrnt-report-result $TEST WARN
+        rstrnt-abort -t recipe
     fi
 
 fi

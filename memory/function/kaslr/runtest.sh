@@ -166,19 +166,19 @@ function x86_kaslr_test()
 		slub_freelist_random 1 $i
 		rlRun "grubby --args nokaslr --update-kernel ALL" 0
 		rlPhaseEnd
-		rhts-reboot
+		rstrnt-reboot
 	elif [ "$current_state" = "after_r_kaslr_cleanup" ]; then
 		rlAssertGrep nokaslr /proc/cmdline || rlDie "unexpedted test state!"
 	elif [ "$current_state" = "after_r_kaslr_snapshot" ]; then
 		rlReport "reboot" PASS
 		rlAssertNotGrep nokaslr /proc/cmdline || rlDie "unexpedted test state!"
 		rlPhaseEnd
-		rhts-reboot
+		rstrnt-reboot
 	else
 		rlAssertNotGrep nokaslr /proc/cmdline || rlDie "unexpedted test state!"
 		slub_freelist_random 1 $i
 		rlPhaseEnd
-		rhts-reboot
+		rstrnt-reboot
 	fi
 }
 
@@ -206,19 +206,19 @@ function x86_nokaslr_test()
 		slub_freelist_random 0 $i
 		rlRun "grubby --remove-args nokaslr --update-kernel ALL"
 		rlPhaseEnd
-		rhts-reboot
+		rstrnt-reboot
 	elif [ "$current_state" = "after_r_nokaslr_cleanup" ]; then
 		rlReport "reboot" PASS
 		rlAssertNotGrep nokaslr /proc/cmdline
 	elif [ "$current_state" = "before_r_nokaslr_snapshot" ]; then
 		rlAssertGrep nokaslr /proc/cmdline
 		rlPhaseEnd
-		rhts-reboot
+		rstrnt-reboot
 	else
 		rlAssertGrep nokaslr /proc/cmdline
 		slub_freelist_random 0 $i
 		rlPhaseEnd
-		rhts-reboot
+		rstrnt-reboot
 	fi
 }
 
@@ -289,8 +289,8 @@ function select_yum_tool()
 		${YUM} install -y yum-plugin-copr
 	else
 		echo "No tool to download kernel from a repo" | tee -a ${OUTPUTFILE}
-		report_result ${TEST} WARN 99
-		rhts-abort -t recipe
+		rstrnt-report-result ${TEST} WARN 99
+		rstrnt-abort -t recipe
 		exit 0
 	fi
 }

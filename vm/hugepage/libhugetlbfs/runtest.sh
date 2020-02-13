@@ -46,7 +46,7 @@ cat /proc/filesystems | grep -q hugetlbfs
 if [ $? -ne 0 ]; then
 	# Bug 1143877 - hugetlbfs: disabling because there are no supported hugepage sizes
 	echo "hugetlbfs not found in /proc/filesystems, skipping test"
-	report_result Test_Skipped PASS 99
+	rstrnt-report-result Test_Skipped PASS 99
 	exit 0
 fi
 
@@ -55,7 +55,7 @@ hpagesz=$(cat /proc/meminfo | grep Hugepagesize | awk '{print $2}')
 if [ -z "$hpagesz" ]; then
 	echo "Failed to get Hugepagesize from /proc/meminfo" | tee -a $OUTPUTFILE
 	cat /proc/meminfo | tee -a $OUTPUTFILE
-	report_result Hugepagesize_parse_failed FAIL 1
+	rstrnt-report-result Hugepagesize_parse_failed FAIL 1
 	exit 0
 fi
 target_mem=${TESTARGS:-131072}
@@ -203,12 +203,12 @@ EOF
                 # is too fragmented. Skip the test and exit with PASS.
                 if [ $? -eq 0 -a $mem_free -lt $(($HMEMSZ * 1024 * 10)) ]; then
                         cat /proc/meminfo | tee -a $OUTPUTFILE
-                        report_result Test_Skipped PASS 99
+                        rstrnt-report-result Test_Skipped PASS 99
                         exit 0
                 fi
 
                 # If we fail for any other reason, report FAIL and exit.
-                report_result huge_page_setup FAIL $ret
+                rstrnt-report-result huge_page_setup FAIL $ret
                 exit $ret
         fi
         rlRun "hugeadm --create-mount" 0
@@ -220,7 +220,7 @@ EOF
        if [[ x"${HPSIZE}" == "x512M" && ${free_hugepages} -lt $HPCOUNT && ( -z "${REBOOTCOUNT}" || ${REBOOTCOUNT} -eq 0 ) ]]; then
 	  rlLog "Have ${free_hugepages} free hugepages of ${HPCOUNT} needed.  Rebooting with 2M hugepages"
 	  grubby --args="default_hugepagesz=2M" --update-kernel /boot/vmlinuz-$(uname -r)
-	  rhts-reboot
+	  rstrnt-reboot
        fi
        sed -i '/mremap-expand-slice-collision/d' run_tests.py
     fi
@@ -243,7 +243,7 @@ EOF
 	       rlAssertGreaterOrEqual "Need $HPCOUNT hugepages for test, have: $free_hugepages" $free_hugepages $HPCOUNT
 	   rlPhaseEnd
 	else
-	   report_result Test_Skipped PASS 99
+	   rstrnt-report-result Test_Skipped PASS 99
 	fi
     fi
 

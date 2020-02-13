@@ -90,7 +90,7 @@ rlJournalStart
         if [ $? != 0 ]; then
             echo "Failed to git clone $GIT_URL." | tee -a $OUTPUTFILE
             rhts-report-result $TEST WARN $OUTPUTFILE
-            rhts-abort -t recipe
+            rstrnt-abort -t recipe
         fi
 
         rlRun "pushd audit-testsuite" 0 || rlDie

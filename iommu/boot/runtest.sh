@@ -62,12 +62,12 @@ function bootOptions() {
 	    if [ ${code} -ne 0 ]; then
 		echo "Fail: error changing boot loader." |
 		tee -a "${OUTPUTFILE}"
-		report_result "${TEST}/boot_loader" "FAIL" 0
+		rstrnt-report-result "${TEST}/boot_loader" "FAIL" 0
 	    else
 		echo "${line}" > $CurrentBootOptions
 		echo "Reboot now!" | tee -a "${OUTPUTFILE}"
-		report_result "${TEST}/boot_loader" "PASS" 0
-		rhts-reboot
+		rstrnt-report-result "${TEST}/boot_loader" "PASS" 0
+		rstrnt-reboot
 	    fi
 	else
             # The reboot has finished. Verify the cmdline.
@@ -82,14 +82,14 @@ function bootOptions() {
 		echo "Fail: error booting kernel with specified cmdline" |
 		tee -a "${OUTPUTFILE}"
 
-		report_result "${TEST}/$CurrentBootOptionsReport" "FAIL" 0
+		rstrnt-report-result "${TEST}/$CurrentBootOptionsReport" "FAIL" 0
 		rm $CurrentBootOptions
 	        /sbin/grubby --remove-args="${line}" \
 		 --update-kernel="${default}"
         	sed -i "/$line\$/d" $bootOptionsFile
 	    else
        		echo "boot options persisted through reboot." | tee -a "${OUTPUTFILE}"
-		report_result "${TEST}/$CurrentBootOptionsReport" "PASS" 0
+		rstrnt-report-result "${TEST}/$CurrentBootOptionsReport" "PASS" 0
 	        rm $CurrentBootOptions
                 /sbin/grubby --remove-args="${line}" \
                  --update-kernel="${default}"
@@ -127,12 +127,12 @@ function dmesgErrors() {
     dmesgReportCode=$?
 
     if [ ${dmesgReportCode} -ne 1 ]; then
-	report_result "${TEST}/iommu-dmesg" "FAIL" 0
+	rstrnt-report-result "${TEST}/iommu-dmesg" "FAIL" 0
     else
-	report_result "${TEST}/iommu-dmesg" "PASS" 0
+	rstrnt-report-result "${TEST}/iommu-dmesg" "PASS" 0
     fi
     
-    rhts-submit-log -l $dmesgReport
+    rstrnt-report-log -l $dmesgReport
 
 }
 
@@ -157,7 +157,7 @@ else
        	bootOptions $DefaultBootOptionsAMD
 	dmesgErrors
     else
-	report_result "${TEST}/nonAMDorIntelProcessor" "SKIP" 0
+	rstrnt-report-result "${TEST}/nonAMDorIntelProcessor" "SKIP" 0
 	exit 0
     fi
 fi

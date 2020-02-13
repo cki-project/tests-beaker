@@ -9,12 +9,12 @@ function RprtRslt ()
 
     # File the results in the database
     if [ $result = "PASS" ]; then
-        report_result $TEST $result 0
+        rstrnt-report-result $TEST $result 0
     else
         if [ $result = "WARN" ]; then
-            report_result $TEST $result 2
+            rstrnt-report-result $TEST $result 2
         else
-            report_result $TEST $result 1
+            rstrnt-report-result $TEST $result 1
         fi
     fi
 }

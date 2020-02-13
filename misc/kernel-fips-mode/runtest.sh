@@ -54,7 +54,7 @@ rlJournalStart
         rlPhaseEnd
 
         # Reboot.
-        rhts-reboot
+        rstrnt-reboot
 
     # After second reboot (FIPS mode is disabled again).
     elif [ -e /var/tmp/fips-disabled ]; then
@@ -112,7 +112,7 @@ rlJournalStart
 
     rlPhaseEnd
 
-    rhts-reboot
+    rstrnt-reboot
 
 rlJournalPrintText
 

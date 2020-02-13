@@ -21,9 +21,9 @@ if [[ ${_DEBUG_MODE} == "yes" ]]; then
 	#
 	# XXX: Don't involve the test harness if debug mode is enabled which
 	#      is very helpful to manually run a single case without invoking
-	#      function report_result() provided by test harness
+	#      function rstrnt-report-result() provided by test harness
 	#
-	function report_result { echo "$@"; }
+	function rstrnt-report-result { echo "$@"; }
 else
 	source /usr/bin/rhts_environment.sh
 fi
@@ -85,13 +85,13 @@ function do_test
 
 	typeset -i ret=0
 	if [[ $result == "PASS" ]]; then
-		report_result "$TEST/tests/$test_case" PASS 0
+		rstrnt-report-result "$TEST/tests/$test_case" PASS 0
 		ret=0
 	elif [[ $result == "FAIL" ]]; then
-		report_result "$TEST/tests/$test_case" FAIL 1
+		rstrnt-report-result "$TEST/tests/$test_case" FAIL 1
 		ret=1
 	else
-		report_result "$TEST/tests/$test_case" WARN 2
+		rstrnt-report-result "$TEST/tests/$test_case" WARN 2
 		ret=2
 	fi
 

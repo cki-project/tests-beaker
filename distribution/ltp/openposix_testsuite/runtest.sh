@@ -18,22 +18,22 @@ echo "Current kernel is: $cver" | tee -a $OUTPUTFILE
 # ---------- Start Test -------------
 if [ "${REBOOTCOUNT}" -ge 1 ]; then
     echo "============ Test has already been run, Check logs for possible failures ============" | tee -a $OUTPUTFILE
-    report_result CHECKLOGS  WARN/ABORTED
-    rhts-abort -t recipe
+    rstrnt-report-result CHECKLOGS  WARN/ABORTED
+    rstrnt-abort -t recipe
     exit
 fi
 
 # report patch errors from ltp/include
 grep -i -e "FAIL" -e "ERROR" patchinc.log > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-    report_result "ltp-include-patch-errors" WARN/ABORTED
-    rhts-abort -t recipe
+    rstrnt-report-result "ltp-include-patch-errors" WARN/ABORTED
+    rstrnt-abort -t recipe
     exit
 fi
 
 # Sometimes it takes too long to waiting for syscalls finish and I want
 # to know whether the compilation is finish or not.
-report_result "install" "PASS"
+rstrnt-report-result "install" "PASS"
 
 echo "ulimit -c unlimited" | tee -a $OUTPUTFILE
 ulimit -c unlimited
@@ -90,11 +90,11 @@ env CFLAGS="-g3" time make -C $opt_dir all > buildlog.txt 2>&1
 if [ $? -ne 0 ]; then
     bzip2 buildlog.txt
     SubmitLog buildlog.txt.bz2
-    report_result build WARN/ABORTED
-    rhts-abort -t recipe
+    rstrnt-report-result build WARN/ABORTED
+    rstrnt-abort -t recipe
     exit
 else
-    report_result build PASS
+    rstrnt-report-result build PASS
 fi
 
 OUTPUTFILE="$OUTPUTFILE.2"
@@ -138,10 +138,10 @@ if [ "$failed_no" -gt 0 ]; then
     SubmitLog $opt_dir/logfile.conformance-test
     SubmitLog $opt_dir/logfile.functional-test
     SubmitLog $opt_dir/logfile.stress-test
-    report_result testcases FAIL 1
+    rstrnt-report-result testcases FAIL 1
 else
     echo "All testcases passed." | tee -a $OUTPUTFILE
-    report_result testcases PASS
+    rstrnt-report-result testcases PASS
 fi
 
 # if testcase on excluded list failed, remove it, so we get core

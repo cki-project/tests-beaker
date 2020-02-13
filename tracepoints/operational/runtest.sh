@@ -15,14 +15,14 @@ fi
 function resultFail()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
-    report_result $1 FAIL $2
+    rstrnt-report-result $1 FAIL $2
     echo "" | tee -a $OUTPUTFILE
 }
 
 function resultPass ()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
-    report_result $1 PASS $2
+    rstrnt-report-result $1 PASS $2
     echo "" | tee -a $OUTPUTFILE
 }
 
@@ -203,7 +203,7 @@ if [ -e /sys/devices/system/cpu/vulnerabilities/spectre_v2 ]; then
   if [ -n "$CFLAGS" ]; then
     if ! gcc -Werror $CFLAGS -E -x c /dev/null -o /dev/null >/dev/null 2>&1
     then
-      report_result "gcc does not have $MITIGATION support" WARN 1
+      rstrnt-report-result "gcc does not have $MITIGATION support" WARN 1
     fi
   fi
 fi

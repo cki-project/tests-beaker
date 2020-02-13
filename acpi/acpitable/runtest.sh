@@ -34,8 +34,8 @@ ret=0
 # make sure acpica-tools are installed
 pkg=$(rpm -qa | grep acpica-tools)
 if [ -z "$pkg" ] ; then
-    report_result $TEST WARN
-    rhts-abort -t recipe
+    rstrnt-report-result $TEST WARN
+    rstrnt-abort -t recipe
 fi 
 
 # verify  ACPI is enabled in the kernel
@@ -60,8 +60,8 @@ fi
 echo "Test finished" | tee -a $OUTPUTFILE
 
 if [ $ret != 0 ] ; then
-    report_result $TEST FAIL $ret
+    rstrnt-report-result $TEST FAIL $ret
 else
     # all is well
-    report_result $TEST PASS 0
+    rstrnt-report-result $TEST PASS 0
 fi

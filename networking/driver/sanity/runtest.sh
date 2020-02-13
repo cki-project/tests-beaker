@@ -23,7 +23,7 @@ done
 if [ $COUNT -eq 0 ]
 then
         echo "FAIL: No ethernet devices found"
-        report_result $TEST FAIL 1
+        rstrnt-report-result $TEST FAIL 1
         exit
 fi
 
@@ -51,7 +51,7 @@ do
                 if [ $? -ne 0 ];
                 then
 		        echo "FAIL: ethtool -i returned a failure"
-		        report_result $TEST FAIL 1
+		        rstrnt-report-result $TEST FAIL 1
                 fi
         fi
 done
@@ -59,5 +59,5 @@ done
 #
 # Otherwise, success!
 #
-report_result $TEST PASS 0
+rstrnt-report-result $TEST PASS 0
 exit

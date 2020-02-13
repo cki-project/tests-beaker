@@ -148,11 +148,11 @@ RprtRslt ()
     if [ "$result" = "PASS" ]; then
         # I want to see the succeeded running log as well
         SubmitLog $logfile_run
-        report_result $TEST $result
+        rstrnt-report-result $TEST $result
     else
         SubmitLog $logfile_run
         score=$(cat $OUTPUTDIR/$RUNTEST.log | grep "Total Failures:" |cut -d ' ' -f 3)
-        report_result $TEST $result $score
+        rstrnt-report-result $TEST $result $score
     fi
 }
 

@@ -66,7 +66,7 @@ check_supported_fs() {
 			:;;
 		*)
 		rlReport "Can't support $FSTYPE filesystem test" WARN
-		report_result $TEST WARN
+		rstrnt-report-result $TEST WARN
 		# Abort the task
 		rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
 		exit 0
@@ -83,7 +83,7 @@ build_pjd_fstest()
 	rlRun -l "git clone git://git.code.sf.net/p/ntfs-3g/pjd-fstest" "0-255" "Cloning pjd-fstest repo"
 	if [ $? -ne 0 ]; then
 		echo "WARN : Failed cloning pjd-fstest" | tee -a $OUTPUTFILE
-		report_result $TEST WARN
+		rstrnt-report-result $TEST WARN
 		# Abort the task
 		rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
 		exit 0
@@ -92,7 +92,7 @@ build_pjd_fstest()
 	rlRun "make" "0-255" "Building test suite"
 	if [ $? -ne  0 ] ; then
 		echo "WARN : Failed compiling pjd-fstest" | tee -a $OUTPUTFILE
-		report_result $TEST WARN
+		rstrnt-report-result $TEST WARN
 		# Abort the task
 		rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
 		exit 0

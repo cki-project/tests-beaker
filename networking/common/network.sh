@@ -505,7 +505,7 @@ report_interface()
 
 	# if running in RHTS context, submit it
 	if [ -n "$TEST" ]; then
-		type rhts-submit-log >/dev/null 2>&1 && rhts-submit-log -l "$inf"
+		type rstrnt-report-log >/dev/null 2>&1 && rstrnt-report-log -l "$inf"
 	fi
 	return 0
 }
@@ -534,7 +534,7 @@ report_iface_ethtool()
 
 	# if running in RHTS context, submit it
 	if [ -n "$TEST" ]; then
-		type rhts-submit-log >/dev/null 2>&1 && rhts-submit-log -l "$inf"
+		type rstrnt-report-log >/dev/null 2>&1 && rstrnt-report-log -l "$inf"
 	fi
 	return 0
 }

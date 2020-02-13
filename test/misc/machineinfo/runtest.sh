@@ -28,7 +28,7 @@ lshw -json -sanitize -notime > ${DATAFILE}
 
 rhts_submit_log -l ${MDESC}
 rhts_submit_log -l ${DATAFILE}
-report_result $TEST PASS 0
+rstrnt-report-result $TEST PASS 0
 
 rm ${DATAFILE}
 exit 0
