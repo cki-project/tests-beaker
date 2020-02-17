@@ -1,0 +1,31 @@
+From 603d86eb1cac2baffce6d8e7b8564285824dfbbf Mon Sep 17 00:00:00 2001
+From: Rachel Sibley <rasibley@redhat.com>
+Date: Fri, 4 Oct 2019 14:44:36 -0400
+Subject: [PATCH] dynamic_debug: update dmesg grep check
+
+If running on debug kernel this check will fail on EDAC DEBUG messages,
+update grep to ignore such cases like this.
+
+Signed-off-by: Rachel Sibley <rasibley@redhat.com>
+Acked-by: Cyril Hrubis <chrubis@suse.cz>
+Acked-by: Jan Stancek <jstancek@redhat.com>
+---
+ testcases/kernel/tracing/dynamic_debug/dynamic_debug01.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/testcases/kernel/tracing/dynamic_debug/dynamic_debug01.sh b/testcases/kernel/tracing/dynamic_debug/dynamic_debug01.sh
+index f39d67d0a..7f06c2488 100755
+--- a/testcases/kernel/tracing/dynamic_debug/dynamic_debug01.sh
++++ b/testcases/kernel/tracing/dynamic_debug/dynamic_debug01.sh
+@@ -127,7 +127,7 @@ ddebug_test()
+ 	sed -i -e 1,`wc -l < ./dmesg.old`d ./dmesg.new
+ 	if grep -q -e "Kernel panic" -e "Oops" -e "general protection fault" \
+ 		-e "general protection handler: wrong gs" -e "\(XEN\) Panic" \
+-		-e "fault" -e "warn" -e "BUG" ./dmesg.new ; then
++		-e "fault" -e "warn" -e "\<BUG\>" ./dmesg.new ; then
+ 		tst_res TFAIL "Issues found in dmesg!"
+ 	else
+ 		tst_res TPASS "Dynamic debug OK"
+-- 
+2.21.0
+
