@@ -40,7 +40,10 @@ build: $(BUILT_FILES)
 clean:
 	rm -f *~ $(BUILT_FILES)
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           William Gomeringer <willg@redhat.com>" > $(METADATA)
@@ -54,12 +57,9 @@ $(METADATA): Makefile
 	@echo "Requires:        python2-lxml" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
 	@echo "Requires:        kernel-modules-extra" >> $(METADATA)
-	@echo "RepoRequires:    cki_lib" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Architectures:   x86_64 ppc ppc64" >> $(METADATA)
-
-	rhts-lint $(METADATA)
-

@@ -68,7 +68,7 @@ select_yum_tool()
 skip_testcase()
 {
 	echo "$1" | tee -a ${OUTPUTFILE}
-	rhts-report-result $TEST SKIP $OUTPUTFILE
+	rstrnt-report-result $TEST SKIP $OUTPUTFILE
 	exit 0
 }
 

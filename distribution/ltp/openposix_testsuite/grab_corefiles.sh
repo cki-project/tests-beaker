@@ -29,7 +29,7 @@ done
 echo "List of files to pack: $bin_core_list"
 if [ -n "$bin_core_list" ]; then
     tar cfvz binaries_and_corefiles.tar.gz $bin_core_list
-    rhts_submit_log -l binaries_and_corefiles.tar.gz
+    rstrnt-report-log -l binaries_and_corefiles.tar.gz
 else
     echo "No cores to submit"
 fi

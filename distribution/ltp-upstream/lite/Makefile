@@ -40,7 +40,10 @@ clean:
 	rm -rf *~ *.rpm ltp/ $(BUILT_FILES)
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -64,6 +67,7 @@ $(METADATA): Makefile
 	@echo "Requires:     numactl numactl-devel" >> $(METADATA)
 	@echo "Requires:     ethtool" >> $(METADATA)
 	@echo "repoRequires: distribution/ltp-upstream/include" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "Environment:  AVC_ERROR=+no_avc_check" >> $(METADATA)
 	@echo "Releases:     RHELServer5 RHEL6 RHEL7" >> $(METADATA)
 	@echo "Destructive:  no" >> $(METADATA)

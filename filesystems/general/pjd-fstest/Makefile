@@ -43,7 +43,10 @@ clean:
 	rm -f *~ $(BUILT_FILES)
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Zorro Lang <zlang@redhat.com>" > $(METADATA)
@@ -66,6 +69,7 @@ $(METADATA): Makefile
 	@echo "Requires:        libacl-devel" >> $(METADATA)
 	@echo "Requires:        redhat-lsb-core gcc make wget git" >> $(METADATA)
 	@echo "Requires:        beakerlib python3-lxml " >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)

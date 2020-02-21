@@ -1284,7 +1284,7 @@ then
 	done
 else
 	rlLog "not support"
-	rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+	rstrnt-report-result "$TEST" SKIP "$OUTPUTFILE"
 	exit 0
 fi
 

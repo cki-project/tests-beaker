@@ -60,12 +60,12 @@ if (( $? == 0 )); then
         echo "Hardware supports virtualization, proceeding" | tee -a $OUTPUTFILE
     else
         echo "Skipping test, CPU doesn't support virtualization" | tee -a $OUTPUTFILE
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit
     fi
 else
     echo "Skipping test, test is only supported on x86_64, aarch64, ppc64 or s390x" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 
@@ -74,7 +74,7 @@ if [ "$cpus" -gt 1 ]; then
     echo "You have sufficient CPU's to run the test" | tee -a $OUTPUTFILE
 else
     echo "Skipping test, system requires > 1 CPU" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 

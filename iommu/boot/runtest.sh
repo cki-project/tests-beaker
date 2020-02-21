@@ -26,9 +26,8 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Include rhts environment. Comment out for now while testing script
-. /usr/bin/rhts-environment.sh
-. /usr/share/rhts-library/rhtslib.sh
+# Include libraries
+. ../../cki_lib/libcki.sh || exit 1
 
 # file to write custom boot options (from CMDLINEARGS)
 CustomBootOptions=custom-boot-options.txt

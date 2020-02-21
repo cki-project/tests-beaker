@@ -15,7 +15,7 @@ then
 	    echo $STANDALONE | grep -q $HOSTNAME
 	}
 	
-	rhts_submit_log()
+	rstrnt-report-log()
 	{
 		echo :: $FUNCNAME $@
 	}

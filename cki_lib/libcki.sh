@@ -8,7 +8,30 @@
 #       2) All global variables start with 'CKI_'.
 #
 
-source /usr/bin/rhts_environment.sh
+# Set CKI test environment
+if [ -z "$OUTPUTFILE" ]; then
+        export OUTPUTFILE=`mktemp /mnt/testarea/tmp.XXXXXX`
+fi
+
+if [ -z "$ARCH" ]; then
+        ARCH=$(uname -i)
+fi
+
+if [ -z "$FAMILY" ]; then
+        FAMILY=$(cat /etc/redhat-release | sed -e 's/\(.*\)release\s\([0-9]*\).*/\1\2/; s/\s//g')
+fi
+
+# Set well-known logname so users can easily find
+# current tasks log file.  This well-known file is also
+# used by the local watchdog to upload the log
+# of the current task.
+if [ -h /mnt/testarea/current.log ]; then
+        ln -sf $OUTPUTFILE /mnt/testarea/current.log
+else
+        ln -s $OUTPUTFILE /mnt/testarea/current.log
+fi
+
+# Include beaker library
 source /usr/share/beakerlib/beakerlib.sh
 
 CKI_RC_POS=0
@@ -68,7 +91,7 @@ function cki_skip_task()
     typeset reason="$*"
     [[ -z $reason ]] && reason="unknown reason"
     cki_log "Skipping current task: $reason"
-    rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+    rstrnt-report-result "$TEST" SKIP "$OUTPUTFILE"
     exit $CKI_STATUS_COMPLETED
 }
 

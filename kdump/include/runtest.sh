@@ -19,8 +19,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-# Source rhts environment 
-. /usr/bin/rhts-environment.sh
+# Source  environment
+. ../../cki_lib/libcki.sh || exit 1
 
 K_TESTAREA="/mnt/testarea"
 K_NFS="${K_TESTAREA}/KDUMP-NFS"

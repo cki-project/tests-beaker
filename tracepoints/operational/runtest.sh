@@ -32,7 +32,7 @@ function submitLog ()
     if [ -z "$TESTPATH" ]; then
         echo "Running in developer mode"
     else
-        rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
+        rstrnt-report-log -S $RESULT_SERVER -T $TESTID -l $LOG
     fi
 }
 
@@ -178,7 +178,7 @@ stapbase=$(rpm -q --queryformat '%{name}-%{version}-%{release}.%{arch}\n' -qf /u
 grep "1" /proc/sys/crypto/fips_enabled  > /dev/null
 if [ $? -eq 0 ]; then
     echo "***** Running in FIPS mode, stap modules would cause kernel panic ****" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit 0
 fi
 
@@ -226,7 +226,7 @@ else
     echo "***** tracepoint not enabled in this kernel *****" | tee -a $OUTPUTFILE
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
     echo"" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit 0
 
 fi

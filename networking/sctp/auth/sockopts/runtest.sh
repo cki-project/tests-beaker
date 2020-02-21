@@ -46,7 +46,7 @@ rlPhaseStartTest
     run "./api_tests" 0 "Done running API tests"
     grep 'FAILED' $OUTPUTFILE && rlReport $TEST FAIL || \
 		rlReport $TEST PASS 
-    rhts_submit_log -l $OUTPUTFILE
+    rstrnt-report-log -l $OUTPUTFILE
 rlPhaseEnd
 
 ####################### Restore #################################

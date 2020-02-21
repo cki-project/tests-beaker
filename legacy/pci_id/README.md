@@ -33,7 +33,7 @@ present in most RHEL systems. But to be pedantic:
 | file          | file                                                       |
 | gawk          | awk                                                        |
 | binutils      | nm                                                         |
-| restraint-rhts| rstrnt-report-result and friends                           |
+| restraint     | rstrnt-report-result and friends                           |
 
 To fetch the baseline package versions, either yum or dnf is required.
 

@@ -6,5 +6,5 @@ Description:     This test will generate I/O using FIO at the device level and t
 License:		GPL v3
 RunFor:		storage
 Requires:	storage
-RepoRequires:    cki_lib
+repoRequires:    cki_lib
 RhtsRequires:	hw_raid

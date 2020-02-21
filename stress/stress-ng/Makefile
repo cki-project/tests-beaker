@@ -38,7 +38,10 @@ run:
 	./runtest.sh
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA):
 	touch $(METADATA)

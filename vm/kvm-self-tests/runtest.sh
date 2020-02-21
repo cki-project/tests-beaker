@@ -145,14 +145,14 @@ source /usr/share/beakerlib/beakerlib.sh
 # A simple wrapper function to skip a test because beakerlib doesn't support
 # such an important feature, right here we just leverage 'rhts'. Note we
 # don't call function report_result() as it directly invoke command
-# rhts-report-result actually
+# rstrnt-report-result actually
 #
 function rlSkip
 {
     source /usr/bin/rhts_environment.sh
 
     rlLog "Skipping test because $*"
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
 
     #
     # As we want result="Skip" status="Completed" for all scenarios, right here

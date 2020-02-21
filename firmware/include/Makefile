@@ -12,7 +12,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # Include global Makefile targets
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # The toplevel namespace within which the test lives.
 TOPLEVEL_NAMESPACE=/kernel
@@ -74,6 +77,5 @@ $(METADATA): Makefile
 	@echo "Requires:	libtool"		>> $(METADATA)
 	@echo "Requires:	bison"			>> $(METADATA)
 	@echo "Requires:	flex"			>> $(METADATA)
-	@echo "RepoRequires:    cki_lib"                >> $(METADATA)
+	@echo "repoRequires:    cki_lib"                >> $(METADATA)
 	@echo "License:		GPLv2"			>> $(METADATA)
-	@echo "RhtsOptions:	-Compatible -CompatService"	>> $(METADATA)

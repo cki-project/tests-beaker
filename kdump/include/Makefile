@@ -21,7 +21,10 @@ export TEST        := kdump/include
 export TESTVERSION := 1.0
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 .PHONY: build clean run
 
@@ -43,5 +46,6 @@ $(METADATA):
 	@echo "Path:         $(TEST_DIR)"                        >>$(METADATA)
 	@echo "TestVersion:  $(TESTVERSION)"                     >>$(METADATA)
 	@echo "License:      GPLv3"                              >>$(METADATA)
+	@echo "repoRequires: cki_lib"                            >> $(METADATA)
 	@echo "Owner:        Kdump QE <kdump-qe-list@redhat.com>"      >>$(METADATA)
 	@echo "Description:  kdump test library" >>$(METADATA)

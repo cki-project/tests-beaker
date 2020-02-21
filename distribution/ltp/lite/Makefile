@@ -1,4 +1,7 @@
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 ifeq (,$(wildcard ../include/ltp-make.include))
 include /mnt/tests/kernel/distribution/ltp/include/ltp-make.include
 else
@@ -77,3 +80,4 @@ $(METADATA):
 	@echo "Owner:           Kernel General Test Team <kernel-general-test-team@redhat.com>" >>$(METADATA)
 	@echo "Releases:        RHEL6 RHEL7 RedHatEnterpriseLinux7 RedHatEnterpriseLinuxPegas7 RedHatEnterpriseLinuxAlternateArchitectures7 RedHatEnterpriseLinux8 Fedora25 Fedora26 Fedorarawhide" >>$(METADATA)
 	@echo "Type:            KernelTier0 KernelTier1" >>$(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

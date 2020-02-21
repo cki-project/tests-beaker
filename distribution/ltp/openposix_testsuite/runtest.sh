@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Source the common test script helpers
-. /usr/bin/rhts-environment.sh
-. ../include/runtest.sh
-. ../include/kvercmp.sh
+. ../../../cki_lib/libcki.sh || exit 1
+. ../include/runtest.sh      || exit 1
+. ../include/kvercmp.sh      || exit 1
 
 #export AVC_ERROR=+no_avc_check
 #export RHTS_OPTION_STRONGER_AVC=

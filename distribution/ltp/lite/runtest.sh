@@ -1,8 +1,8 @@
 #!/bin/bash
 
-. /usr/bin/rhts-environment.sh
-. ../include/runtest.sh
-. ../include/knownissue.sh
+. ../../../cki_lib/libcki.sh || exit 1
+. ../include/runtest.sh      || exit 1
+. ../include/knownissue.sh   || exit 1
 
 #export AVC_ERROR=+no_avc_check
 #export RHTS_OPTION_STRONGER_AVC=

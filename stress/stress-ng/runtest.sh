@@ -33,7 +33,7 @@
 #    list_add corruption. prev->next should be next
 if type -p dmidecode >/dev/null ; then
     if dmidecode -t1 | grep -q 'Product Name:.*Mustang.*' ; then
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit
     fi
 fi
@@ -61,7 +61,7 @@ rlPhaseStartSetup
     rlRun "git clone $GIT_URL" 0
     if [ $? != 0 ]; then
         echo "Failed to git clone $GIT_URL." | tee -a $OUTPUTFILE
-        rhts-report-result $TEST WARN $OUTPUTFILE
+        rstrnt-report-result $TEST WARN $OUTPUTFILE
         rstrnt-abort -t recipe
     fi
 

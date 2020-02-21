@@ -41,7 +41,7 @@ fi
 ~~~
 if [ $? -ne 0 ]; then
     rlLog "Skipping test because $reason"
-    rhts-report-result $TEST SKIP
+    rstrnt-report-result $TEST SKIP
     exit 0
 fi
 ~~~

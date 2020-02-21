@@ -24,9 +24,8 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Include rhts environment
-. /usr/bin/rhts-environment.sh || exit 1
-. /usr/share/rhts-library/rhtslib.sh || exit 1
+# Include libraries
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../cki_lib/libcki.sh || exit 1
 
 PACKAGE="pciutils"

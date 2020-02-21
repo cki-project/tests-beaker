@@ -27,7 +27,10 @@
 PACKAGE_NAME=ltp
 export TEST=/kernel/distribution/ltp/include
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 include ltp-make.include
 
 # data files, .c files, scripts anything needed to either compile the test and/or run it.
@@ -48,6 +51,7 @@ $(METADATA): Makefile
 	@echo "RunFor:       kernel glibc" >> $(METADATA)
 	@echo "Requires:     @development " >> $(METADATA)
 	@echo "Requires:     procmail rsyslog sysklogd ntpdate util-linux util-linux-ng redhat-lsb bc wget" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	#@echo "Releases:     RHELServer5 RHEL6" >>$(METADATA)
 	@echo "Destructive:  no" >>$(METADATA)
 	@echo "Confidential: no" >>$(METADATA)

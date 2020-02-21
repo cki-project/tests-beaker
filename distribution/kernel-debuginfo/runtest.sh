@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-. /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 YUM=$(command -v yum)
 if [ -z "$YUM" ]

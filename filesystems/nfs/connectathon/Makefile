@@ -29,7 +29,10 @@ export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 export TESTVERSION=3.0
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 CONNECTATHON_SRCDIR=cthon04
 LOOKASIDE_DEFAULT=git://git.linux-nfs.org/projects/steved/cthon04.git
@@ -102,4 +105,4 @@ $(METADATA):
 	@echo "Type:         Tier1"		>> $(METADATA)
 	@echo "Type:         KernelTier0 KernelTier1"	>> $(METADATA)
 	@echo "License:      GPL v2"		>> $(METADATA)
-	rhts-lint $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)

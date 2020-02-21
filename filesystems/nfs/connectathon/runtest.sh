@@ -26,7 +26,7 @@
 # $CI
 
 # source the test script helpers
-. /usr/bin/rhts-environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 . /mnt/tests/kernel/include/runtest.sh
 . kvercmp.sh
 
@@ -268,7 +268,7 @@ function _cthon04 ()
         fi
     else
         bzip2 $tethereal_out.cap
-        rhts_submit_log -l $tethereal_out.cap.bz2
+        rstrnt-report-log -l $tethereal_out.cap.bz2
         rstrnt-report-result $TEST/$server/$report_path/$name FAIL $result
         if [ -z "$SAVECAPTURE_FAILED" ]; then
             rm -f $tethereal_out.cap.bz2 > /dev/null 2>&1

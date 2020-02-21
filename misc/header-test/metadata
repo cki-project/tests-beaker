@@ -12,3 +12,4 @@ dependencies[RedHatEnterpriseLinux6]=kernel-headers;gcc;bash;python
 dependencies[RedHatEnterpriseLinux7]=kernel-headers;gcc;bash;python
 dependencies[RedHatEnterpriseLinux8]=kernel-headers;gcc;bash;platform-python;python2
 use_pty=false
+repoRequires=cki_lib

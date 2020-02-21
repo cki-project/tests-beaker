@@ -44,7 +44,10 @@ build: $(BUILT_FILES)
 clean:
 	rm -f *~ $(BUILT_FILES)
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:        Jianlin Shi<jishi@redhat.com>" > $(METADATA)
@@ -57,7 +60,7 @@ $(METADATA): Makefile
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:     net-tools" >> $(METADATA)
-	@echo "RepoRequires: networking/common" >> $(METADATA)
+	@echo "repoRequires: networking/common" >> $(METADATA)
 	@echo "Priority:     Normal" >> $(METADATA)
 	@echo "License:      GPLv2 or above" >> $(METADATA)
 	@echo "Confidential: no" >> $(METADATA)

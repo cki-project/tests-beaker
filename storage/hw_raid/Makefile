@@ -51,7 +51,10 @@ build: $(BUILT_FILES)
 	chmod a+x ./main.sh
 clean:
 	rm -f *~ *.rpm $(BUILT_FILES)
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Marco Patalano <mpatalan@redhat.com>" > $(METADATA)
@@ -62,7 +65,7 @@ $(METADATA): Makefile
 	@echo "License:		GPL v3" >> $(METADATA)
 	@echo "RunFor:		$(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:	$(PACKAGE_NAME)" >> $(METADATA)
-	@echo "RepoRequires:    cki_lib" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "RhtsRequires:	hw_raid" >> $(METADATA)
 
 	rhts-lint $(METADATA)

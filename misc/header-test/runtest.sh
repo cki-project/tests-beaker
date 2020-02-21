@@ -13,7 +13,7 @@ fi
 export PYTHON
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 # Assume the test will fail.
 result=FAIL

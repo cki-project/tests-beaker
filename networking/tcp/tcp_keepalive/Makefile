@@ -59,7 +59,10 @@ clean:
 
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -80,7 +83,7 @@ $(METADATA): Makefile
 	@echo "Requires:     texinfo rsync nmap socat" >> $(METADATA)
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "Requires:     kernel-modules-extra" >> $(METADATA)
-	@echo "RepoRequires: cki_lib" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 
 # You may need other fields here; see the documentation
 	rhts-lint $(METADATA)

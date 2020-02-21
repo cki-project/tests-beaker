@@ -33,7 +33,10 @@ build: $(BUILT_FILES)
 clean:
 	rm -f *~ $(BUILT_FILES)
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Artem Savkov <asavkov@redhat.com>" > $(METADATA)
@@ -47,4 +50,4 @@ $(METADATA): Makefile
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Requires:        make curl grubby tar binutils yum-utils" >> $(METADATA)
-	@echo "RepoRequires:    cki_lib" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

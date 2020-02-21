@@ -25,7 +25,7 @@
 #---------------------------------------------------------------------------------
 
 # Source the common test script helpers
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # Global variables
@@ -54,7 +54,7 @@ if [ $ret = 0 ] ; then
     mkdir -p /mnt/redhat/user/acpi/
     acpidump > /mnt/redhat/user/acpi/acpitable.log 2>&1
     ret=$?
-    rhts_submit_log -l /mnt/redhat/user/acpi/acpitable.log
+    rstrnt-report-log -l /mnt/redhat/user/acpi/acpitable.log
 fi
 
 echo "Test finished" | tee -a $OUTPUTFILE
