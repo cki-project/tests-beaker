@@ -6,6 +6,7 @@ import getopt
 from itertools import groupby
 import re
 
+VERBOSE = False
 TC_START = "<<<test_start>>>"
 TC_END = "<<<test_end>>>"
 TC_NAME_FLAG = "tag="
@@ -114,10 +115,13 @@ def print_raw_text(l_tc, spaces):
         print("{}{:>6}\t{}".format(spaces, lineno, line))
 
 
-def dump(d_tc_metadata, l_tc):
+def dump(d_tc_metadata, l_tc, known_issues):
     tcno = d_tc_metadata['tcno']
     name = d_tc_metadata['name']
     result = d_tc_metadata['result']
+
+    if is_known_issue(known_issues, name):
+        return
 
     print(">>> {}:{} {} <<<".format(tcno, name, result))
     print_summary(tcno, name, result)
@@ -153,14 +157,42 @@ def parse(file_handle):
     return l_tcs
 
 
+def get_known_issues(kifile):
+    known_issues = set()
+    with open(kifile, 'r') as file_handle:
+        lines = file_handle.readlines()
+        for line in lines:
+            case = line.strip().rstrip()
+            if case.startswith('#'):
+                continue
+            known_issues.add(case)
+    return known_issues
+
+
+def is_known_issue(known_issues, case):
+    for issue in known_issues:
+        if re.match(issue, case):
+            if VERBOSE:
+                print("CASE %s matched PATTERN %s" % (case, issue))
+            return True
+    return False
+
+
 def usage(prog):
-    print("Usage: {} [-r] [-t indent] [-F] <logfile>".format(prog),
+    print("Usage: {} [-r] [-t indent]".format(prog) +
+          " [-v] [-f <known-issues-file>] [-F] <logfile>",
           file=sys.stderr)
     print("e.g.",
           file=sys.stderr)
     print("o dump failed test cases",
           file=sys.stderr)
     print("       {} -F /tmp/foo.log".format(prog),
+          file=sys.stderr)
+    print("o dump failed test cases with a known-issues-file",
+          file=sys.stderr)
+    print("       {}    -f /tmp/KNOWNISSUES -F /tmp/foo.log".format(prog),
+          file=sys.stderr)
+    print("  OR   {} -v -f /tmp/KNOWNISSUES -F /tmp/foo.log".format(prog),
           file=sys.stderr)
     print("o dump all test cases and remove those repeated lines",
           file=sys.stderr)
@@ -173,8 +205,8 @@ def usage(prog):
 
 
 def main(argc, argv):
-    shortargs = ":Frt:"
-    longargs = ["fail", "raw", "indent="]
+    shortargs = ":Frvf:t:"
+    longargs = ["fail", "raw", "verbose", "known-issue-file=", "indent="]
     try:
         options, rargv = getopt.getopt(argv[1:], shortargs, longargs)
     except getopt.GetoptError as err:
@@ -182,6 +214,7 @@ def main(argc, argv):
         usage(argv[0])
         return 1
 
+    known_issue_file = None
     portion_flags = None
     for opt, arg in options:
         if opt in ("-F", "--fail"):
@@ -189,6 +222,11 @@ def main(argc, argv):
         elif opt in ("-r", "--raw"):
             global TC_LOG_OUTPUT_RAW
             TC_LOG_OUTPUT_RAW = True
+        elif opt in ("-v", "--verbose"):
+            global VERBOSE
+            VERBOSE = True
+        elif opt in ("-f", "--known-issue-file"):
+            known_issue_file = arg
         elif opt in ("-t", "--indent"):
             global TC_LOG_OUTPUT_INDENT
             TC_LOG_OUTPUT_INDENT = int(arg)
@@ -205,6 +243,10 @@ def main(argc, argv):
     with open(logfile, 'r') as file_handle:
         l_tcs = parse(file_handle)
 
+    known_issues = set()
+    if known_issue_file:
+        known_issues = get_known_issues(known_issue_file)
+
     tcno = 0
     for l_tc in l_tcs:
         tcno += 1
@@ -216,7 +258,7 @@ def main(argc, argv):
 
         # Dump test log of all test cases by default
         if portion_flags is None:
-            dump(d_tc_metadata, l_tc)
+            dump(d_tc_metadata, l_tc, known_issues)
             continue
 
         #
@@ -227,7 +269,7 @@ def main(argc, argv):
         # o 'FAIL': ['TFAIL', 'TBROK', 'TWARN']
         #
         if d_tc_metadata['result'] in portion_flags:
-            dump(d_tc_metadata, l_tc)
+            dump(d_tc_metadata, l_tc, known_issues)
 
     return 0
 

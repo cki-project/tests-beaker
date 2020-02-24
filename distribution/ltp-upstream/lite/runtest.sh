@@ -154,7 +154,7 @@ function ltp_test_run()
 		CleanUp $RUNTEST
 
 		OUTPUTFILE=`mktemp /tmp/tmp.XXXXXX`
-		RunTest $RUNTEST "$OPTS"
+		RunTest $RUNTEST ${LTPDIR}/KNOWNISSUE "$OPTS"
 	done
 }
 
