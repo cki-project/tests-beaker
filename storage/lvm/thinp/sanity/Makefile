@@ -36,9 +36,8 @@ build: $(METADATA) $(TARGET)
 	cp -f iozone3_414/src/current/iozone ./
 
 $(TARGET):
-	# NOTE(mhayden): iozone.org went offline mysteriously on 2019-06-07.
-	# wget http://www.iozone.org/src/current/$(TARGET).tar
-	wget --tries=10 https://artifacts.cki-project.org/lookaside/$(TARGET).tar.gz
+	# Use lookaside location for iozone3 dependency
+	wget --tries=10 http://cki-artifacts.s3.us-east-2.amazonaws.com/lookaside/$(TARGET).tar.gz
 	tar -xzvf $(TARGET).tar.gz
 
 # Include a global make rules file
