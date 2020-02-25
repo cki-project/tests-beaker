@@ -72,16 +72,16 @@ function ltp_test_build()
 	fi
 
 	pushd ltp > /dev/null 2>&1
-	git checkout 164769798b281cfdcc69c97360b91205723dab06
+	git checkout 7d9b8c623d37956b983e5b3ae41a7bf455ad5a0a
+	# Timing on systems with shared resources (and high steal time) is not accurate, apply patch for non bare-metal machines
+	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
+	# Disable btrfs testing
+	patch -p1 < ../patches/disable-btrfs.patch
 	make autotools                      &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	./configure --prefix=${TARGET_DIR}  &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	make -j$CPUS_NUM                    &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "build   ltp failed"; fi
 	make install                        &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "install ltp failed"; fi
-	# Timing on systems with shared resources (and high steal time) is not accurate, apply patch for non bare-metal machines
-	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
-	patch -p1 < ../patches/disable-btrfs.patch
 	popd > /dev/null 2>&1
-
 	test_msg pass "LTP build/install successful"
 }
 
