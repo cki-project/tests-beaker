@@ -32,7 +32,7 @@ export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 export TESTVERSION=1.0
 
 # The upsteam location of tests
-LOOKASIDE=https://github.com/osandov/blktests.git
+LOOKASIDE=https://github.com/yizhanglinux/blktests.git
 
 TARGETS	= blktests \
 	  runtest
