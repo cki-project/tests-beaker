@@ -62,6 +62,7 @@ $(METADATA): Makefile
 	@echo "Requires:     mkisofs genisoimage bzip2" >> $(METADATA)
 	@echo "Requires:     @development" >> $(METADATA)
 	@echo "Requires:     numactl numactl-devel" >> $(METADATA)
+	@echo "Requires:     ethtool" >> $(METADATA)
 	@echo "repoRequires: distribution/ltp-upstream/include" >> $(METADATA)
 	@echo "Environment:  AVC_ERROR=+no_avc_check" >> $(METADATA)
 	@echo "Releases:     RHELServer5 RHEL6 RHEL7" >> $(METADATA)
