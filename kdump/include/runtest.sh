@@ -370,7 +370,7 @@ PrepareKdump()
             # Kdump service will not be enabled if crashkernel=auto && system
             # memory is less the threshold required by kdump service.
             /bin/systemctl enable kdump.service || /sbin/chkconfig kdump on
-
+            rpm -q --quiet grubby || InstallPackages grubby
             Log "- Changing boot loader."
             {
                 /sbin/grubby                     \
