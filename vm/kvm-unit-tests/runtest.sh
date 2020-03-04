@@ -184,6 +184,38 @@ cat test.log | tee -a $OUTPUTFILE
 # check for any new failures
 grep FAIL test.log >> failures.txt
 
+# Run KVM Unit tests with Advanced Virt (qemu-4.0) if possible
+if dnf repolist --all | grep rhel8-advvirt; then
+    dnf module -y reset virt
+    dnf module -y --enablerepo=rhel8-advvirt enable virt:8.1
+    dnf update -y --enablerepo=rhel8-advvirt qemu-*
+
+    git clean -fdx
+    git reset --hard
+
+    cp ../x86_adv_unittests.cfg x86/unittests.cfg
+    cp ../aarch64_unittests.cfg arm/unittests.cfg
+    cp ../s390x_unittests.cfg s390x/unittests.cfg
+
+    # run the tests
+    if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
+        ./configure --endian=little
+    else
+        ./configure
+    fi
+    make
+    ./run_tests.sh -v > testadv.log 2>&1
+    cat testadv.log | tee -a $OUTPUTFILE
+
+    # check for any new failures
+    grep FAIL testadv.log >> failures.txt
+
+    # cleanup Advanced VIRT repo and downgrade QEMU version
+    dnf module -y reset virt
+    dnf module -y enable virt
+    dnf downgrade -y qemu-*
+fi
+
 # submit logs to beaker
 which rstrnt-report-log > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
