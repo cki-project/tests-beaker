@@ -252,13 +252,13 @@ iperf_install()
 	if [[ $? != 0 ]]; then
 		echo "${TEST} fail grabbing iperf source"
 		test_warn "Grabbing iperf-2 source failed"
-		rhts-abort -t recipe
+		rstrnt-abort -t recipe
 		exit
 	fi
 	tar xf ${IPERF_FILE}
 	if [[ $? != 0 ]]; then
 		echo "${TEST} fail extracting ${IPERF_FILE}"
-		report_result ${TEST}_extract_iperf FAIL 1
+		rstrnt-report-result ${TEST}_extract_iperf FAIL 1
 		exit 1
 	fi
 	BUILD_DIR="${IPERF_FILE%.tar.gz}"
@@ -267,13 +267,13 @@ iperf_install()
 	./configure && make && make install
 	if [[ $? != 0 ]]; then
 		echo "${TEST} fail installing iperf"
-		report_result ${TEST}_install_iperf FAIL 1
+		rstrnt-report-result ${TEST}_install_iperf FAIL 1
 		exit 1
 	fi
 	IPERF_EXEC=$(which iperf)
 	if [[ $? != 0 ]]; then
 		echo "${TEST} fail finding sctp_iperf executable"
-		report_result ${TEST}_find_iperf FAIL 1
+		rstrnt-report-result ${TEST}_find_iperf FAIL 1
 		exit 1
 	fi
 	cd ${CUR_PWD}

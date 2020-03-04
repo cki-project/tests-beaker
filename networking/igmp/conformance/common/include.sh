@@ -23,7 +23,7 @@ test_pass()
     echo -e "\n:: [  PASS  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
     # we don't care how many test passed
     if [ $JOBID ]; then
-       report_result "${TEST}/$1" "PASS"
+       rstrnt-report-result "${TEST}/$1" "PASS"
     else
         echo -e "\n::::::::::::::::"
         echo -e ":: [  ${GRN}PASS${RES}  ] :: Test '"${TEST}/$1"'"
@@ -37,7 +37,7 @@ test_fail()
     echo -e ":: [  FAIL  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
     # we only care how many test failed
     if [ $JOBID ]; then
-        report_result "${TEST}/$1" "FAIL" "$SCORE"
+        rstrnt-report-result "${TEST}/$1" "FAIL" "$SCORE"
     else
         echo -e "\n:::::::::::::::::"
         echo -e ":: [  ${RED}FAIL${RES}  ] :: Test '"${TEST}/$1"' FAIL $SCORE"
@@ -49,7 +49,7 @@ test_warn()
 {
     echo -e "\n:: [  WARN  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
     if [ $JOBID ]; then
-        report_result "${TEST}/$1" "WARN"
+        rstrnt-report-result "${TEST}/$1" "WARN"
     else
         echo -e "\n:::::::::::::::::"
         echo -e ":: [  ${YEL}WARN${RES}  ] :: Test '"${TEST}/$1"'"

@@ -90,7 +90,7 @@ rlJournalStart
         if [ $? != 0 ]; then
             echo "Failed to git clone $GIT_URL." | tee -a $OUTPUTFILE
             rhts-report-result $TEST WARN $OUTPUTFILE
-            rhts-abort -t recipe
+            rstrnt-abort -t recipe
         fi
 
         rlRun "pushd audit-testsuite" 0 || rlDie
@@ -132,6 +132,9 @@ rlJournalStart
             fi
             if rlIsRHEL "<8" || [ -z "$exclude_exe_filter_supported" ]; then
                 TESTS="$(echo $TESTS | sed 's/exec_name//g')"
+            fi
+            if rlIsRHEL "<8.1"; then
+                TESTS="$(echo $TESTS | sed 's/filter_saddr_fam//g')"
             fi
 
             # Test lost_reset is unstable.

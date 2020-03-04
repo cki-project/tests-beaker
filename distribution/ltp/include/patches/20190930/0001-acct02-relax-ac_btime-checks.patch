@@ -1,0 +1,60 @@
+From d45519638e3cfc11334fb74172161f17fd955608 Mon Sep 17 00:00:00 2001
+From: Jan Stancek <jstancek@redhat.com>
+Date: Tue, 12 Nov 2019 10:15:18 +0100
+Subject: [PATCH] acct02: relax ac_btime checks
+
+ac_btime is calculated back from current time and isn't accurate.
+Problems include nanoseconds accumulation (lags behind gettimeofday),
+suspend/resume isn't taken into account and any adjtime() (like DST
+change) will cause ac_btime to jump as well.
+
+Relax the condition to ~2h around gettimeofday value at start of
+the test. That should be enough to cover usual DST time jumps.
+
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Reviewed-by: Petr Vorel <pvorel@suse.cz>
+Tested-by: Petr Vorel <pvorel@suse.cz>
+Acked-by: Cyril Hrubis <chrubis@suse.cz>
+---
+ testcases/kernel/syscalls/acct/acct02.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/testcases/kernel/syscalls/acct/acct02.c b/testcases/kernel/syscalls/acct/acct02.c
+index 890568b08..2f1290fa2 100644
+--- a/testcases/kernel/syscalls/acct/acct02.c
++++ b/testcases/kernel/syscalls/acct/acct02.c
+@@ -74,7 +74,8 @@ static int verify_acct(void *acc, int elap_time)
+ {
+ 	int sys_time  = UNPACK(ACCT_MEMBER(ac_stime));
+ 	int user_time = UNPACK(ACCT_MEMBER(ac_stime));
+-	int ret = 0, tmp;
++	unsigned int btime_diff;
++	int ret = 0;
+ 	float tmp2;
+ 
+ 	if (strcmp(ACCT_MEMBER(ac_comm), COMMAND)) {
+@@ -83,15 +84,13 @@ static int verify_acct(void *acc, int elap_time)
+ 		ret = 1;
+ 	}
+ 
+-	if (ACCT_MEMBER(ac_btime) < start_time) {
+-		tst_res(TINFO, "ac_btime < %d (%d)", start_time,
+-			ACCT_MEMBER(ac_btime));
+-		ret = 1;
+-	}
++	if (start_time > ACCT_MEMBER(ac_btime))
++		btime_diff = start_time - ACCT_MEMBER(ac_btime);
++	else
++		btime_diff = ACCT_MEMBER(ac_btime) - start_time;
+ 
+-	tmp = ACCT_MEMBER(ac_btime) - start_time;
+-	if (tmp > 1) {
+-		tst_res(TINFO, "ac_btime - %d > 1 (%d)", start_time, tmp);
++	if (btime_diff > 7200) {
++		tst_res(TINFO, "ac_btime_diff %u", btime_diff);
+ 		ret = 1;
+ 	}
+ 
+-- 
+2.20.1
+

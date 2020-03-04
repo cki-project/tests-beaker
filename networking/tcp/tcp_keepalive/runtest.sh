@@ -40,6 +40,14 @@ fi
 
 rlJournalStart
     rlPhaseStartSetup
+       if [ $(rlGetDistroRelease) -ge "7" ]; then
+           rlServiceStop firewalld
+       else
+           rlServiceStop iptables
+           rlServiceStop ip6tables
+       fi
+       rlRun "iptables -F" 0-255
+       rlRun "ip6tables -F" 0-255
        # host
        rlRun "sys_ka_idle=$(cat /proc/sys/net/ipv4/tcp_keepalive_time)" 0
        rlRun "sys_ka_interval=$(cat /proc/sys/net/ipv4/tcp_keepalive_intvl)" 0

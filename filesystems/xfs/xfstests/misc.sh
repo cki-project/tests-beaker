@@ -121,14 +121,14 @@ function echoo()
 	echo $@ | tee -a $OUTPUTFILE
 }
 
-# Wrapper to report_result, clears $OUTPUTFILE
+# Wrapper to rstrnt-report-result, clears $OUTPUTFILE
 function report()
 {
 	WHAT="$TEST_ID:$1"
 	STATUS="$2"
 	SCORE="$3"
 	test -z "$SCORE" && SCORE=0
-	report_result "$WHAT" "$STATUS" "$SCORE"
+	rstrnt-report-result "$WHAT" "$STATUS" "$SCORE"
 	rm -f $OUTPUTFILE
 	touch $OUTPUTFILE
 }

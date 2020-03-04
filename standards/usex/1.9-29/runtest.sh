@@ -27,7 +27,7 @@ function VerboseCupsLog()
    echo "-------------------------------------------------------------------------" | tee -a ${OUTPUTFILE} 
    echo "Setting up verbose debug logging in /var/log/cups/error_log for BZ452305." | tee -a ${OUTPUTFILE}
    echo "-------------------------------------------------------------------------" | tee -a ${OUTPUTFILE}
-   rhts-backup /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
+   rstrnt-backup /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
    sed -i -e 's,^LogLevel.*,LogLevel debug2,' /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
    sed -i -e '/^MaxLogSize/d' /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
    echo MaxLogSize 0 >> /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
@@ -120,4 +120,4 @@ else
     export result="PASS"
 fi
 
-report_result $TEST $result $fail
+rstrnt-report-result $TEST $result $fail

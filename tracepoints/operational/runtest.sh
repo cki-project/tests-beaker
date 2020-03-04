@@ -15,14 +15,14 @@ fi
 function resultFail()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
-    report_result $1 FAIL $2
+    rstrnt-report-result $1 FAIL $2
     echo "" | tee -a $OUTPUTFILE
 }
 
 function resultPass ()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
-    report_result $1 PASS $2
+    rstrnt-report-result $1 PASS $2
     echo "" | tee -a $OUTPUTFILE
 }
 
@@ -180,6 +180,32 @@ if [ $? -eq 0 ]; then
     echo "***** Running in FIPS mode, stap modules would cause kernel panic ****" | tee -a $OUTPUTFILE
     rhts-report-result $TEST SKIP $OUTPUTFILE
     exit 0
+fi
+
+# Warn if gcc does not have retpoline (x86_64) or expoline (s390x) support.
+# SystemTap cannot find any tracepoints in newer kernels with Spectre v2
+# mitigations without retpoline/expoline support in gcc.
+# aarch64 and ppc64le mitigated Spectre v2 through other means so we do
+# not need to check those platforms for gcc support.
+if [ -e /sys/devices/system/cpu/vulnerabilities/spectre_v2 ]; then
+  CFLAGS=""
+  if [ "`uname -i`" = "x86_64" ]; then
+    CFLAGS="-mindirect-branch=thunk-extern"
+    CFLAGS+=" -mindirect-branch-register"
+    MITIGATION="retpoline"
+  elif [ "`uname -i`" = "s390x" ]; then
+    CFLAGS="-mindirect-branch=thunk-extern"
+    CFLAGS+=" -mindirect-branch-table"
+    CFLAGS+=" -mfunction-return=thunk-extern"
+    MITIGATION="expoline"
+  fi
+
+  if [ -n "$CFLAGS" ]; then
+    if ! gcc -Werror $CFLAGS -E -x c /dev/null -o /dev/null >/dev/null 2>&1
+    then
+      rstrnt-report-result "gcc does not have $MITIGATION support" WARN 1
+    fi
+  fi
 fi
 
 # Skip test if we are running an earlier distro (Supported in RHEL5.4)

@@ -218,42 +218,9 @@ else
 			rlRun "$C_CMD ping $gre_s_ip4 -c 5"
 			rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
 
-			rlRun "$S_CMD iperf -s -B $gre_s_ip4 -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -c $gre_s_ip4"
-			rlRun "pkill -9 iperf" "0-255"
-			rlRun "$S_CMD iperf -s -B $gre_s_ip4 -u -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -u -c $gre_s_ip4"
-			rlRun "pkill -9 iperf" "0-255"
-
-			rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -V -c $gre_s_ip6"
-			rlRun "pkill -9 iperf" "0-255"
-			rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -u -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -u -V -c $gre_s_ip6"
-			rlRun "pkill -9 iperf" "0-255"
-
-			rlRun "$S_CMD pkill -9 netserver" "0-255"
-			rlRun "$S_CMD netserver -d"
-			rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t UDP_STREAM -- -R 1"
-			if $C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -l 1
-			then
-				rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t SCTP_STREAM -- -m 16k"
-			fi
-			rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t TCP_STREAM"
-			rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t UDP_STREAM -- -R 1"
-			rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t TCP_STREAM"
-			if $C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -l 1
-			then
-				rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t SCTP_STREAM -- -m 16k"
-			fi
 			rlRun "$C_CMD ip -d -s link sh $gre_devname"
 			rlRun "$S_CMD ip -d -s link sh $gre_devname"
 
-			rlRun "pkill -9 netserver"
 			rlRun "$C_CMD ip l2tp del tunnel tunnel_id 3000 peer_tunnel_id 4000"
 			rlRun "$S_CMD ip l2tp del tunnel tunnel_id 4000 peer_tunnel_id 3000"
 			rlRun "sleep 1"
@@ -281,8 +248,6 @@ TEST_ITEMS=${TEST_ITEMS:-$TEST_ITEMS_ALL}
 
 rlJournalStart
 	rlPhaseStartSetup
-	rlRun "netperf_install"
-	which iperf || rlRun "iperf_install"
 	rlPhaseEnd
 
 

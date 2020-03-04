@@ -72,17 +72,16 @@ function ltp_test_build()
 	fi
 
 	pushd ltp > /dev/null 2>&1
-	git checkout 6dbcc428f15e62d09ff8c02b1506a47b8ab7dea7
+	git checkout 7d9b8c623d37956b983e5b3ae41a7bf455ad5a0a
+	# Timing on systems with shared resources (and high steal time) is not accurate, apply patch for non bare-metal machines
+	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
+	# Disable btrfs testing
+	patch -p1 < ../patches/disable-btrfs.patch
 	make autotools                      &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	./configure --prefix=${TARGET_DIR}  &> configlog.txt || if cat configlog.txt; then test_msg fail "config  ltp failed"; fi
 	make -j$CPUS_NUM                    &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "build   ltp failed"; fi
 	make install                        &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "install ltp failed"; fi
-	# Timing on systems with shared resources (and high steal time) is not accurate, apply patch for non bare-metal machines
-	patch -p1 < ../patches/ltp-include-relax-timer-thresholds-for-non-baremetal.patch
-	# Debug kernels will fail dmesg check when greping for BUG
-	patch -p1 < ../patches/dynamic_debug_dmesg_check.patch
 	popd > /dev/null 2>&1
-
 	test_msg pass "LTP build/install successful"
 }
 
@@ -155,7 +154,7 @@ function ltp_test_run()
 		CleanUp $RUNTEST
 
 		OUTPUTFILE=`mktemp /tmp/tmp.XXXXXX`
-		RunTest $RUNTEST "$OPTS"
+		RunTest $RUNTEST ${LTPDIR}/KNOWNISSUE "$OPTS"
 	done
 }
 
@@ -175,7 +174,7 @@ function ltp_test_end()
 [ -z "${REBOOTCOUNT##*[!0-9]*}" ] && REBOOTCOUNT=0
 if [ "${REBOOTCOUNT}" -ge 1 ]; then
     test_msg log "======= Test has already been run, Check logs for possible failures ========="
-    report_result CHECKLOGS FAIL 99
+    rstrnt-report-result CHECKLOGS FAIL 99
     exit 0
 fi
 

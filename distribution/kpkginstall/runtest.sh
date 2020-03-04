@@ -313,7 +313,7 @@ function copr_prepare()
 function download_install_package()
 {
   # If download of a package fails, report warn/abort -> infrastructure issue
-  if $YUM install --downloadonly -y $1 > /dev/null; then
+  if $YUM install --downloadonly -y $1 > /dev/null || yumdownloader -y $1 > /dev/null; then
     cki_print_success "Downloaded $1 successfully"
   else
     cki_abort_recipe "Failed to download ${1}!" WARN
@@ -443,8 +443,8 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
 *******************************************************************************
 *******************************************************************************
 EOF
-  report_result ${TEST}/kernel-in-place PASS 0
-  rhts-reboot
+  rstrnt-report-result ${TEST}/kernel-in-place PASS 0
+  rstrnt-reboot
 else
   # set YUM var.
   select_yum_tool
@@ -462,22 +462,21 @@ else
   if [ -f /tmp/kpkginstall/KPKG_VAR_DEBUG ]; then
     valid_kernel_versions=(
       "${KVER}.debug"           # RHEL 7 style debug kernels
-      "${KVER}.${ARCH}.debug"   # RHEL 7 style debug kernels
       "${KVER}+debug"           # RHEL 8 style debug kernels
-      "${KVER}.${ARCH}+debug"   # RHEL 8 style debug kernels
     )
   else
+    KVER=$(uname -r | sed "s/.$(uname -i)//")
     valid_kernel_versions=(
       "${KVER}"
       "${KVER}.${ARCH}"
     )
   fi
   ckver=$(uname -r)
-  cki_print_info "Acceptable kernel version strings: ${valid_kernel_versions[@]} "
+  cki_print_info "Acceptable kernel version strings: ${valid_kernel_versions[*]} "
   cki_print_info "Running kernel version string:     ${ckver}"
 
   # Did we get the right kernel running after reboot?
-  if [[ ! " ${valid_kernel_versions[@]} " =~ " ${ckver} " ]]; then
+  if [[ ! " ${valid_kernel_versions[*]} " =~ " ${ckver} " ]]; then
     cki_abort_recipe "Kernel version after reboot (${ckver}) does not match expected version strings!" WARN
   fi
 
@@ -491,8 +490,8 @@ else
     dmesg > ${DMESGLOG}
     rhts_submit_log -l ${DMESGLOG}
     cki_print_warning "Call trace found in dmesg, see dmesg.log"
-    report_result ${TEST} WARN 7
+    rstrnt-report-result ${TEST} WARN 7
   else
-    report_result ${TEST}/reboot PASS 0
+    rstrnt-report-result ${TEST}/reboot PASS 0
   fi
 fi

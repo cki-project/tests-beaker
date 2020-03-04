@@ -33,7 +33,7 @@ fi
 ~~~
 if [ $? -ne 0 ]; then
     rlLog "Aborting recipe because $reason"
-    rhts-abort recipe
+    rstrnt-abort recipe
 fi
 ~~~
 

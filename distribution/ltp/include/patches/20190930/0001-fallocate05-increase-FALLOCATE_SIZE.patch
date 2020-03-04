@@ -1,0 +1,39 @@
+From 8075f5fa9d42d5d54056e01d84128b7b3118fb92 Mon Sep 17 00:00:00 2001
+From: Jan Stancek <jstancek@redhat.com>
+Date: Mon, 18 Nov 2019 16:48:19 +0100
+Subject: [PATCH] fallocate05: increase FALLOCATE_SIZE
+
+write() returning ENOSPC doesn't guarantee that filesystem after
+some internal book-keeping, flushing, finishing transactions, etc.
+won't still find some extra space.
+
+Increase FALLOCATE_SIZE to minimize chance of hitting sporadic
+failures when that happens.
+
+Thanks to Carlos Maiolino and Eric Sandeen for their comments
+and suggestions.
+
+Fixes #610
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Acked-by: Cyril Hrubis <chrubis@suse.cz>
+Reviewed-by: Li Wang <liwang@redhat.com>
+---
+ testcases/kernel/syscalls/fallocate/fallocate05.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/testcases/kernel/syscalls/fallocate/fallocate05.c b/testcases/kernel/syscalls/fallocate/fallocate05.c
+index 50c610c44..17034e5b1 100644
+--- a/testcases/kernel/syscalls/fallocate/fallocate05.c
++++ b/testcases/kernel/syscalls/fallocate/fallocate05.c
+@@ -17,7 +17,7 @@
+ #include "lapi/fallocate.h"
+ 
+ #define MNTPOINT "mntpoint"
+-#define FALLOCATE_SIZE 8192
++#define FALLOCATE_SIZE (1024*1024)
+ #define TESTED_FLAGS "fallocate(FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE)"
+ 
+ static int fd;
+-- 
+2.20.1
+

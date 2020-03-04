@@ -1,0 +1,37 @@
+From 31f45d80bd572946288e8b9a051ecf245a482df8 Mon Sep 17 00:00:00 2001
+From: Erico Nunes <ernunes@redhat.com>
+Date: Mon, 8 Apr 2019 21:46:02 +0200
+Subject: fwts: fix access_ok for the RHEL8 kernel
+
+The RHEL8 4.18 kernel backported a fix from the 5.0 kernel which changes
+the number of arguments for the access_ok macro.
+fwts handles this for the upstream kernel by checking the kernel version
+as 5.0 or bigger, but this fails for RHEL8 since it runs a 4.18 patched
+kernel.
+To fix the issue for RHEL8, use the modified macro for kernel 4.18
+kernel as well.
+
+This breaks the usage with non-RHEL8 kernels between 4.18 and 5.0, but
+this is done to keep the solution simple for now.
+
+Signed-off-by: Erico Nunes <ernunes@redhat.com>
+---
+ efi_runtime/efi_runtime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/efi_runtime/efi_runtime.c b/efi_runtime/efi_runtime.c
+index 5dfa089e..a6c6088e 100644
+--- a/efi_runtime/efi_runtime.c
++++ b/efi_runtime/efi_runtime.c
+@@ -41,7 +41,7 @@ MODULE_LICENSE("GPL");
+ #define EFI_RUNTIME_ENABLED	efi_enabled
+ #endif
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 18, 0)
+ #define ACCESS_OK(type, addr, size)	access_ok(addr, size)
+ #else
+ #define ACCESS_OK(type, addr, size)	access_ok(type, addr, size)
+-- 
+2.20.1
+

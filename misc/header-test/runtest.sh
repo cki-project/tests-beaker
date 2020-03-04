@@ -39,16 +39,16 @@ if [ $? -eq 0 ]; then
     cat output.log | tee -a $OUTPUTFILE
     if [ $ret -eq 0 ]; then
         echo "ALL OK -> PASS" | tee -a $OUTPUTFILE
-        report_result $TEST PASS $(grep --count PASS $OUTPUTFILE)
+        rstrnt-report-result $TEST PASS $(grep --count PASS $OUTPUTFILE)
         exit 0
     fi
     popd
     if [ "$VERIFY" = "yes" ]; then
         $PYTHON report-verify.py < $OUTPUTFILE 2>&1 | tee $TEST_DIR/verify-all.log
-        rhts-submit-log -l $TEST_DIR/verify-all.log
+        rstrnt-report-log -l $TEST_DIR/verify-all.log
         $PYTHON report-verify.py --pass < $OUTPUTFILE 2>&1 | tee $TEST_DIR/verify-pass.log
-        rhts-submit-log -l $TEST_DIR/verify-pass.log
+        rstrnt-report-log -l $TEST_DIR/verify-pass.log
     fi
 fi
 
-report_result $TEST FAIL $(grep --count FAIL $OUTPUTFILE)
+rstrnt-report-result $TEST FAIL $(grep --count FAIL $OUTPUTFILE)

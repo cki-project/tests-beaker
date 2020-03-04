@@ -22,4 +22,4 @@ for func in $FUNCTION; do
 	$func
 done
 
-report_result $TEST PASS 0
+rstrnt-report-result $TEST PASS 0

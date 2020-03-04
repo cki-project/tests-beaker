@@ -98,7 +98,7 @@ rlJournalStart
 
 		pkill tcpdump
 		sleep $wait_time
-		rhts-submit-log -l $ns1_if.pcap
+		rstrnt-report-log -l $ns1_if.pcap
 		bash netns_clean.sh
 	fi
     rlPhaseEnd

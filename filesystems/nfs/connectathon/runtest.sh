@@ -121,7 +121,7 @@ function checkServers ()
             if [[ -z $servers ]]; then
                 # Not found online nfs servers
                 echo "Not found online nfs server from the list, aborting the task" | tee -a $OUTPUTFILE
-                report_result $TEST WARN/ABORTED
+                rstrnt-report-result $TEST WARN/ABORTED
                 # Abort the task
                 rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
                 exit 0
@@ -148,14 +148,14 @@ function checkServers ()
                 fi
             fi
        else
-          report_result $TEST WARN/ABORTED
+          rstrnt-report-result $TEST WARN/ABORTED
        fi
     else
         local s390chk=$(/bin/hostname | awk -F. '{print $2}')
         if [ $s390chk = "z900" ]; then
-            report_result $TEST PASS
+            rstrnt-report-result $TEST PASS
         else
-            report_result $TEST WARN/ABORTED
+            rstrnt-report-result $TEST WARN/ABORTED
             if  is_run_byci ; then
                 # nfs server list is empty
                 echo "nfs server list is empty, aborting the task" | tee -a $OUTPUTFILE
@@ -256,9 +256,9 @@ function _cthon04 ()
         if [ -z "$SKIP_SUBRESULT" ]; then
             local iswarn=`/bin/grep WARNING! $OUTPUTFILE | wc -l`
             if [ $iswarn -gt $result ]; then
-                report_result $TEST/$server/$report_path/$name PASS $iswarn
+                rstrnt-report-result $TEST/$server/$report_path/$name PASS $iswarn
             else
-                report_result $TEST/$server/$report_path/$name PASS $result
+                rstrnt-report-result $TEST/$server/$report_path/$name PASS $result
             fi
         fi
         if [ -z "$SAVECAPTURE" ]; then
@@ -269,7 +269,7 @@ function _cthon04 ()
     else
         bzip2 $tethereal_out.cap
         rhts_submit_log -l $tethereal_out.cap.bz2
-        report_result $TEST/$server/$report_path/$name FAIL $result
+        rstrnt-report-result $TEST/$server/$report_path/$name FAIL $result
         if [ -z "$SAVECAPTURE_FAILED" ]; then
             rm -f $tethereal_out.cap.bz2 > /dev/null 2>&1
         fi
@@ -373,7 +373,7 @@ function get_supported_server_versions ()
             else
                 echo "Unexpected error from v41 mount of $server" | tee -a $OUTPUTFILE
                 cat $mount_pnfs_err_file | tee -a $OUTPUTFILE
-                report_result server_unexpected_v41_mount_err WARN/ABORTED
+                rstrnt-report-result server_unexpected_v41_mount_err WARN/ABORTED
                 if  is_run_byci ; then
                     # Abort the task
                    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
@@ -387,7 +387,7 @@ function get_supported_server_versions ()
     echo "$server supports: $_nfsvers" | tee -a $OUTPUTFILE
     if [ -z "$_nfsvers" ]; then
             echo "No supported NFS versions for $server?" | tee -a $OUTPUTFILE
-            report_result NoSupportedNFSVersions WARN/ABORTED
+            rstrnt-report-result NoSupportedNFSVersions WARN/ABORTED
             if  is_run_byci ; then
                 # Abort the task
                 rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
@@ -550,18 +550,18 @@ function cthon_main ()
 
         if [ $SCORE -eq 0 ]; then
             if [ $TTIME -lt 1000 ]; then
-                report_result $TEST/$server PASS $TTIME
+                rstrnt-report-result $TEST/$server PASS $TTIME
             else
                 echo "Time exceeded 1000 seconds" | tee -a $OUTPUTFILE
                 if is_run_byci; then
                     echo "but it is run via CI, so also mark it as PASSED" | tee -a $OUTPUTFILE
-                    report_result $TEST/$server PASS $TTIME
+                    rstrnt-report-result $TEST/$server PASS $TTIME
                 else
-                    report_result $TEST/$server WARN/COMPLETED $TTIME
+                    rstrnt-report-result $TEST/$server WARN/COMPLETED $TTIME
                 fi
             fi
         else
-            report_result $TEST/$server FAIL $TTIME
+            rstrnt-report-result $TEST/$server FAIL $TTIME
         fi
     done
     popd

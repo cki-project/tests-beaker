@@ -66,10 +66,10 @@ for fs in $filesystems; do
         ret=$?
         if [ $ret -eq 0 ]; then
             echo "$fs PASSed" | tee -a $OUTPUTFILE
-            report_result $fs PASS 0
+            rstrnt-report-result $fs PASS 0
         else
             echo "$fs FAILed" | tee -a $OUTPUTFILE
-            report_result $fs FAIL $ret
+            rstrnt-report-result $fs FAIL $ret
         fi
         cat $OUTPUTFILE
         echo > $OUTPUTFILE
@@ -79,6 +79,6 @@ done
 rm -f $storage_path 2>&1 >> $OUTPUTFILE
 
 echo "Test finished" | tee -a $OUTPUTFILE
-report_result finished PASS 0
+rstrnt-report-result finished PASS 0
 
 exit 0
