@@ -19,6 +19,9 @@
       <task name="/distribution/check-install" role="STANDALONE"/>
       <task name="LTP" role="STANDALONE">
         <fetch url="https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp-upstream/lite"/>
+        <dependencies>
+          <dependency url="https://github.com/linux-test-project/ltp/releases/download/20200120/ltp-full-20200120.tar.bz2"/>
+        </dependencies>
       </task>
     </recipe>
   </recipeSet>
