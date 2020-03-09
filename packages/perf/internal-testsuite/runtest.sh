@@ -32,7 +32,7 @@
 # Known failure on Mustangs, skip this test until BZ 1619305 is resolved
 if type -p dmidecode >/dev/null ; then
     if dmidecode -t1 | grep -q 'Product Name:.*Mustang.*' ; then
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit
     fi
 fi
@@ -112,7 +112,7 @@ rlJournalStart
                 # return Skip when correct kernel debug is not installed
                 if [ $? -ne 0 ]; then
                     echo "Correct kernel debuginfo pkg: ${KERNEL_DEBUGINFO_PKG_NAME} is not installed" | tee -a ${OUTPUTFILE}
-                    rhts-report-result $TEST SKIP $OUTPUTFILE
+                    rstrnt-report-result $TEST SKIP $OUTPUTFILE
                     exit 0
                 fi
 		echo "==================== kernel packages installed ===================="

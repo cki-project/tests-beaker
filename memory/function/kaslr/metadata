@@ -9,4 +9,4 @@ destructive=no
 [restraint]
 entry_point=make run
 dependencies=
-repoRequires=
+repoRequires=cki_lib

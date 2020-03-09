@@ -39,7 +39,10 @@ clean:
 	rm -f *~ $(BUILT_FILES) $(TARGET_FILES)
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Jianwen Ji <jiji@redhat.com>" > $(METADATA)
@@ -59,5 +62,5 @@ $(METADATA): Makefile
 	@echo "Requires:        texinfo" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
 	@echo "Requires:        kernel-modules-extra" >> $(METADATA)
-	@echo "RepoRequires:    cki_lib" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	rhts-lint $(METADATA)

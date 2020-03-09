@@ -31,7 +31,7 @@
 # -----------------------------------------------------------------------------
 
 # Include skt environment
-source /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 function test_fail()
 {

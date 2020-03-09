@@ -4,8 +4,8 @@
 #   This file includes functions that install some utilities
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-. /usr/bin/rhts-environment.sh
-. /usr/share/beakerlib/beakerlib.sh
+. ../../../cki_lib/libcki.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 export YUM_PROG=`which yum`
 if which dnf >/dev/null; then
@@ -62,7 +62,7 @@ function install_xfsprogs_obsolete()
 	then
 		xlog wget -N "${SERVER}/${XFSPROGS_REL}.src.rpm"
 		rpmbuild --rebuild "${XFSPROGS_REL}.src.rpm" 2>&1|tee build.log
-		rhts_submit_log -l build.log
+		rstrnt-report-log -l build.log
 		RPM=`egrep "Wrote.*${XFSPROGS_BAS}" build.log | awk '{print $NF}'`
 		echoo $RPM
 		xlog yum install --nogpgcheck -y "$RPM"
@@ -139,7 +139,7 @@ function install_xfsdump()
 		fi
 		xlog wget -N "${SERVER}/${XFSDUMP_REL}.src.rpm"
 		rpmbuild --rebuild "${XFSDUMP_REL}.src.rpm" 2>&1|tee build.log
-		rhts_submit_log -l build.log
+		rstrnt-report-log -l build.log
 		RPM=`egrep "Wrote.*${XFSDUMP_BAS}" build.log | awk '{print $NF}'`
 		echoo $RPM
 		xlog yum install --nogpgcheck -y "$RPM"
@@ -216,7 +216,7 @@ function install_fio()
 		report install_fio_git_upstream PASS 0
 		return 0
 	else
-		rhts_submit_log -l build-fio-upstream.log
+		rstrnt-report-log -l build-fio-upstream.log
 		report install_fio_git_upstream FAIL 0
 		return 1
 	fi

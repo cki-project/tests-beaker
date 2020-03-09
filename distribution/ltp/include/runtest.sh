@@ -27,7 +27,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 # Set unique log file.
 OUTPUTDIR=/mnt/testarea
@@ -153,7 +153,7 @@ SubmitLog ()
 {
     LOG=$1
 
-    rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
+    rstrnt-report-log -S $RESULT_SERVER -T $TESTID -l $LOG
 }
 
 CleanUp ()

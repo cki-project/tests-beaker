@@ -48,7 +48,7 @@ function VerboseCupsLog()
 # ---------- Start Test -------------
 # verify to not run on s390x
 if [ "$(uname -i)" = "s390x" ]; then
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 
@@ -114,8 +114,8 @@ export fail=`cat $OUTPUTDIR/report.out | grep "USEX TEST RESULT: FAIL" | wc -l`
 
 if [ "$fail" -gt "0" ]; then
     export result="FAIL"
-    rhts_submit_log -l $OUTPUTDIR/report.out
-    rhts_submit_log -l $USEX_LOG
+    rstrnt-report-log -l $OUTPUTDIR/report.out
+    rstrnt-report-log -l $USEX_LOG
 else
     export result="PASS"
 fi

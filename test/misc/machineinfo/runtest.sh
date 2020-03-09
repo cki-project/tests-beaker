@@ -26,8 +26,8 @@ echo "arch: $(uname -m)" > ${MDESC}
 lshw -class cpu -short >> ${MDESC}
 lshw -json -sanitize -notime > ${DATAFILE}
 
-rhts_submit_log -l ${MDESC}
-rhts_submit_log -l ${DATAFILE}
+rstrnt-report-log -l ${MDESC}
+rstrnt-report-log -l ${DATAFILE}
 rstrnt-report-result $TEST PASS 0
 
 rm ${DATAFILE}

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 PS4='+ $(date "+%s.%N")\011 '
 set -x

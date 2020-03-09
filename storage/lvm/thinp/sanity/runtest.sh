@@ -70,7 +70,7 @@ size_requested=1024
 
 # SKIP test if there's not enough space on target device
 if [[ $size_requested -gt $size_free ]]; then
-  rhts-report-result $TEST SKIP $OUTPUTFILE
+  rstrnt-report-result $TEST SKIP $OUTPUTFILE
   exit
 fi
 rcmd make_loop_dev loopdev1 512M

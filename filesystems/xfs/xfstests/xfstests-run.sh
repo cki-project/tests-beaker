@@ -45,18 +45,18 @@ function check_tests()
 		if test $ret -ne 0; then
 			if [ -f results/$XFSTEST.full ]; then
 				cp results/$XFSTEST.full results/$XFSTEST_LOGNAME.full
-				rhts_submit_log -l results/$XFSTEST_LOGNAME.full
+				rstrnt-report-log -l results/$XFSTEST_LOGNAME.full
 			fi
 			if [ -f results/$XFSTEST.out.bad ]; then
 				cp results/$XFSTEST.out.bad results/$XFSTEST_LOGNAME.out.bad
-				rhts_submit_log -l results/$XFSTEST_LOGNAME.out.bad
+				rstrnt-report-log -l results/$XFSTEST_LOGNAME.out.bad
 				# Gather the full diff
 				diff -u <(tr '`' "'" < tests/$XFSTEST.out) results/$XFSTEST.out.bad  > results/$XFSTEST_LOGNAME.out.bad.diff
-				rhts_submit_log -l results/$XFSTEST_LOGNAME.out.bad.diff
+				rstrnt-report-log -l results/$XFSTEST_LOGNAME.out.bad.diff
 			fi
 			if [ -f results/$XFSTEST.dmesg ]; then
 				cp results/$XFSTEST.dmesg results/$XFSTEST_LOGNAME.dmesg
-				rhts_submit_log -l results/$XFSTEST_LOGNAME.dmesg
+				rstrnt-report-log -l results/$XFSTEST_LOGNAME.dmesg
 			fi
 			ret=1
 			report $XFSTEST FAIL 0
@@ -121,7 +121,7 @@ function check()
 	else
 		echo $RUNTESTS > alltests.log
 	fi
-	rhts_submit_log -l alltests.log
+	rstrnt-report-log -l alltests.log
 	RUNTESTS=`cat alltests.log`
 	if [ -z "$RUNTESTS" ]; then
 		report RUNTESTS FAIL 0

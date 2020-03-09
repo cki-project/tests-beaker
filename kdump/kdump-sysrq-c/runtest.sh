@@ -20,6 +20,7 @@
 
 
 # Source kdump common functions
+. ../../cki_lib/libcki.sh || exit 1
 . ../include/runtest.sh
 
 ANALYZE_VMCORE="${ANALYZE_VMCORE:-true}"

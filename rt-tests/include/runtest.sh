@@ -24,7 +24,7 @@ function rt_env_setup()
         rt_package_install
     else
         echo "non rt kernel, please use rt kernel" | tee -a $OUTPUTFILE
-        rhts-report-result $TEST "SKIP" $OUTPUTFILE
+        rstrnt-report-result $TEST "SKIP" $OUTPUTFILE
         exit
     fi
 }

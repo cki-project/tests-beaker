@@ -64,4 +64,4 @@
 	. ../${relative_path}/common/include.sh
    2. And add the following line in you Makefile
 	@echo "RhtsRequires: kernel-kernel-networking-common" >> $(METADATA)
-	@echo "RepoRequires: networking/common/" >> $(METADATA)
+	@echo "repoRequires: networking/common/" >> $(METADATA)

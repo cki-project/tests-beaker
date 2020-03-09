@@ -26,14 +26,14 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
+. ../../../cki_lib/libcki.sh || exit 1
 
 gcc t_memfd_create.c -o t_memfd_create &&
 gcc t_get_seals.c -o t_get_seals
 if [ $? != 0 ]; then
     rlLog "memfd_create is not supported."
-    rhts-report-result $TEST SKIP
+    rstrnt-report-result $TEST SKIP
     exit
 fi
 

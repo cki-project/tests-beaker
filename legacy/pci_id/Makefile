@@ -36,7 +36,10 @@ run: $(FILES) build
 build:
 	test -x runtest.sh || chmod a+x runtest.sh
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Čestmír Kalina <ckalina@redhat.com>" > $(METADATA)
@@ -72,5 +75,4 @@ $(METADATA): Makefile
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "repoRequires:    legacy/shared" >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

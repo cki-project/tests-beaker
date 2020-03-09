@@ -52,7 +52,7 @@ function RunTest ()
 
     for rep in $(find -type f -name "rteval-????????-*.tar.bz2"); do
         echo "-- INFO -- Attaching report: $rep"
-        rhts_submit_log -l $rep
+        rstrnt-report-log -l $rep
     done
 
     if [ ${retcode} -eq 0 ] ; then

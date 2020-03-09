@@ -34,7 +34,10 @@ clean:
 	rm -f $(METADATA)
 
 # Include common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA):
 	touch $(METADATA)
@@ -44,6 +47,4 @@ $(METADATA):
 	@echo "TestVersion:	$(TESTVERSION)"	>>$(METADATA)
 	@echo "License:		GPLv3" >>$(METADATA)
 	@echo "Description: 	Make sure legacy env is setup." >>$(METADATA)
-
-	rhts-lint $(METADATA)
-
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

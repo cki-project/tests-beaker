@@ -27,8 +27,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh
 . /usr/share/beakerlib/beakerlib.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 rlJournalStart
 

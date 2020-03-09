@@ -208,8 +208,8 @@ _EOF_
 	get_blkdev_info $SCRATCH_DEV >> blockdev.info
 	get_blkdev_info $LOGWRITES_DEV >> blockdev.info
 
-	rhts_submit_log -l $config
-	rhts_submit_log -l blockdev.info
+	rstrnt-report-log -l $config
+	rstrnt-report-log -l blockdev.info
 }
 
 

@@ -26,10 +26,9 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Include rhts environment and beaker library
-. /usr/bin/rhts-environment.sh || exit 1
-. /usr/share/rhts-library/rhtslib.sh || exit 1
-
+# Include environment and beaker library
+. ../../../cki_lib/libcki.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # Test command, not the pipe (tee ...)
 set -o pipefail

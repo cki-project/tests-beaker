@@ -29,7 +29,10 @@ clean:
 	rm -f $(METADATA)
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -96,7 +99,7 @@ $(METADATA): Makefile
 	@echo "Requires:     samba samba-client cifs-utils" >> $(METADATA)
 	@echo "Requires:     rpcbind nfs-utils" >> $(METADATA)
 	@echo "Requires:     lvm2 beakerlib" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "RhtsRequires: test(/kernel/filesystems/xfs/include)" >> $(METADATA)
-	rhts-lint $(METADATA)
 #	The include package takes care of all the dependencies
 #	Add any other dependencies there (/kernel/filesystems/xfs/include)

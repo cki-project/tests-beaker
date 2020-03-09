@@ -20,7 +20,7 @@
 dmesg -c >/dev/null
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 . ./dep-install.sh
 . ./misc.sh

@@ -35,8 +35,7 @@ BUILT_FILES= # executables to be built should be added here, they will be genera
 FILES=$(TENV) $(METADATA) runtest.sh Makefile cthon_automount vercmp README.md
 
 run: $(FILES) build
-	( set +o posix; . /usr/bin/rhts_environment.sh; \
-. /usr/share/beakerlib/beakerlib.sh; \
+	( set +o posix; . /usr/share/beakerlib/beakerlib.sh; \
 . runtest.sh )
 
 build: $(BUILT_FILES)
@@ -50,7 +49,10 @@ clean:
 
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -68,6 +70,6 @@ $(METADATA): Makefile
 	@echo "Requires:     gcc  git wget bc beakerlib redhat-lsb-core sg3_utils" >> $(METADATA)
 	@echo "Requires:     utils-libs sg3_utils-devel rsyslog" >> $(METADATA)
 	@echo "Requires:     libnsl2 libtirpc-devel python2 python2-lxml python3-lxml" >> $(METADATA)
-	@echo "RepoRequires: cki_lib" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "License:      GPLv2" >> $(METADATA)
 

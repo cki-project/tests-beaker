@@ -13,12 +13,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-# Include rhts environment
-. /usr/bin/rhts-environment.sh || exit 1
+# Include environments
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # Include cki library
-. ../../cki_lib/libcki.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 # Task parameters
 # DeBug - Set to non-zero value to enable debugging

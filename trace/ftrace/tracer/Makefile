@@ -40,7 +40,10 @@ build:
 clean:
 	rm -fr *.rpm *.log
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Ziqian SUN <zsun@redhat.com>" > $(METADATA)

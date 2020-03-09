@@ -67,7 +67,10 @@ clean:
 	rm -f *~ *.rpm $(BUILT_FILES)
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the METADATA file testinfo.desc
 $(METADATA): Makefile
@@ -80,8 +83,8 @@ $(METADATA): Makefile
 	@echo "RunFor:       kernel" >> $(METADATA)
 	@echo "Requires:     nmap-ncat socat lksctp-tools" >> $(METADATA)
 	@echo "Requires:     tree" >> $(METADATA)
-	@echo "RepoRequires: networking/common" >> $(METADATA)
-	@echo "RepoRequires: networking/firewall/000infralib" >> $(METADATA)
+	@echo "repoRequires: networking/common" >> $(METADATA)
+	@echo "repoRequires: networking/firewall/000infralib" >> $(METADATA)
 	@echo "Priority:     Normal" >> $(METADATA)
 	@echo "License:      GPLv2" >> $(METADATA)
 	@echo "Confidential: no" >> $(METADATA)

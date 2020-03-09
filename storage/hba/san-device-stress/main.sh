@@ -106,7 +106,7 @@ sd=${_XXX_TEST_DISK}
 [[ -z $sd ]] && sd=$(get_test_disk)
 if [[ -z $sd ]]; then
         rlLog "no free disk available" | tee -a $OUTPUTFILE
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit 0
 fi
 
@@ -115,7 +115,7 @@ rlJournalStart
                 fio_setup
                 if (( $? != 0 )); then
                         rlLog "failed to setup fio" | tee -a $OUTPUTFILE
-                        rhts-report-result $TEST ABORT $OUTPUTFILE
+                        rstrnt-report-result $TEST ABORT $OUTPUTFILE
                         exit 1
                 fi
         rlPhaseEnd

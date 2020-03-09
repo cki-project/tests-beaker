@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 ARCH=$(uname -m)
 REBOOTCOUNT=${REBOOTCOUNT:-0}
@@ -488,7 +488,7 @@ else
   if [[ -n "${CHECK_DMESG}" && ${dmesgret} -eq 0 ]]; then
     DMESGLOG=/tmp/dmesg.log
     dmesg > ${DMESGLOG}
-    rhts_submit_log -l ${DMESGLOG}
+    rstrnt-report-log -l ${DMESGLOG}
     cki_print_warning "Call trace found in dmesg, see dmesg.log"
     rstrnt-report-result ${TEST} WARN 7
   else

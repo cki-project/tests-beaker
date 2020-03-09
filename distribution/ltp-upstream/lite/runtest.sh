@@ -15,7 +15,7 @@
 #
 # Author: Zhouping Liu <zliu@redhat.com> 
 
-. /usr/bin/rhts-environment.sh		|| exit 1
+. ../../../cki_lib/libcki.sh            || exit 1
 . /usr/share/beakerlib/beakerlib.sh	|| exit 1
 . ../include/runtest.sh			|| exit 1
 . ../include/knownissue.sh		|| exit 1

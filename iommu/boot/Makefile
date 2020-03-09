@@ -1,5 +1,7 @@
-# Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+ # Common Variables
+ TEST_DIR=/mnt/tests$(TEST)
+ INSTALL_DIR=$(DEST)$(TEST_DIR)
+ METADATA=testinfo.desc
 
 # The toplevel namespace within which the test lives.
 TOPLEVEL_NAMESPACE=/kernel
@@ -43,3 +45,4 @@ $(METADATA):
 	@echo "RunFor:		kernel"	>>$(METADATA)
 	@echo "License:		GPLv2" >>$(METADATA)
 	@echo "Owner:		William Gomeringer <wgomerin@redhat.com>" >>$(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)
