@@ -157,8 +157,14 @@ function setup_test_dev_mkfs()
 	# The TEST_DEV device is expected to be pre-mkfs'd as $FSTYPE
 	# Nfs cannot be dd'd nor mkfs'd
 	if [ "$FSTYPE" != "nfs3" -a "$FSTYPE" != "nfs4" -a "$FSTYPE" != "tmpfs" -a "$FSTYPE" != "cifs" ]; then
+		# check TEST_DEV
+		if ! blkid $TEST_DEV; then
+			echoo " * TEST_DEV $TEST_DEV looks invalid"
+			exit 0
+		fi
 		# Make FSTYPE fs with MKFS_OPTS options on the device, exit on failure
 		if ! mkfs_dev $TEST_DEV; then
+			echoo " * mkfs_dev on TEST_DEV $TEST_DEV failed"
 			exit 0
 		fi
 	fi
