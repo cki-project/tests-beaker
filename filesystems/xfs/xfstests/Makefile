@@ -19,7 +19,7 @@ export TESTVERSION=2.4
 FILES=$(METADATA) *.sh PURPOSE LICENCE known_issues Makefile RUNTESTS
 
 run: $(FILES) build
-	./runtest.sh
+	bash -x ./runtest.sh
 
 build: $(BUILT_FILES) $(FILES)
 	chmod a+x ./runtest.sh
