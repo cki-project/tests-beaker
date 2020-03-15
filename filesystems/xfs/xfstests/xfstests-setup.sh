@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/bash -x
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   This file includes xfstests setup functions
@@ -157,11 +157,18 @@ function setup_test_dev_mkfs()
 	# The TEST_DEV device is expected to be pre-mkfs'd as $FSTYPE
 	# Nfs cannot be dd'd nor mkfs'd
 	if [ "$FSTYPE" != "nfs3" -a "$FSTYPE" != "nfs4" -a "$FSTYPE" != "tmpfs" -a "$FSTYPE" != "cifs" ]; then
+		# check TEST_DEV
+		if ! blkid $TEST_DEV; then
+			echoo " * TEST_DEV $TEST_DEV looks invalid"
+			exit 0
+		fi
 		# Make FSTYPE fs with MKFS_OPTS options on the device, exit on failure
 		if ! mkfs_dev $TEST_DEV; then
+			echoo " * mkfs_dev on TEST_DEV $TEST_DEV failed"
 			exit 0
 		fi
 	fi
+	echoo " * setup_test_dev_mkfs on TEST_DEV $TEST_DEV done"
 }
 
 # Submit block device info for debug
@@ -204,6 +211,7 @@ _EOF_
 		echo "SCRATCH_DEV_POOL=\"$SCRATCH_DEV_POOL\"" >> $config
 	fi
 
+	echoo "getting blkdev info $TEST_DEV $SCRATCH_DEV $LOGWRITES_DEV"
 	get_blkdev_info $TEST_DEV > blockdev.info
 	get_blkdev_info $SCRATCH_DEV >> blockdev.info
 	get_blkdev_info $LOGWRITES_DEV >> blockdev.info
@@ -251,6 +259,7 @@ function setup_skiptests()
 	if [ $RHEL_MAJOR -eq 5 -a $WORDSIZE = 32 ]; then
 		SKIPTESTS="$SKIPTESTS xfs/092"
 	fi
+	echoo "setup_skiptests done"
 }
 
 
@@ -280,10 +289,16 @@ function setup_full
 	setup_gfs2
 	# Pre-mkfs TEST_DEV
 	setup_test_dev_mkfs
+	sleep 10
+	sync
 	# Write the new xfstests config file
 	setup_config
+	sleep 10
+	sync
 	# Setup SKIPTESTS variable based on SKIP_LEVEL, FSTYPE and TEST_PARAM_SKIPTESTS
 	setup_skiptests
+	sleep 10
+	sync
 
 	report setup_done PASS 0
 }
