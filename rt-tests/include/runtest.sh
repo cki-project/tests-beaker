@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Source rhts environment
-. /usr/bin/rhts_environment.sh
+# Source beaker environment
+. ../../cki_lib/libcki.sh || exit 1
 
 function rt_package_install()
 {

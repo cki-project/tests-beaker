@@ -59,10 +59,9 @@ $(METADATA): Makefile
 	@echo "Requires:        kernel git audit perl perl-Test perl-Test-Harness perl-File-Which perl-Time-HiRes gcc libgcc glibc-devel glibc-devel.i686 libgcc.i686 glibc-devel.s390 libgcc.s390 glibc-devel.ppc libgcc.ppc expect nmap-ncat" >> $(METADATA)
 	@echo "Requires:        gcc autoconf automake binutils gettext libtool make patch pkgconfig bison flex" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Releases:        -RHEL4 -RHELServer5 -RHELClient5" >> $(METADATA)
-
-	rhts-lint $(METADATA)

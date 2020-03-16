@@ -70,3 +70,4 @@ $(METADATA): Makefile
 	@echo "Requires:     python3-lxml" >> $(METADATA)
 	@echo "Requires:     kernel-modules-extra" >> $(METADATA)
 	@echo "Requires:     tcpdump" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)

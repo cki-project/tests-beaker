@@ -50,5 +50,4 @@ $(METADATA): Makefile
 			        possible priority task that it can run." >> $(METADATA)
 	@echo "Architectures:   x86_64" >>$(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)

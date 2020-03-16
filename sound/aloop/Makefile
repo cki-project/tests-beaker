@@ -51,3 +51,4 @@ $(METADATA): Makefile
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Requires:        alsa-utils" >> $(METADATA)
 	@echo "Requires:        python" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

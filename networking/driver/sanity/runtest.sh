@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 COUNT=0
 

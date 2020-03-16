@@ -57,10 +57,9 @@ $(METADATA): Makefile
 	@echo "RunFor:          perf" >> $(METADATA)
 	@echo "Requires:        perf virt-what elfutils kernel-debuginfo kernel-debug-debuginfo git bc gcc-c++" >> $(METADATA)
 	@echo "Requires:        coreutils-debuginfo yum-utils dnf-utils" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5" >> $(METADATA)
-
-	rhts-lint $(METADATA)

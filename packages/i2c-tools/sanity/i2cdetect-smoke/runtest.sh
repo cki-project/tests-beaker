@@ -27,8 +27,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh
-. /usr/lib/beakerlib/beakerlib.sh
+. ../../../../cki_lib/libcki.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 PACKAGE="i2c-tools"
 

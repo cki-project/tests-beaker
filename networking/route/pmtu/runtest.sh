@@ -26,11 +26,11 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
+. ../../../cki_lib/libcki.sh || exit 1
 . ./common/include.sh || exit 1
 . ./common/network.sh || exit 1
 . ./common/service.sh || exit 1
 . ./common/install.sh || exit 1
-. ../../../cki_lib/libcki.sh || exit 1
 
 YUM=$(cki_get_yum_tool)
 

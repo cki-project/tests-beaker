@@ -69,5 +69,3 @@ $(METADATA): Makefile
 	@echo "Requires:        kernel-modules-extra" >> $(METADATA)
 	@echo "Requires:        tcpdump" >> $(METADATA)
 	@echo "repoRequires:    cki_lib" >> $(METADATA)
-
-	rhts-lint $(METADATA)

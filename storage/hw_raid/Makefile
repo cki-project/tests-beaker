@@ -67,5 +67,3 @@ $(METADATA): Makefile
 	@echo "Requires:	$(PACKAGE_NAME)" >> $(METADATA)
 	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "RhtsRequires:	hw_raid" >> $(METADATA)
-
-	rhts-lint $(METADATA)

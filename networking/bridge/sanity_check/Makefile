@@ -59,9 +59,8 @@ $(METADATA): Makefile
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "repoRequires: networking/common" >> $(METADATA)
 	@echo "repoRequires: networking/bridge/common" >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "Priority:     Normal" >> $(METADATA)
 	@echo "License:      GPLv2 or above" >> $(METADATA)
 	@echo "Confidential: no" >> $(METADATA)
 	@echo "Destructive:  no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

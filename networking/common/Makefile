@@ -80,7 +80,3 @@ $(METADATA): Makefile
 	@echo "Requires:     expect pexpect python3-pexpect" >> $(METADATA)
 	@echo "Requires:     bc wget bzip2 gcc" >> $(METADATA)
 	@echo "Requires:     git patch rsync" >> $(METADATA)
-# add any other requirements for the script to run here
-
-# You may need other fields here; see the documentation
-	rhts-lint $(METADATA)

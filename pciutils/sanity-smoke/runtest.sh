@@ -26,7 +26,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # include libraries
-. /usr/lib/beakerlib/beakerlib.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../cki_lib/libcki.sh || exit 1
 
 PACKAGE="pciutils"

@@ -53,5 +53,3 @@ $(METADATA): Makefile
 	@echo "License:      GPLv2 or above" >> $(METADATA)
 	@echo "Confidential: no" >> $(METADATA)
 	@echo "Destructive:  no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

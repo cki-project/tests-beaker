@@ -74,3 +74,4 @@ $(METADATA):
 	@echo "Requires:	zlib-devel"				>> $(METADATA)
 	@echo "Requires:        git"					>> $(METADATA)
 	@echo "Requires:        python3-lxml"                           >> $(METADATA)	
+	@echo "repoRequires:    cki_lib"                                >> $(METADATA)

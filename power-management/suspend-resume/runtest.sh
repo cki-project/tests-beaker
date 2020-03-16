@@ -25,7 +25,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # Source the common test script helpers
-. /usr/bin/rhts-environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 SLEEP_TIME=10
 FAIL=0

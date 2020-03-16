@@ -60,9 +60,8 @@ $(METADATA): Makefile
 	@echo "Requires:        python2 python3" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
 	@echo "RhtsRequires:    library(httpd/http)" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

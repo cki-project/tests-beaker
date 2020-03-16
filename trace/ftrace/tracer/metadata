@@ -5,5 +5,5 @@ description="Minimal test for ftrace tracers"
 
 [restraint]
 entry_point=make run
-repoRequires=trace/include
+repoRequires=trace/include;cki_lib
 use_pty=true

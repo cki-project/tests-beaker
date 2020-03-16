@@ -16,10 +16,9 @@
 # Jianwen Ji: <jiji@redhat.com> 
 
 # include common  and Beaker environments
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ./common/include.sh || exit 1
-. ../../../../cki_lib/libcki.sh || exit 1
 
 rlJournalStart
 

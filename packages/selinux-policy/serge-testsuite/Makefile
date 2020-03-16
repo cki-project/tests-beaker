@@ -57,6 +57,7 @@ $(METADATA): Makefile
 	@echo "Type:            Sanity" >> $(METADATA)
 	@echo "RunFor:          selinux-policy" >> $(METADATA)
 	@echo "Requires:        git rpm" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
@@ -66,6 +67,3 @@ $(METADATA): Makefile
 	@echo "Bug:             1251546" >> $(METADATA) # RHEL-7
 	@echo "Bug:             1373368" >> $(METADATA) # RHEL-7
 	@echo "Bug:             1480521" >> $(METADATA) # RHEL-7
-
-	rhts-lint $(METADATA)
-

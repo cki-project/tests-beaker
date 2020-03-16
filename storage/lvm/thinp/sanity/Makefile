@@ -48,7 +48,6 @@ METADATA=testinfo.desc
 
 showmeta: $(METADATA)
 	@cat $(METADATA)
-	@rhts-lint $(METADATA)
 
 $(METADATA):
 	touch $(METADATA)
@@ -69,5 +68,6 @@ $(METADATA):
 	@echo "Requires:	make"           >> $(METADATA)
 	@echo "Requires:	glibc-static"   >> $(METADATA)
 	@echo "Requires:	gnuplot"	>> $(METADATA)
+	@echo "repoRequires:	cki_lib"	>> $(METADATA)
 	@echo "Owner:		Jakub Krysl <jkrysl@redhat.com>" >> $(METADATA)
 	@echo "License:		GPLv2"		>> $(METADATA)

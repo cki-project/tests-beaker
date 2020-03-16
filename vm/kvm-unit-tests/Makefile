@@ -60,9 +60,8 @@ $(METADATA): Makefile
 	@echo "Requires:        git" >> $(METADATA)
 	@echo "Requires:        gcc" >> $(METADATA)
 	@echo "Requires:        nmap-ncat" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv3" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

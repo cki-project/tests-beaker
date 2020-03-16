@@ -64,7 +64,3 @@ $(METADATA): Makefile
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA) 
 # add any other packages for which your test ought to run here
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
-# add any other requirements for the script to run here
-
-# You may need other fields here; see the documentation
-	rhts-lint $(METADATA)

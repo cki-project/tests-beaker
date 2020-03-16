@@ -75,6 +75,7 @@ $(METADATA): Makefile
 	@echo "Requires:	wget"		>> $(METADATA)
 	@echo "Requires:	pciutils"	>> $(METADATA)
 	@echo "Requires:	virt-what"	>> $(METADATA)
+	@echo "repoRequires:	cki_lib"	>> $(METADATA)
 	@echo "RunFor:		kernel" >> $(METADATA)
 	@echo "License:		GPLv2" 	>> $(METADATA)
 	@echo "Owner:		Victor Ruiz <rvr@redhat.com>"	>> $(METADATA)

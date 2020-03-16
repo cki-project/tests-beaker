@@ -143,13 +143,13 @@ source /usr/share/beakerlib/beakerlib.sh
 
 #
 # A simple wrapper function to skip a test because beakerlib doesn't support
-# such an important feature, right here we just leverage 'rhts'. Note we
+# such an important feature, right here we just leverage 'beaker'. Note we
 # don't call function report_result() as it directly invoke command
 # rstrnt-report-result actually
 #
 function rlSkip
 {
-    source /usr/bin/rhts_environment.sh
+    . ../../cki_lib/libcki.sh || exit 1
 
     rlLog "Skipping test because $*"
     rstrnt-report-result $TEST SKIP $OUTPUTFILE

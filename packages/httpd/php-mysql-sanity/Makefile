@@ -61,9 +61,8 @@ $(METADATA): Makefile
 	@echo "RhtsRequires:    library(mysql/basic)" >> $(METADATA)
 	@echo "RhtsRequires:    library(mariadb55/basic)" >> $(METADATA)
 	@echo "RhtsRequires:    library(php/utils)" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

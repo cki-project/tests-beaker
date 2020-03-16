@@ -67,7 +67,4 @@ $(METADATA): Makefile
 	@echo "Requires:     net-tools" >> $(METADATA)
 	@echo "repoRequires:    networking/common" >> $(METADATA)
 	@echo "repoRequires:    networking/tunnel/common" >> $(METADATA)
-# add any other requirements for the script to run here
-
-# You may need other fields here; see the documentation
-	rhts-lint $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

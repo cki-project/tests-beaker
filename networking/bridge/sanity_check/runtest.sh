@@ -23,6 +23,7 @@ CDIR=$(dirname $FILE)
 RPATH=${RELATIVE_PATH:-"networking/bridge/sanity_check"}
 
 # Include Beaker environment
+. ../../../cki_lib/libcki.sh || exit 1
 source ${CDIR%/$RPATH}/networking/common/include.sh || exit 1
 source ${CDIR%/$RPATH}/networking/bridge/common/lib.sh || exit 1
 
