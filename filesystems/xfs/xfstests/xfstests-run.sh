@@ -31,6 +31,7 @@ function check_tests()
 			echoo "The test $XFSTEST does not seem to exist."
 			continue
 		fi
+		echo "./checking $XFSTEST" > /dev/kmsg
 		MOUNT_OPTIONS="$MOUNT_OPTS" MKFS_OPTIONS="$MKFS_OPTS" xlog ./check $CHECK_OPTS $XFSTEST
 		ret=$?
 
@@ -128,6 +129,7 @@ function check()
 		popd
 		return 1
 	fi
+	echo "got RUNTESTS" > /dev/kmsg
 
 	for ((n=0;n<$LOOP;n++));do
 		check_tests
