@@ -24,7 +24,7 @@ assertPass echo > ${TRACE}
 
 test_hwlat(){
 tracername="hwlat"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   assertPass echo 10 > ${FTRACE_PREFIX}/tracing_thresh
   sleep 2
@@ -38,7 +38,7 @@ fi
 
 test_blk(){
 tracername="blk"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 2
 
@@ -52,7 +52,7 @@ fi
 
 test_mmiotrace(){
 tracername="mmiotrace"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
   cat ${TRACE} &> /dev/null ; rtrn=$?
@@ -66,7 +66,7 @@ fi
 
 test_function_graph(){
 tracername="function_graph"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
   cat ${TRACE} &> /dev/null ; rtrn=$?
@@ -79,7 +79,7 @@ fi
 
 test_wakeup(){
 tracername="wakeup"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
   cat ${TRACE} &> /dev/null ; rtrn=$?
@@ -92,7 +92,7 @@ fi
 
 test_wakeup_dl(){
 tracername="wakeup_dl"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
   cat ${TRACE} &> /dev/null ; rtrn=$?
@@ -105,7 +105,7 @@ fi
 
 test_wakeup_rt(){
 tracername="wakeup_rt"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
   cat ${TRACE} &> /dev/null ; rtrn=$?
@@ -118,7 +118,7 @@ fi
 
 test_function(){
 tracername="function"
-if grep -q ${tracername} ${FTRACE_PREFIX}/available_tracers; then
+if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
   cat ${TRACE} &> /dev/null ; rtrn=$?
