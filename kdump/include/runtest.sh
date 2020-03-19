@@ -33,6 +33,9 @@ K_TMP_DIR="${K_TESTAREA}/tmp"
 K_REBOOT="${K_TMP_DIR}/KDUMP-REBOOT"
 C_REBOOT="./C_REBOOT"
 
+UPGRADE_FC_KDUMP=${UPGRADE_FC_KDUMP:-"true"}
+UPGRADE_FC_CRASH=${UPGRADE_FC_CRASH:-"true"}
+
 mkdir -p ${K_TMP_DIR}
 
 [[ "$FAMILY" =~ [a-zA-Z]+5 ]] && IS_RHEL5=true || IS_RHEL5=false
@@ -295,8 +298,11 @@ RhtsSubmit() {
 GetBiosInfo()
 {
     # Get BIOS information.
-    dmidecode >"${K_TMP_DIR}/bios.output"
-    RhtsSubmit "${K_TMP_DIR}/bios.output"
+    rpm -q dmidecode || InstallPackages dmidecode
+    which dmidecode && {
+        dmidecode >"${K_TMP_DIR}/bios.output"
+        RhtsSubmit "${K_TMP_DIR}/bios.output"
+    }
 }
 
 GetHWInfo()
@@ -335,6 +341,12 @@ PrepareKdump()
             InstallPackages kexec-tools
             systemctl enable kdump.service || chkconfig kdump on
         }
+
+        # Try upgrading kexec-tools to the latest version if on FC.
+        # If it fails, still use the kexec-tools from the default repo.
+        if $IS_FC && $UPGRADE_FC_KDUMP; then
+            UpgradePackages kexec-tools dracut systemd --enablerepo=updates-testing --enablerepo=fedora --releasever=32
+        fi
 
         local default=/boot/vmlinuz-`uname -r`
         [ ! -s "$default" ] && default=/boot/vmlinux-`uname -r`
@@ -384,8 +396,8 @@ PrepareKdump()
         }
     fi
 
-    Log "- kexec-tools kernel versions"
-    rpm -q kexec-tools kernel
+    Log "- kexec-tools/systemd/dracut kernel versions"
+    rpm -q kexec-tools systemd dracut kernel
 
     Log "- Crashkernel reservation and current cmdline"
     rpm -q lshw || InstallPackages lshw
@@ -413,7 +425,7 @@ PrepareKdump()
     # Reset kdump config andd restart kdump service
     Log "- Reset to default kdump config and restart kdump service"
     ResetKdumpConfig
-    ReportKdumprd
+    RestartKdump
     # last try to make sure kdump is ready.
     sleep 10
 }
@@ -576,6 +588,11 @@ PrepareCrash()
 {
     Log "- Installing crash and kernel-debuginfo packages required for testing crash untilities."
     rpm -q crash || InstallPackages crash
+    # Try upgrading crash to the latest version if on FC.
+    # If it fails, still use the crash from the default repo.
+    if $IS_FC && $UPGRADE_FC_CRASH; then
+        UpgradePackages crash --enablerepo=updates-testing --enablerepo=fedora --releasever=32
+    fi
     InstallDebuginfo
 }
 
@@ -588,6 +605,22 @@ InstallPackages()
         dnf install -y $pkg
     elif which yum; then
         yum install -y $pkg
+    else
+        return 1
+    fi
+
+    return 0
+}
+
+UpgradePackages()
+{
+    [ $# -eq 0 ] && return 1
+    local pkg=$@
+
+    if which dnf; then
+        dnf upgrade -y $pkg
+    elif which yum; then
+        yum upgrade -y $pkg
     else
         return 1
     fi

@@ -60,6 +60,10 @@ EOF
         else
             CrashCommand "" "${vmlinux}" "${vmcore}"
         fi
+
+        # Clear the vmcore file at the end of test
+        Log "Test Cleanup: Remove ${vmcore}"
+        rm -f "${vmcore}"
     fi
 }
 
