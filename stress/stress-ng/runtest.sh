@@ -94,6 +94,11 @@ EOF
         sed -ie '/vforkmany/d' os.stressors
     fi
 
+    if [[ "$(uname -r)" =~ 3.10.0.*rt.*el7 ]]; then
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1789039
+        sed -ie '/af-alg/d' cpu.stressors
+    fi
+
 rlPhaseEnd
 
 rlPhaseStartTest
