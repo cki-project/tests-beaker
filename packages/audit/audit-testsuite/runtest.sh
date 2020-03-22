@@ -36,7 +36,7 @@ PACKAGE="kernel"
 GIT_URL=${GIT_URL:-"https://github.com/linux-audit/audit-testsuite.git"}
 
 # Optional test paramenter - branch containing tests.
-GIT_BRANCH=${GIT_BRANCH:-"master"}
+GIT_BRANCH=${GIT_BRANCH:-"f92d3bee7bdd6cc3fc0667449a683d1de1e66db0"}
 
 # Optional test parameter - list to tests to be executed.
 TESTS=${TESTS:-""}
