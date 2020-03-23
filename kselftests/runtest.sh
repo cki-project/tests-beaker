@@ -114,8 +114,7 @@ run_test()
 # For upstream kselftest testing, we need a pre-build selftest tar ball url
 install_kselftests()
 {
-	[ ! "$selftests_url" ] && log "no selftests_url" && return 1
-	wget --no-check-certificate $selftests_url -O kselftest.tar.gz
+	wget --no-check-certificate $CKI_SELFTEST_URL -O kselftest.tar.gz
 	tar zxf kselftest.tar.gz
 	[ -f kselftest/run_kselftest.sh ] && return 0 || return 1
 }
@@ -264,7 +263,8 @@ do_tc_test()
 }
 
 #-------------------- Start Test --------------------
-install_kselftests || { test_fail "install kselftests failed" && exit 1; }
+[ ! "$CKI_SELFTEST_URL" ] && test_skip_exit "No CKI_SELFTEST_URL found"
+install_kselftests || test_fail_exit "install kselftests failed"
 
 run "uname -r"
 clean_env

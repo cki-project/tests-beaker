@@ -81,6 +81,18 @@ test_warn()
 	fi
 }
 
+test_skip()
+{
+	echo -e "\n:: [  SKIP  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
+	if [ $JOBID ]; then
+		rstrnt-report-result "${TEST}/$1" SKIP 0
+	else
+		echo -e "\n:::::::::::::::::"
+		echo -e ":: [  ${YEL}SKIP${RES}  ] :: Test '"${TEST}/$1"'"
+		echo -e ":::::::::::::::::\n"
+	fi
+}
+
 test_pass_exit()
 {
 	test_pass $1
@@ -97,6 +109,12 @@ test_warn_exit()
 {
 	test_fail $1
 	exit 1
+}
+
+test_skip_exit()
+{
+	test_skip $1
+	exit 0
 }
 
 # Usage: run command [return_value]
