@@ -190,7 +190,8 @@ rlJournalStart
 
 	rlPhaseStartTest "$SUB_PARAM"
 		data_tests
-		perf_tests
+		# comment perf_tests for CKI-project test, as CKI should be only running basic Tier0/Tier1 sanity level testing
+		# perf_tests
 		cp /proc/crypto proc_crypto
 		rlFileSubmit proc_crypto
 	rlPhaseEnd
