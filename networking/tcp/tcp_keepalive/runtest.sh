@@ -40,12 +40,15 @@ fi
 
 rlJournalStart
     rlPhaseStartSetup
+       # workaround for bz1755825: stop firewalld
        if [ $(rlGetDistroRelease) -ge "7" ]; then
            rlServiceStop firewalld
        else
            rlServiceStop iptables
            rlServiceStop ip6tables
        fi
+       # continuousworkaround for bz1755825: sleep for slow host(s390x) or debug kernel
+       rlRun "sleep 6"
        rlRun "iptables -F" 0-255
        rlRun "ip6tables -F" 0-255
        # host
