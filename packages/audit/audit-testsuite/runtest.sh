@@ -100,7 +100,7 @@ rlJournalStart
         rlRun "unset DISTRO" 0
         rlRun "echo $(id -u) >/proc/self/loginuid" 0
 
-	# Turn off x86_64 specific test when running on non x86_64 architectures. 
+        # Turn off x86_64 specific test when running on non x86_64 architectures.
 	test "$(rlGetPrimaryArch)" != "x86_64" && \
 	    rlRun "sed -i '/syscall_socketcall/d' tests/Makefile" 0
         
@@ -123,16 +123,25 @@ rlJournalStart
                               | grep -v "Tests" \
                               | grep -v "====")
 
-            # Test exec_name test (also) a feature not available until rhel8,
-            # or compatible userspace package is needed for this test.
+            # Test exec_name test (also) a feature not available until rhel8.
+            # Also, compatible userspace package is needed for this test.
             auditctl -a always,exclude -F exe=/usr/bin/date
             if [ $? -eq 0 ]; then
                 auditctl -d always,exclude -F exe=/usr/bin/date
                 exclude_exe_filter_supported=1
             fi
             if rlIsRHEL "<8" || [ -z "$exclude_exe_filter_supported" ]; then
+                # See above"
                 TESTS="$(echo $TESTS | sed 's/exec_name//g')"
+
+                # time_change test tests functionality missing on RHEL-7.
+                TESTS="$(echo $TESTS | sed 's/time_change//g')"
+
+                # bpf test tests functionality missing on RHEL-7.
+                TESTS="$(echo $TESTS | sed 's/bpf//g')"
             fi
+
+            # saddr_fam filter was added on RHEL-8.1.
             if rlIsRHEL "<8.1"; then
                 TESTS="$(echo $TESTS | sed 's/filter_saddr_fam//g')"
             fi
@@ -145,9 +154,12 @@ rlJournalStart
 
         result=0
         for attempt in 1 2 3; do
-            TESTS="$TESTS" unbuffer make -seC tests/ test >>results.log 2>&1
+            TESTS="$TESTS" \
+                unbuffer \
+                make -seC tests/ test >>results.log 2>&1
             result_rc=$?
 
+            cat results.log
             grep -q "Result: PASS" results.log
             result_gr=$?
 
