@@ -136,8 +136,10 @@ rlJournalStart
 
                 # time_change test tests functionality missing on RHEL-7.
                 TESTS="$(echo $TESTS | sed 's/time_change//g')"
+            fi
 
-                # bpf test tests functionality missing on RHEL-7.
+            # BPF test is releavant since RHEL-8.2 and F32.
+            if rlIsFedora "<32" || rlIsRHEL "<8.2"; then
                 TESTS="$(echo $TESTS | sed 's/bpf//g')"
             fi
 
