@@ -50,5 +50,4 @@ $(METADATA): Makefile
 	@echo "Description:	Test to detect System Management Interrupts (SMIs)" >> $(METADATA)
 	@echo "Architectures:	x86_64" >> $(METADATA)
 	@echo "repoRequires:	rt-tests/include"  >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)

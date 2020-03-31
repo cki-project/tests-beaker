@@ -58,9 +58,8 @@ $(METADATA): Makefile
 	@echo "RunFor:          i2c-tools" >> $(METADATA)
 	@echo "Requires:        i2c-tools" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

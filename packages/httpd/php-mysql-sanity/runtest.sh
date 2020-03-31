@@ -27,7 +27,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-[ -e /usr/bin/rhts-environment.sh ] && . /usr/bin/rhts-environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 PACKAGES="${PACKAGES:-httpd}"

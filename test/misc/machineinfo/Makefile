@@ -50,3 +50,4 @@ $(METADATA): Makefile
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Requires:        lshw" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

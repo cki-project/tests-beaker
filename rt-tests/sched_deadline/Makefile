@@ -49,5 +49,4 @@ $(METADATA):
 	@echo "Description:	Special deadline_test on rt kernel." >>$(METADATA)
 	@echo "Architectures:	x86_64" >>$(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)

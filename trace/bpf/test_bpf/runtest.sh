@@ -1,6 +1,6 @@
 #!/bin/bash
-# Include rhts environment
-. /usr/bin/rhts-environment.sh
+# Include beaker environment
+. ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh
 . ../../include/install.sh
 

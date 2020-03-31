@@ -30,9 +30,9 @@
 # for CKI
 [ ! -f /usr/local/bin/netns_clean.sh ] && rm /dev/shm/network_common_initalized -f
 
+. ../../../../cki_lib/libcki.sh || exit 1
 . ../../../common/include.sh || exit 1
 . ../../common/include.sh || exit 1
-. ../../../../cki_lib/libcki.sh || exit 1
 
 YUM=$(cki_get_yum_tool)
 

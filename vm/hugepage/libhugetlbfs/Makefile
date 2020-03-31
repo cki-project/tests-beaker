@@ -131,10 +131,9 @@ $(METADATA): Makefile
 	@echo "Requires:        wget" >> $(METADATA)
 	@echo "Requires:        patch" >> $(METADATA)
 	@echo "Requires:        gcc" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPL-v2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Releases:        RHEL6 RHEL7 RedHatEnterpriseLinuxPegas7" >> $(METADATA)
-
-	rhts-lint $(METADATA)

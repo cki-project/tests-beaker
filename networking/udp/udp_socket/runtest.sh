@@ -17,6 +17,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
+. ../../../cki_lib/libcki.sh || exit 1
 source ../../common/include.sh || exit 1
 
 ns1="ip netns exec ha"

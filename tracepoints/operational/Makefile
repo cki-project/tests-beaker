@@ -36,7 +36,6 @@ METADATA=testinfo.desc
 
 showmeta: $(METADATA)
 	@cat $(METADATA)
-	@rhts-lint $(METADATA)
 
 $(METADATA):
 	touch $(METADATA)
@@ -52,6 +51,7 @@ $(METADATA):
 	@echo "Type:		KernelTier1"	>> $(METADATA)
 	@echo "Requires:	systemtap"	>> $(METADATA)
 	@echo "Requires:        python3-lxml"   >> $(METADATA)
+	@echo "repoRequires:    cki_lib"        >> $(METADATA)
 	@echo "RunFor:		kernel"		>> $(METADATA)
 	@echo "RunFor:		kernel-devel"	>> $(METADATA)
 	@echo "RunFor:		systemtap"	>> $(METADATA)

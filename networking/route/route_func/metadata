@@ -9,4 +9,4 @@ destructive=no
 [restraint]
 entry_point=make run
 dependencies=net-tools
-repoRequires=networking/common
+repoRequires=networking/common;cki_lib

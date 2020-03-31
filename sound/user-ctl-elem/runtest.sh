@@ -17,7 +17,7 @@
 #---------------------------------------------------------------------------------
 
 # Source the common test script helpers
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 TEST_ROOT=$(dirname $(readlink -f $BASH_SOURCE))

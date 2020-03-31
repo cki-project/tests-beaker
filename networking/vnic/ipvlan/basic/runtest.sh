@@ -23,6 +23,7 @@ CDIR=$(dirname $FILE)
 RPATH=${RELATIVE_PATH:-"networking/vnic/ipvlan/basic"}
 
 # Include Beaker environment
+. ../../../../cki_lib/libcki.sh || exit 1
 source ${CDIR%/$RPATH}/networking/common/include.sh || exit 1
 
 # Functions

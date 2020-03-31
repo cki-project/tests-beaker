@@ -27,11 +27,10 @@
 
 
 # include common and beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../../common/include.sh || exit 1
 . ../../common/include.sh || exit 1
-. ../../../../cki_lib/libcki.sh || exit 1
 
 YUM=$(cki_get_yum_tool)
 

@@ -60,11 +60,9 @@ $(METADATA): Makefile
 	@echo "Type:            Regression" >> $(METADATA)
 	@echo "RunFor:          $(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:        device-mapper-multipath sg3_utils" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Bug:             1347292" >> $(METADATA)
-
-	rhts-lint $(METADATA)
-

@@ -79,7 +79,4 @@ $(METADATA): Makefile
 	@echo "Requires:         iscsi-initiator-utils" >> $(METADATA)
 	@echo "Requires:         scsi-target-utils" >> $(METADATA)
 	@echo "repoRequires:     storage/swraid/common" >> $(METADATA)
-# add any other requirements for the script to run here
-
-# You may need other fields here; see the documentation
-	rhts-lint $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

@@ -50,3 +50,4 @@ $(METADATA): Makefile
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Requires:        alsa-utils" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

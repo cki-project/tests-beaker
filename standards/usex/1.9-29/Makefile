@@ -238,5 +238,6 @@ $(METADATA): Makefile
 	@echo "Requires:	xorg-x11-server-devel"	>> $(METADATA)
 	@echo "Requires:	kernel-headers" >> $(METADATA)
 	@echo "Requires:	glibc-static"	>> $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)
 	@echo "License:		Red Hat Internal" >> $(METADATA)
 

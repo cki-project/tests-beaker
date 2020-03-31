@@ -66,6 +66,5 @@ $(METADATA): Makefile
 	@echo "Requires:        gcc" >> $(METADATA)
 	@echo "Requires:        git" >> $(METADATA)
 	@echo "RhtsRequires:	hba" >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 

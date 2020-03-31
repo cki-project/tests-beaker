@@ -26,7 +26,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # include beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # Mustangs have a hardware flaw which causes kernel warnings under stress:

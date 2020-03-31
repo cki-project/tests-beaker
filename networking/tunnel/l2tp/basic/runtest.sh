@@ -26,6 +26,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
+. ../../../../cki_lib/libcki.sh || exit 1
 . ../../../common/include.sh || exit 1
 . ../../common/include.sh || exit 1
 

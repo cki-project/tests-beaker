@@ -63,4 +63,3 @@ $(METADATA): Makefile
 	@echo "Requires:        python3-lxml" >> $(METADATA)
 	@echo "Requires:        kernel-modules-extra" >> $(METADATA)
 	@echo "repoRequires:    cki_lib" >> $(METADATA)
-	rhts-lint $(METADATA)

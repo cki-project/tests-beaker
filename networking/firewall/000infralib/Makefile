@@ -83,6 +83,3 @@ $(METADATA): Makefile
 	@echo "RhtsRequires: beakerlib" >> $(METADATA)
 	@echo "RhtsRequires: beakerlib-redhat" >> $(METADATA)
 	@echo "repoRequires: networking/common" >> $(METADATA)
-
-# You may need other fields here; see the documentation
-	rhts-lint $(METADATA)

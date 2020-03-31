@@ -59,9 +59,8 @@ $(METADATA): Makefile
 	@echo "Requires:        python-perf python3-perf" >> $(METADATA)
 	@echo "Requires:        kernel-debuginfo iputils-debuginfo dmidecode" >> $(METADATA)
 	@echo "Requires:        yum-utils dnf-utils" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

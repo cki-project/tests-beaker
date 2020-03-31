@@ -25,7 +25,7 @@ if [[ ${_DEBUG_MODE} == "yes" ]]; then
 	#
 	function rstrnt-report-result { echo "$@"; }
 else
-	source /usr/bin/rhts_environment.sh
+	source ../../cki_lib/libcki.sh
 fi
 
 NAME=$(basename $0)

@@ -57,11 +57,10 @@ $(METADATA): Makefile
 	@echo "Type:            Regression" >> $(METADATA)
 	@echo "RunFor:          redhat-rpm-config" >> $(METADATA)
 	@echo "Requires:        redhat-rpm-config kernel-abi-whitelists kernel-rpm-macros" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Bug:             1126086" >> $(METADATA)
 	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5" >> $(METADATA)
-
-	rhts-lint $(METADATA)

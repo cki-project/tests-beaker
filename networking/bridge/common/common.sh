@@ -17,7 +17,6 @@
 # Boston, MA 02110-1301, USA.
 #
 
-. /usr/bin/rhts_environment.sh
 
 log()
 {
