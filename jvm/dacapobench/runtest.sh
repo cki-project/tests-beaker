@@ -29,7 +29,7 @@
 rlJournalStart
 # Run DaCapo Benchmarks
  rlPhaseStartTest
-    rlRun -l "wget https://cki-artifacts.s3.us-east-2.amazonaws.com/lookaside/dacapo-9.12-MR1-bach.jar"
+    rlRun -l "wget https://cki-artifacts.s3.us-east-2.amazonaws.com/lookaside/static/dacapo-9.12-MR1-bach.jar"
         if [ $? -ne 0 ]; then
             rstrnt-abort -t recipe
             exit 0
