@@ -1,19 +1,7 @@
 #!/bin/bash
 
-# Copyright (c) 2011 Red Hat, Inc. All rights reserved. This copyrighted material 
-# is made available to anyone wishing to use, modify, copy, or
-# redistribute it subject to the terms and conditions of the GNU General
-# Public License v.2.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# Author: Zhouping Liu <zliu@redhat.com> 
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020 Red Hat, Inc.
 
 . ../../../cki_lib/libcki.sh            || exit 1
 . /usr/share/beakerlib/beakerlib.sh	|| exit 1
@@ -24,6 +12,7 @@ TARGET_DIR=/mnt/testarea/ltp
 GIT_USER_ADDR=${GIT_USER_ADDR:-0}
 RUNTESTS=${RUNTESTS:-"sched syscalls can commands containers dio fs fsx math hugetlb mm nptl pty ipc tracing"}
 CPUS_NUM=$(getconf _NPROCESSORS_ONLN || echo 1)
+MEM_AVAILABLE=$(echo "$(grep '^MemAvailable:' /proc/meminfo | sed 's/^[^0-9]*\([0-9]*\).*/\1/') / 1024" |bc -q)
 
 function test_msg()
 {
@@ -83,6 +72,72 @@ function ltp_test_build()
 	make install                        &> buildlog.txt  || if cat buildlog.txt;  then test_msg fail "install ltp failed"; fi
 	popd > /dev/null 2>&1
 	test_msg pass "LTP build/install successful"
+}
+
+function hugetlb_nr_setup()
+{
+       grep -q hugetlbfs /proc/filesystems || return
+       echo 3 >/proc/sys/vm/drop_caches
+
+       cat hugetlb.inc > hugetlb
+
+       mem_alloc=0
+       hpagesize=$(echo `grep 'Hugepagesize:' /proc/meminfo | awk '{print $2}'` / 1024 | bc)
+
+       # Calculate nr_hugepages to allocate
+       # try to allocate 1GB / Hugepagesize -> if fail -> try to allocate as much as we can
+       test_msg log "Calculate memory to be reserved for hugepages" | tee -a ${OUTPUTFILE}
+       [ $MEM_AVAILABLE -gt 1024 ] && mem_alloc=1024
+       [ "${ARCH}" = "s390x" ] && [ $MEM_AVAILABLE -gt 128 ] && mem_alloc=128 # only allocate 128MB on s390x
+
+       [ $mem_alloc -eq 0 ] && RUNTESTS=${RUNTESTS//hugetlb} && return
+
+       # Finally we calculated how many hugepages we'll allocate
+       nr_hpage=$(echo $mem_alloc / $hpagesize | bc)
+       sed -i "s/#nr_hpage#/$nr_hpage/g" hugetlb
+
+       # hugemmap05 test is a little different
+       mem_alloc_overcommit=$(echo $MEM_AVAILABLE / 3 | bc)
+       # reserve mem_alloc_overcommit for hugepage_size = 512MB system(eg. rhel_alt aarch64)
+       [ "$mem_alloc_overcommit" -gt "256" ] && [ "x${hpagesize}" != "x512" ] && mem_alloc_overcommit=256
+       nr_hugemmap5=$(echo $mem_alloc_overcommit / $hpagesize | bc)
+       sed -i "s/#size#/${nr_hugemmap5}/g" hugetlb
+
+       # hugemmap06 need more than 255 hugepages
+       nr_hugemmap6=$(echo $MEM_AVAILABLE / $hpagesize | bc)
+       [ "$nr_hugemmap6" -lt "256" ] && sed -i "s/hugemmap06//g" hugetlb
+
+       mv -f hugetlb $LTPDIR/runtest
+}
+
+function hugetlb_test_pre()
+{
+	low_mem_mode=0
+
+	case $(uname -m) in
+	"i*86" | "x86_64")
+		# i*86|x86_64) HPSIZE=2M; 2M * 128 = 256MB, using 2G for x86(rhel8 min: 1.5G) limitaion
+		[ $MEM_AVAILABLE -le 2048 ] && low_mem_mode=1 &&
+			test_msg log "MEM_AVAILABLE is less than 2048MB, shift to low_mem_mode testing"
+		;;
+	"ppc64" | "ppc64le")
+		# ppc64|ppc64le) HPSIZE=16M; 16M * 128 = 2048MB
+		[ $MEM_AVAILABLE -le 2048 ] && low_mem_mode=1 &&
+			test_msg log "MEM_AVAILABLE is less than 2048MB, shift to low_mem_mode testing"
+		;;
+	"s390x")
+		# s390x) HPSIZE=1024K; 1M * 128 = 128MB
+		[ $MEM_AVAILABLE -le 256 ] && low_mem_mode=1 &&
+			test_msg log "MEM_AVAILABLE is less than 256MB, shift to low_mem_mode testing"
+		;;
+	"aarch64")
+		# aarch64) HPSIZE=512M; 512M * 128 = 65536MB
+		[ $MEM_AVAILABLE -le 65536 ] && low_mem_mode=1 &&
+			test_msg log "MEM_AVAILABLE is less than 64GB, shift to low_mem_mode testing"
+		;;
+	esac
+
+	[ $low_mem_mode -eq 1 ] && hugetlb_nr_setup
 }
 
 function knownissue_handle()
@@ -145,6 +200,7 @@ function ltp_test_pre()
 		export OPTS="$OPTS -b $LTP_DEV -B $LTP_DEV_FS_TYPE -z $LTP_BIG_DEV -Z $LTP_BIG_DEV_FS_TYPE"
 	fi
 
+	hugetlb_test_pre
 	knownissue_handle
 }
 
