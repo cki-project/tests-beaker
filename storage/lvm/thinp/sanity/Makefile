@@ -37,7 +37,7 @@ build: $(METADATA) $(TARGET)
 
 $(TARGET):
 	# Use lookaside location for iozone3 dependency
-	wget --tries=10 http://cki-artifacts.s3.us-east-2.amazonaws.com/lookaside/$(TARGET).tar.gz
+	wget --tries=10 http://cki-artifacts.s3.us-east-2.amazonaws.com/lookaside/static/$(TARGET).tar.gz
 	tar -xzvf $(TARGET).tar.gz
 
 # Include a global make rules file
