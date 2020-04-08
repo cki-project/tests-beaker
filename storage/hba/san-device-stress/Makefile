@@ -58,13 +58,5 @@ $(METADATA): Makefile
 	@echo "Description:     This test will generate I/O using FIO at the device level." >> $(METADATA)
 	@echo "License:		GPL v3" >> $(METADATA)
 	@echo "RunFor:		$(PACKAGE_NAME)" >> $(METADATA)
-	@echo "Requires:        python2-lxml" >> $(METADATA)
-	@echo "Requires:        python3-lxml" >> $(METADATA)
-	@echo "Requires:        fio" >> $(METADATA)
-	@echo "Requires:        libaio-devel" >> $(METADATA)
-	@echo "Requires:        zlib-devel" >> $(METADATA)
-	@echo "Requires:        gcc" >> $(METADATA)
-	@echo "Requires:        git" >> $(METADATA)
-	@echo "RhtsRequires:	hba" >> $(METADATA)
 	@echo "repoRequires:    cki_lib" >> $(METADATA)
 
