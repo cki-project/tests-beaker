@@ -152,6 +152,10 @@ function knownissue_filter()
 	tskip "oom.*" fatal
 	# fs_fill test exceeds timeout, TBD adjust timeout settings
 	tskip "fs_fill" unfix
+	# Requires the following kernel fixes
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a08bf91ce28
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e356101e72
+	tskip "add_key05" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
