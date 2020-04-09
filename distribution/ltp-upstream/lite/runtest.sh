@@ -17,21 +17,11 @@ MEM_AVAILABLE=$(echo "$(grep '^MemAvailable:' /proc/meminfo | sed 's/^[^0-9]*\([
 function test_msg()
 {
 	case $1 in
-		pass)
-			echo "PASS: $2"
-			;;
-		warn)
-			echo "WARN: $2"
-			;;
-		fail)
-			echo "FAIL: $2"; exit -1
-			;;
-		log)
-			echo "LOG : $2"
-			;;
-		*)
-			echo "EXIT: Wrong parameters"; exit -2
-			;;
+		pass) echo "PASS: $2" ;;
+		warn) echo "WARN: $2" ;;
+		fail) echo "FAIL: $2"; exit -1 ;;
+		 log) echo "LOG : $2" ;;
+		   *) echo "EXIT: Wrong parameters"; exit -2 ;;
 	esac
 }
 
@@ -84,15 +74,13 @@ function hugetlb_nr_setup()
        mem_alloc=0
        hpagesize=$(echo `grep 'Hugepagesize:' /proc/meminfo | awk '{print $2}'` / 1024 | bc)
 
-       # Calculate nr_hugepages to allocate
-       # try to allocate 1GB / Hugepagesize -> if fail -> try to allocate as much as we can
        test_msg log "Calculate memory to be reserved for hugepages" | tee -a ${OUTPUTFILE}
        [ $MEM_AVAILABLE -gt 1024 ] && mem_alloc=1024
        [ "${ARCH}" = "s390x" ] && [ $MEM_AVAILABLE -gt 128 ] && mem_alloc=128 # only allocate 128MB on s390x
 
-       [ $mem_alloc -eq 0 ] && RUNTESTS=${RUNTESTS//hugetlb} && return
+       [ $mem_alloc -eq 0 ] && RUNTESTS=${RUNTESTS//hugetlb} &&
+	       test_msg log "Removing hugetlb test (Mem_Available is too low to test)" && return
 
-       # Finally we calculated how many hugepages we'll allocate
        nr_hpage=$(echo $mem_alloc / $hpagesize | bc)
        sed -i "s/#nr_hpage#/$nr_hpage/g" hugetlb
 
@@ -190,20 +178,6 @@ function ltp_test_pre()
 	DisableNTP || test_msg warn "Disable NTP failed"
 
 	ulimit -c unlimited && echo "ulimit -c unlimited"
-
-	if [ "$TESTARGS" ]; then
-		# We can specify lists of tests to run. If the list file provided,
-		# copy/replace it. For example, we can provide a customized list of
-		# tests in `RHEL6KT1LITE', Then, we can set TESTARGS="RHEL6KT1LITE"
-		for file in $TESTARGS; do
-			if [ -f "$file" ]; then
-				cp "$file" $TARGET_DIR/runtest/
-			else
-				test_msg warn "$file not found." | tee -a $OUTPUTFILE
-			fi
-		done
-		RUNTESTS=$TESTARGS
-	fi
 
 	# if FSTYP is set, we're testing filesystem, enable fs related requirements
 	# to get larger test coverage and test the correct fs.
