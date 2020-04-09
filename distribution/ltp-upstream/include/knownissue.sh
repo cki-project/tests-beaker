@@ -128,7 +128,8 @@ function knownissue_filter()
 	# Issue TBD
 	tskip "madvise09" fatal
 	# https://github.com/linux-test-project/ltp/issues/611
-	tskip "ksm0.*" fatal
+	tskip "ksm03.*" fatal
+	tskip "ksm04.*" fatal
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
 	# hugetlb failures should be ignored since that lack of system memory for testing
 	tskip "huge.*" fatal
