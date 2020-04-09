@@ -1,0 +1,13 @@
+[General]
+name=Certgen Library 
+owner=Hubert Kario <hkario@redhat.com>
+description=Library for creating X.509 certificates 
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+dependencies=openssl
+repoRequires=cki_lib
+
