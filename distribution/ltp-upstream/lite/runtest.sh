@@ -17,21 +17,11 @@ MEM_AVAILABLE=$(echo "$(grep '^MemAvailable:' /proc/meminfo | sed 's/^[^0-9]*\([
 function test_msg()
 {
 	case $1 in
-		pass)
-			echo "PASS: $2"
-			;;
-		warn)
-			echo "WARN: $2"
-			;;
-		fail)
-			echo "FAIL: $2"; exit -1
-			;;
-		log)
-			echo "LOG : $2"
-			;;
-		*)
-			echo "EXIT: Wrong parameters"; exit -2
-			;;
+		pass) echo "PASS: $2" ;;
+		warn) echo "WARN: $2" ;;
+		fail) echo "FAIL: $2"; exit -1 ;;
+		 log) echo "LOG : $2" ;;
+		   *) echo "EXIT: Wrong parameters"; exit -2 ;;
 	esac
 }
 
@@ -84,15 +74,13 @@ function hugetlb_nr_setup()
        mem_alloc=0
        hpagesize=$(echo `grep 'Hugepagesize:' /proc/meminfo | awk '{print $2}'` / 1024 | bc)
 
-       # Calculate nr_hugepages to allocate
-       # try to allocate 1GB / Hugepagesize -> if fail -> try to allocate as much as we can
        test_msg log "Calculate memory to be reserved for hugepages" | tee -a ${OUTPUTFILE}
        [ $MEM_AVAILABLE -gt 1024 ] && mem_alloc=1024
        [ "${ARCH}" = "s390x" ] && [ $MEM_AVAILABLE -gt 128 ] && mem_alloc=128 # only allocate 128MB on s390x
 
-       [ $mem_alloc -eq 0 ] && RUNTESTS=${RUNTESTS//hugetlb} && return
+       [ $mem_alloc -eq 0 ] && RUNTESTS=${RUNTESTS//hugetlb} &&
+	       test_msg log "Removing hugetlb test (Mem_Available is too low to test)" && return
 
-       # Finally we calculated how many hugepages we'll allocate
        nr_hpage=$(echo $mem_alloc / $hpagesize | bc)
        sed -i "s/#nr_hpage#/$nr_hpage/g" hugetlb
 
@@ -140,6 +128,28 @@ function hugetlb_test_pre()
 	[ $low_mem_mode -eq 1 ] && hugetlb_nr_setup
 }
 
+function runtest_tweaker()
+{
+	local runtest="$LTPDIR/runtest/*"
+
+	# tolerate s390 high steal time
+	uname -m | grep -q s390 && {
+		sed -i 's/nanosleep01 nanosleep01/nanosleep01 timeout 300 sh -c "nanosleep01 || true"/' "$runtest"
+		sed -i 's/clock_nanosleep01 clock_nanosleep01/clock_nanosleep01 timeout 300 sh -c "clock_nanosleep01 || true"/' "$runtest"
+		sed -i 's/clock_nanosleep02 clock_nanosleep02/clock_nanosleep02 timeout 300 sh -c "clock_nanosleep02 || true"/' "$runtest"
+		sed -i 's/futex_wait_bitset01 futex_wait_bitset01/futex_wait_bitset01 timeout 30 sh -c "futex_wait_bitset01 || true"/' "$runtest"
+		sed -i 's/futex_wait05 futex_wait05/futex_wait05 timeout 30 sh -c "futex_wait05 || true"/' "$runtest"
+		sed -i 's/epoll_pwait01 epoll_pwait01/epoll_pwait01 timeout 30 sh -c "epoll_pwait01 || true"/' "$runtest"
+		sed -i 's/poll02 poll02/poll02 timeout 30 sh -c "poll02 || true"/' "$runtest"
+		sed -i 's/pselect01 pselect01/pselect01 timeout 30 sh -c "pselect01 || true"/' "$runtest"
+		sed -i 's/pselect01_64 pselect01_64/pselect01_64 timeout 30 sh -c "pselect01_64 || true"/' "$runtest"
+		sed -i 's/select04 select04/select04 timeout 30 sh -c "select04 || true"/' "$runtest"
+	}
+
+	# reduce fork13 iteration
+	sed -i 's/fork13 fork13 -i 1000000/fork13 fork13 -i 10000/' "$runtest"
+}
+
 function knownissue_handle()
 {
 	case $SKIP_LEVEL in
@@ -169,20 +179,6 @@ function ltp_test_pre()
 
 	ulimit -c unlimited && echo "ulimit -c unlimited"
 
-	if [ "$TESTARGS" ]; then
-		# We can specify lists of tests to run. If the list file provided,
-		# copy/replace it. For example, we can provide a customized list of
-		# tests in `RHEL6KT1LITE', Then, we can set TESTARGS="RHEL6KT1LITE"
-		for file in $TESTARGS; do
-			if [ -f "$file" ]; then
-				cp "$file" $TARGET_DIR/runtest/
-			else
-				test_msg warn "$file not found." | tee -a $OUTPUTFILE
-			fi
-		done
-		RUNTESTS=$TESTARGS
-	fi
-
 	# if FSTYP is set, we're testing filesystem, enable fs related requirements
 	# to get larger test coverage and test the correct fs.
 	# overlayfs is special, no mkfs.overlayfs is available, and tests need LTP_DEV
@@ -201,6 +197,7 @@ function ltp_test_pre()
 	fi
 
 	hugetlb_test_pre
+	runtest_tweaker
 	knownissue_handle
 }
 

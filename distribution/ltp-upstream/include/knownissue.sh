@@ -131,8 +131,6 @@ function knownissue_filter()
 	tskip "ksm03.*" fatal
 	tskip "ksm04.*" fatal
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
-	# hugetlb failures should be ignored since that lack of system memory for testing
-	tskip "huge.*" fatal
 	# Issue TBD
 	tskip "memfd_create03" unfix
 	# this case always make the beaker task abort with 'incrementing stop' msg
