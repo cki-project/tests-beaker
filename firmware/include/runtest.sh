@@ -27,7 +27,7 @@
 
 : ${DeBug:=0}
 : ${FwtsGitRemote:=git://kernel.ubuntu.com/hwe/fwts.git}
-: ${FwtsGitBranch:=""}
+: ${FwtsGitBranch:="V20.03.00"}
 FwtsIncludeDir=$(readlink -f "../include/")
 
 FWTS_ON_FAIL_REPORT=${FWTS_ON_FAIL_REPORT:-FAIL}

@@ -66,4 +66,3 @@ $(METADATA): Makefile
 	@echo "RunFor:		$(PACKAGE_NAME)" >> $(METADATA)
 	@echo "Requires:	$(PACKAGE_NAME)" >> $(METADATA)
 	@echo "repoRequires:    cki_lib" >> $(METADATA)
-	@echo "RhtsRequires:	hw_raid" >> $(METADATA)
