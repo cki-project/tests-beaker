@@ -128,10 +128,9 @@ function knownissue_filter()
 	# Issue TBD
 	tskip "madvise09" fatal
 	# https://github.com/linux-test-project/ltp/issues/611
-	tskip "ksm0.*" fatal
+	tskip "ksm03.*" fatal
+	tskip "ksm04.*" fatal
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
-	# hugetlb failures should be ignored since that lack of system memory for testing
-	tskip "huge.*" fatal
 	# Issue TBD
 	tskip "memfd_create03" unfix
 	# this case always make the beaker task abort with 'incrementing stop' msg
@@ -151,6 +150,10 @@ function knownissue_filter()
 	tskip "oom.*" fatal
 	# fs_fill test exceeds timeout, TBD adjust timeout settings
 	tskip "fs_fill" unfix
+	# Requires the following kernel fixes
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a08bf91ce28
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e356101e72
+	tskip "add_key05" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------

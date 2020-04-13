@@ -1,17 +1,5 @@
-# Copyright (c) 2011 Red Hat, Inc. All rights reserved. This copyrighted material 
-# is made available to anyone wishing to use, modify, copy, or
-# redistribute it subject to the terms and conditions of the GNU General
-# Public License v.2.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# Author: Zhouping Liu <zliu@redhat.com> 
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) 2020 Red Hat, Inc.
 
 TOPLEVEL_NAMESPACE=/kernel
 PACKAGE_NAME=distribution/ltp
@@ -48,8 +36,7 @@ METADATA=testinfo.desc
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
 	@touch $(METADATA)
-# Change to the test owner's name
-	@echo "Owner:        Zhouping Liu <zliu@redhat.com>" > $(METADATA) # FIXME: customize this
+	@echo "Owner:        Red Hat MM-QE <mm-qe@redhat.com>" > $(METADATA)
 	@echo "Name:         $(TEST)" >> $(METADATA)
 	@echo "Path:         $(TEST_DIR)"	>> $(METADATA)
 	@echo "License:      GPLv2" >> $(METADATA)
@@ -69,7 +56,7 @@ $(METADATA): Makefile
 	@echo "repoRequires: distribution/ltp-upstream/include" >> $(METADATA)
 	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "Environment:  AVC_ERROR=+no_avc_check" >> $(METADATA)
-	@echo "Releases:     RHELServer5 RHEL6 RHEL7" >> $(METADATA)
+	@echo "Releases:     RHELServer5 RHEL6 RHEL7 RHEL8" >> $(METADATA)
 	@echo "Destructive:  no" >> $(METADATA)
 	@echo "Confidential: no" >> $(METADATA)
 	@echo "Priority:     Normal" >>$(METADATA)
