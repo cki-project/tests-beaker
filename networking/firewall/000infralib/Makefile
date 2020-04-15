@@ -80,6 +80,6 @@ $(METADATA): Makefile
 # add any other packages for which your test ought to run here
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 # add any other requirements for the script to run here
-	@echo "RhtsRequires: beakerlib" >> $(METADATA)
-	@echo "RhtsRequires: beakerlib-redhat" >> $(METADATA)
+	@echo "Requires: beakerlib" >> $(METADATA)
+	@echo "Requires: beakerlib-redhat" >> $(METADATA)
 	@echo "repoRequires: networking/common" >> $(METADATA)
