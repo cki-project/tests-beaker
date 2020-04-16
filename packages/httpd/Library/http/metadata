@@ -1,0 +1,13 @@
+[General]
+name=HTTPd Library
+owner=Ondrej Ptak <optak@redhat.com>
+description=HTTPd Library
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=make run
+dependencies=httpd;openssl
+repoRequires=packages/openssl/Library/certgen;cki_lib
+
