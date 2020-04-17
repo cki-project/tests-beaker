@@ -1,0 +1,13 @@
+[General]
+name=httpd php-mysql-sanity test
+owner=Ondrej Ptak <optak@redhat.com>
+description=try to reinstall mod_ssl and run httpd with mod_ssl
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=httpd;mod_ssl
+softDependencies=python;python2;python3;python3-lxml
+repoRequires=packages/openssl/Library/certgen;packages/httpd/Library/http;cki_lib
