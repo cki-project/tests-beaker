@@ -63,7 +63,7 @@ $(METADATA): Makefile
 	@echo "Description:  common routines for networking tests">> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here
-	@echo "RhtsRequires: beakerlib-redhat" >> $(METADATA)
+	@echo "Requires:     beakerlib-redhat" >> $(METADATA)
 	@echo "Requires:     net-tools" >> $(METADATA)
 	@echo "Requires:     iproute" >> $(METADATA)
 	@echo "Requires:     tcpdump" >> $(METADATA)
