@@ -1,4 +1,4 @@
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Makefile of /kernel/vm/hugepage/libhugetlbfs
 #   Description: Test libhugetlbfs with upstream testsuite
@@ -27,85 +27,72 @@
 
 PACKAGE_NAME=libhugetlbfs
 export TEST=/kernel/vm/hugepage/$(PACKAGE_NAME)
+
+PACKAGE_VERSION=2.21
 RHEL_VERSION=$(shell grep -q "release [5-7].*" /etc/redhat-release && echo rhel[5-7])
 ifeq ($(RHEL_VERSION), rhel[5-7])
-	export TESTVERSION=2.18
-else
-	export TESTVERSION=2.21
+	PACKAGE_VERSION=2.18
 endif
-TARGET=$(PACKAGE_NAME)-$(TESTVERSION)
-PATCH_DIR=patches
 
-# System Environment, i.e., architecture
-ifndef SYSENV
-	SYSENV := $(shell uname -i)
-endif
-PYTHON_VERSION	:=$(shell which python3 &>/dev/null && echo python3)
+TARGET=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+TESTVERSION=$(PACKAGE_VERSION)
+PATCH_DIR=patches
+OS_MAJOR_RELEASE=$(shell grep -Go 'release [0-9]\+' /etc/redhat-release | awk '{print $NF}')
+ARCH=$(shell uname -i)
 
 LOOKASIDE=https://github.com/libhugetlbfs/libhugetlbfs/releases/download/
 
-FILES=$(METADATA) runtest.sh Makefile PURPOSE KnownIssueList $(PATCH_DIR) kvercmp.sh
+FILES	= $(METADATA) \
+	  runtest.sh \
+	  Makefile \
+	  PURPOSE \
+	  KnownIssueList \
+	  $(PATCH_DIR) \
+	  kvercmp.sh \
+	  patch.sh \
+	  dependency.sh
 
-.PHONY: all install download clean extract patch build
+.PHONY: all install clean patch build
 
 $(TARGET).tar.gz:
 	@echo "------ Download Package ------"
-	wget -q $(LOOKASIDE)/$(TESTVERSION)/$(TARGET).tar.gz
+	wget -q $(LOOKASIDE)/$(PACKAGE_VERSION)/$(TARGET).tar.gz
 
 $(TARGET): $(TARGET).tar.gz clean
 	@echo "------ Extract Package ------"
 	tar xzf $(TARGET).tar.gz
-patch:
+
+patch: $(TARGET)
 	@echo "------ Patch the Testsuite ------"
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/assume-support-rhel6.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/remove-duplicate-cases.patch
-ifeq ($(TESTVERSION), 2.18)
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/fix-plt_extrasz-always-returning-0-on-ppc64le.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/map_high_truncate.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/huge_page_setup_helper-do-not-assume-default-huge-pa.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/tests-linkhuge_rw-function-ptr-may-not-refer-to-.tex.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/misalign-make-some-adjustments-for-misalign.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-aarch64-fix-page-size-not-properly-computed.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-ld.hugetlbfs-arm-arches-fix-page-size-and-text-offse.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-Force-text-segment-alignment-to-0x08000000-for-i386-.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-ld.hugetlbfs-pick-an-emulation-if-m-is-not-present.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0002-runtests.py-Change-R-to-R-in-elflink_rw_test-functio.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0003-ld.hugetlbfs-pick-an-emulation-if-m-is-not-present.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0004-tests-heapshrink-allocate-enough-to-expand-heap.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0005-ld.hugetlbfs-support-512M-hugepages-on-aarch64.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-restrict-is-a-reserved-keyword-in-C99.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-testutils-fix-range_is_mapped.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0002-stack_grow_into_huge-don-t-clobber-existing-mappings.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-tests-Makefile-HUGELINK_RW_TESTS-not-being-reference.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-Defined-task-size-value-to-be-512T-if-it-is-more-tha.patch
-endif
-ifeq ($(TESTVERSION), 2.21)
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0001-testutils-fix-range_is_mapped.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/0002-stack_grow_into_huge-don-t-clobber-existing-mappings.patch
-ifeq ($(PYTHON_VERSION), python3)
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/huge_page_setup_helper-python3-convert.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/run_tests-python3-convert.patch
-endif
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/build_flags.patch
-	@patch -p1 -d $(TARGET) < $(PATCH_DIR)/hack-task-size-overrun.patch
-endif
+	@bash patch.sh
+
+runtest: runtest.sh
+	cp $< $@
+	chmod +x $@
 
 build:
 	@echo "------ Build the Testsuite ------"
+	@bash dependency.sh
+ifneq (,$(filter $(OS_MAJOR_RELEASE)_$(ARCH), 8_aarch64 8_ppc64le 8_s390x))
+	#
+	# XXX: For RHEL8, add BUILDTYPE=NATIVEONLY to skip 32-bit tests on
+	#      64-bit systems
+	#
+	make -C $(TARGET) BUILDTYPE=NATIVEONLY
+	make -C $(TARGET) PREFIX=/usr BUILDTYPE=NATIVEONLY install
+else
 	make -C $(TARGET)
 	make -C $(TARGET) PREFIX=/usr install
+endif
 	cp -f $(TARGET)/huge_page_setup_helper.py /usr/bin/
-	chmod a+x runtest.sh
 
-testpatch: $(TARGET) patch
-
-testfullbuild: $(TARGET) patch build
+testfullbuild: $(TARGET) patch build runtest
 
 run: testfullbuild
-	./runtest.sh
+	./runtest
 
 clean:
-	rm -rf *~ $(TARGET)
+	rm -rf *~ $(TARGET) runtest
 
 # Common Variables
 TEST_DIR=/mnt/tests$(TEST)
@@ -119,21 +106,12 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Test libhugetlbfs with upstream testsuite" >> $(METADATA)
 	@echo "RunFor:          $(PACKAGE_NAME) $(PACKAGE_NAME)-utils" >> $(METADATA)
-	@echo "Requires:        @development \
-		libgcc.i686    glibc-devel.i686    glibc-static.i686 \
-		libgcc.x86_64  glibc-devel.x86_64  glibc-static.x86_64 \
-		libgcc.ppc     glibc-devel.ppc     glibc-static.ppc \
-		libgcc.ppc64   glibc-devel.ppc64   glibc-static.ppc64 \
-		libgcc.ppc64le glibc-devel.ppc64le glibc-static.ppc64le \
-		libgcc.s390    glibc-devel.s390    glibc-static.s390 \
-		libgcc.s390x   glibc-devel.s390x   glibc-static.s390x \
-		libgcc.aarch64 glibc-devel.aarch64 glibc-static.aarch64" >> $(METADATA)
+	@echo "Requires:        @development" >> $(METADATA)
 	@echo "Requires:        wget" >> $(METADATA)
 	@echo "Requires:        patch" >> $(METADATA)
-	@echo "Requires:        gcc" >> $(METADATA)
 	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPL-v2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	@echo "Releases:        RHEL6 RHEL7 RedHatEnterpriseLinuxPegas7" >> $(METADATA)
+	@echo "Releases:        RHEL6 RHEL7 RHEL8 RedHatEnterpriseLinuxPegas7" >> $(METADATA)
