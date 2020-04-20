@@ -82,6 +82,13 @@ function testList ()
                 continue
         fi
 
+        echo "$i" | grep -q "iocost_ioc_vrate_adj"
+        if [ $? -eq 0 ]; then
+                echo "Skipping probe $i due to Bug 1824812" | tee -a $OUTPUTFILE
+                echo "Bug 1824812 - Tracepoints: operational test: kernel.trace("iocost:iocost_ioc_vrate_adj") compilation failure" | tee -a $OUTPUTFILE
+                continue
+        fi
+
         echo "$i" | tr -d '\"' >> $PROBES_NAME_FILE
         echo 'probe kernel.trace('$i') { if (pid() == 0) printf("probe hit\n"); }' >> $PROBES_FILE
 
