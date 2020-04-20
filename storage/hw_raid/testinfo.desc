@@ -7,4 +7,3 @@ License:		GPL v3
 RunFor:		storage
 Requires:	storage
 repoRequires:    cki_lib
-RhtsRequires:	hw_raid
