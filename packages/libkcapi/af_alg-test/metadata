@@ -1,0 +1,11 @@
+[General]
+name=libkcapi-af_alg-test
+owner=Ondrej Mosnacek <omosnace@redhat.com>
+description=Libkcapi test that exercises the AF_ALG interface and kernel Crypto API
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=git;coreutils;perl;openssl;gcc;kernel-headers;autoconf;automake;libtool
