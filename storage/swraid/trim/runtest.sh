@@ -17,4 +17,12 @@
 #
 #Author: Changhui Zhong <czhong@redhat.com>
 
-rhts-run-simple-test trim "./main.sh"
+RESULT=PASS
+# Run main swraid trim
+./main.sh
+
+res=$?
+if [ $res != 0 ]; then
+    RESULT=FAIL
+fi
+rstrnt-report-result "storage/swraid/trim" $RESULT $res

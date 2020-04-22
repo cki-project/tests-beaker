@@ -100,6 +100,3 @@ $(METADATA): Makefile
 	@echo "Requires:     rpcbind nfs-utils" >> $(METADATA)
 	@echo "Requires:     lvm2 beakerlib" >> $(METADATA)
 	@echo "repoRequires: cki_lib" >> $(METADATA)
-	@echo "RhtsRequires: test(/kernel/filesystems/xfs/include)" >> $(METADATA)
-#	The include package takes care of all the dependencies
-#	Add any other dependencies there (/kernel/filesystems/xfs/include)
