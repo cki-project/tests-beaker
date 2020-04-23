@@ -158,6 +158,7 @@ rlJournalStart
         for attempt in 1 2 3; do
             TESTS="$TESTS" \
                 unbuffer \
+                runcon unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 \
                 make -seC tests/ test >>results.log 2>&1
             result_rc=$?
 

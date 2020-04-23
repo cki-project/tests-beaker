@@ -17,4 +17,12 @@
 #
 #   Author: Marco Patalano <mpatalan@redhat.com>
 
-rhts-run-simple-test hba "./main.sh"
+RESULT=PASS
+# Run main hba san
+./main.sh
+
+res=$?
+if [ $res != 0 ]; then
+    RESULT=FAIL
+fi
+rstrnt-report-result "storage/hba/san-device-stress" $RESULT $res
