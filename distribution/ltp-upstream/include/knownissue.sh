@@ -154,6 +154,22 @@ function knownissue_filter()
 	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a08bf91ce28
 	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e356101e72
 	tskip "add_key05" unfix
+	# https://lkml.org/lkml/2020/4/18/574
+	tskip "connect02" unfix
+	# https://lists.linux.it/pipermail/ltp/2020-April/016768.html
+	tskip "ioctl_loop01" unfix
+	tskip "ioctl_loop05" unfix
+	# Skip tests on VMs with heavy load
+	# http://lists.linux.it/pipermail/ltp/2020-April/016759.html
+	tskip "clock_nanosleep02" unfix
+	tskip "nanosleep01" unfix
+	tskip "poll02" unfix
+	tskip "prctl09" unfix
+	tskip "pselect01" unfix
+	tskip "pselect01_64" unfix
+	tskip "futex_wait05" unfix
+	tskip "select04" unfix
+	tskip "read_all_sys" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
