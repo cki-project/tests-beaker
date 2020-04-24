@@ -123,7 +123,7 @@ cthon_setup() {
 client() {
     rlPhaseStartSetup do-$role-Setup-Client
 	rlFileBackup /etc/sysconfig/{autofs,nfs} /etc/exports /etc/auto.master
-	rlRun 'rhts-sync-block -s SERVER_READY $Server1 $Server2'
+	rlRun 'rstrnt-sync-block -s SERVER_READY $Server1 $Server2'
 	rlRun 'mkdir -p /export/'
 	rlRun 'echo "/export/   *(rw,no_root_squash)" >> /etc/exports'
 	rlRun "systemctl restart nfs-server" "0-255"
@@ -156,7 +156,7 @@ client() {
 				"test.net" | "test.net1")
 				rlRun "./$test $Server1 $Server2" "0,2" "Running $test with $Server1, and $Server2"
 				if [ $? -eq 2 ]; then
-					rlRun 'rhts-sync-set -s DONE${TEST}'
+					rlRun 'rstrnt-sync-set -s DONE${TEST}'
 					rlFileRestore
 					cki_abort_task "Failed to configure $test environment with <$Server1>, and '<$Server2>"
 				fi
@@ -164,7 +164,7 @@ client() {
 			*)#default
 				rlRun "./$test" "0,2" "Running $test"
 				if [ $? -eq 2 ]; then
-					rlRun 'rhts-sync-set -s DONE${TEST}'
+					rlRun 'rstrnt-sync-set -s DONE${TEST}'
 					rlFileRestore
 					cki_abort_task "Failed to configure $test environment"
 				fi
@@ -176,7 +176,7 @@ client() {
 
 	rlPhaseStartCleanup do-$role-Cleanup-
 		rlRun 'popd'
-		rlRun 'rhts-sync-set -s DONE${TEST}'
+		rlRun 'rstrnt-sync-set -s DONE${TEST}'
 		rlFileRestore
 	rlPhaseEnd
 }
@@ -207,12 +207,12 @@ server() {
 	if [ $? -ne 0 ]; then
 		cki_abort_task "Failed to restart server nfs server"
 	fi
-	rlRun "rhts-sync-set -s SERVER_READY"
+	rlRun "rstrnt-sync-set -s SERVER_READY"
     rlPhaseEnd
 
     rlPhaseStartCleanup do-$role-Cleanup-
 	rlLog "{INFO} server ready. wait the client ..."
-	rlRun 'rhts-sync-block -s DONE${TEST} $Client'
+	rlRun 'rstrnt-sync-block -s DONE${TEST} $Client'
 	rlFileRestore
     rlPhaseEnd
 }

@@ -94,7 +94,7 @@ then
 			rlRun "ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "ip -6 route add $gre_c_ip6net dev $gre_devname"
 
-			rhts-sync-block -s CLIENT_GRE_CONFIG_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-block -s CLIENT_GRE_CONFIG_${ipversion}_$remote $CLIENTS
 			rlRun "tcpdump -i any -w grev4.pcap &"
 			rlRun "sleep 5"
 			rlRun "ping $gre_c_ip4 -c 5"
@@ -133,17 +133,17 @@ then
 				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
 			fi
 			fi
-			rhts-sync-block -s CLIENT_IPERF_TCPV4_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-block -s CLIENT_IPERF_TCPV4_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -c $gre_c_ip4"
-			rhts-sync-set -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote
-			rhts-sync-block -s CLIENT_IPERF_UDPV4_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-set -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote
+			rstrnt-sync-block -s CLIENT_IPERF_UDPV4_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -u -c $gre_c_ip4"
-			rhts-sync-set -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote
+			rstrnt-sync-set -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote
 
-			rhts-sync-block -s CLIENT_IPERF_TCPV6_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-block -s CLIENT_IPERF_TCPV6_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -V -c $gre_c_ip6"
-			rhts-sync-set -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote
-			rhts-sync-block -s CLIENT_IPERF_UDPV6_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-set -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote
+			rstrnt-sync-block -s CLIENT_IPERF_UDPV6_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -u -V -c $gre_c_ip6"
 
 			rlRun "netperf -L $gre_s_ip4 -H $gre_c_ip4 -t UDP_STREAM"
@@ -152,7 +152,7 @@ then
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t UDP_STREAM"
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t TCP_STREAM"
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t SCTP_STREAM -- -m 16k"
-			rhts-sync-set -s SERVER_ALL_FINISH_${ipversion}_$remote
+			rstrnt-sync-set -s SERVER_ALL_FINISH_${ipversion}_$remote
 			rlRun "ip -d -s link sh $gre_devname"
 			rlRun "ip link del $gre_devname"
 
@@ -187,24 +187,24 @@ then
 			rlRun "pkill -9 netserver" "0-255"
 			rlRun "netserver -d"
 
-			rhts-sync-set -s CLIENT_GRE_CONFIG_${ipversion}_$remote
+			rstrnt-sync-set -s CLIENT_GRE_CONFIG_${ipversion}_$remote
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -B $gre_c_ip4 -D &"
-			rhts-sync-set -s CLIENT_IPERF_TCPV4_${ipversion}_$remote
-			rhts-sync-block -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_TCPV4_${ipversion}_$remote
+			rstrnt-sync-block -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -u -B $gre_c_ip4 -D &"
-			rhts-sync-set -s CLIENT_IPERF_UDPV4_${ipversion}_$remote
+			rstrnt-sync-set -s CLIENT_IPERF_UDPV4_${ipversion}_$remote
 
-			rhts-sync-block -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-block -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -V -B $gre_c_ip6 -D &"
-			rhts-sync-set -s CLIENT_IPERF_TCPV6_${ipversion}_$remote
-			rhts-sync-block -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_TCPV6_${ipversion}_$remote
+			rstrnt-sync-block -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -u -V -B $gre_c_ip6 -D &"
-			rhts-sync-set -s CLIENT_IPERF_UDPV6_${ipversion}_$remote
-			rhts-sync-block -s SERVER_ALL_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_UDPV6_${ipversion}_$remote
+			rstrnt-sync-block -s SERVER_ALL_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "ip -d -s link sh $gre_devname"
 
 			rlRun "pkill -9 iperf"

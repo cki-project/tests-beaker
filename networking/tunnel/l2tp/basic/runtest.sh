@@ -72,21 +72,21 @@ then
 			rlRun "ip -6 addr add $gre_s_ip6/64 dev $gre_devname"
 			rlRun "ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "ip -6 route add $gre_c_ip6net dev $gre_devname"
-			rhts-sync-block -s CLIENT_GRE_CONFIG_${encap_type}_$ipversion $CLIENTS
+			rstrnt-sync-block -s CLIENT_GRE_CONFIG_${encap_type}_$ipversion $CLIENTS
 			rlRun "ping $gre_c_ip4 -c 5"
 			rlRun "ping6 $gre_c_ip6 -c 5"
 
-			rhts-sync-block -s CLIENT_IPERF_TCPV4_${encap_type}_$ipversion $CLIENTS
+			rstrnt-sync-block -s CLIENT_IPERF_TCPV4_${encap_type}_$ipversion $CLIENTS
 			rlRun "iperf -c $gre_c_ip4"
-			rhts-sync-set -s SERVER_IPERF_TCPV4_FINISH_${encap_type}_$ipversion
-			rhts-sync-block -s CLIENT_IPERF_UDPV4_${encap_type}_$ipversion $CLIENTS
+			rstrnt-sync-set -s SERVER_IPERF_TCPV4_FINISH_${encap_type}_$ipversion
+			rstrnt-sync-block -s CLIENT_IPERF_UDPV4_${encap_type}_$ipversion $CLIENTS
 			rlRun "iperf -u -c $gre_c_ip4"
-			rhts-sync-set -s SERVER_IPERF_UDPV4_FINISH_${encap_type}_$ipversion
+			rstrnt-sync-set -s SERVER_IPERF_UDPV4_FINISH_${encap_type}_$ipversion
 
-			rhts-sync-block -s CLIENT_IPERF_TCPV6_${encap_type}_$ipversion $CLIENTS
+			rstrnt-sync-block -s CLIENT_IPERF_TCPV6_${encap_type}_$ipversion $CLIENTS
 			rlRun "iperf -V -c $gre_c_ip6"
-			rhts-sync-set -s SERVER_IPERF_TCPV6_FINISH_${encap_type}_$ipversion
-			rhts-sync-block -s CLIENT_IPERF_UDPV6_${encap_type}_$ipversion $CLIENTS
+			rstrnt-sync-set -s SERVER_IPERF_TCPV6_FINISH_${encap_type}_$ipversion
+			rstrnt-sync-block -s CLIENT_IPERF_UDPV6_${encap_type}_$ipversion $CLIENTS
 			rlRun "iperf -u -V -c $gre_c_ip6"
 
 			rlRun "netperf -L $gre_s_ip4 -H $gre_c_ip4 -t UDP_STREAM"
@@ -95,7 +95,7 @@ then
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t UDP_STREAM"
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t TCP_STREAM"
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t SCTP_STREAM"
-			rhts-sync-set -s SERVER_ALL_FINISH_${encap_type}_$ipversion
+			rstrnt-sync-set -s SERVER_ALL_FINISH_${encap_type}_$ipversion
 			rlRun "ip -d -s link sh $gre_devname"
 			rlRun "ip l2tp del tunnel tunnel_id 3000 peer_tunnel_id 4000"
 			# can't add tunnel with same tunnel id right after tunnel is deleted
@@ -135,24 +135,24 @@ then
 			rlRun "pkill -9 netserver" "0-255"
 			rlRun "netserver -d"
 
-			rhts-sync-set -s CLIENT_GRE_CONFIG_${encap_type}_$ipversion
+			rstrnt-sync-set -s CLIENT_GRE_CONFIG_${encap_type}_$ipversion
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -B $gre_c_ip4 -D &"
-			rhts-sync-set -s CLIENT_IPERF_TCPV4_${encap_type}_$ipversion
-			rhts-sync-block -s SERVER_IPERF_TCPV4_FINISH_${encap_type}_$ipversion $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_TCPV4_${encap_type}_$ipversion
+			rstrnt-sync-block -s SERVER_IPERF_TCPV4_FINISH_${encap_type}_$ipversion $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -u -B $gre_c_ip4 -D &"
-			rhts-sync-set -s CLIENT_IPERF_UDPV4_${encap_type}_$ipversion
+			rstrnt-sync-set -s CLIENT_IPERF_UDPV4_${encap_type}_$ipversion
 
-			rhts-sync-block -s SERVER_IPERF_UDPV4_FINISH_${encap_type}_$ipversion $SERVERS
+			rstrnt-sync-block -s SERVER_IPERF_UDPV4_FINISH_${encap_type}_$ipversion $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -V -B $gre_c_ip6 -D &"
-			rhts-sync-set -s CLIENT_IPERF_TCPV6_${encap_type}_$ipversion
-			rhts-sync-block -s SERVER_IPERF_TCPV6_FINISH_${encap_type}_$ipversion $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_TCPV6_${encap_type}_$ipversion
+			rstrnt-sync-block -s SERVER_IPERF_TCPV6_FINISH_${encap_type}_$ipversion $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -u -V -B $gre_c_ip6 -D &"
-			rhts-sync-set -s CLIENT_IPERF_UDPV6_${encap_type}_$ipversion
-			rhts-sync-block -s SERVER_ALL_FINISH_${encap_type}_$ipversion $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_UDPV6_${encap_type}_$ipversion
+			rstrnt-sync-block -s SERVER_ALL_FINISH_${encap_type}_$ipversion $SERVERS
 			rlRun "ip -d -s link sh $gre_devname"
 
 			rlRun "pkill -9 iperf"

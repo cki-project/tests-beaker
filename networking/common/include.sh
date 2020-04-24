@@ -223,15 +223,15 @@ net_sync()
 	fi
 	log "Start sync ${FLAG}"
 	if $(echo $SERVERS | grep -q -i $HOSTNAME);then
-		rhts-sync-set -s ${FLAG}
+		rstrnt-sync-set -s ${FLAG}
 		for client in $CLIENTS; do
-			rhts-sync-block -s ${FLAG} $client
+			rstrnt-sync-block -s ${FLAG} $client
 		done
 	elif $(echo $CLIENTS | grep -q -i $HOSTNAME);then
 		for server in $SERVERS; do
-			rhts-sync-block -s ${FLAG} $server
+			rstrnt-sync-block -s ${FLAG} $server
 		done
-		rhts-sync-set -s ${FLAG}
+		rstrnt-sync-set -s ${FLAG}
 	fi
 	log "Finish sync ${FLAG}"
 }
@@ -328,9 +328,9 @@ fi
 
 popd > /dev/null
 
-# use our own rhts-sync for manually testing
+# use our own rstrnt-sync for manually testing
 if [ ! "$JOBID" ];then
-rhts-sync-set()
+rstrnt-sync-set()
 {
 	local message=$2
 	local timeout=3600
@@ -349,11 +349,11 @@ rhts-sync-set()
 		sleep 5
 		let timeout=timeout-5
 	done
-	if [ $timeout -le 0 ]; then test_warn "rhts-sync-set $HOSTNAME $message failed"; fi
-	echo "rhts-sync-set -s $message DONE"
+	if [ $timeout -le 0 ]; then test_warn "rstrnt-sync-set $HOSTNAME $message failed"; fi
+	echo "rstrnt-sync-set -s $message DONE"
 }
 
-rhts-sync-block()
+rstrnt-sync-block()
 {
 	local message=$2
 	local i
@@ -370,6 +370,6 @@ rhts-sync-block()
 			sleep 5
 		done
 	done
-	echo "rhts-sync-block -s $message $@ DONE"
+	echo "rstrnt-sync-block -s $message $@ DONE"
 }
 fi
