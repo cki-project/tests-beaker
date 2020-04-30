@@ -1,3 +1,4 @@
 Verify ACPI Table is present in sysfs.
-acpidump will try to read files from /sys/firmware/acpi/tables, and capture a copy of the tables. 
+acpidump will try to read files from /sys/firmware/acpi/tables, and capture a
+copy of the tables.
 The test will PASS when ACPI table is readable and can be captured.

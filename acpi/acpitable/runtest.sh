@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #--------------------------------------------------------------------------------
-# Copyright (c) 2019 Red Hat, Inc. All rights reserved. This copyrighted material 
+# Copyright (c) 2019 Red Hat, Inc. All rights reserved. This copyrighted material
 # is made available to anyone wishing to use, modify, copy, or
 # redistribute it subject to the terms and conditions of the GNU General
 # Public License v.2.
@@ -28,6 +28,8 @@
 . ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+TEST="acpi/acpitable"
+
 # Global variables
 ret=0
 
@@ -36,7 +38,7 @@ pkg=$(rpm -qa | grep acpica-tools)
 if [ -z "$pkg" ] ; then
     rstrnt-report-result $TEST WARN
     rstrnt-abort -t recipe
-fi 
+fi
 
 # verify  ACPI is enabled in the kernel
 msg=$(journalctl -b 0 -o short-monotonic | grep "ACPI: Interpreter enabled")

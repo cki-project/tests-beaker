@@ -1,0 +1,12 @@
+[General]
+name=container/podman
+owner=Major Hayden <major@redhat.com>
+description=Podman system test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=podman;podman-tests
+repoRequires=cki_lib
