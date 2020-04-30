@@ -1,0 +1,14 @@
+[General]
+name=cpu/idle
+owner=David Arcari <darcari@redhat.com>
+description=cpu idle power test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=git;autoconf;automake;make;gcc;bc
+softDependencies=msr-tools;python2-lxml;python3-lxml
+environment=TEST=cpu/idle
+repoRequires=cpu/common;cki_lib

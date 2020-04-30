@@ -1,0 +1,13 @@
+[General]
+name=pciutils/sanity-smoke
+owner=William Gomeringer <willg@redhat.com>
+description=test whether lspci works
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=pciutils
+softDependencies=kernel-modules-extra;python2-lxml;python3-lxml
+repoRequires=cki_lib
