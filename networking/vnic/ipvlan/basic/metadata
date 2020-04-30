@@ -1,8 +1,8 @@
 [General]
-name=networking/route/route_func
+name=networking/vnic/ipvlan/basic
 owner=Jianlin Shi<jishi@redhat.com>
-description=route and rule functions
-license=GPLv3
+description=Networking ipvlan basic test
+license=GPLv2
 confidential=no
 destructive=no
 

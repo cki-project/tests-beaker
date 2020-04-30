@@ -1,5 +1,5 @@
 [General]
-name=vxlan basic test
+name=networking/tunnel/vxlan/basic
 owner=Jianlin Shi<jishi@redhat.com>
 description=vxlan basic test
 license=GPLv2
@@ -7,7 +7,7 @@ confidential=no
 destructive=no
 
 [restraint]
-entry_point=make run
-dependencies=beakerlib;beakerlib-redhat;net-tools;tcpdump;wget;bzip2;gcc;git;patch
-softDependencies=python3-lxml;kernel-modules-extra
-repoRequires=networking/common;networking/tunnel/common;cki_lib
+entry_point=bash ./runtest.sh
+dependencies=bzip2;gcc;git;net-tools;patch;tcpdump;wget
+softDependencies=kernel-modules-extra
+repoRequires=cki_lib;networking/common;networking/tunnel/common

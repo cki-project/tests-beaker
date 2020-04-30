@@ -1,0 +1,13 @@
+[General]
+name=networking/igmp/conformance
+owner=Radek Pazdera <rpazdera@redhat.com>
+description=Test socket options for multicast and IGMP
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=bzip2;gcc;git;patch;rsync;tcpdump;wget
+softDdependencies=kernel-modules-extra
+repoRequires=cki_lib

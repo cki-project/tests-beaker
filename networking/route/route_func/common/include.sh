@@ -293,10 +293,6 @@ then
 	[ "$AVC_CHECK" = yes ] && enable_avc_check || disable_avc_check
 else
 	{
-	# make sure all required packages are installed
-	make testinfo.desc
-	packages=`awk -F: '/Requires:/ {print $2}' testinfo.desc`
-	${yum} install -y $packages --skip-broken
 	# install kernel-module-extra version matching the current running kernel version
 	${yum} info kernel-modules-extra && (kernel_modules_extra_install || ${yum} install kernel-modules-extra -y --skip-broken)
 

@@ -1,0 +1,2 @@
+This is a network driver santy test. It queries network devices for associated
+driver information under /sys/class/net one bye one.

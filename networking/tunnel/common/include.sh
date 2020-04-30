@@ -135,7 +135,7 @@ netns_crs_cleanup()
 	unset SER_ADDR6
 	unset C_CMD
 	unset S_CMD
-	netns_clean.sh
+	bash $NIC_COMMON_DIR/../../common/tools/netns_clean.sh
 }
 
 netns_cs_setup()
@@ -283,7 +283,7 @@ netns_3c_cleanup()
 	unset C2_CMD
 	unset C3_CMD
 
-	netns_clean.sh
+	bash $NIC_COMMON_DIR/../../common/tools/netns_clean.sh
 }
 
 

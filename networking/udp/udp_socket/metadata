@@ -1,12 +1,12 @@
 [General]
-name=networking/route/route_func
+name=networking/udp/udp_socket
 owner=Hangbin Liu <haliu@redhat.com>
-description=A socket testing framework for all protocols
+description=Networking udp socket test
 license=GPLv2
 confidential=no
 destructive=no
 
 [restraint]
 entry_point=bash ./runtest.sh
-dependencies=gcc;lksctp-tools-devel
+dependencies=make;gcc
 repoRequires=cki_lib;networking/common
