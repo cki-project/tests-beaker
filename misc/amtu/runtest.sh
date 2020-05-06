@@ -92,12 +92,6 @@ function build_amtu()
         exit 3
     fi
 
-    # apply patches
-    pushd $AMTU_NVR
-    git am ../memsep-use-_exit-to-exit-child.patch
-    git am --ignore-space-change --ignore-whitespace  ../memtest-limit-memtest-to-512MB-of-memory.patch
-    popd
-
     # build
     pushd $AMTU_NVR
     autoreconf -ifv . > tmp 2>&1
