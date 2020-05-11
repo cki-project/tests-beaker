@@ -159,17 +159,12 @@ function knownissue_filter()
 	# https://lists.linux.it/pipermail/ltp/2020-April/016768.html
 	tskip "ioctl_loop01" unfix
 	tskip "ioctl_loop05" unfix
-	# Skip tests on VMs with heavy load
-	# http://lists.linux.it/pipermail/ltp/2020-April/016759.html
-	tskip "clock_nanosleep02" unfix
-	tskip "nanosleep01" unfix
-	tskip "poll02" unfix
-	tskip "prctl09" unfix
-	tskip "pselect01" unfix
-	tskip "pselect01_64" unfix
-	tskip "futex_wait05" unfix
-	tskip "select04" unfix
-	tskip "read_all_sys" unfix
+	# Skip this test for now, author is looking into possibly removing it next release.
+	# https://lists.linux.it/pipermail/ltp/2020-May/016974.html
+	# https://github.com/linux-test-project/ltp/issues/674
+	tskip "pty04" unfix
+	# https://lists.linux.it/pipermail/ltp/2020-May/017044.html
+	tskip "nm01_sh" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
