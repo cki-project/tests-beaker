@@ -1,0 +1,11 @@
+[General]
+name=kdump/include
+owner=Kdump QE <kdump-qe-list@redhat.com>
+description=kdump test library
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+repoRequires=cki_lib

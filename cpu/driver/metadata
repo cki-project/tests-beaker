@@ -1,0 +1,14 @@
+[General]
+name=cpu/driver
+owner=David Arcari <darcari@redhat.com>
+description=cpu frequency driver test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=virt-what;git;autoconf;automake;make;gcc;bc
+softDependencies=msr-tools;python2-lxml;python3-lxml
+environment=TEST=cpu/driver
+repoRequires=cpu/common;cki_lib
