@@ -30,13 +30,27 @@ ANALYZE_VMCORE="${ANALYZE_VMCORE:-true}"
 Crash()
 {
     if [ ! -f "${C_REBOOT}" ]; then
+        # Clear previous vmcores if any and restore kdump configurations
+        Cleanup
         PrepareKdump
+
+        # Test with
+        #    default kdump config
+        #    default kdump sysconfig but with KDUMP_FILE_LOAD = off
+        ResetKdumpConfig
+        # if KDUMP_FILE_LOAD presents, turn it off 
+        # Otherwise kdump service would fail to start if the kernel 
+        # is not signed with a ceritified key.
+        if grep -i KDUMP_FILE_LOAD "${KDUMP_SYS_CONFIG}" ; then
+            AppendSysconfig KDUMP_FILE_LOAD override "off"
+        fi
+        RestartKdump
         ReportSystemInfo
         TriggerSysrqPanic
         rm -f "${C_REBOOT}"
     else
         rm -f "${C_REBOOT}"
-        GetCorePath
+        GetCorePath || return
 
         if [ "${ANALYZE_VMCORE,,}" != "true" ]; then
           return
@@ -62,10 +76,6 @@ EOF
         else
             CrashCommand "" "${vmlinux}" "${vmcore}"
         fi
-
-        # Clear the vmcore file at the end of test
-        Log "Test Cleanup: Remove ${vmcore}"
-        rm -f "${vmcore}"
     fi
 }
 
