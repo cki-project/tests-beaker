@@ -36,6 +36,8 @@ rlJournalStart
     rlPhaseStartTest
         rlRun "sed -i 's/^exec_test$/exec_test; exit \$?/' libkcapi/test/test-invocation.sh" 0 \
             "Skip the compilation and 32-bit tests"
+        rlRun "sed -i '/symfunc 1 -j/d' libkcapi/test/test.sh" 0 \
+            "Skip the broken multithreaded tests"
         # NOTE: we could enable the fuzz tests with ENABLE_FUZZ_TEST=1, but
         # they take a veeeery long time to run and so far I haven't seen
         # them actually uncover a bug... Let's just keep them off for now.

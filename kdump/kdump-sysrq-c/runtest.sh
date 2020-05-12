@@ -23,6 +23,8 @@
 . ../../cki_lib/libcki.sh || exit 1
 . ../include/runtest.sh
 
+TEST="/kdump/crash-sysrq-c"
+
 ANALYZE_VMCORE="${ANALYZE_VMCORE:-true}"
 
 Crash()
