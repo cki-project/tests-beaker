@@ -22,7 +22,7 @@
 . /usr/share/beakerlib/beakerlib.sh
 
 GIT_URL="https://github.com/smuellerDD/libkcapi"
-GIT_REF="v1.1.5"
+GIT_REF="c77b0cf4567e9c534378d7c5bfeceb3eda1d2d30"
 
 rlJournalStart
     rlPhaseStartSetup
