@@ -1,12 +1,24 @@
 #!/bin/bash
 . ../../cki_lib/libcki.sh || exit 1
 
-export ACCEL=kvm
 unset ARCH
 unset STANDALONE
 cpus=$(grep -c ^processor /proc/cpuinfo)
+BINDIR=./tests
+LOGDIR=./logs
+GICVERSION=""
+MACHINES=("pc")
+CPUTYPE=""
+OSVERSION=""
+KVMPARAMFILE=/etc/modprobe.d/kvm-ci.conf
+REPOS=("default")
+SETUPS=("setupDF")
+CLEANUPS=("cleanupDF")
+ACCEL="kvm"
 
-function check_platform_support
+source /usr/share/beakerlib/beakerlib.sh
+
+function checkPlatformSupport
 {
     typeset hwpf=${1?"*** what hardware-platform?, e.g. x86_64"}
     [[ $hwpf == "x86_64" ]] && return 0
@@ -17,30 +29,57 @@ function check_platform_support
     return 1
 }
 
-function check_virt_support
+function checkVirtSupport
 {
     typeset hwpf=${1?"*** what hardware-platform?, e.g. x86_64"}
+
+    if grep -q "Red Hat Enterprise Linux release 8." /etc/redhat-release; then
+        OSVERSION="RHEL8"
+    else
+        OSVERSION="ARK"
+    fi
+
+    if [[ $OSVERSION == "RHEL8" ]] && dnf repolist --all | grep -q rhel8-advvirt; then
+        REPOS+=("rhel8-advvirt")
+        SETUPS+=("setupAV")
+        CLEANUPS+=("cleanupAV")
+    fi
+
+    if [[ $OSVERSION == "RHEL8" ]] && dnf repolist --all | grep -q virt-weeklyrebase; then
+        REPOS+=("virt-weeklyrebase")
+        SETUPS+=("setupWR")
+        CLEANUPS+=("cleanupWR")
+    fi
+
     if [[ $hwpf == "x86_64" ]]; then
+        MACHINES+=("q35")
+        if (egrep -q 'vmx' /proc/cpuinfo); then
+            CPUTYPE="INTEL"
+        elif (egrep -q 'svm' /proc/cpuinfo); then
+            CPUTYPE="AMD"
+        fi
         egrep -q '(vmx|svm)' /proc/cpuinfo
         return $?
     elif [[ $hwpf == "aarch64" ]]; then
-        dmesg | egrep -iq "kvm"
-        if (( $? == 0 )); then
-            dmesg | egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
+        if journalctl -k | egrep -qi "disabling GICv2" ; then
+            GICVERSION="3"
         else
-            #
-            # XXX: Note that the harness (i.e. beaker) does clear dmesg, hence
-            #      we have to fetch the output of kernel buffer from
-            #      "journalctl -k"
-            #
-            journalctl -k | \
-                egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
+            GICVERSION="2"
         fi
+        CPUTYPE="ARMGICv$GICVERSION"
+        journalctl -k | egrep -iq "kvm.*: (Hyp|VHE) mode initialized successfully"
         return $?
     elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
+        ACCEL+=",cap-ccf-assist=off"
+        if (egrep -q 'POWER9' /proc/cpuinfo); then
+            CPUTYPE="POWER9"
+        else
+            CPUTYPE="POWER8"
+        fi
         grep -q 'platform.*PowerNV' /proc/cpuinfo
         return $?
     elif [[ $hwpf == "s390x" ]]; then
+        CPUTYPE="S390X"
         grep -q 'features.*sie' /proc/cpuinfo
         return $?
     else
@@ -48,198 +87,284 @@ function check_virt_support
     fi
 }
 
-# test is only supported on x86_64, aarch64, ppc64 and s390x
-hwpf=$(uname -i)
-check_platform_support $hwpf
-if (( $? == 0 )); then
-    echo "Running on supported arch ($hwpf)" | tee -a $OUTPUTFILE
+function getTests
+{
+    # List of tests to run on all architectures
+    ALL_TESTS=()
+    while IFS=  read -r -d $'\0'; do
+        ALL_TESTS+=("$REPLY")
+    done < <(find $BINDIR/ -maxdepth 1 -type f -executable -printf "%f\0")
+}
 
-    # test can only run on hardware that supports virtualization
-    check_virt_support $hwpf
-    if (( $? == 0 )); then
-        echo "Hardware supports virtualization, proceeding" | tee -a $OUTPUTFILE
+function disableTests
+{
+    typeset hwpf=$(uname -i)
+
+    # Disable tests for RHEL8 Kernel (4.18.X)
+    if [[ $OSVERSION == "RHEL8" ]]; then
+        # Disabled x86_64 tests for Intel & AMD machines due to bugs
+            # Disabled x86_64 tests for pc qemu machine type
+        if [[ $hwpf == "x86_64" ]] && [[ $MACHINE == "pc" ]]; then
+            # Disable test hyperv_synic, hyperv_connections, hyperv_stimer
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1668573
+            mapfile -d $'\0' -t ALL_TESTS < <(printf '%s\0' "${ALL_TESTS[@]}" | grep -Pzv "hyperv_synic")
+            mapfile -d $'\0' -t ALL_TESTS < <(printf '%s\0' "${ALL_TESTS[@]}" | grep -Pzv "hyperv_connections")
+            mapfile -d $'\0' -t ALL_TESTS < <(printf '%s\0' "${ALL_TESTS[@]}" | grep -Pzv "hyperv_stimer")
+        fi
+    fi
+}
+
+function setupRepo
+{
+    # clone the kvm-unit-tests repo
+    rlRun "rm -rf kvm-unit-tests"
+    rlRun "git clone https://gitlab.com/mcondotta/kvm-unit-tests.git > /dev/null 2>&1"
+    rlRun "cd kvm-unit-tests > /dev/null 2>&1"
+    rlRun "git checkout mcondotta_fixes > /dev/null 2>&1"
+
+    if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
+        rlRun "./configure --endian=little"
     else
-        echo "Skipping test, CPU doesn't support virtualization" | tee -a $OUTPUTFILE
+        rlRun "./configure"
+    fi
+
+    rlRun "make standalone > /dev/null 2>&1"
+}
+
+function setup
+{
+    rlPhaseStartSetup
+    rlRun "pushd '.'"
+
+    # tests are currently supported on x86_64, aarch64, ppc64 and s390x
+    hwpf=$(uname -i)
+    checkPlatformSupport $hwpf
+    if (( $? == 0 )); then
+        # test can only run on hardware that supports virtualization
+        checkVirtSupport $hwpf
+        rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Running on supported arch"
+        if (( $? == 0 )); then
+            rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Hardware supports virtualization, proceeding"
+        else
+            rlLog "Skipping test, CPU doesn't support virtualization"
+            rstrnt-report-result $TEST SKIP $OUTPUTFILE
+            exit
+        fi
+    else
+        rlLog "Skipping test, test is only supported on x86_64, aarch64, ppc64 or s390x"
         rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit
     fi
-else
-    echo "Skipping test, test is only supported on x86_64, aarch64, ppc64 or s390x" | tee -a $OUTPUTFILE
-    rstrnt-report-result $TEST SKIP $OUTPUTFILE
-    exit
-fi
 
-# test should only run on a system with 1 or more cpus
-if [ "$cpus" -gt 1 ]; then
-    echo "You have sufficient CPU's to run the test" | tee -a $OUTPUTFILE
-else
-    echo "Skipping test, system requires > 1 CPU" | tee -a $OUTPUTFILE
-    rstrnt-report-result $TEST SKIP $OUTPUTFILE
-    exit
-fi
-
-KVM_SYSFS=/sys/module/kvm/parameters/
-KVM_OPTIONS_X86="enable_vmware_backdoor force_emulation_prefix"
-KVM_ARCH=""
-if (egrep -q 'vmx' /proc/cpuinfo); then
-    KVM_ARCH="kvm_intel"
-elif (egrep -q 'svm' /proc/cpuinfo); then
-    KVM_ARCH="kvm_amd"
-fi
-KVM_ARCH_SYSFS=/sys/module/${KVM_ARCH}/parameters/
-KVM_ARCH_OPTIONS_X86="nested"
-
-if [[ $hwpf == "x86_64" ]]; then
-    # set the virt kernel parameters
-    echo -e "options kvm force_emulation_prefix=1\noptions kvm enable_vmware_backdoor=1" > /etc/modprobe.d/kvm-ci.conf
-    echo -e "options ${KVM_ARCH} nested=1" >> /etc/modprobe.d/kvm-ci.conf
-    # reload the modules
-    if (egrep -q 'vmx' /proc/cpuinfo); then
-        rmmod kvm_intel kvm
-        modprobe kvm_intel kvm
-    elif (egrep -q 'svm' /proc/cpuinfo); then
-        rmmod kvm_amd kvm
-        modprobe kvm_amd kvm
-    fi
-    for opt in $KVM_OPTIONS_X86; do
-        if [ ! -f "$KVM_SYSFS/$opt" ]; then
-            echo "kernel option $opt not set" | tee -a $OUTPUTFILE
-            rstrnt-report-result $TEST WARN
-            rstrnt-abort -t recipe
-        else
-            echo "kernel option $opt is set" | tee -a $OUTPUTFILE
-        fi
-    done
-    for opt in $KVM_ARCH_OPTIONS_X86; do
-        if [ ! -f "$KVM_ARCH_SYSFS/$opt" ]; then
-            echo "kernel option $opt not set" | tee -a $OUTPUTFILE
-            rstrnt-report-result $TEST WARN
-            rstrnt-abort -t recipe
-        else
-            echo "kernel option $opt is set" | tee -a $OUTPUTFILE
-        fi
-    done
-elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
-    for mod in kvm_hv kvm_pr kvm ; do
-        if (lsmod | grep -q $mod); then
-            rmmod $mod
-        fi
-    done
-    modprobe kvm_hv
-else
-    # reload the modules
-    if (lsmod | grep -q kvm); then
-        rmmod kvm
-    fi
-    modprobe kvm
-fi
-
-# set the qemu-kvm path
-if [ -e /usr/libexec/qemu-kvm ]; then
-    export QEMU="/usr/libexec/qemu-kvm"
-elif [ -e /usr/bin/qemu-kvm ]; then
-    export QEMU="/usr/bin/qemu-kvm"
-fi
-
-if [ -z "$QEMU" ]; then
-    echo "Can't find qemu binary" | tee -a $OUTPUTFILE
-    rstrnt-report-result $TEST WARN
-    rstrnt-abort -t recipe
-fi
-
-# if running on rhel8, use python3
-if grep --quiet "release 8." /etc/redhat-release && [ ! -f /usr/bin/python ];then
-    ln -s /usr/libexec/platform-python /usr/bin/python
-fi
-
-# enable nmi_watchdog since some unit tests depend on this
-echo 0 > /proc/sys/kernel/nmi_watchdog
-
-# clone the upstream kvm-unit-tests
-git clone git://git.kernel.org/pub/scm/virt/kvm/kvm-unit-tests.git
-cd kvm-unit-tests
-git checkout dc9841d08fa1796420a64ad5d5ef652de337809d
-if [ $? -ne 0 ]; then
-    echo "Failed to clone and checkout commit from kvm-unit-tests" | tee -a $OUTPUTFILE
-    rstrnt-report-result $TEST WARN
-    rstrnt-abort -t recipe
-fi
-
-# update unittests.cfg to exclude known failures
-cp ../x86_unittests.cfg x86/unittests.cfg
-cp ../aarch64_unittests.cfg arm/unittests.cfg
-cp ../s390x_unittests.cfg s390x/unittests.cfg
-cp ../ppc64le_unittests.cfg powerpc/unittests.cfg
-
-# run the tests
-if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
-    ./configure --endian=little
-else
-    ./configure
-fi
-make
-./run_tests.sh -v > test.log 2>&1
-cat test.log | tee -a $OUTPUTFILE
-
-# check for any new failures
-grep FAIL test.log >> failures.txt
-
-# Run KVM Unit tests with Advanced Virt (qemu-4.0) if possible
-if dnf repolist --all | grep rhel8-advvirt; then
-    dnf module -y reset virt
-    dnf module -y --enablerepo=rhel8-advvirt enable virt:8.1
-    dnf update -y --enablerepo=rhel8-advvirt qemu-*
-
-    git clean -fdx
-    git reset --hard
-
-    cp ../x86_adv_unittests.cfg x86/unittests.cfg
-    cp ../aarch64_unittests.cfg arm/unittests.cfg
-    cp ../s390x_unittests.cfg s390x/unittests.cfg
-
-    # run the tests
-    if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
-        ./configure --endian=little
+    # test should only run on a system with 1 or more cpus
+    if [ "$cpus" -gt 1 ]; then
+        rlLog "[$OSVERSION][$hwpf][$CPUTYPE] You have sufficient CPU's to run the test"
     else
-        ./configure
+        rlLog "Skipping test, system requires > 1 CPU"
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
+        exit
     fi
-    make
-    ./run_tests.sh -v > testadv.log 2>&1
-    cat testadv.log | tee -a $OUTPUTFILE
 
-    # check for any new failures
-    grep FAIL testadv.log >> failures.txt
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Running tests for OSVERSION: $OSVERSION"
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Running tests for ARCH: $hwpf"
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Running tests for CPUTYPE: $CPUTYPE"
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Running tests for MACHINES: ${MACHINES[*]}"
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Running tests for REPOS: ${REPOS[*]}"
 
-    # cleanup Advanced VIRT repo and downgrade QEMU version
-    dnf module -y reset virt
-    dnf module -y enable virt
-    dnf downgrade -y qemu-*
-fi
-
-# submit logs to beaker
-which rstrnt-report-log > /dev/null 2>&1
-if [[ $? -eq 0 ]]; then
-    logs=$(ls logs/*.log)
-    testlog="tests_run.log"
-    if [[ $? -ne 0 ]]; then
-        exit 0
+    KVM_SYSFS=/sys/module/kvm/parameters/
+    KVM_OPTIONS=""
+    if [[ $hwpf == "x86_64" ]]; then
+        KVM_OPTIONS+=("enable_vmware_backdoor")
+        KVM_OPTIONS+=("force_emulation_prefix")
+    elif [[ $hwpf == "s390x" ]]; then
+        KVM_OPTIONS+=("nested")
     fi
-    > ${testlog}
-    for log in $logs
-    do
-        printf "[START ${log} LOG]\n" >> ${testlog}
-        cat ${log} >> ${testlog}
-        printf "[END ${log} LOG]\n\n" >> ${testlog}
+
+    KVM_ARCH=""
+    KVM_MODULES=()
+    KVM_ARCH_OPTIONS=()
+    if [[ $CPUTYPE == "INTEL" ]]; then
+        KVM_ARCH="kvm_intel"
+        KVM_ARCH_OPTIONS+=("nested")
+    elif [[ $CPUTYPE == "AMD" ]]; then
+        KVM_ARCH="kvm_amd"
+        KVM_ARCH_OPTIONS+=("nested")
+    elif [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
+        KVM_ARCH="kvm_hv"
+        KVM_MODULES+=("kvm_pr")
+        KVM_ARCH_OPTIONS+=("nested")
+    fi
+    KVM_MODULES+=("$KVM_ARCH")
+    KVM_MODULES+=("kvm")
+    KVM_ARCH_SYSFS=/sys/module/$KVM_ARCH/parameters/
+
+    # Set the KVM parameters needed for the tests
+    > $KVMPARAMFILE
+    for opt in ${KVM_OPTIONS[*]}; do
+        echo -e "options kvm $opt=1\n" >> $KVMPARAMFILE
     done
-    echo "Submitting the following log to beaker: ${testlog}"
-    rstrnt-report-log -l ${testlog}
-fi
+    for opt in ${KVM_ARCH_OPTIONS[*]}; do
+        echo -e "options $KVM_ARCH $opt=1\n" >> $KVMPARAMFILE
+    done
 
-# number of failures is our return code
-ret=$(wc -l failures.txt  | awk '{print $1}')
-if [ $ret -gt 0 ]; then
-        rstrnt-report-result "done" "FAIL" 1
-else
-        rstrnt-report-result "done" "PASS" 0
-fi
-exit 0
+    # Export env variables used by KVM Unit Tests
+    export ACCEL=$ACCEL
+    export TIMEOUT=3000s
+
+    # Reload the modules
+    for mod in ${KVM_MODULES[*]}; do rmmod -f $mod > /dev/null 2>&1; done
+    modprobe -a kvm $KVM_ARCH
+
+    # Test if the KVM parameters were set correctly
+    for opt in ${KVM_OPTIONS[*]}; do
+        if ! cat $KVM_SYSFS/$opt | egrep -q "Y|y|1"; then
+            rlLog "[$OSVERSION][$hwpf][$CPUTYPE] kvm module option $opt not set"
+            rstrnt-report-result $TEST WARN
+            rstrnt-abort -t recipe
+        else
+            rlLog "[$OSVERSION][$hwpf][$CPUTYPE] kvm module option $opt is set"
+        fi
+    done
+    for opt in ${KVM_ARCH_OPTIONS[*]}; do
+        if ! cat $KVM_ARCH_SYSFS/$opt | egrep -q "Y|y|1"; then
+            rlLog "[$OSVERSION][$hwpf][$CPUTYPE] $KVM_ARCH module option $opt not set"
+            rstrnt-report-result $TEST WARN
+            rstrnt-abort -t recipe
+        else
+            rlLog "[$OSVERSION][$hwpf][$CPUTYPE] $KVM_ARCH module option $opt is set"
+        fi
+    done
+
+    # set the qemu-kvm path
+    if [ -e /usr/libexec/qemu-kvm ]; then
+        export QEMU="/usr/libexec/qemu-kvm"
+    elif [ -e /usr/bin/qemu-kvm ]; then
+        export QEMU="/usr/bin/qemu-kvm"
+    fi
+
+    if [ -z "$QEMU" ]; then
+        rlLog "[$OSVERSION][$hwpf][$CPUTYPE] Can't find qemu binary"
+        rstrnt-report-result $TEST WARN
+        rstrnt-abort -t recipe
+    fi
+
+    # if running on rhel8, use python3
+    if [[ $OSVERSION == "RHEL8" ]] && [ ! -f /usr/bin/python ]; then
+        ln -s /usr/libexec/platform-python /usr/bin/python
+    fi
+
+    # enable nmi_watchdog since some unit tests depend on this
+    if test -f "/proc/sys/kernel/nmi_watchdog"; then
+        echo 0 > /proc/sys/kernel/nmi_watchdog
+    fi
+
+    setupRepo
+
+    rlRun "popd"
+    rlPhaseEnd
+}
+
+function setupDF
+{
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] Installing qemu-kvm version from given repository"
+    dnf module -y reset virt > /dev/null 2>&1
+    dnf module -y enable virt > /dev/null 2>&1
+    dnf install -y qemu-kvm > /dev/null 2>&1
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] QEMU version installed: `rpm -q qemu-kvm`"
+}
+
+function cleanupDF
+{
+    return
+}
+
+function setupAV
+{
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] Installing qemu-kvm version from given repository"
+    dnf remove -y qemu-* > /dev/null 2>&1
+    dnf module -y reset virt > /dev/null 2>&1
+    dnf module -y --enablerepo=rhel8-advvirt enable virt:8.3  > /dev/null 2>&1
+    dnf install -y --enablerepo=rhel8-advvirt qemu-kvm > /dev/null 2>&1
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] QEMU version installed: `rpm -q qemu-kvm`"
+}
+
+function cleanupAV
+{
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] Removing qemu-kvm version installed from repository"
+    dnf remove -y qemu-* > /dev/null 2>&1
+    dnf module -y reset virt > /dev/null 2>&1
+    dnf module -y enable virt > /dev/null 2>&1
+}
+
+function setupWR
+{
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] Installing qemu-kvm version from given repository"
+    dnf remove -y qemu-* > /dev/null 2>&1
+    dnf install -y --enablerepo=virt-weeklyrebase qemu-kvm > /dev/null 2>&1
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] QEMU version installed: `rpm -q qemu-kvm`"
+}
+
+function cleanupWR
+{
+    rlLog "[$OSVERSION][$hwpf][$CPUTYPE][$mach][$repo] Removing qemu-kvm version installed from repository"
+    dnf remove -y qemu-* > /dev/null 2>&1
+}
+
+function runtest
+{
+    rlPhaseStartTest
+    rlRun "pushd '.'"
+
+    rlRun "cd kvm-unit-tests"
+
+    rm -rf $LOGDIR
+    mkdir $LOGDIR
+
+    for mach in ${MACHINES[*]}; do
+        export MACHINE=$mach
+
+        # Prepare lists of tests to run
+        getTests
+        disableTests
+
+        i=0
+        for repo in ${REPOS[*]}; do
+            ${SETUPS[$i]}
+            # Run tests
+            for test in ${ALL_TESTS[*]}; do rlRun "yes | $BINDIR/$test > $LOGDIR/${mach}_${repo}_$test.log 2>&1" 0,2,77; done
+            ${CLEANUPS[$i]}
+            i=$i+1
+        done
+    done
+
+    rlRun "popd"
+    rlPhaseEnd
+}
+
+function cleanup
+{
+    rlPhaseStartCleanup
+    rlRun "pushd '.'"
+
+    dnf remove -y qemu-* > /dev/null 2>&1
+    dnf module -y reset virt > /dev/null 2>&1
+    dnf module -y enable virt > /dev/null 2>&1
+    dnf install -y qemu-kvm > /dev/null 2>&1
+
+    rlRun "popd"
+    rlPhaseEnd
+}
+
+function main
+{
+    rlJournalStart
+
+    setup
+    runtest
+    cleanup
+
+    rlJournalEnd
+}
+
+main
+exit $?

@@ -61,82 +61,43 @@ function disableTests
 
     # Disable tests for RHEL8 Kernel (4.18.X)
     if uname -r | grep --quiet '^4'; then
-        # Disabled x86_64 tests for Intel & AMD machines due to bugs
-        if [[ $hwpf == "x86_64" ]]; then
-            # Disable test clear_dirty_log_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718479
-            mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "clear_dirty_log_test")
+    #    # Disabled x86_64 tests for Intel & AMD machines due to bugs
+    #    if [[ $hwpf == "x86_64" ]]; then
+    #    fi
 
-            # Disable test x86_64/vmx_set_nested_state_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1740235
-            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/vmx_set_nested_state_test")
-        fi
+    #    # Disabled x86_64 tests for AMD machines due to bugs
+    #    if lsmod | grep --quiet kvm_amd; then
+    #    fi
 
-        # Disabled x86_64 tests for AMD machines due to bugs
-        if lsmod | grep --quiet kvm_amd; then
-            # Disable test x86_64/platform_info_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1718499
-            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/platform_info_test")
-
-            if lscpu | grep --quiet Opteron; then
-                # Disable test x86_64/state_test & x86_64/smm_test
-                # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741347
-                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/state_test")
-                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/smm_test")
-            fi
-        fi
-
-        # Disabled x86_64 tests for Intel machines due to bugs
-        if lsmod | grep --quiet kvm_intel; then
-            if lscpu | grep --quiet "CPU E3-"; then
-                # Disable test dirty_log_test
-                # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741201
-                mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "dirty_log_test")
-            fi
-
-            if lscpu | grep --quiet E5504; then
-                # Disable test x86_64/state_test, x86_64/smm_test & x86_64/evmcs_test
-                # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741347
-                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/state_test")
-                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/smm_test")
-                mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/evmcs_test")
-            fi
-        fi
+    #    # Disabled x86_64 tests for Intel machines due to bugs
+    #    if lsmod | grep --quiet kvm_intel; then
+    #    fi
 
         # Disabled s390x tests due to bugs
         if [[ $hwpf == "s390x" ]]; then
+            # Disable test demand_paging_test
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=
+            mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "demand_paging_test")
+
             # Disable test dirty_log_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1741201
+            # due to https://bugzilla.redhat.com/show_bug.cgi?id=
             mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "dirty_log_test")
+        fi
+
+        # Disabled ARM tests due to bugs
+        if [[ $hwpf == "aarch64" ]]; then
+            # Disabled tests for GICv2 systems
+            if ! journalctl -k | egrep -qi "disabling GICv2" ; then
+                # Disable test kvm_create_max_vcpus
+                # due to https://bugzilla.redhat.com/show_bug.cgi?id=
+                mapfile -d $'\0' -t ALLARCH_TESTS < <(printf '%s\0' "${ALLARCH_TESTS[@]}" | grep -Pzv "kvm_create_max_vcpus")
+            fi
         fi
     fi
 
     # Disable tests for ARK Kernel (5.X)
-    if uname -r | grep --quiet '^5'; then
-        # Disable x86_64/sync_regs_test
-        # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719397
-        mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/sync_regs_test")
-
-        # Disabled x86_64 tests for AMD machines due to bugs
-        if lsmod | grep --quiet kvm_amd; then
-            # Disable test x86_64/platform_info_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719387
-            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/platform_info_test")
-            # Disable x86_64/state_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719401
-            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/state_test")
-            # Disable x86_64/smm_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719402
-            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/smm_test")
-        fi
-
-        # Disabled x86_64 tests for Intel machines due to bugs
-        if lsmod | grep --quiet kvm_intel; then
-            # Disable x86_64/evmcs_test
-            # due to https://bugzilla.redhat.com/show_bug.cgi?id=1719400
-            mapfile -d $'\0' -t X86_64_TESTS < <(printf '%s\0' "${X86_64_TESTS[@]}" | grep -Pzv "x86_64/evmcs_test")
-        fi
-    fi
+    #if uname -r | grep --quiet '^5'; then
+    #fi
 }
 
 source /usr/share/beakerlib/beakerlib.sh
