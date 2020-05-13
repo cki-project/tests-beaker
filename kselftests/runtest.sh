@@ -226,7 +226,7 @@ do_tc_test()
 	local qdi_tests=$(ls -d tc-tests/qdiscs/*.json)
 	local total_tests="$act_tests $fil_tests $qdi_tests"
 	local total_num=$(echo ${total_tests} | wc -w)
-	local nfail=0 nskip=0 ret=0
+	local FAIL=0 nskip=0 ret=0
 
 	# prepare evn
 	rpm -q clang || dnf install -y clang valgrind
@@ -250,7 +250,7 @@ do_tc_test()
 		ret=$?
 		if grep -q "not ok" $OUTPUTFILE; then
 			check_result $num $total_num ${item} ${name} 1
-			nfail=$((nfail+1))
+			FAIL=$(($FAIL+1))
 		elif grep -q "# skipped -" $OUTPUTFILE; then
 			check_result $num $total_num ${item} ${name} 4
 			nskip=$((nskip+1))
@@ -262,7 +262,7 @@ do_tc_test()
 		fi
 	done
 
-	echo "${item}: total $total_num, failed $nfail, skipped $nskip"
+	echo "${item}: total $total_num, failed $FAIL, skipped $nskip"
 	popd
 }
 
@@ -287,7 +287,7 @@ for item in $TEST_ITEMS; do
 	_item=$(echo $item | tr -s "/-" "_")
 	total_tests=$(get_test_list ${item})
 	total_num=$(echo ${total_tests} | wc -w)
-	nfail=0 num=0 name=""
+	FAIL=0 num=0 name=""
 
 	pushd $EXEC_DIR/$item
 	do_${_item}_config || continue
@@ -308,11 +308,11 @@ for item in $TEST_ITEMS; do
 		dmesg >> $OUTPUTFILE
 
 		check_result $num $total_num ${item} ${name} $ret || \
-			nfail=$((nfail+1))
+			FAIL=$(($FAIL+1))
 		reset_net_env
 	done
 
-	echo "${item}: total $total_num, failed $nfail"
+	echo "${item}: total $total_num, failed $FAIL"
 	popd
 done
 
