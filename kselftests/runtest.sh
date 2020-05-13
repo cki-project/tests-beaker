@@ -31,7 +31,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 . ./include.sh
 #-------------------- Setup --------------------
-EXEC_DIR="$PWD/kselftests"
+EXEC_DIR="$PWD/selftests"
 SKIP=4
 
 # Test items
@@ -114,9 +114,12 @@ run_test()
 # For upstream kselftest testing, we need a pre-build selftest tar ball url
 install_kselftests()
 {
+	mkdir selftests
+	pushd selftests
 	wget --no-check-certificate $CKI_SELFTESTS_URL -O kselftest.tar.gz
 	tar zxf kselftest.tar.gz
-	[ -f kselftest/run_kselftest.sh ] && return 0 || return 1
+	popd
+	[ -f selftests/run_kselftest.sh ] && return 0 || return 1
 }
 
 install_netsniff()
@@ -149,7 +152,7 @@ get_test_list()
 	if [ $name == "net/forwarding" ]; then
 		test_list=$(find net/forwarding -maxdepth 1 -perm -g=x -type f | sed "s/net\/forwarding\///")
 	else
-		start_line=$(grep -n "in $name" run_kselftest.sh | cut -f1 -d:)
+		start_line=$(grep -n "Running tests in $name" run_kselftest.sh | cut -f1 -d:)
 		sed -n "${start_line},$ p" run_kselftest.sh > ${name}.list
 		end_line=$(grep -n "cd \$ROOT" ${name}.list | head -n1 | cut -f1 -d:)
 		sed -i "${end_line},$ d" ${name}.list
@@ -228,7 +231,7 @@ do_tc_test()
 	# prepare evn
 	rpm -q clang || dnf install -y clang valgrind
 	modprobe -r veth
-	cd $EXEC_DIR/tc-testing
+	pushd $EXEC_DIR/tc-testing
 
 	# extend test timeout
 	sed -i '/TIMEOUT/s/12/180/' tdc_config.py
@@ -260,6 +263,7 @@ do_tc_test()
 	done
 
 	echo "${item}: total $total_num, failed $nfail, skipped $nskip"
+	popd
 }
 
 #-------------------- Start Test --------------------
@@ -272,6 +276,9 @@ reset_net_env
 submit_log "$EXEC_DIR/run_kselftest.sh"
 
 for item in $TEST_ITEMS; do
+	grep -q "Running tests in $item" selftests/run_kselftest.sh || \
+		{ test_skip "$item test not find in run_kselftest.sh" && continue; }
+
 	if [ "$item" == "tc-testing" ]; then
 		do_tc_test
 		continue
@@ -282,7 +289,7 @@ for item in $TEST_ITEMS; do
 	total_num=$(echo ${total_tests} | wc -w)
 	nfail=0 num=0 name=""
 
-	cd $EXEC_DIR/$item
+	pushd $EXEC_DIR/$item
 	do_${_item}_config || continue
 
 	for name in ${total_tests}; do
@@ -306,6 +313,7 @@ for item in $TEST_ITEMS; do
 	done
 
 	echo "${item}: total $total_num, failed $nfail"
+	popd
 done
 
 #-------------------- Clean Up --------------------
