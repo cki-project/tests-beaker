@@ -66,7 +66,7 @@ debug_info()
 	fi
 }
 
-clean_env()
+reset_net_env()
 {
 	# log the link before clean
 	debug_info
@@ -263,11 +263,12 @@ do_tc_test()
 }
 
 #-------------------- Start Test --------------------
+setup_env
 [ ! "$CKI_SELFTESTS_URL" ] && test_skip_exit "CKI_SELFTESTS_URL not find"
 install_kselftests || test_fail_exit "install kselftests failed"
 
 run "uname -r"
-clean_env
+reset_net_env
 submit_log "$EXEC_DIR/run_kselftest.sh"
 
 for item in $TEST_ITEMS; do
@@ -301,7 +302,7 @@ for item in $TEST_ITEMS; do
 
 		check_result $num $total_num ${item} ${name} $ret || \
 			nfail=$((nfail+1))
-		clean_env
+		reset_net_env
 	done
 
 	echo "${item}: total $total_num, failed $nfail"
