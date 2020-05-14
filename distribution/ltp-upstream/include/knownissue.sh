@@ -167,6 +167,10 @@ function knownissue_filter()
 	tskip "nm01_sh" unfix
 	# https://github.com/linux-test-project/ltp/issues/611
 	tskip "ksm02.*" unfix
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=54a307ba8d3c
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b469e7e47c8a
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=55bf882c7f13
+	tskip "fanotify09" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
