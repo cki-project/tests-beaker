@@ -78,7 +78,7 @@ $(METADATA): Makefile
 	@echo "RunFor:       $(PACKAGE_NAME)" >> $(METADATA)
 # add any other packages for which your test ought to run here
 	@echo "Requires:     tar autoconf automake" >> $(METADATA)
-	@echo "Requires:     iproute-tc jq netsniff-ng" >> $(METADATA)
+	@echo "Requires:     wget iproute-tc jq netsniff-ng" >> $(METADATA)
 	@echo "Requires:     clang valgrind" >> $(METADATA)
 	@echo "Requires:     $(PACKAGE_NAME)" >> $(METADATA)
 
