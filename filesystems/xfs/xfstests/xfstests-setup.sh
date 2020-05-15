@@ -160,15 +160,18 @@ function setup_test_dev_mkfs()
 		# check TEST_DEV
 		if ! blkid $TEST_DEV; then
 			echoo " * TEST_DEV $TEST_DEV looks invalid"
+			echo " * TEST_DEV $TEST_DEV looks invalid" > /dev/kmsg
 			exit 0
 		fi
 		# Make FSTYPE fs with MKFS_OPTS options on the device, exit on failure
 		if ! mkfs_dev $TEST_DEV; then
 			echoo " * mkfs_dev on TEST_DEV $TEST_DEV failed"
+			echo " * mkfs_dev on TEST_DEV $TEST_DEV failed" > /dev/kmsg
 			exit 0
 		fi
 	fi
 	echoo " * setup_test_dev_mkfs on TEST_DEV $TEST_DEV done"
+	echo " * setup_test_dev_mkfs on TEST_DEV $TEST_DEV done" > /dev/kmsg
 }
 
 # Submit block device info for debug
@@ -212,6 +215,7 @@ _EOF_
 	fi
 
 	echoo "getting blkdev info $TEST_DEV $SCRATCH_DEV $LOGWRITES_DEV"
+	echo "getting blkdev info $TEST_DEV $SCRATCH_DEV $LOGWRITES_DEV" > /dev/kmsg
 	get_blkdev_info $TEST_DEV > blockdev.info
 	get_blkdev_info $SCRATCH_DEV >> blockdev.info
 	get_blkdev_info $LOGWRITES_DEV >> blockdev.info
@@ -260,6 +264,7 @@ function setup_skiptests()
 		SKIPTESTS="$SKIPTESTS xfs/092"
 	fi
 	echoo "setup_skiptests done"
+	echo "setup_skiptests done" > /dev/kmsg
 }
 
 
@@ -300,5 +305,6 @@ function setup_full
 	sleep 10
 	sync
 
+	echo "setup_full done" > /dev/kmsg
 	report setup_done PASS 0
 }
