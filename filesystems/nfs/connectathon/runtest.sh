@@ -29,6 +29,10 @@
 . ../../../cki_lib/libcki.sh || exit 1
 . kstub.sh
 
+TEST="filesystems/nfs/connectathon"
+CONNECTATHON_SRCDIR="cthon04"
+LOOKASIDE_DEFAULT="git://git.linux-nfs.org/projects/steved/cthon04.git"
+
 # Turn debug on if DEBUG is 'yes' or 'true', which is helpful to dig out
 # internals for trouble shooting
 function DEBUG ()
@@ -573,6 +577,34 @@ DEBUG
 echo "" | tee -a $OUTPUTFILE
 echo " ***** Start of runtest.sh *****" | tee -a $OUTPUTFILE
 echo "" | tee -a $OUTPUTFILE
+
+# Cloning
+git clone $LOOKASIDE_DEFAULT
+if [ $? -ne 0 ]; then
+    echo "WARN : Failed cloning $LOOKASIDE_DEFAULT" | tee -a $OUTPUTFILE
+    rstrnt-report-result $TEST WARN
+    # Abort the task
+    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+    exit 0
+fi
+
+# Patch and compile binaries
+patch -d $CONNECTATHON_SRCDIR -p1 < patches/patch
+patch -d $CONNECTATHON_SRCDIR -p1 < patches/434966lock.patch
+patch -d $CONNECTATHON_SRCDIR -p1 < patches/hostnamefix.patch
+patch -d $CONNECTATHON_SRCDIR -p1 < patches/umount.patch
+patch -d $CONNECTATHON_SRCDIR -p1 < patches/filter_nroff_warnings.patch
+pushd $CONNECTATHON_SRCDIR
+make
+if [ $? -ne 0 ]; then
+    echo "WARN : Failed patching/compiling $CONNECTATHON_SRCDIR" | tee -a $OUTPUTFILE
+    rstrnt-report-result $TEST WARN
+    # Abort the task
+    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+    exit 0
+fi
+popd
+
 
 if [ "$CTHONTESTRUNS" ]; then
     # We can specify the number of times to run the cthon test

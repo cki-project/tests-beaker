@@ -3,6 +3,10 @@
 # Source the common test script helpers
 . ../../../cki_lib/libcki.sh || exit 1
 
+TEST="filesystems/loopdev/sanity"
+LOOKASIDE="http://www.iozone.org/src/current"
+TARGET="iozone3_489"
+
 PS4='+ $(date "+%s.%N")\011 '
 set -x
 
@@ -51,6 +55,20 @@ RunTest()
 
     return 0
 }
+
+
+# Main Test
+echo "compiling $TARGET ..." | tee -a $OUTPUTFILE
+wget ${LOOKASIDE}/${TARGET}.tar
+tar -xvf ${TARGET}.tar
+make -C ${TARGET}/src/current/ linux
+cp -f ${TARGET}/src/current/iozone ./
+if [ $? -ne 0 ]; then
+      rstrnt-report-result $TEST WARN
+      # Abort the task
+      rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
+      exit 0
+fi
 
 echo "Test is starting." | tee -a $OUTPUTFILE
 fallocate -l512M $storage_path 2>&1 >> $OUTPUTFILE

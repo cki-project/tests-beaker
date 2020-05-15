@@ -1,0 +1,13 @@
+[General]
+name=filesystems/general/pjd-fstest
+owner=Zorro Lang <zlang@redhat.com>
+description=Tests POSIX features of filesystem
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=gcc;make;wget;git;perl-Test-Harness;libacl-devel;perl;xfsprogs;e2fsprogs;acl;libacl;libacl-devel
+softDependencies=redhat-lsb-core;python3-lxml;e4fsprogs
+repoRequires=cki_lib

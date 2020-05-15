@@ -1,0 +1,12 @@
+[General]
+name=filesystems/loopdev/sanity
+owner=Xiong Zhou <xzhou@redhat.com>
+description=Sanity test for loop device
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=wget;git;gcc;make;autoconf;tar;bzip2;glibc-static
+repoRequires=cki_lib

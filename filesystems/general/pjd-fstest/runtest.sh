@@ -34,6 +34,7 @@
 set -o pipefail
 
 #prepare global values
+TEST="filesystems/general/pjd-fstest"
 test -z "$TEST_PARAM_DEVICE" || TEST_DEV="${TEST_PARAM_DEVICE}"
 test -z "$TEST_PARAM_TESTMNT" || TEST_MNT="${TEST_PARAM_TESTMNT}"
 test -z "$TEST_PARAM_FSTYPE" && TEST_PARAM_FSTYPE="$TEST_PARAM_FSTYP" # Backwards compatiblity

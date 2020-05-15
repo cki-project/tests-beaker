@@ -1,0 +1,13 @@
+[General]
+name=filesystems/xfs/xfstests
+owner=Boris Ranto <branto@redhat.com>
+description=The internal wrapper of upstream xfstests test suite
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=acl;attr;autoconf;bc;bind-utils;e2fsprogs-devel;e2fsprogs-devel;fio;gcc;gdbm-devel;gettext;gfs2-utils;git;indent;libacl-devel;libaio-devel;libattr-devel;libattr-devel;libblkid-devel;libcap;libuuid-devel;librbd1-devel;librdmacm-devel;ncurses-devel;openssl-devel;perl;popt-devel;psmisc;pyOpenSSL;quota;readline-devel;rpm-build;shadow-utils;wget;xfsdump;xfsprogs;xfsprogs-devel;samba;samba-client;cifs-utils;rpcbind;nfs-utils;lvm2
+softDependencies=vdo;kmod-kvdo;btrfs-progs;kernel;kernel-devel;libtool;policycoreutils-python;python;python2;xfsprogs-qa-devel;xfs-kmod
+repoRequires=cki_lib

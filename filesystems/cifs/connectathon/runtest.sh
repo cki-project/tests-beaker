@@ -17,6 +17,8 @@
 . ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+LOOKASIDE_DEFAULT=git://git.linux-nfs.org/projects/steved/cthon04.git
+
 TEST=${TEST:-TEST}
 TESTNAME=${TEST/*\//}
 
@@ -88,6 +90,7 @@ function Make()
 
    outputecho "dir"
    pwd
+   git clone $LOOKASIDE_DEFAULT
    pushd cthon04
    if [ $? -ne 0 ]; then
       outputecho "Failed to clone cthon04"
