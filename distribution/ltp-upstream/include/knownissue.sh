@@ -165,6 +165,8 @@ function knownissue_filter()
 	tskip "pty04" unfix
 	# https://lists.linux.it/pipermail/ltp/2020-May/017044.html
 	tskip "nm01_sh" unfix
+	# https://github.com/linux-test-project/ltp/issues/611
+	tskip "ksm02.*" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
