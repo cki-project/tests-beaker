@@ -296,6 +296,12 @@ RstrntSubmit() {
     fi
 }
 
+SafeReboot() {
+    # It will config BootNext to be same as current boot for EFI boot machine.
+    rstrnt-reboot
+}
+
+
 GetBiosInfo()
 {
     # Get BIOS information.
@@ -393,7 +399,7 @@ PrepareKdump()
             } || FatalError "Error changing boot loader."
 
             Report 'pre-reboot'
-            Log "- Rebooting\n"; sync; rstrnt-reboot
+            Log "- Rebooting\n"; sync; SafeReboot
         }
     fi
 
