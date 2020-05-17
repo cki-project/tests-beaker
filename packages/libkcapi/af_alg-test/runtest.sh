@@ -46,6 +46,7 @@ rlJournalStart
 
     rlPhaseStartCleanup
         rlRun "rm -rf libkcapi"
+        rlFileSubmit "/proc/crypto" "proc-crypto.txt"
     rlPhaseEnd
 rlJournalPrintText
 rlJournalEnd
