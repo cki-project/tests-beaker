@@ -48,6 +48,7 @@ KexecBoot()
             fi
         fi 
 
+        PrepareKdump
         # Make sure kdump service is done running 'kexec -p' load
         # So kexec -l won't compete resources with kexec -p
         # Otherwise it may fail: kexec_load failed: Device or resource busy
