@@ -32,7 +32,7 @@ Crash()
     if [ ! -f "${C_REBOOT}" ]; then
         # Clear previous vmcores if any and restore kdump configurations
         Cleanup
-        PrepareKdump
+        SetupKdump
 
         # Test with
         #    default kdump config
