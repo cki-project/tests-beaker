@@ -868,7 +868,7 @@ RestoreKdumpConfig()
         umount "${path}"
     }
 
-    rm -f "${K_NFS}" "${K_PATH}" "${K_REBOOT}"
+    rm -f "${K_NFS}" "${K_PATH}"
 
     Log "- Restore /etc/kdump.conf"
     echo > "${KDUMP_CONFIG}"
