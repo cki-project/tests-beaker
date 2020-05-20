@@ -29,8 +29,6 @@ rlJournalStart
         rlRun "git clone '$GIT_URL' libkcapi"
         rlRun "(cd libkcapi && git checkout $GIT_REF)"
         rlRun "(cd libkcapi && autoreconf -i)"
-        rlRun "(cd libkcapi && ./configure)"
-        rlRun "make -C libkcapi -j$(nproc)"
     rlPhaseEnd
 
     rlPhaseStartTest
@@ -46,6 +44,7 @@ rlJournalStart
 
     rlPhaseStartCleanup
         rlRun "rm -rf libkcapi"
+        rlFileSubmit "/proc/crypto" "proc-crypto.txt"
     rlPhaseEnd
 rlJournalPrintText
 rlJournalEnd
