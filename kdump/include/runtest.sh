@@ -83,10 +83,15 @@ K_VMCOREPATH=${K_VMCOREPATH:-"/var/crash"}
 
 [ "${K_ARCH}" = "ia64" ] && K_BOOT="/boot/efi/efi/redhat" || K_BOOT="/boot"
 
-# back up kdump config files
-[ -f "${KDUMP_CONFIG}.bk" ] || cp "${KDUMP_CONFIG}" "${KDUMP_CONFIG}.bk"
-[ -f "${KDUMP_SYS_CONFIG}.bk" ] || cp "${KDUMP_SYS_CONFIG}" "${KDUMP_SYS_CONFIG}.bk"
 
+BackupKdumpConfig()
+{
+    [ -f "${KDUMP_CONFIG}" -a ! -f "${KDUMP_CONFIG}.bk" ] && cp "${KDUMP_CONFIG}" "${KDUMP_CONFIG}.bk"
+    [ -f "${KDUMP_SYS_CONFIG}" -a ! -f "${KDUMP_SYS_CONFIG}.bk" ] && cp "${KDUMP_SYS_CONFIG}" "${KDUMP_SYS_CONFIG}.bk"
+}
+
+# back up kdump config files
+BackupKdumpConfig
 
 DisableAVCCheck()
 {
@@ -339,21 +344,44 @@ ClearReport()
 
 #  Common Kdump/Crash Functions
 
+# Install/Upgrade Kexec-tools and related packages
 PrepareKdump()
 {
-    if [ ! -f "${K_REBOOT}" ]; then
-        rpm -q kexec-tools || {
-            # On Fedora, kexec-tools is not installed by default.
-            # install kexec-tools ans enabled kdump service.
-            InstallPackages kexec-tools
-            systemctl enable kdump.service || chkconfig kdump on
-        }
+    rpm -q kexec-tools || {
+        # On Fedora, kexec-tools is not installed by default.
+        # Install kexec-tools and enable kdump service.
+        InstallPackages kexec-tools
+        systemctl enable kdump.service || chkconfig kdump on
 
-        # Try upgrading kexec-tools to the latest version if on FC.
-        # If it fails, still use the kexec-tools from the default repo.
-        if $IS_FC && $UPGRADE_FC_KDUMP; then
-            UpgradePackages kexec-tools dracut systemd --enablerepo=updates-testing --enablerepo=fedora --releasever=32
-        fi
+        # Back up configurations if kexec-tools is installed for the first time
+        BackupKdumpConfig
+    }
+
+    # Try upgrading kexec-tools to the latest version if on FC.
+    # If it fails, still use the kexec-tools from the default repo.
+    if $IS_FC && $UPGRADE_FC_KDUMP; then
+        UpgradePackages kexec-tools dracut systemd --enablerepo=updates-testing --enablerepo=fedora --releasever=32
+    fi
+}
+
+# Install/Upgrade Crash and related packages
+PrepareCrash()
+{
+    Log "- Installing crash and kernel-debuginfo packages required for testing crash untilities."
+    rpm -q crash || InstallPackages crash
+    # Try upgrading crash to the latest version if on FC.
+    # If it fails, still use the crash from the default repo.
+    if $IS_FC && $UPGRADE_FC_CRASH; then
+        UpgradePackages crash --enablerepo=updates-testing --enablerepo=fedora --releasever=32
+    fi
+    InstallDebuginfo
+}
+
+# Config kernel options and make sure Kdump is operational
+SetupKdump()
+{
+    if [ ! -f "${K_REBOOT}" ]; then
+        PrepareKdump
 
         local default=/boot/vmlinuz-`uname -r`
         [ ! -s "$default" ] && default=/boot/vmlinux-`uname -r`
@@ -667,17 +695,6 @@ RestartKdump()
     fi
 }
 
-PrepareCrash()
-{
-    Log "- Installing crash and kernel-debuginfo packages required for testing crash untilities."
-    rpm -q crash || InstallPackages crash
-    # Try upgrading crash to the latest version if on FC.
-    # If it fails, still use the crash from the default repo.
-    if $IS_FC && $UPGRADE_FC_CRASH; then
-        UpgradePackages crash --enablerepo=updates-testing --enablerepo=fedora --releasever=32
-    fi
-    InstallDebuginfo
-}
 
 InstallPackages()
 {
