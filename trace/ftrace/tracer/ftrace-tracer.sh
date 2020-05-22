@@ -28,7 +28,7 @@ if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   assertPass echo 10 > ${FTRACE_PREFIX}/tracing_thresh
   sleep 2
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -42,7 +42,7 @@ if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 2
 
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -55,7 +55,7 @@ tracername="mmiotrace"
 if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -69,7 +69,7 @@ tracername="function_graph"
 if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -82,7 +82,7 @@ tracername="wakeup"
 if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -95,7 +95,7 @@ tracername="wakeup_dl"
 if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -108,7 +108,7 @@ tracername="wakeup_rt"
 if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
@@ -121,7 +121,7 @@ tracername="function"
 if grep -qw ${tracername} ${FTRACE_PREFIX}/available_tracers; then
   starttrace ${tracername}
   sleep 5
-  cat ${TRACE} &> /dev/null ; rtrn=$?
+  head -n 10 ${TRACE} &> /dev/null ; rtrn=$?
   assertTrue "${tracername} trace error" ${rtrn}
   stoptrace
 else
