@@ -121,15 +121,11 @@ function knownissue_filter()
 	[ $(free -g | grep "^Mem:" | awk '{print $2}') -gt 8 ] && tskip "oom0.*" fatal
 	# copy_file_range02 is a new unstable test case and changes too frequently
 	tskip "copy_file_range02" unfix 
-	# move_pages12 patches pending
-	# http://lists.linux.it/pipermail/ltp/2019-July/012907.html  --- patch pending on review in upstream
-	# http://lists.linux.it/pipermail/ltp/2019-July/012962.html  --- kernel bug in upstream kernel
-	tskip "move_pages12" unfix
 	# Issue TBD
 	tskip "madvise09" fatal
 	# https://github.com/linux-test-project/ltp/issues/611
-	tskip "ksm03.*" fatal
-	tskip "ksm04.*" fatal
+	tskip "ksm03.* ksm04.*" fatal
+	tskip "ksm02.*" unfix
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
 	# Issue TBD
 	tskip "memfd_create03" unfix
@@ -145,7 +141,7 @@ function knownissue_filter()
 	tskip "sync_file_range02" unfix
 	# Issue read_all_sys is triggering hard lockups on mustangs while reading /sys
 	# https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
-        is_arch "aarch64" && tskip "read_all_sys" fatal
+	is_arch "aarch64" && tskip "read_all_sys" fatal
 	# OOM tests result in oom errors killing the test harness
 	tskip "oom.*" fatal
 	# fs_fill test exceeds timeout, TBD adjust timeout settings
@@ -154,19 +150,12 @@ function knownissue_filter()
 	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a08bf91ce28
 	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e356101e72
 	tskip "add_key05" unfix
-	# https://lkml.org/lkml/2020/4/18/574
-	tskip "connect02" unfix
 	# https://lists.linux.it/pipermail/ltp/2020-April/016768.html
-	tskip "ioctl_loop01" unfix
-	tskip "ioctl_loop05" unfix
-	# Skip this test for now, author is looking into possibly removing it next release.
-	# https://lists.linux.it/pipermail/ltp/2020-May/016974.html
-	# https://github.com/linux-test-project/ltp/issues/674
-	tskip "pty04" unfix
+	tskip "ioctl_loop01 ioctl_loop05" unfix
 	# https://lists.linux.it/pipermail/ltp/2020-May/017044.html
 	tskip "nm01_sh" unfix
-	# https://github.com/linux-test-project/ltp/issues/611
-	tskip "ksm02.*" unfix
+	# Unable to load BPF programs on s390x/upstream kernels (FMK-1825)
+	is_arch "s390x" && tskip "bpf_prog01 bpf_prog02" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------
