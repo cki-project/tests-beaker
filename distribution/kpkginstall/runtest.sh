@@ -257,6 +257,10 @@ function targz_install()
         sed -i "s/title.*/$title/" "${f}"
         cki_print_success "Removed trailing whitespace in title record of $f"
       done
+
+      # Workaround for BZ 1698363
+      grubby --set-default /boot/vmlinuz-"${KVER}" && zipl
+      cki_print_success "Grubby workaround for s390x completed"
   fi
 }
 
@@ -465,7 +469,7 @@ else
       "${KVER}+debug"           # RHEL 8 style debug kernels
     )
   else
-    KVER=$(uname -r | sed "s/.$(uname -i)//")
+    KVER=${KVER//.$(uname -i)/}
     valid_kernel_versions=(
       "${KVER}"
       "${KVER}.${ARCH}"
