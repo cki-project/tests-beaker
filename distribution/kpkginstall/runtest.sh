@@ -469,7 +469,7 @@ else
       "${KVER}+debug"           # RHEL 8 style debug kernels
     )
   else
-    KVER=$(uname -r | sed "s/.$(uname -i)//")
+    KVER=${KVER//.$(uname -i)/}
     valid_kernel_versions=(
       "${KVER}"
       "${KVER}.${ARCH}"
