@@ -26,10 +26,20 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+FILE=$(readlink -f $BASH_SOURCE)
+NAME=$(basename $FILE)
+CDIR=$(dirname $FILE)
+
 # Include beaker environment
-. ../../../cki_lib/libcki.sh || exit 1
-. /usr/share/beakerlib/beakerlib.sh
-. ./kvercmp.sh
+source $CDIR/../../../cki_lib/libcki.sh || exit 1
+source $CDIR/lib/kvercmp.sh
+
+function setup
+{
+	bash $CDIR/utils/build.sh
+}
+
+setup
 
 PACKAGE="libhugetlbfs"
 if grep -q "release [5-7].*" /etc/redhat-release; then
@@ -188,7 +198,7 @@ rlJournalStart
         rlRun "hugeadm --pool-pages-max ${HPSIZE}:0"
 
         # Set up hugepage
-        huge_page_setup_helper.py > hpage_setup.txt <<EOF
+	python2 /usr/bin/huge_page_setup_helper.py > hpage_setup.txt <<EOF
 ${HMEMSZ}
 hugepages
 hugepages root

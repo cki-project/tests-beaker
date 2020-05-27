@@ -1,0 +1,12 @@
+[General]
+name=vm/kvm-unit-tests
+owner=Luiz Capitulino <lcapitulino@redhat.com>
+description=KVM unit tests
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=gcc;git;nmap-ncat;qemu-kvm
+repoRequires=cki_lib

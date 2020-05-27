@@ -1,0 +1,12 @@
+[General]
+name=vm/kvm-self-tests
+owner=Luiz Capitulino <lcapitulino@redhat.com>
+description=KVM self tests
+license=GPLv3
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=bc;gcc;make;patch;rsync
+repoRequires=cki_lib

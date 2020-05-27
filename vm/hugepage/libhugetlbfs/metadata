@@ -1,0 +1,12 @@
+[General]
+name=vm/hugepage/libhugetlbfs
+owner=Caspar Zhang <czhang@redhat.com>
+description=libhugetlbfs tests with upstream
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=make;patch;wget;python2
+repoRequires=cki_lib

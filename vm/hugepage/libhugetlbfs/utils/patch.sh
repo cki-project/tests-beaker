@@ -32,7 +32,7 @@ function run_cmd
 }
 
 PACKAGE_NAME=libhugetlbfs
-PATCH_DIR=patches
+PATCH_DIR=$(dirname $(readlink -f $BASH_SOURCE))/../patches
 PACKAGE_VERSION=$(get_pkg_version)
 TARGET=${PACKAGE_NAME}-${PACKAGE_VERSION}
 is_rhel8 && set_default_python
