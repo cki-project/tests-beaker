@@ -28,8 +28,9 @@ else
 	source ../../cki_lib/libcki.sh
 fi
 
-NAME=$(basename $0)
-CDIR=$(dirname $0)
+FILE=$(readlink -f $BASH_SOURCE)
+NAME=$(basename $FILE)
+CDIR=$(dirname $FILE)
 
 function is_rhel7
 {
@@ -247,20 +248,31 @@ function get_test_cases_nvme
 	echo $testcases
 }
 
+LOOKASIDE=https://github.com/yizhanglinux/blktests.git
+function setup
+{
+	typeset test_ws=${1?"*** test workspace"}
+	rm -rf $test_ws
+	git clone $LOOKASIDE $test_ws || return 1
+	pushd $(pwd)
+	cd $test_ws && make || return 1
+	popd
+	return 0
+}
+
 testcases_default=""
 testcases_default+=" $(get_test_cases_block)"
 testcases_default+=" $(get_test_cases_loop)"
 uname -ri | grep -qE "3.10.0-862.*s390x" || testcases_default+=" $(get_test_cases_nvme)"
 testcases=${_DEBUG_MODE_TESTCASES:-"$(echo $testcases_default)"}
 test_ws=$CDIR/blktests
+
+setup $test_ws || exit 1
 ret=0
 for testcase in $testcases; do
 	do_test $test_ws $testcase
 	((ret += $?))
 done
 
-if [[ $ret -ne 0 ]]; then
-	echo ">> There are failing tests, pls check it"
-fi
-
-exit 0
+(( $ret != 0 )) && echo ">> There are failing tests, pls check it" >&2
+exit $ret

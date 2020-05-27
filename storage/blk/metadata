@@ -1,0 +1,12 @@
+[General]
+name=storage/blk
+owner=Yi Zhang <yi.zhang@redhat.com>
+description=Storage block tests
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=blktrace,fio,gcc,gcc-c++,git,nvme-cli
+repoRequires=cki_lib
