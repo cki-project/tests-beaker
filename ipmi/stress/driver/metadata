@@ -1,0 +1,12 @@
+[General]
+name=ipmi/stress/driver
+owner=Rachel Sibley <rasibley@redhat.com>
+description=IPMI driver load stress test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+softDependencies=dmidecode
+repoRequires=cki_lib

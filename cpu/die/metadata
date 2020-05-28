@@ -1,0 +1,13 @@
+[General]
+name=cpu/die 
+owner=David Arcari <darcari@redhat.com>
+description=cpu die test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+softDependencies=python2-lxml;python3-lxml
+environment=TEST=cpu/die
+repoRequires=cpu/common;cki_lib

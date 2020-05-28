@@ -29,6 +29,7 @@
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../cki_lib/libcki.sh || exit 1
 
+TEST="pciutils/sanity-smoke"
 PACKAGE="pciutils"
 
 YUM=$(cki_get_yum_tool)

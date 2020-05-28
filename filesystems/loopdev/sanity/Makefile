@@ -17,7 +17,7 @@ export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 LOOKASIDE=http://www.iozone.org/src/current
 
 # Name of the tar file that will be bundled
-TARGET=iozone3_487
+TARGET=iozone3_489
 
 FILES=	$(METADATA)      \
 	runtest.sh       \

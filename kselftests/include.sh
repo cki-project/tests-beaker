@@ -95,25 +95,25 @@ test_skip()
 
 test_pass_exit()
 {
-	test_pass $1
+	test_pass "$@"
 	exit 0
 }
 
 test_fail_exit()
 {
-	test_fail $1
+	test_fail "$@"
 	exit 1
 }
 
 test_warn_exit()
 {
-	test_fail $1
+	test_fail "$@"
 	exit 1
 }
 
 test_skip_exit()
 {
-	test_skip $1
+	test_skip "$@"
 	exit 0
 }
 

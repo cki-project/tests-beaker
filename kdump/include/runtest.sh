@@ -83,9 +83,15 @@ K_VMCOREPATH=${K_VMCOREPATH:-"/var/crash"}
 
 [ "${K_ARCH}" = "ia64" ] && K_BOOT="/boot/efi/efi/redhat" || K_BOOT="/boot"
 
+
+BackupKdumpConfig()
+{
+    [ -f "${KDUMP_CONFIG}" -a ! -f "${KDUMP_CONFIG}.bk" ] && cp "${KDUMP_CONFIG}" "${KDUMP_CONFIG}.bk"
+    [ -f "${KDUMP_SYS_CONFIG}" -a ! -f "${KDUMP_SYS_CONFIG}.bk" ] && cp "${KDUMP_SYS_CONFIG}" "${KDUMP_SYS_CONFIG}.bk"
+}
+
 # back up kdump config files
-[ -f "${KDUMP_CONFIG}.bk" ] || cp "${KDUMP_CONFIG}" "${KDUMP_CONFIG}.bk"
-[ -f "${KDUMP_SYS_CONFIG}.bk" ] || cp "${KDUMP_SYS_CONFIG}" "${KDUMP_SYS_CONFIG}.bk"
+BackupKdumpConfig
 
 DisableAVCCheck()
 {
@@ -282,7 +288,7 @@ Report() {
     fi
 }
 
-RhtsSubmit() {
+RstrntSubmit() {
     local size
     size=$(wc -c < "$1")
     # zip and upload the zipped file if the size of which is larger than 100M
@@ -295,13 +301,19 @@ RhtsSubmit() {
     fi
 }
 
+SafeReboot() {
+    # It will config BootNext to be same as current boot for EFI boot machine.
+    rstrnt-reboot
+}
+
+
 GetBiosInfo()
 {
     # Get BIOS information.
     rpm -q dmidecode || InstallPackages dmidecode
     which dmidecode && {
         dmidecode >"${K_TMP_DIR}/bios.output"
-        RhtsSubmit "${K_TMP_DIR}/bios.output"
+        RstrntSubmit "${K_TMP_DIR}/bios.output"
     }
 }
 
@@ -310,11 +322,11 @@ GetHWInfo()
     Log "- Getting system hw or firmware config."
     rpm -q lshw || InstallPackages lshw
     lshw > "${K_TMP_DIR}/lshw.output"
-    RhtsSubmit "${K_TMP_DIR}/lshw.output"
+    RstrntSubmit "${K_TMP_DIR}/lshw.output"
 
     which lscfg && {
         lscfg > "${K_TMP_DIR}/lscfg.output"
-        RhtsSubmit "${K_TMP_DIR}/lscfg.output"
+        RstrntSubmit "${K_TMP_DIR}/lscfg.output"
     }
 }
 
@@ -332,21 +344,44 @@ ClearReport()
 
 #  Common Kdump/Crash Functions
 
+# Install/Upgrade Kexec-tools and related packages
 PrepareKdump()
 {
-    if [ ! -f "${K_REBOOT}" ]; then
-        rpm -q kexec-tools || {
-            # On Fedora, kexec-tools is not installed by default.
-            # install kexec-tools ans enabled kdump service.
-            InstallPackages kexec-tools
-            systemctl enable kdump.service || chkconfig kdump on
-        }
+    rpm -q kexec-tools || {
+        # On Fedora, kexec-tools is not installed by default.
+        # Install kexec-tools and enable kdump service.
+        InstallPackages kexec-tools
+        systemctl enable kdump.service || chkconfig kdump on
 
-        # Try upgrading kexec-tools to the latest version if on FC.
-        # If it fails, still use the kexec-tools from the default repo.
-        if $IS_FC && $UPGRADE_FC_KDUMP; then
-            UpgradePackages kexec-tools dracut systemd --enablerepo=updates-testing --enablerepo=fedora --releasever=32
-        fi
+        # Back up configurations if kexec-tools is installed for the first time
+        BackupKdumpConfig
+    }
+
+    # Try upgrading kexec-tools to the latest version if on FC.
+    # If it fails, still use the kexec-tools from the default repo.
+    if $IS_FC && $UPGRADE_FC_KDUMP; then
+        UpgradePackages kexec-tools dracut systemd --enablerepo=updates-testing --enablerepo=fedora --releasever=32
+    fi
+}
+
+# Install/Upgrade Crash and related packages
+PrepareCrash()
+{
+    Log "- Installing crash and kernel-debuginfo packages required for testing crash untilities."
+    rpm -q crash || InstallPackages crash
+    # Try upgrading crash to the latest version if on FC.
+    # If it fails, still use the crash from the default repo.
+    if $IS_FC && $UPGRADE_FC_CRASH; then
+        UpgradePackages crash --enablerepo=updates-testing --enablerepo=fedora --releasever=32
+    fi
+    InstallDebuginfo
+}
+
+# Config kernel options and make sure Kdump is operational
+SetupKdump()
+{
+    if [ ! -f "${K_REBOOT}" ]; then
+        PrepareKdump
 
         local default=/boot/vmlinuz-`uname -r`
         [ ! -s "$default" ] && default=/boot/vmlinux-`uname -r`
@@ -392,7 +427,7 @@ PrepareKdump()
             } || FatalError "Error changing boot loader."
 
             Report 'pre-reboot'
-            Log "- Rebooting\n"; sync; rstrnt-reboot
+            Log "- Rebooting\n"; sync; SafeReboot
         }
     fi
 
@@ -421,13 +456,6 @@ PrepareKdump()
         }
         sleep 60
     done
-
-    # Reset kdump config andd restart kdump service
-    Log "- Reset to default kdump config and restart kdump service"
-    ResetKdumpConfig
-    RestartKdump
-    # last try to make sure kdump is ready.
-    sleep 10
 }
 
 DefKdumpMem()
@@ -473,6 +501,7 @@ DefKdumpMem()
 
 ResetKdumpConfig()
 {
+    Log "- Reset to default kdump config"
     echo >"${KDUMP_CONFIG}"
     echo "path /var/crash" >>"${KDUMP_CONFIG}"
     echo "core_collector makedumpfile -l --message-level 1 -d 31" >>"${KDUMP_CONFIG}"
@@ -511,7 +540,86 @@ AppendConfig()
         shift
     done
 
-    rstrnt-report-log -l "${KDUMP_CONFIG}"
+    RstrntSubmit "${KDUMP_CONFIG}"
+}
+
+
+AppendSysconfig()
+{
+    Log "- Modifying /etc/sysconfig/kdump"
+
+    local KEY=$1
+    local ACTION=$2
+    local VALUE1=$3
+    local VALUE2=$4
+
+    if [ -z "$KEY" ] || [ -z "$ACTION" ] || [ -z "$VALUE1" ]; then
+        Error "- Missing KEY or ACTION or VALUE1."
+        return 1
+    elif [ "$ACTION" = "replace" ] && [ -z "$VALUE2" ]; then
+        Error "- Missing new_value for replacing."
+        return 1
+    elif ! grep "^$KEY=\"" "${KDUMP_SYS_CONFIG}"; then
+        Error "- Invalid KEY: $KEY."
+        return 1
+    fi
+
+    local kdump_sys_config_tmp="${KDUMP_SYS_CONFIG}.tmp"
+    \cp "${KDUMP_SYS_CONFIG}" "${kdump_sys_config_tmp}"
+
+    # Note: When KEY is "KDUMP_COMMANDLINE", ACTION add/remove/replace is actually
+    # manipulating the value of current kernel cmdline and assign
+    # it to KDUMP_COMMANDLINE.
+    # if there is no value set to KDUMP_COMMANDLINE, assign current kernel cmdline
+    # to it for later string manipluation.
+    if [ "$KEY" == "KDUMP_COMMANDLINE" ] && \
+        grep "^$KEY=[\ \"]*$" "${kdump_sys_config_tmp}"; then
+
+        sed -i "/^KDUMP_COMMANDLINE=\"/d" "${kdump_sys_config_tmp}"
+        echo "KDUMP_COMMANDLINE=\"$(cat /proc/cmdline)\"" >> "${kdump_sys_config_tmp}"
+    fi
+
+    case $ACTION in
+        add)
+            # Check if the key already has a value on it, then append " $VALUE1" to the
+            # original value.
+            Log "- Add '$VALUE1' to '$KEY'"
+            if grep -q "^$KEY=[\ \"]*$" "${kdump_sys_config_tmp}"; then
+                sed -i /^"$KEY="/d "${kdump_sys_config_tmp}"
+                echo "$KEY=\"$VALUE1\"" >> "${kdump_sys_config_tmp}"
+            else
+                sed -i "/^$KEY=/s/\"/\"$VALUE1 /" "${kdump_sys_config_tmp}"
+            fi
+            ;;
+        remove)
+            Log "- Remove '$VALUE1' from '$KEY'"
+            sed -i  "/^$KEY=/s/$VALUE1//g" "${kdump_sys_config_tmp}"
+            ;;
+        replace)
+            Log "- Replace '$VALUE1' with '$VALUE2' for '$KEY'"
+            sed -i  "/^$KEY=/s/$VALUE1/$VALUE2/g" "${kdump_sys_config_tmp}"
+            ;;
+        override)
+            Log "- Set '$VALUE1' to '$KEY'"
+            sed -i "/^$KEY=\"/d" "${kdump_sys_config_tmp}"
+            echo "$KEY=\"$VALUE1\"" >> "${kdump_sys_config_tmp}"
+            ;;
+        *)
+            Error "Invalid action '${ACTION}' for editing kdump sysconfig."
+            false
+            ;;
+    esac
+
+    [ $? -ne 0 ] && {
+        Error "- Failed to edit kdump sysconfig"
+        rm -f "${kdump_sys_config_tmp}"
+        return 1
+    }
+
+    \mv "${kdump_sys_config_tmp}" "${KDUMP_SYS_CONFIG}"
+    RstrntSubmit "${KDUMP_SYS_CONFIG}"
+    sync;sync;sync # best try to make sure the configs written to disk before panic
+    return 0
 }
 
 ReportKdumprd()
@@ -531,7 +639,7 @@ ReportKdumprd()
     fi
 
     if [ -f "${kdumprd}" ]; then
-        RhtsSubmit "${kdumprd}"
+        RstrntSubmit "${kdumprd}"
     else
         Error '- No ĸdumprd generated!'
     fi
@@ -551,13 +659,14 @@ RestartKdump()
     local tmp=""
     local kdumprd=""
     local rc=
+    local UPLOADRD=${1:-"false"}
 
     Log "- Restarting Kdump service."
 
     rm -f /boot/initrd-*kdump.img
     rm -f /boot/initramfs-*kdump.img    # For RHEL7
     touch "${KDUMP_CONFIG}"
-    RhtsSubmit "${KDUMP_CONFIG}"
+    RstrntSubmit "${KDUMP_CONFIG}"
 
     if $IS_RHEL5 || $IS_RHEL6; then
         tmp=initrd
@@ -579,22 +688,13 @@ RestartKdump()
     if grep -v -E "$skip_pat" /tmp/kdump_restart.log |  grep -i -E "can't|error|warn";  then
         Warn 'Restarting kdump reported warn/error message'
     fi
-
     sync;
-    ReportKdumprd
+
+    if [ "${UPLOADRD}" == true ]; then
+        ReportKdumprd
+    fi
 }
 
-PrepareCrash()
-{
-    Log "- Installing crash and kernel-debuginfo packages required for testing crash untilities."
-    rpm -q crash || InstallPackages crash
-    # Try upgrading crash to the latest version if on FC.
-    # If it fails, still use the crash from the default repo.
-    if $IS_FC && $UPGRADE_FC_CRASH; then
-        UpgradePackages crash --enablerepo=updates-testing --enablerepo=fedora --releasever=32
-    fi
-    InstallDebuginfo
-}
 
 InstallPackages()
 {
@@ -687,9 +787,10 @@ GetCorePath()
     # Always analyse the latest vmcore.
     if ls -t "${corepath}"/*/vmcore; then
         vmcore=$(ls -t "${corepath}"/*/vmcore 2>/dev/null | head -1)
+        return 0
     else
         Error "no vmcore found in ${corepath}"
-        Report
+        return 1
     fi
 }
 
@@ -728,8 +829,8 @@ EOF
         code=$?
 
         echo | tee -a "${OUTPUTFILE}"
-        RhtsSubmit "${K_TESTAREA}/${cmd_file%.*}.$log_suffix"
-        RhtsSubmit "${K_TESTAREA}/${cmd_file}"
+        RstrntSubmit "${K_TESTAREA}/${cmd_file%.*}.$log_suffix"
+        RstrntSubmit "${K_TESTAREA}/${cmd_file}"
 
         if [ ${code} -eq 0 ]; then
             return 0
@@ -739,4 +840,48 @@ EOF
         fi
 
     fi
+}
+
+RemoveVmcores()
+{
+    local path
+    # Do not remove anything if it's a NFS kdump target
+    [ ! -f "${K_NFS}" ] && {
+        if [ -f "${K_PATH}" ]; then
+            path=$(cat "${K_PATH}")
+        else
+            path=${K_DEFAULT_PATH}
+        fi
+
+        if [ -d "${path}" ]; then
+            Log "- Remove all files in ${path}"
+            rm -rf "${path}"/*
+        fi
+    }
+}
+
+RestoreKdumpConfig()
+{
+    # If nfs kdump is configured, unmount the kdump nfs target
+    [ -f "${K_NFS}" ] && {
+        path=$(cat "${K_NFS}")
+        umount "${path}"
+    }
+
+    rm -f "${K_NFS}" "${K_PATH}"
+
+    Log "- Restore /etc/kdump.conf"
+    echo > "${KDUMP_CONFIG}"
+    [ -f "${KDUMP_CONFIG}.bk" ] && \cp -f "${KDUMP_CONFIG}.bk" "${KDUMP_CONFIG}"
+
+    Log "- Restore /etc/sysconfig/kdump"
+    [ -f "${KDUMP_SYS_CONFIG}.bk" ] && \cp -f "${KDUMP_SYS_CONFIG}.bk" "${KDUMP_SYS_CONFIG}"
+}
+
+# TestCleanup
+# - Restore Kdump default configurations
+# - Clean up vmcores
+Cleanup(){
+    RemoveVmcores
+    RestoreKdumpConfig
 }

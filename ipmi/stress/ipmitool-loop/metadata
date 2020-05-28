@@ -1,0 +1,13 @@
+[General]
+name=ipmi/stress/ipmitool-loop
+owner=Rachel Sibley <rasibley@redhat.com>
+description=IPMItool loop stress test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=ipmitool
+softDependencies=dmidecode
+repoRequires=cki_lib

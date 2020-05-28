@@ -22,15 +22,13 @@
 . /usr/share/beakerlib/beakerlib.sh
 
 GIT_URL="https://github.com/smuellerDD/libkcapi"
-GIT_REF="v1.1.5"
+GIT_REF="v1.2.0"
 
 rlJournalStart
     rlPhaseStartSetup
         rlRun "git clone '$GIT_URL' libkcapi"
         rlRun "(cd libkcapi && git checkout $GIT_REF)"
         rlRun "(cd libkcapi && autoreconf -i)"
-        rlRun "(cd libkcapi && ./configure)"
-        rlRun "make -C libkcapi -j$(nproc)"
     rlPhaseEnd
 
     rlPhaseStartTest
@@ -44,6 +42,7 @@ rlJournalStart
 
     rlPhaseStartCleanup
         rlRun "rm -rf libkcapi"
+        rlFileSubmit "/proc/crypto" "proc-crypto.txt"
     rlPhaseEnd
 rlJournalPrintText
 rlJournalEnd

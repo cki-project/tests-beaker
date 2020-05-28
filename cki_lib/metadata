@@ -1,0 +1,9 @@
+[General]
+name=cki_lib
+description=Common CKI library for beaker testing
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=echo nothing > /dev/null
