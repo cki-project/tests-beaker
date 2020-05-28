@@ -121,29 +121,14 @@ function knownissue_filter()
 	[ $(free -g | grep "^Mem:" | awk '{print $2}') -gt 8 ] && tskip "oom0.*" fatal
 	# copy_file_range02 is a new unstable test case and changes too frequently
 	tskip "copy_file_range02" unfix 
-	# move_pages12 patches pending
-	# http://lists.linux.it/pipermail/ltp/2019-July/012907.html  --- patch pending on review in upstream
-	# http://lists.linux.it/pipermail/ltp/2019-July/012962.html  --- kernel bug in upstream kernel
-	tskip "move_pages12" unfix
-	# Bug 1657032 - fallocate05 intermittently failing in ltp lite
-	is_arch "ppc64" && tskip "fallocate05" fatal
-	is_arch "ppc64le" && tskip "fallocate05" fatal
-	is_arch "s390x" && tskip "fallocate05" fatal
 	# Issue TBD
 	tskip "madvise09" fatal
-	# Issue TBD
-	tskip "ksm0.*" fatal
+	# https://github.com/linux-test-project/ltp/issues/611
+	tskip "ksm03.* ksm04.*" fatal
+	tskip "ksm02.*" unfix
 	# Bug 1660161 - [RHEL8] ltp/generic commands mkswap01 fails to create by-UUID device node in aarch64
-	# Issue https://github.com/linux-test-project/ltp/issues/458
-	tskip "mkswap01_sh" unfix
-	# hugetlb failures should be ignored since that lack of system memory for testing
-	tskip "huge.*" fatal
-	# Issue TBD
-	tskip "read_all_.*" unfix
 	# Issue TBD
 	tskip "memfd_create03" unfix
-	# https://lore.kernel.org/linux-btrfs/4d97a9bb-864a-edd1-1aff-bdc9c8204100@redhat.com/T/#u 
-	tskip "fs_fill" unfix
 	# this case always make the beaker task abort with 'incrementing stop' msg
 	tskip "min_free_kbytes" fatal
 	# Issue TBD
@@ -154,15 +139,23 @@ function knownissue_filter()
 	tskip "ftrace-stress-test" fatal
 	# Issue TBD
 	tskip "sync_file_range02" unfix
-	# Issue TBD
-	tskip "signal06" unfix
-	# Issue TBD
-	tskip "statx07" unfix
 	# Issue read_all_sys is triggering hard lockups on mustangs while reading /sys
 	# https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
-        is_arch "aarch64" && tskip "read_all_sys" fatal
+	is_arch "aarch64" && tskip "read_all_sys" fatal
 	# OOM tests result in oom errors killing the test harness
 	tskip "oom.*" fatal
+	# fs_fill test exceeds timeout, TBD adjust timeout settings
+	tskip "fs_fill" unfix
+	# Requires the following kernel fixes
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a08bf91ce28
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2e356101e72
+	tskip "add_key05" unfix
+	# https://lists.linux.it/pipermail/ltp/2020-April/016768.html
+	tskip "ioctl_loop01 ioctl_loop05" unfix
+	# https://lists.linux.it/pipermail/ltp/2020-May/017044.html
+	tskip "nm01_sh" unfix
+	# Unable to load BPF programs on s390x/upstream kernels (FMK-1825)
+	is_arch "s390x" && tskip "bpf_prog01 bpf_prog02" unfix
 
 	if is_rhel8; then
                 # ------- unfix ---------

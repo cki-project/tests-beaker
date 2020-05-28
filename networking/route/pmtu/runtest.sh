@@ -26,12 +26,13 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
+. ../../../cki_lib/libcki.sh || exit 1
 . ./common/include.sh || exit 1
 . ./common/network.sh || exit 1
 . ./common/service.sh || exit 1
 . ./common/install.sh || exit 1
-. ../../../cki_lib/libcki.sh || exit 1
 
+export TEST="networking/route/pmtu"
 YUM=$(cki_get_yum_tool)
 
 kernel_name=$(uname -r)
@@ -59,9 +60,7 @@ rlJournalStart
 rlPhaseStartSetup
 
     rlRun "lsmod | grep sctp || modprobe sctp" "0-255"
-    rlRun "iproute_upstream_install"
 
-    rlRun "netperf_install"
 
 
     rlLog "items include:$TEST_ITEMS"

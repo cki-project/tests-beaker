@@ -19,7 +19,7 @@ export TESTVERSION=2.4
 FILES=$(METADATA) *.sh PURPOSE LICENCE known_issues Makefile RUNTESTS
 
 run: $(FILES) build
-	./runtest.sh
+	bash -x ./runtest.sh
 
 build: $(BUILT_FILES) $(FILES)
 	chmod a+x ./runtest.sh
@@ -29,7 +29,10 @@ clean:
 	rm -f $(METADATA)
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -96,7 +99,4 @@ $(METADATA): Makefile
 	@echo "Requires:     samba samba-client cifs-utils" >> $(METADATA)
 	@echo "Requires:     rpcbind nfs-utils" >> $(METADATA)
 	@echo "Requires:     lvm2 beakerlib" >> $(METADATA)
-	@echo "RhtsRequires: test(/kernel/filesystems/xfs/include)" >> $(METADATA)
-	rhts-lint $(METADATA)
-#	The include package takes care of all the dependencies
-#	Add any other dependencies there (/kernel/filesystems/xfs/include)
+	@echo "repoRequires: cki_lib" >> $(METADATA)

@@ -7,6 +7,6 @@ confidential=no
 destructive=no
 
 [restraint]
-entry_point=make run
-dependencies=net-tools;iproute;tcpdump;nmap;ethtool;nc;nmap-ncat;socat;libtool;bind-utils;libteam;teamd;traceroute;expect;bc;wget;bzip2;gcc;git;patch;rsync
-softDependencies=python3-pexpect;pexpect;bridge-utils
+entry_point=bash ./runtest.sh
+dependencies=bc;bind-utils;bzip2;ethtool;expect;gcc;git;iproute;libteam;libtool;nc;net-tools;nmap;nmap-ncat;patch;rsync;socat;tcpdump;teamd;traceroute;wget
+softDependencies=pexpect;python3-pexpect;bridge-utils

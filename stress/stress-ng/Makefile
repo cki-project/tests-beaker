@@ -38,7 +38,10 @@ run:
 	./runtest.sh
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA):
 	touch $(METADATA)
@@ -71,3 +74,4 @@ $(METADATA):
 	@echo "Requires:	zlib-devel"				>> $(METADATA)
 	@echo "Requires:        git"					>> $(METADATA)
 	@echo "Requires:        python3-lxml"                           >> $(METADATA)	
+	@echo "repoRequires:    cki_lib"                                >> $(METADATA)

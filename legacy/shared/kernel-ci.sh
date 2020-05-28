@@ -31,17 +31,17 @@
 # -----------------------------------------------------------------------------
 
 # Include skt environment
-source /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 function test_fail()
 {
         echo "FAIL: $@"
-        report_result $TEST FAIL 1
+        rstrnt-report-result $TEST FAIL 1
         exit 1
 }
 
 function test_pass()
 {
-        report_result $TEST PASS 0
+        rstrnt-report-result $TEST PASS 0
         exit
 }

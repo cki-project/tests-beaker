@@ -1,0 +1,12 @@
+[General]
+name=acpi/acpitable
+owner=Al Stone <ahs3@redhat.com>
+description=ACPI table test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=acpica-tools
+repoRequires=cki_lib

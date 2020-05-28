@@ -17,6 +17,7 @@
 # Boston, MA 02110-1301, USA.
 #
 
+. ../../../cki_lib/libcki.sh || exit 1
 source ../../common/include.sh || exit 1
 
 ns1="ip netns exec ha"
@@ -31,6 +32,8 @@ wait_time="2"
 rlJournalStart
     rlPhaseStartSetup
 	(uname -r |grep el6) || rlRun "modprobe -r br_netfilter" 0-255 "disable from bridge call iptables 4/6"
+	rlRun "gcc -g -Wall -o udp_no_check udp_no_check.c" 
+	rlRun "gcc -g -Wall -o udp_socket udp_socket.c"
     rlPhaseEnd
 
     rlPhaseStartTest "Regression test for Bug 518034"
@@ -43,7 +46,7 @@ rlJournalStart
 
 	if [ "$(GetDistroRelease)" -ge 7 ]; then
 		# Function test between 2 peers
-		bash netns_1_net.sh
+		bash ../../common/tools/netns_1_net.sh
 		rlRun "$ns1 tcpdump -U -ni $ns1_if -w $ns1_if.pcap &"
 
 		# client (so_no_check - 1) / server
@@ -98,8 +101,8 @@ rlJournalStart
 
 		pkill tcpdump
 		sleep $wait_time
-		rhts-submit-log -l $ns1_if.pcap
-		bash netns_clean.sh
+		rstrnt-report-log -l $ns1_if.pcap
+		bash ../../common/tools/netns_clean.sh
 	fi
     rlPhaseEnd
 

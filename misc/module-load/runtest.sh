@@ -19,8 +19,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # include beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 
 # Commands in this section are provided by test developer.
 # ---------------------------------------------
@@ -31,13 +31,13 @@ result=FAIL
 # Helper functions
 function result_fail() {
 	export result=FAIL
-	report_result $TEST $result 0
+	rstrnt-report-result $TEST $result 0
 	exit 0
 }
 
 function result_pass () {
 	export result=PASS
-	report_result $TEST $result 0
+	rstrnt-report-result $TEST $result 0
 	exit 0
 }
 
@@ -220,8 +220,8 @@ echo "** Module list prior to testing. **" | tee -a $OUTPUTFILE
 RC=$?
 if [ $RC -ne 0 ] ; then
         echo "*** There is a problem with lsmod, no need to continue further ***" | tee -a $OUTPUTFILE
-        rhts-report-result $TEST WARN $OUTPUTFILE
-        rhts-abort -t recipe
+        rstrnt-report-result $TEST WARN $OUTPUTFILE
+        rstrnt-abort -t recipe
         exit 0
 fi
 

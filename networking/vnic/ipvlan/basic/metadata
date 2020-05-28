@@ -1,0 +1,12 @@
+[General]
+name=networking/vnic/ipvlan/basic
+owner=Jianlin Shi<jishi@redhat.com>
+description=Networking ipvlan basic test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=net-tools
+repoRequires=cki_lib;networking/common

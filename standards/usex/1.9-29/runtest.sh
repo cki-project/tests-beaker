@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 function SysStats()
 {
@@ -27,7 +27,7 @@ function VerboseCupsLog()
    echo "-------------------------------------------------------------------------" | tee -a ${OUTPUTFILE} 
    echo "Setting up verbose debug logging in /var/log/cups/error_log for BZ452305." | tee -a ${OUTPUTFILE}
    echo "-------------------------------------------------------------------------" | tee -a ${OUTPUTFILE}
-   rhts-backup /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
+   rstrnt-backup /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
    sed -i -e 's,^LogLevel.*,LogLevel debug2,' /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
    sed -i -e '/^MaxLogSize/d' /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
    echo MaxLogSize 0 >> /etc/cups/cupsd.conf | tee -a ${OUTPUTFILE}
@@ -48,7 +48,7 @@ function VerboseCupsLog()
 # ---------- Start Test -------------
 # verify to not run on s390x
 if [ "$(uname -i)" = "s390x" ]; then
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 
@@ -114,10 +114,10 @@ export fail=`cat $OUTPUTDIR/report.out | grep "USEX TEST RESULT: FAIL" | wc -l`
 
 if [ "$fail" -gt "0" ]; then
     export result="FAIL"
-    rhts_submit_log -l $OUTPUTDIR/report.out
-    rhts_submit_log -l $USEX_LOG
+    rstrnt-report-log -l $OUTPUTDIR/report.out
+    rstrnt-report-log -l $USEX_LOG
 else
     export result="PASS"
 fi
 
-report_result $TEST $result $fail
+rstrnt-report-result $TEST $result $fail

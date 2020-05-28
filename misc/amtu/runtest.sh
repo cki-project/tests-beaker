@@ -27,7 +27,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 # Assume the test will fail.
 result=FAIL
@@ -37,7 +37,7 @@ function result_fail()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
     export result=FAIL
-    report_result $TEST $result 1
+    rstrnt-report-result $TEST $result 1
     exit 0
 }
 
@@ -45,7 +45,7 @@ function result_pass ()
 {
     echo "***** End of runtest.sh *****" | tee -a $OUTPUTFILE
     export result=PASS
-    report_result $TEST $result 0
+    rstrnt-report-result $TEST $result 0
     exit 0
 }
 
@@ -91,12 +91,6 @@ function build_amtu()
         fi
         exit 3
     fi
-
-    # apply patches
-    pushd $AMTU_NVR
-    git am ../memsep-use-_exit-to-exit-child.patch
-    git am --ignore-space-change --ignore-whitespace  ../memtest-limit-memtest-to-512MB-of-memory.patch
-    popd
 
     # build
     pushd $AMTU_NVR
@@ -155,8 +149,8 @@ if [ -z "$amtubin" -o ! -e "$amtubin" ]; then
     build_amtu
     # Add task param, needed for kernel-ci/CKI, e.g. <params><param name="CI" value="yes"/><params>
     if [ $? -ne 0 ] && [ "$CI" = "yes" ]; then
-        report_result $TEST WARN
-        rhts-abort -t recipe
+        rstrnt-report-result $TEST WARN
+        rstrnt-abort -t recipe
     fi
 
 fi

@@ -36,7 +36,7 @@ while getopts "hm:p:s:S:k:a:t:e:A:c:6" opt; do
 	A)	AEALGO=$OPTARG ;;
 	c)	CALGO=$OPTARG ;;
 	6)	TEST_VER=6 ;;
-	*)	echo "Error: unknown option: $opt" | tee $IPSEC_PARA_LOG; report_result $TEST WARN; rhts-abort -t recipe ;;
+	*)	echo "Error: unknown option: $opt" | tee $IPSEC_PARA_LOG; rstrnt-report-result $TEST WARN; rstrnt-abort -t recipe ;;
 	esac
 done
 
@@ -109,8 +109,8 @@ ah)
 		ALG='auth-trunc hmac\('$ATALGO'\) '$ATALGO_KEY" 96"
 	else
 		echo "Error: ah protocol doesn't set authentication" | tee $IPSEC_PARA_LOG
-                report_result $TEST WARN
-                rhts-abort -t recipe
+                rstrnt-report-result $TEST WARN
+                rstrnt-abort -t recipe
 	fi
 	;;
 esp)
@@ -123,8 +123,8 @@ esp)
 		ALG="enc $EALGO $EALGO_KEY "$ALG
 	else
 		echo "Error: esp protocol doesn't set encryption" | tee $IPSEC_PARA_LOG
-                report_result $TEST WARN
-                rhts-abort -t recipe
+                rstrnt-report-result $TEST WARN
+                rstrnt-abort -t recipe
 	fi
 	;;
 esp_aead)
@@ -145,8 +145,8 @@ comp)
 	;;
 *)
 	echo "Error: tst_ipsec protocol mismatch" | tee $IPSEC_PARA_LOG
-                report_result $TEST WARN
-                rhts-abort -t recipe
+                rstrnt-report-result $TEST WARN
+                rstrnt-abort -t recipe
 	;;
 esac
 

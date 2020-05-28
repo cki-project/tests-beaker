@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Source rhts environment
-. /usr/bin/rhts_environment.sh
+# Source beaker environment
+. ../../cki_lib/libcki.sh || exit 1
 
 function rt_package_install()
 {
@@ -24,7 +24,7 @@ function rt_env_setup()
         rt_package_install
     else
         echo "non rt kernel, please use rt kernel" | tee -a $OUTPUTFILE
-        rhts-report-result $TEST "SKIP" $OUTPUTFILE
+        rstrnt-report-result $TEST "SKIP" $OUTPUTFILE
         exit
     fi
 }

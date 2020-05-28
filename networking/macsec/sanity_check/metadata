@@ -1,0 +1,11 @@
+[General]
+name=networking/macsec/sanity_check
+owner=Fei Liu <feliu@redhat.com>
+description=MACsec sanity test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+repoRequires=cki_lib;networking/common

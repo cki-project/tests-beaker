@@ -42,7 +42,10 @@ clean:
 	rm -f *~ $(BUILT_FILES)
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Michael Petlan <mpetlan@redhat.com>" > $(METADATA)
@@ -54,10 +57,9 @@ $(METADATA): Makefile
 	@echo "RunFor:          perf" >> $(METADATA)
 	@echo "Requires:        perf virt-what elfutils kernel-debuginfo kernel-debug-debuginfo git bc gcc-c++" >> $(METADATA)
 	@echo "Requires:        coreutils-debuginfo yum-utils dnf-utils" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5" >> $(METADATA)
-
-	rhts-lint $(METADATA)

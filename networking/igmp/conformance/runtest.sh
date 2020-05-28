@@ -27,12 +27,11 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include common and beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ./common/include.sh || exit 1
 . ./common/network.sh || exit 1
 . ./common/service.sh || exit 1
-. ../../../cki_lib/libcki.sh || exit 1
 
 YUM=$(cki_get_yum_tool)
 
@@ -41,6 +40,18 @@ if [[ $kernel_name =~ "rt" ]]; then
      echo "running the $kernel_name"
      $YUM install -y kernel-rt-modules-extra
 fi
+
+# Build binaries in test_tools in setup phase
+function setup
+{
+    typeset this_file=$(readlink -f $BASH_SOURCE)
+    typeset this_dir=$(dirname $this_file)
+    pushd $this_dir
+    cd $this_dir/test_tools && make
+    popd
+}
+
+setup
 
 PACKAGE="kernel"
 # Use random group address

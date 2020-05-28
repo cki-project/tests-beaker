@@ -120,7 +120,7 @@ do_host_netperf()
 	fi
 
 	if i_am_client; then
-		rhts_submit_log -l $result_file
+		rstrnt-report-log -l $result_file
 	fi
 
 	return $result
@@ -240,7 +240,7 @@ do_vm_netperf()
 	fi
 
 	if i_am_client; then
-		rhts_submit_log -l $result_file
+		rstrnt-report-log -l $result_file
 	fi
 
 	return $result
@@ -343,7 +343,7 @@ do_vm_ssh_netperf()
 	fi
 
 	if i_am_client; then
-		rhts_submit_log -l $result_file
+		rstrnt-report-log -l $result_file
 	fi
 
 	return $result
@@ -465,7 +465,7 @@ do_ns_netperf()
 	fi
 
 	if i_am_client; then
-		rhts_submit_log -l $result_file
+		rstrnt-report-log -l $result_file
 	fi
 
 	return $result

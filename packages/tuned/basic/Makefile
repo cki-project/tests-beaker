@@ -43,7 +43,10 @@ clean:
 	rm -f *~ $(BUILT_FILES)
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Branislav Blaskovic <bblaskov@redhat.com>" > $(METADATA)
@@ -54,11 +57,10 @@ $(METADATA): Makefile
 	@echo "Type:            Library" >> $(METADATA)
 	@echo "RunFor:          tuned" >> $(METADATA)
 	@echo "Requires:        tuned" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Provides:        library(tuned/basic)" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5" >> $(METADATA)
-
-	rhts-lint $(METADATA)

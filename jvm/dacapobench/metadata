@@ -1,0 +1,12 @@
+[General]
+name=jvm/dacapobench
+owner=Christine Flood <cflood@redhat.com>
+description=DaCapo Benchmark Suite
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=maven;java;wget
+repoRequires=cki_lib

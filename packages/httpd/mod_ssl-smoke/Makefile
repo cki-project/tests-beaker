@@ -43,7 +43,10 @@ clean:
 	rm -f *~ $(BUILT_FILES)
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Ondrej Ptak <optak@redhat.com>" > $(METADATA)
@@ -56,10 +59,10 @@ $(METADATA): Makefile
 	@echo "Requires:        httpd mod_ssl python" >> $(METADATA)
 	@echo "Requires:        python2 python3" >> $(METADATA)
 	@echo "Requires:        python3-lxml" >> $(METADATA)
-	@echo "RhtsRequires:    library(httpd/http)" >> $(METADATA)
+	@echo "repoRequires:    packages/openssl/Library/certgen" >> $(METADATA)
+	@echo "repoRequires:    packages/httpd/Library/http" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-
-	rhts-lint $(METADATA)

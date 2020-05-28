@@ -17,7 +17,7 @@
 #---------------------------------------------------------------------------------
 
 # Source the common test script helpers
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 TEST_ROOT=$(dirname $(readlink -f $BASH_SOURCE))
@@ -43,7 +43,7 @@ function aloop() {
   rlPhaseStartTest $1
     arecord -D hw:Loopback,1 $2 -f dat -t raw -d 12 a.raw &
     if [ $? -ne 0 ]; then
-      rhts-abort -t recipe
+      rstrnt-abort -t recipe
       exit 0
     fi
     rlLog "Recording started"

@@ -26,9 +26,9 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Include rhts environment
-. /usr/bin/rhts-environment.sh
-. /usr/lib/beakerlib/beakerlib.sh
+# Include beaker environment
+. ../../../cki_lib/libcki.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 PACKAGE="iotop"
 

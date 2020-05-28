@@ -1,5 +1,5 @@
 [General]
-name=/kernel/networking/route/route_func
+name=networking/route/route_func
 owner=Hangbin Liu <haliu@redhat.com>
 description=A socket testing framework for all protocols
 license=GPLv2
@@ -7,5 +7,6 @@ confidential=no
 destructive=no
 
 [restraint]
-entry_point=make run
-repoRequires=networking/common
+entry_point=bash ./runtest.sh
+dependencies=gcc;lksctp-tools-devel
+repoRequires=cki_lib;networking/common

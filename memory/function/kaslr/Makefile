@@ -58,7 +58,10 @@ clean:
 	sh -c "unset ARCH; make -C slub_random_test clean"
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Chunyu Hu <chuhu@redhat.com>" > $(METADATA)
@@ -73,4 +76,4 @@ $(METADATA): Makefile
 	@echo "License:         GPLv2" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
-	rhts-lint $(METADATA)
+	@echo "RepoRequires:    cki_lib" >> $(METADATA)

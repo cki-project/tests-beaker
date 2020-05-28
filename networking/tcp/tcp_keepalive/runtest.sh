@@ -26,9 +26,8 @@
 #
 
 # include common and Beaker environments
-. /usr/bin/rhts-environment.sh || exit 1
-. /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../../cki_lib/libcki.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 YUM=$(cki_get_yum_tool)
 
@@ -40,6 +39,17 @@ fi
 
 rlJournalStart
     rlPhaseStartSetup
+       # workaround for bz1755825: stop firewalld
+       if [ $(rlGetDistroRelease) -ge "7" ]; then
+           rlServiceStop firewalld
+       else
+           rlServiceStop iptables
+           rlServiceStop ip6tables
+       fi
+       # continuousworkaround for bz1755825: sleep for slow host(s390x) or debug kernel
+       rlRun "sleep 6"
+       rlRun "iptables -F" 0-255
+       rlRun "ip6tables -F" 0-255
        # host
        rlRun "sys_ka_idle=$(cat /proc/sys/net/ipv4/tcp_keepalive_time)" 0
        rlRun "sys_ka_interval=$(cat /proc/sys/net/ipv4/tcp_keepalive_intvl)" 0
@@ -61,6 +71,8 @@ rlJournalStart
        rlRun "interval=1" 0
        rlRun "maxpkt=10" 0
        rlRun "port=7811"
+       # build keepalive
+       rlRun "gcc -g -Wall -o keepalive keepalive.c"
     rlPhaseEnd
 
     rlPhaseStartTest "host"
@@ -84,7 +96,7 @@ rlJournalStart
 
     rlPhaseStartTest "netns"
         rlRun "ip netns exec netns_ka tcpdump -nn -i lo port $port -w tcpdump.netns.pcap &" 0
-        sleep 5 
+        sleep 5
         rlRun "ip netns exec netns_ka ./keepalive 127.0.0.1 $port $idle $interval $maxpkt &" 0
         rlRun "sleep $((15 + $idle + $interval * $maxpkt)) " 0 # should be > $idle + $interval * $maxpkt
         rlRun "childpid=`pgrep keepalive | tail -n1`" 0

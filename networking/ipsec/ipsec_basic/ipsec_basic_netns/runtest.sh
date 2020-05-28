@@ -27,7 +27,13 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Global parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+. ../../../../cki_lib/libcki.sh || exit 1
 . ../../../common/include.sh
+
+FILE=$(readlink -f $BASH_SOURCE)
+CDIR=$(dirname $FILE)
+NET_COMMON_ROOT="${CDIR%/networking/ipsec/*}/networking/common"
+export TEST="networking/ipsec/ipsec_basic/ipsec_basic_netns"
 
 ipsec_stat(){
 	local flow_proto=$1
@@ -38,10 +44,10 @@ ipsec_stat(){
 
 	if [ $when == before ]; then
 		rlRun "tcpdump -i br0 > $packet &"
-		rlRun "sleep 0.5"
+		rlRun "sleep 2"
 	fi
 	if [ $when == after ];then
-		rlRun "pkill tcpdump; sleep 1"
+		rlRun "pkill tcpdump; sleep 2"
 		rlRun "cat $packet | egrep 'AH|ESP|IPComp' | head -n5"
 		rm -f $packet
 	fi
@@ -77,11 +83,11 @@ data_tests(){
 	rlLog "***** tcp ******"
 	ipsec_stat tcp before
 	rlRun "$HB socat -u -$TEST_VER tcp-l:$tcpport open:tcprecv,creat &"
-	rlRun "sleep 1"
+	rlRun "sleep 2"
 	bytes_1M="1048576" # (1M) for tcp test
 	[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=$bytes_1M tcp-connect:${HB_IP[$TEST_VER]}:$tcpport"
 	[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=$bytes_1M tcp-connect:[${HB_IP[$TEST_VER]}]:$tcpport"
-	rlRun "sleep 2"
+	rlRun "sleep 4"
 	rlRun "ls -l tcprecv | grep $bytes_1M" 0 "tcp should receive $bytes_1M bytes, received `ls -l tcprecv | awk '{print $5}'` bytes"
 	rm -f tcprecv
 	ipsec_stat tcp after
@@ -89,10 +95,10 @@ data_tests(){
 	for size in $msg_size 20000;do
 		ipsec_stat udp before
 		rlRun "$HB socat -u -$TEST_VER udp-l:$udpport open:udprecv,creat &"
-		rlRun "sleep 1"
+		rlRun "sleep 2"
 		[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=$size udp-sendto:${HB_IP[$TEST_VER]}:$udpport"
 		[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=$size udp-sendto:[${HB_IP[$TEST_VER]}]:$udpport"
-		rlRun "sleep 2"
+		rlRun "sleep 4"
 		rlRun "ls -l udprecv | grep $size" 0 "udp should receive $size bytes, received `ls -l udprecv | awk '{print $5}'` bytes"
 		rlRun "pkill socat"
 		rm -f udprecv
@@ -101,10 +107,10 @@ data_tests(){
 	rlLog "***** sctp ******"
 	ipsec_stat sctp before
 	rlRun "$HB socat -u -$TEST_VER sctp-listen:$sctpport open:sctprecv,creat &"
-	rlRun "sleep 1"
+	rlRun "sleep 2"
 	[ $TEST_VER -eq 4 ] && rlRun "$HA socat -u -4 /dev/zero,readbytes=2000 sctp:${HB_IP[$TEST_VER]}:$sctpport"
 	[ $TEST_VER -eq 6 ] && rlRun "$HA socat -u -6 /dev/zero,readbytes=2000 sctp:[${HB_IP[$TEST_VER]}]:$sctpport"
-	rlRun "sleep 2"
+	rlRun "sleep 4"
 	rlRun "ls -l sctprecv | grep 2000" 0 "sctp should receive 2000 bytes, received `ls -l sctprecv | awk '{print $5}'` bytes"
 	rm -f sctprecv
 	ipsec_stat sctp after
@@ -167,7 +173,7 @@ rlJournalStart
 		[ $KMEMLEAK == "enable" ] && rlRun "cat /sys/kernel/debug/kmemleak > kmemleak.before"
 		THRESHOLD=${THRESHOLD:-"10"}
 		SUB_PARAM=${SUB_PARAM:-"-p esp -e aes -m tunnel -s '10 65450'"}
-		rlRun "source ipsec-parameter-setting.sh $SUB_PARAM"
+		rlRun "source $CDIR/ipsec-parameter-setting.sh $SUB_PARAM"
 		uname -r | grep el6 && {
 			rlLog "For el6, Maximum data of ping6 is smaller than that on el7(due to sendbuf size),not test max data for el6"
 			rlRun "IPSEC_SIZE_ARRAY='10 10000'"
@@ -176,7 +182,7 @@ rlJournalStart
 		[ $TEST_VER -eq 4 ] && ping="ping" || ping="ping6"
 		rlRun "spi1='0x$SPI'"
 		rlRun "spi2='0x$(( $SPI + 1 ))'"
-		rlRun "source netns_1_net.sh"
+		rlRun "source $NET_COMMON_ROOT/tools/netns_1_net.sh"
 		rlRun "$HA ip xfrm state add src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]} spi $spi1 $PROTO $ALG mode $IPSEC_MODE sel src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]}"
 		rlRun "$HA ip xfrm state add src ${HB_IP[$TEST_VER]} dst ${HA_IP[$TEST_VER]} spi $spi2 $PROTO $ALG mode $IPSEC_MODE sel src ${HB_IP[$TEST_VER]} dst ${HA_IP[$TEST_VER]}"
 		rlRun "$HA ip xfrm policy add dir out src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]} tmpl src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]} $PROTO mode $IPSEC_MODE"
@@ -190,13 +196,14 @@ rlJournalStart
 
 	rlPhaseStartTest "$SUB_PARAM"
 		data_tests
-		perf_tests
+		# comment perf_tests for CKI-project test, as CKI should be only running basic Tier0/Tier1 sanity level testing
+		# perf_tests
 		cp /proc/crypto proc_crypto
 		rlFileSubmit proc_crypto
 	rlPhaseEnd
 
 	rlPhaseStartCleanup
-		rlRun "netns_clean.sh"
+		rlRun "bash $NET_COMMON_ROOT/tools/netns_clean.sh"
 		rlFileSubmit $PERF_RESULTS
 		if [ $KMEMLEAK == "enable" ];then
 			rlRun "sleep 180" && rlRun "echo scan > /sys/kernel/debug/kmemleak"

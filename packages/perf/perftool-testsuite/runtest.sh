@@ -26,7 +26,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . blacklist.sh
 
@@ -68,7 +68,7 @@ select_yum_tool()
 skip_testcase()
 {
 	echo "$1" | tee -a ${OUTPUTFILE}
-	rhts-report-result $TEST SKIP $OUTPUTFILE
+	rstrnt-report-result $TEST SKIP $OUTPUTFILE
 	exit 0
 }
 

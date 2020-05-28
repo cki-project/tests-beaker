@@ -1,0 +1,13 @@
+[General]
+name=firmware/user-specified
+owner=Erico Nunes <ernunes@redhat.com
+description=Firmware Test Suite (fwts)
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=iasl;wget;acpidump;pciutils;dmidecode;sendmail;pcre-devel;patch;autoconf;json-c-devel;git;elfutils-libelf-devel;kernel-devel;glib2-devel;make;gettext;automake;gcc;libtool;bison;flex
+softDependencies=beakerlib-redhat
+repoRequires=firmware/include;cki_lib

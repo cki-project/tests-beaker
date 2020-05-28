@@ -26,14 +26,14 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # include beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # Mustangs have a hardware flaw which causes kernel warnings under stress:
 #    list_add corruption. prev->next should be next
 if type -p dmidecode >/dev/null ; then
     if dmidecode -t1 | grep -q 'Product Name:.*Mustang.*' ; then
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit
     fi
 fi
@@ -54,15 +54,15 @@ rlPhaseStartSetup
     # if stress-ng triggers a panic and reboot, then abort the test
     if [ $REBOOTCOUNT -ge 1 ] ; then
         rlDie "Aborting due to system crash and reboot"
-        rhts-abort -t recipe
+        rstrnt-abort -t recipe
     fi
 
     rlLog "Downloading stress-ng from source"
     rlRun "git clone $GIT_URL" 0
     if [ $? != 0 ]; then
         echo "Failed to git clone $GIT_URL." | tee -a $OUTPUTFILE
-        rhts-report-result $TEST WARN $OUTPUTFILE
-        rhts-abort -t recipe
+        rstrnt-report-result $TEST WARN $OUTPUTFILE
+        rstrnt-abort -t recipe
     fi
 
     # build
@@ -92,6 +92,11 @@ EOF
     if [ "$(uname -i)" = "ppc64le" ]; then
         # TODO: open BZ: vforkmany triggers kernel "BUG: soft lockup" on ppc64le
         sed -ie '/vforkmany/d' os.stressors
+    fi
+
+    if [[ "$(uname -r)" =~ 3.10.0.*rt.*el7 ]]; then
+        # https://bugzilla.redhat.com/show_bug.cgi?id=1789039
+        sed -ie '/af-alg/d' cpu.stressors
     fi
 
 rlPhaseEnd

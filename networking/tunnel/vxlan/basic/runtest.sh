@@ -30,9 +30,9 @@
 # for CKI
 [ ! -f /usr/local/bin/netns_clean.sh ] && rm /dev/shm/network_common_initalized -f
 
+. ../../../../cki_lib/libcki.sh || exit 1
 . ../../../common/include.sh || exit 1
 . ../../common/include.sh || exit 1
-. ../../../../cki_lib/libcki.sh || exit 1
 
 YUM=$(cki_get_yum_tool)
 
@@ -94,7 +94,7 @@ then
 			rlRun "ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "ip -6 route add $gre_c_ip6net dev $gre_devname"
 
-			rhts-sync-block -s CLIENT_GRE_CONFIG_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-block -s CLIENT_GRE_CONFIG_${ipversion}_$remote $CLIENTS
 			rlRun "tcpdump -i any -w grev4.pcap &"
 			rlRun "sleep 5"
 			rlRun "ping $gre_c_ip4 -c 5"
@@ -133,17 +133,17 @@ then
 				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
 			fi
 			fi
-			rhts-sync-block -s CLIENT_IPERF_TCPV4_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-block -s CLIENT_IPERF_TCPV4_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -c $gre_c_ip4"
-			rhts-sync-set -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote
-			rhts-sync-block -s CLIENT_IPERF_UDPV4_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-set -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote
+			rstrnt-sync-block -s CLIENT_IPERF_UDPV4_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -u -c $gre_c_ip4"
-			rhts-sync-set -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote
+			rstrnt-sync-set -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote
 
-			rhts-sync-block -s CLIENT_IPERF_TCPV6_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-block -s CLIENT_IPERF_TCPV6_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -V -c $gre_c_ip6"
-			rhts-sync-set -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote
-			rhts-sync-block -s CLIENT_IPERF_UDPV6_${ipversion}_$remote $CLIENTS
+			rstrnt-sync-set -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote
+			rstrnt-sync-block -s CLIENT_IPERF_UDPV6_${ipversion}_$remote $CLIENTS
 			rlRun "iperf -u -V -c $gre_c_ip6"
 
 			rlRun "netperf -L $gre_s_ip4 -H $gre_c_ip4 -t UDP_STREAM"
@@ -152,7 +152,7 @@ then
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t UDP_STREAM"
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t TCP_STREAM"
 			rlRun "netperf -L $gre_s_ip6 -H $gre_c_ip6 -t SCTP_STREAM -- -m 16k"
-			rhts-sync-set -s SERVER_ALL_FINISH_${ipversion}_$remote
+			rstrnt-sync-set -s SERVER_ALL_FINISH_${ipversion}_$remote
 			rlRun "ip -d -s link sh $gre_devname"
 			rlRun "ip link del $gre_devname"
 
@@ -187,24 +187,24 @@ then
 			rlRun "pkill -9 netserver" "0-255"
 			rlRun "netserver -d"
 
-			rhts-sync-set -s CLIENT_GRE_CONFIG_${ipversion}_$remote
+			rstrnt-sync-set -s CLIENT_GRE_CONFIG_${ipversion}_$remote
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -B $gre_c_ip4 -D &"
-			rhts-sync-set -s CLIENT_IPERF_TCPV4_${ipversion}_$remote
-			rhts-sync-block -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_TCPV4_${ipversion}_$remote
+			rstrnt-sync-block -s SERVER_IPERF_TCPV4_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -u -B $gre_c_ip4 -D &"
-			rhts-sync-set -s CLIENT_IPERF_UDPV4_${ipversion}_$remote
+			rstrnt-sync-set -s CLIENT_IPERF_UDPV4_${ipversion}_$remote
 
-			rhts-sync-block -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-block -s SERVER_IPERF_UDPV4_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -V -B $gre_c_ip6 -D &"
-			rhts-sync-set -s CLIENT_IPERF_TCPV6_${ipversion}_$remote
-			rhts-sync-block -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_TCPV6_${ipversion}_$remote
+			rstrnt-sync-block -s SERVER_IPERF_TCPV6_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "pkill -9 iperf" "0-255"
 			rlRun "iperf -s -u -V -B $gre_c_ip6 -D &"
-			rhts-sync-set -s CLIENT_IPERF_UDPV6_${ipversion}_$remote
-			rhts-sync-block -s SERVER_ALL_FINISH_${ipversion}_$remote $SERVERS
+			rstrnt-sync-set -s CLIENT_IPERF_UDPV6_${ipversion}_$remote
+			rstrnt-sync-block -s SERVER_ALL_FINISH_${ipversion}_$remote $SERVERS
 			rlRun "ip -d -s link sh $gre_devname"
 
 			rlRun "pkill -9 iperf"
@@ -253,64 +253,12 @@ else
 			rlRun "$S_CMD ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "$S_CMD ip -6 route add $gre_c_ip6net dev $gre_devname"
 
-			rlRun "$C_CMD tcpdump -U -i any -w grev4.pcap &"
 			rlRun "sleep 5"
 			rlRun "$C_CMD ping $gre_s_ip4 -c 5"
-			rlRun "sleep 5"
-			rlRun "pkill tcpdump"
-			rlRun "sleep 5"
-			if [ $ipversion == "4" ]
-			then
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$CLI_ADDR4.*> $SER_ADDR4.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR4.*> $CLI_ADDR4.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
-			else
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$CLI_ADDR6.*> $SER_ADDR6.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
-			fi
-			rlRun "$C_CMD tcpdump -U -i any -w grev6.pcap &"
-			rlRun "sleep 5"
 			rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
-			rlRun "sleep 5"
-			rlRun "pkill tcpdump"
-			rlRun "sleep 5"
-			if [ $ipversion == "4" ]
-			then
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$CLI_ADDR4.*> $SER_ADDR4.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$SER_ADDR4.*> $CLI_ADDR4.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
-			else
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$CLI_ADDR6.*> $SER_ADDR6.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
-			fi
-			rlRun "$S_CMD iperf -s -B $gre_s_ip4 -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -c $gre_s_ip4"
-			rlRun "pkill -9 iperf" "0-255"
-			rlRun "$S_CMD iperf -s -B $gre_s_ip4 -u -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -u -c $gre_s_ip4"
-			rlRun "pkill -9 iperf" "0-255"
-
-			rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -V -c $gre_s_ip6"
-			rlRun "pkill -9 iperf" "0-255"
-			rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -u -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -u -V -c $gre_s_ip6"
-			rlRun "pkill -9 iperf" "0-255"
-
-			rlRun "$S_CMD pkill -9 netserver" "0-255"
-			rlRun "$S_CMD netserver -d"
-			rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t UDP_STREAM -- -R 1"
-			rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t UDP_STREAM -- -R 1"
 			rlRun "$C_CMD ip -d -s link sh $gre_devname"
 			rlRun "$S_CMD ip -d -s link sh $gre_devname"
 
-			rlRun "pkill -9 netserver"
 			rlRun "$C_CMD ip link del $gre_devname"
 			rlRun "$S_CMD ip link del $gre_devname"
 
@@ -358,64 +306,12 @@ else
 			rlRun "$S_CMD ip route add $gre_c_ip4net dev $gre_devname"
 			rlRun "$S_CMD ip -6 route add $gre_c_ip6net dev $gre_devname"
 
-			rlRun "$C_CMD tcpdump -U -i any -w grev4.pcap &"
 			rlRun "sleep 5"
 			rlRun "$C_CMD ping $gre_s_ip4 -c 5"
-			rlRun "sleep 5"
-			rlRun "pkill tcpdump"
-			rlRun "sleep 5"
-			if [ $ipversion == "4" ]
-			then
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$CLI_ADDR4.*> $SER_ADDR4.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR4.*> $CLI_ADDR4.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
-			else
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$CLI_ADDR6.*> $SER_ADDR6.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev4.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev4.pcap -nnle"
-			fi
-			rlRun "$C_CMD tcpdump -U -i any -w grev6.pcap &"
-			rlRun "sleep 5"
 			rlRun "$C_CMD ping6 $gre_s_ip6 -c 5"
-			rlRun "sleep 5"
-			rlRun "pkill tcpdump"
-			rlRun "sleep 5"
-			if [ $ipversion == "4" ]
-			then
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$CLI_ADDR4.*> $SER_ADDR4.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$SER_ADDR4.*> $CLI_ADDR4.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
-			else
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$CLI_ADDR6.*> $SER_ADDR6.*OTV.*instance 42\""
-				rlRun "tcpdump -r grev6.pcap -nnle | grep \"$SER_ADDR6.*> $CLI_ADDR6.*OTV.*instance 42\""
-				[ $? -ne 0 ] && rlRun -l "tcpdump -r grev6.pcap -nnle"
-			fi
-			rlRun "$S_CMD iperf -s -B $gre_s_ip4 -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -c $gre_s_ip4"
-			rlRun "pkill -9 iperf" "0-255"
-			rlRun "$S_CMD iperf -s -B $gre_s_ip4 -u -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -u -c $gre_s_ip4"
-			rlRun "pkill -9 iperf" "0-255"
-
-			rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -V -c $gre_s_ip6"
-			rlRun "pkill -9 iperf" "0-255"
-			rlRun "$S_CMD iperf -s -V -B $gre_s_ip6 -u -D &"
-			rlRun "sleep 5"
-			rlRun "$C_CMD iperf -u -V -c $gre_s_ip6"
-			rlRun "pkill -9 iperf" "0-255"
-
-			rlRun "$S_CMD pkill -9 netserver" "0-255"
-			rlRun "$S_CMD netserver -d"
-			rlRun "$C_CMD netperf -L $gre_c_ip4 -H $gre_s_ip4 -t UDP_STREAM -- -R 1"
-			rlRun "$C_CMD netperf -L $gre_c_ip6 -H $gre_s_ip6 -t UDP_STREAM -- -R 1"
 			rlRun "$C_CMD ip -d -s link sh $gre_devname"
 			rlRun "$S_CMD ip -d -s link sh $gre_devname"
 
-			rlRun "pkill -9 netserver"
 			rlRun "$C_CMD ip link del $gre_devname"
 			rlRun "$S_CMD ip link del $gre_devname"
 
@@ -436,8 +332,6 @@ TEST_ITEMS=${TEST_ITEMS:-$TEST_ITEMS_ALL}
 
 rlJournalStart
 	rlPhaseStartSetup
-	rlRun "netperf_install"
-	which iperf || rlRun "iperf_install"
 	rlPhaseEnd
 
 

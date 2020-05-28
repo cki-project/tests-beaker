@@ -30,7 +30,10 @@ clean:
 	rm -f *~ $(BUILT_FILES)
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -47,3 +50,4 @@ $(METADATA): Makefile
 	@echo "Confidential:    no" >> $(METADATA)
 	@echo "Destructive:     no" >> $(METADATA)
 	@echo "Requires:        alsa-utils" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)

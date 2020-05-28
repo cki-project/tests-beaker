@@ -1,0 +1,12 @@
+[General]
+name=networking/udp/udp_socket
+owner=Hangbin Liu <haliu@redhat.com>
+description=Networking udp socket test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=make;gcc
+repoRequires=cki_lib;networking/common

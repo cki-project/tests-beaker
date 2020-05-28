@@ -32,7 +32,7 @@ export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 export TESTVERSION=1.0
 
 # The upsteam location of tests
-LOOKASIDE=https://github.com/osandov/blktests.git
+LOOKASIDE=https://github.com/yizhanglinux/blktests.git
 
 TARGETS	= blktests \
 	  runtest
@@ -57,7 +57,10 @@ clobber: clean
 	rm -rf blktests
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA):
 	@touch $(METADATA)
@@ -72,5 +75,5 @@ $(METADATA):
 	@echo "Requires:     gcc-c++"		>> $(METADATA)
 	@echo "Requires:     git"		>> $(METADATA)
 	@echo "Requires:     nvme-cli"		>> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "RunFor:       $(PACKAGE_NAME)"   >> $(METADATA)
-	rhts-lint $(METADATA)

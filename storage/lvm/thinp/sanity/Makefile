@@ -36,17 +36,18 @@ build: $(METADATA) $(TARGET)
 	cp -f iozone3_414/src/current/iozone ./
 
 $(TARGET):
-	# NOTE(mhayden): iozone.org went offline mysteriously on 2019-06-07.
-	# wget http://www.iozone.org/src/current/$(TARGET).tar
-	wget --tries=10 https://artifacts.cki-project.org/lookaside/$(TARGET).tar.gz
+	# Use lookaside location for iozone3 dependency
+	wget --tries=10 http://cki-artifacts.s3.us-east-2.amazonaws.com/lookaside/static/$(TARGET).tar.gz
 	tar -xzvf $(TARGET).tar.gz
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 showmeta: $(METADATA)
 	@cat $(METADATA)
-	@rhts-lint $(METADATA)
 
 $(METADATA):
 	touch $(METADATA)
@@ -67,5 +68,6 @@ $(METADATA):
 	@echo "Requires:	make"           >> $(METADATA)
 	@echo "Requires:	glibc-static"   >> $(METADATA)
 	@echo "Requires:	gnuplot"	>> $(METADATA)
+	@echo "repoRequires:	cki_lib"	>> $(METADATA)
 	@echo "Owner:		Jakub Krysl <jkrysl@redhat.com>" >> $(METADATA)
 	@echo "License:		GPLv2"		>> $(METADATA)

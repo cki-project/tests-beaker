@@ -27,8 +27,8 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh
 . /usr/share/beakerlib/beakerlib.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 rlJournalStart
 
@@ -54,7 +54,7 @@ rlJournalStart
         rlPhaseEnd
 
         # Reboot.
-        rhts-reboot
+        rstrnt-reboot
 
     # After second reboot (FIPS mode is disabled again).
     elif [ -e /var/tmp/fips-disabled ]; then
@@ -112,7 +112,7 @@ rlJournalStart
 
     rlPhaseEnd
 
-    rhts-reboot
+    rstrnt-reboot
 
 rlJournalPrintText
 

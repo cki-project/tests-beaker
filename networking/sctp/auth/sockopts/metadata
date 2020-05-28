@@ -1,0 +1,13 @@
+[General]
+name=networking/sctp/auth/sockopts
+owner=Jianwen Ji <jiji@redhat.com>
+description=Networking sctp auth socket ops test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=bc;bzip2;gcc;git;lksctp-tools;lksctp-tools-devel;patch;rsync;texinfo;wget
+softDependencies=kernel-modules-extra
+repoRequires=cki_lib

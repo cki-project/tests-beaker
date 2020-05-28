@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /bin/bash -x
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   This file includes anything that does not fit in other categories
@@ -121,14 +121,14 @@ function echoo()
 	echo $@ | tee -a $OUTPUTFILE
 }
 
-# Wrapper to report_result, clears $OUTPUTFILE
+# Wrapper to rstrnt-report-result, clears $OUTPUTFILE
 function report()
 {
 	WHAT="$TEST_ID:$1"
 	STATUS="$2"
 	SCORE="$3"
 	test -z "$SCORE" && SCORE=0
-	report_result "$WHAT" "$STATUS" "$SCORE"
+	rstrnt-report-result "$WHAT" "$STATUS" "$SCORE"
 	rm -f $OUTPUTFILE
 	touch $OUTPUTFILE
 }

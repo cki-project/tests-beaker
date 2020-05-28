@@ -1,0 +1,11 @@
+[General]
+name=Networking Firewall Library
+owner=Networking QE
+description=Helper functions for networking firewall tests
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+repoRequires=networking/common

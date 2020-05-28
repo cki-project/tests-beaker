@@ -6,3 +6,8 @@ waitpid05
 clock_getres01
 endian_switch01
 sigwaitinfo01
+sigtimedwait01
+ptrace07
+shmat01
+prctl04
+fstat03

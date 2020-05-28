@@ -16,5 +16,12 @@
 
 #   Author: Marco Patalano <mpatalan@redhat.com>
 
-rhts-run-simple-test hw_raid "./main.sh"
+RESULT=PASS
+# Run main hw_raid
+./main.sh
 
+res=$?
+if [ $res != 0 ]; then
+    RESULT=FAIL
+fi
+rstrnt-report-result "storage/hw_raid" $RESULT $res

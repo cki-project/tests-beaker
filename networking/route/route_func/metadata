@@ -1,5 +1,5 @@
 [General]
-name=/kernel/networking/route/route_func
+name=networking/route/route_func
 owner=Jianlin Shi<jishi@redhat.com>
 description=route and rule functions
 license=GPLv3
@@ -7,6 +7,6 @@ confidential=no
 destructive=no
 
 [restraint]
-entry_point=make run
+entry_point=bash ./runtest.sh
 dependencies=net-tools
-repoRequires=networking/common
+repoRequires=cki_lib;networking/common

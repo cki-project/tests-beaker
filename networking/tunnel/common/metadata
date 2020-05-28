@@ -7,6 +7,6 @@ confidential=no
 destructive=no
 
 [restraint]
-entry_point=make run
-dependencies=net-tools;iproute;tcpdump;ethtool
-repoRequires=networking/common
+entry_point=bash ./runtest.sh
+dependencies=ethtool;iproute;net-tools;tcpdump
+repoRequires=cki_lib;networking/common

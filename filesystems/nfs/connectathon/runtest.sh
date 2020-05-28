@@ -26,9 +26,8 @@
 # $CI
 
 # source the test script helpers
-. /usr/bin/rhts-environment.sh
-. /mnt/tests/kernel/include/runtest.sh
-. kvercmp.sh
+. ../../../cki_lib/libcki.sh || exit 1
+. kstub.sh
 
 # Turn debug on if DEBUG is 'yes' or 'true', which is helpful to dig out
 # internals for trouble shooting
@@ -121,7 +120,7 @@ function checkServers ()
             if [[ -z $servers ]]; then
                 # Not found online nfs servers
                 echo "Not found online nfs server from the list, aborting the task" | tee -a $OUTPUTFILE
-                report_result $TEST WARN/ABORTED
+                rstrnt-report-result $TEST WARN/ABORTED
                 # Abort the task
                 rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
                 exit 0
@@ -148,14 +147,14 @@ function checkServers ()
                 fi
             fi
        else
-          report_result $TEST WARN/ABORTED
+          rstrnt-report-result $TEST WARN/ABORTED
        fi
     else
         local s390chk=$(/bin/hostname | awk -F. '{print $2}')
         if [ $s390chk = "z900" ]; then
-            report_result $TEST PASS
+            rstrnt-report-result $TEST PASS
         else
-            report_result $TEST WARN/ABORTED
+            rstrnt-report-result $TEST WARN/ABORTED
             if  is_run_byci ; then
                 # nfs server list is empty
                 echo "nfs server list is empty, aborting the task" | tee -a $OUTPUTFILE
@@ -256,9 +255,9 @@ function _cthon04 ()
         if [ -z "$SKIP_SUBRESULT" ]; then
             local iswarn=`/bin/grep WARNING! $OUTPUTFILE | wc -l`
             if [ $iswarn -gt $result ]; then
-                report_result $TEST/$server/$report_path/$name PASS $iswarn
+                rstrnt-report-result $TEST/$server/$report_path/$name PASS $iswarn
             else
-                report_result $TEST/$server/$report_path/$name PASS $result
+                rstrnt-report-result $TEST/$server/$report_path/$name PASS $result
             fi
         fi
         if [ -z "$SAVECAPTURE" ]; then
@@ -268,8 +267,8 @@ function _cthon04 ()
         fi
     else
         bzip2 $tethereal_out.cap
-        rhts_submit_log -l $tethereal_out.cap.bz2
-        report_result $TEST/$server/$report_path/$name FAIL $result
+        rstrnt-report-log -l $tethereal_out.cap.bz2
+        rstrnt-report-result $TEST/$server/$report_path/$name FAIL $result
         if [ -z "$SAVECAPTURE_FAILED" ]; then
             rm -f $tethereal_out.cap.bz2 > /dev/null 2>&1
         fi
@@ -297,16 +296,16 @@ function get_supported_client_versions ()
     local kernel_supports_pnfs=1
 
     # old kernels do not support v4
-    kvercmp "$(uname -r)" "2.4.22"
-    if [ "$kver_ret" -le 0 ]; then
+    K_Vercmp "$(uname -r)" "2.4.22"
+    if [ "$K_KVERCMP_RET" -le 0 ]; then
         echo "kernels <= 2.4.21 do not support nfs v4" | tee -a $OUTPUTFILE
         kernel_supports_v4=0
     fi
 
     # since RHEL7 kernels do not support NFSv2 as client
     # Bug 989238 - Remove NFS v2 support from RHEL 7 - kernel
-    kvercmp "$(uname -r)" "3.10.0"
-    if [ "$kver_ret" -ge 0 -a -e /boot/config-`uname -r` ]; then
+    K_Vercmp "$(uname -r)" "3.10.0"
+    if [ "$K_KVERCMP_RET" -ge 0 -a -e /boot/config-`uname -r` ]; then
         grep "CONFIG_NFS_V2=" /boot/config-`uname -r`
         if [ $? -ne 0 ]; then
             echo "This kernel does not support NFSv2" | tee -a $OUTPUTFILE
@@ -315,8 +314,8 @@ function get_supported_client_versions ()
     fi
 
     # only kernels above 6.4.z support pNFS
-    kvercmp "$(uname -r)" "2.6.32-358"
-    if [ "$kver_ret" -lt 0 ]; then
+    K_Vercmp "$(uname -r)" "2.6.32-358"
+    if [ "$K_KVERCMP_RET" -lt 0 ]; then
             echo "This kernel does not support pNFS" | tee -a $OUTPUTFILE
             kernel_supports_pnfs=0
     fi
@@ -373,7 +372,7 @@ function get_supported_server_versions ()
             else
                 echo "Unexpected error from v41 mount of $server" | tee -a $OUTPUTFILE
                 cat $mount_pnfs_err_file | tee -a $OUTPUTFILE
-                report_result server_unexpected_v41_mount_err WARN/ABORTED
+                rstrnt-report-result server_unexpected_v41_mount_err WARN/ABORTED
                 if  is_run_byci ; then
                     # Abort the task
                    rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
@@ -387,7 +386,7 @@ function get_supported_server_versions ()
     echo "$server supports: $_nfsvers" | tee -a $OUTPUTFILE
     if [ -z "$_nfsvers" ]; then
             echo "No supported NFS versions for $server?" | tee -a $OUTPUTFILE
-            report_result NoSupportedNFSVersions WARN/ABORTED
+            rstrnt-report-result NoSupportedNFSVersions WARN/ABORTED
             if  is_run_byci ; then
                 # Abort the task
                 rstrnt-abort --server $RSTRNT_RECIPE_URL/tasks/$TASKID/status
@@ -550,18 +549,18 @@ function cthon_main ()
 
         if [ $SCORE -eq 0 ]; then
             if [ $TTIME -lt 1000 ]; then
-                report_result $TEST/$server PASS $TTIME
+                rstrnt-report-result $TEST/$server PASS $TTIME
             else
                 echo "Time exceeded 1000 seconds" | tee -a $OUTPUTFILE
                 if is_run_byci; then
                     echo "but it is run via CI, so also mark it as PASSED" | tee -a $OUTPUTFILE
-                    report_result $TEST/$server PASS $TTIME
+                    rstrnt-report-result $TEST/$server PASS $TTIME
                 else
-                    report_result $TEST/$server WARN/COMPLETED $TTIME
+                    rstrnt-report-result $TEST/$server WARN/COMPLETED $TTIME
                 fi
             fi
         else
-            report_result $TEST/$server FAIL $TTIME
+            rstrnt-report-result $TEST/$server FAIL $TTIME
         fi
     done
     popd
@@ -586,7 +585,15 @@ else
     echo " ========== Use default single test run ============"
 fi
 
-if [ "$CTHONSERVERS" ]; then
+#
+# XXX: After we removed getServerList() and defined CTHONSERVERS via kpet-db,
+#      the case fails randomly. Looks the client and nfs servers are not in the
+#      same domain, but we are not sure the root cause as a matter of fact.
+#      Hence, just go back to use getServerList() so as to save the effort to
+#      dig out the root cause. Hence, right here we disable the code block in
+#      the following to avoid updating kpet-db for the time being
+#
+if false && [[ -n "$CTHONSERVERS" ]]; then
     # We can specify a list of servers it test against
     # For example, we can provide a customized list of
     # servers CTHONSERVER="host1-nfs host2-nfs host3-nfs"

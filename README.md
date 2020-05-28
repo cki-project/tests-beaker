@@ -33,7 +33,7 @@ fi
 ~~~
 if [ $? -ne 0 ]; then
     rlLog "Aborting recipe because $reason"
-    rhts-abort recipe
+    rstrnt-abort recipe
 fi
 ~~~
 
@@ -41,7 +41,7 @@ fi
 ~~~
 if [ $? -ne 0 ]; then
     rlLog "Skipping test because $reason"
-    rhts-report-result $TEST SKIP
+    rstrnt-report-result $TEST SKIP
     exit 0
 fi
 ~~~

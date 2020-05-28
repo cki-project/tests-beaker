@@ -28,9 +28,8 @@ dbg_flag=${dbg_flag:-"set +x"}
 $dbg_flag
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
-. /usr/share/beakerlib/beakerlib.sh || exit 1
 . ../../cki_lib/libcki.sh || exit 1
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 
 YUM=$(cki_get_yum_tool)
@@ -53,29 +52,7 @@ kdump_prepare()
 
 #Function to install FIO
 function install_fio() {
-
-    rlRun "which fio"
-    if [ $? -eq 0 ]; then
-        rlLog "INFO: fio already installed"
-        return
-    fi
-    rlRun "$YUM -y install fio"
-    if [ $? -eq 0 ]; then
-        rlLog "INFO: fio succesfully installed by yum -y install fio"
-        return
-    fi
-
-    git_url=git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
-    rlRun "$YUM install libaio-devel zlib-devel gcc -y"
-    rlRun "git clone $git_url"
-    rlLog "INFO: Installing Fio"
-    rlRun "cd fio && ./configure && make && make install"
-    rlRun "which fio"
-    if [ $? -ne 0 ]; then
-        rlLog "FAIL: Fio install failed"
-        return 1
-    fi
-    rlLog "INFO: Fio succesfully installed"
+    rlRun "rpm -q fio || $YUM -y install fio"
 }
 
 #Function to generate I/O with FIO
@@ -140,7 +117,7 @@ trigger_panic()
     #First, enable sysrq:
     rlRun -l 'echo "1" > /proc/sys/kernel/sysrq'
     #trigger panic:
-    report_result PANIC PASS 0
+    rstrnt-report-result PANIC PASS 0
     rlRun -l "echo c > /proc/sysrq-trigger"
 }
 
@@ -164,9 +141,9 @@ kexec_boot_exec()
 
 rlJournalStart
     rlPhaseStartSetup
-        install_fio
         echo "REBOOTCOUNT=$REBOOTCOUNT"
         if [ "$REBOOTCOUNT" -eq 0 ] ; then
+            install_fio
             PrepareReboot
             kdump_prepare
             sleep 5

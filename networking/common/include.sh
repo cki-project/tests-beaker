@@ -5,8 +5,7 @@ NETWORK_COMMONLIB_DIR=$(dirname $(readlink -f $BASH_SOURCE))
 networkLib=$NETWORK_COMMONLIB_DIR
 
 # include beaker default environmnet
-. /usr/bin/rhts_environment.sh
-. /usr/share/beakerlib/beakerlib.sh || . /usr/lib/beakerlib/beakerlib.sh
+. /usr/share/beakerlib/beakerlib.sh || exit 1
 
 # select tool to manage package, which could be "yum" or "dnf"
 function select_yum_tool() {
@@ -70,7 +69,7 @@ submit_log()
 {
 	[ ! $JOBID ] && return 0
 	for file in $@; do
-		rhts-submit-log -l $file
+		rstrnt-report-log -l $file
 	done
 }
 
@@ -80,7 +79,7 @@ test_pass()
 	echo -e "\n:: [  PASS  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
 	# we don't care how many test passed
 	if [ $JOBID ]; then
-		report_result "${TEST}/$1" "PASS"
+		rstrnt-report-result "${TEST}/$1" "PASS"
 	else
 		echo -e "\n::::::::::::::::"
 		echo -e ":: [  ${GRN}PASS${RES}  ] :: Test '"${TEST}/$1"'"
@@ -95,7 +94,7 @@ test_fail()
 	echo -e ":: [  FAIL  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
 	# we only care how many test failed
 	if [ $JOBID ]; then
-		report_result "${TEST}/$1" "FAIL" "$SCORE"
+		rstrnt-report-result "${TEST}/$1" "FAIL" "$SCORE"
 	else
 		echo -e "\n:::::::::::::::::"
 		echo -e ":: [  ${RED}FAIL${RES}  ] :: Test '"${TEST}/$1"' FAIL $SCORE"
@@ -108,8 +107,8 @@ test_warn()
 	#echo ":: [  WARN  ] :: RESULT: $1" | tee -a $OUTPUTFILE
 	echo -e "\n:: [  WARN  ] :: Test '"$1"'" | tee -a $OUTPUTFILE
 	if [ $JOBID ]; then
-		report_result "${TEST}/$1" "WARN"
-		rhts-abort -t recipe
+		rstrnt-report-result "${TEST}/$1" "WARN"
+		rstrnt-abort -t recipe
 	else
 		echo -e "\n:::::::::::::::::"
 		echo -e ":: [  ${YEL}WARN${RES}  ] :: Test '"${TEST}/$1"'"
@@ -224,15 +223,15 @@ net_sync()
 	fi
 	log "Start sync ${FLAG}"
 	if $(echo $SERVERS | grep -q -i $HOSTNAME);then
-		rhts-sync-set -s ${FLAG}
+		rstrnt-sync-set -s ${FLAG}
 		for client in $CLIENTS; do
-			rhts-sync-block -s ${FLAG} $client
+			rstrnt-sync-block -s ${FLAG} $client
 		done
 	elif $(echo $CLIENTS | grep -q -i $HOSTNAME);then
 		for server in $SERVERS; do
-			rhts-sync-block -s ${FLAG} $server
+			rstrnt-sync-block -s ${FLAG} $server
 		done
-		rhts-sync-set -s ${FLAG}
+		rstrnt-sync-set -s ${FLAG}
 	fi
 	log "Finish sync ${FLAG}"
 }
@@ -293,10 +292,6 @@ then
 	[ "$AVC_CHECK" = yes ] && enable_avc_check || disable_avc_check
 else
 	{
-	# make sure all required packages are installed
-	make testinfo.desc
-	packages=`awk -F: '/Requires:/ {print $2}' testinfo.desc`
-	${yum} install -y $packages --skip-broken
 	# install kernel-module-extra version matching the current running kernel version
 	${yum} install kernel-modules-extra -y --skip-broken
 
@@ -329,9 +324,9 @@ fi
 
 popd > /dev/null
 
-# use our own rhts-sync for manually testing
+# use our own rstrnt-sync for manually testing
 if [ ! "$JOBID" ];then
-rhts-sync-set()
+rstrnt-sync-set()
 {
 	local message=$2
 	local timeout=3600
@@ -350,11 +345,11 @@ rhts-sync-set()
 		sleep 5
 		let timeout=timeout-5
 	done
-	if [ $timeout -le 0 ]; then test_warn "rhts-sync-set $HOSTNAME $message failed"; fi
-	echo "rhts-sync-set -s $message DONE"
+	if [ $timeout -le 0 ]; then test_warn "rstrnt-sync-set $HOSTNAME $message failed"; fi
+	echo "rstrnt-sync-set -s $message DONE"
 }
 
-rhts-sync-block()
+rstrnt-sync-block()
 {
 	local message=$2
 	local i
@@ -371,6 +366,6 @@ rhts-sync-block()
 			sleep 5
 		done
 	done
-	echo "rhts-sync-block -s $message $@ DONE"
+	echo "rstrnt-sync-block -s $message $@ DONE"
 }
 fi

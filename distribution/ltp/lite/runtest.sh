@@ -1,8 +1,8 @@
 #!/bin/bash
 
-. /usr/bin/rhts-environment.sh
-. ../include/runtest.sh
-. ../include/knownissue.sh
+. ../../../cki_lib/libcki.sh || exit 1
+. ../include/runtest.sh      || exit 1
+. ../include/knownissue.sh   || exit 1
 
 #export AVC_ERROR=+no_avc_check
 #export RHTS_OPTION_STRONGER_AVC=
@@ -184,20 +184,20 @@ ltp_lite_end()
 if [ "${REBOOTCOUNT}" -ge 1 ]; then
 	echo "===== Test has already been run,
 	Check logs for possible failures ======"
-	report_result CHECKLOGS FAIL 99
+	rstrnt-report-result CHECKLOGS FAIL 99
 	exit 0
 fi
 
 # report patch errors from ltp/include
 grep -i -e "FAIL" -e "ERROR" patchinc.log > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-	rhts-abort -t recipe
+	rstrnt-abort -t recipe
 fi
 
 # Sometimes it takes too long to waiting for syscalls
 # finish and I want to know whether the compilation is
 # finish or not.
-report_result "install" "PASS"
+rstrnt-report-result "install" "PASS"
 
 ltp_lite_begin
 

@@ -27,7 +27,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 # Set unique log file.
 OUTPUTDIR=/mnt/testarea
@@ -141,11 +141,11 @@ RprtRslt ()
     if [ "$result" = "PASS" ]; then
         # I want to see the succeeded running log as well
         SubmitLog "$OUTPUTDIR/$TEST.run.log"
-        report_result $TEST $result
+        rstrnt-report-result $TEST $result
     else
         SubmitLog "$OUTPUTDIR/$TEST.run.log"
         score=$(cat $OUTPUTDIR/$RUNTEST.log | grep "Total Failures:" |cut -d ' ' -f 3)
-        report_result $TEST $result $score
+        rstrnt-report-result $TEST $result $score
     fi
 }
 
@@ -153,7 +153,7 @@ SubmitLog ()
 {
     LOG=$1
 
-    rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
+    rstrnt-report-log -S $RESULT_SERVER -T $TESTID -l $LOG
 }
 
 CleanUp ()

@@ -22,4 +22,5 @@ for func in $FUNCTION; do
 	$func
 done
 
-report_result $TEST PASS 0
+export TEST=${TEST:-"networking/common"}
+rstrnt-report-result $TEST PASS 0

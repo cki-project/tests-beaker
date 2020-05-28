@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Source the common test script helpers
-. /usr/bin/rhts_environment.sh
+. ../../../../cki_lib/libcki.sh || exit 1
 
 PS4='+ $(date "+%s.%N")\011 '
 #set -x
@@ -70,7 +70,7 @@ size_requested=1024
 
 # SKIP test if there's not enough space on target device
 if [[ $size_requested -gt $size_free ]]; then
-  rhts-report-result $TEST SKIP $OUTPUTFILE
+  rstrnt-report-result $TEST SKIP $OUTPUTFILE
   exit
 fi
 rcmd make_loop_dev loopdev1 512M
@@ -142,9 +142,9 @@ rcmd pvs
 echo "Test finished" | tee -a $OUTPUTFILE
 
 if [ $ret -eq 0 ]; then
-	report_result finished PASS 0
+	rstrnt-report-result finished PASS 0
 else
-	report_result finished FAIL $ret
+	rstrnt-report-result finished FAIL $ret
 fi
 
 exit 0

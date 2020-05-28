@@ -29,7 +29,10 @@ export TEST=$(TOPLEVEL_NAMESPACE)/$(RELATIVE_PATH)
 export TESTVERSION=3.0
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 CONNECTATHON_SRCDIR=cthon04
 LOOKASIDE_DEFAULT=git://git.linux-nfs.org/projects/steved/cthon04.git
@@ -94,12 +97,10 @@ $(METADATA):
 	@echo "Requires:     git"		>> $(METADATA)
 	@echo "Requires:     patch"		>> $(METADATA)
 	@echo "Requires:     time"		>> $(METADATA)
-	@echo "Requires:     libnsl2 libtirpc-devel"		>> $(METADATA)
-	@echo "RhtsRequires: test(/kernel/include)"                      >> $(METADATA)
-	@echo "Provides:     test(/kernel/filesystems/nfs/connectathon)" >> $(METADATA)
+	@echo "Requires:     libnsl2 libtirpc-devel"	>> $(METADATA)
 	@echo "Priority:     Medium"		>> $(METADATA)
 	@echo "Type:         Regression"	>> $(METADATA)
 	@echo "Type:         Tier1"		>> $(METADATA)
 	@echo "Type:         KernelTier0 KernelTier1"	>> $(METADATA)
 	@echo "License:      GPL v2"		>> $(METADATA)
-	rhts-lint $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)

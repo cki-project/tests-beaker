@@ -34,7 +34,10 @@ clean:
 	rm -f $(METADATA)
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	touch $(METADATA)
@@ -47,5 +50,4 @@ $(METADATA): Makefile
 			        possible priority task that it can run." >> $(METADATA)
 	@echo "Architectures:   x86_64" >>$(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)

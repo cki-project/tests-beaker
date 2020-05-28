@@ -29,9 +29,9 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+export TEST="networking/firewall/000infralib"
 #
 # Select tool to manage package, which could be "yum" or "dnf"
 # Note global variable YUM will be used later
@@ -42,8 +42,8 @@ source $NETWORKING_ROOT/common/include.sh
 yum=$(select_yum_tool)
 if (( $? != 0 )); then
 	echo "FATAL: fail to get package tool" | tee -a $OUTPUTFILE
-	report_result $TEST WARN 99
-	rhts-abort -t recipe
+	rstrnt-report-result $TEST WARN 99
+	rstrnt-abort -t recipe
 	exit 0
 fi
 export YUM=$yum

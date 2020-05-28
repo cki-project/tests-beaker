@@ -1,4 +1,7 @@
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 include ../include/ltp-make.include
 
 # The toplevel namespace within which the test lives.

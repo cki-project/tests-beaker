@@ -27,7 +27,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Include Beaker environment
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 PACKAGES=${PACKAGES:-"httpd"}
@@ -51,7 +51,7 @@ rlJournalStart
                 rlPass "fips mode enabled"
 	    else
                 echo "fips mode disabled. Test requires fips mode! Skipping." | tee -a $OUTPUTFILE
-                rhts-report-result $TEST SKIP $OUTPUTFILE
+                rstrnt-report-result $TEST SKIP $OUTPUTFILE
                 exit
 	    fi
         fi

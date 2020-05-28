@@ -1,0 +1,12 @@
+[General]
+name=networking/driver/sanity
+owner=John Linville <linville@redhat.com>
+description=Networking driver sanity test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=ethtool
+repoRequires=cki_lib

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #--------------------------------------------------------------------------------
-# Copyright (c) 2019 Red Hat, Inc. All rights reserved. This copyrighted material 
+# Copyright (c) 2019 Red Hat, Inc. All rights reserved. This copyrighted material
 # is made available to anyone wishing to use, modify, copy, or
 # redistribute it subject to the terms and conditions of the GNU General
 # Public License v.2.
@@ -25,8 +25,10 @@
 #---------------------------------------------------------------------------------
 
 # Source the common test script helpers
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
+
+TEST="acpi/acpitable"
 
 # Global variables
 ret=0
@@ -34,9 +36,9 @@ ret=0
 # make sure acpica-tools are installed
 pkg=$(rpm -qa | grep acpica-tools)
 if [ -z "$pkg" ] ; then
-    report_result $TEST WARN
-    rhts-abort -t recipe
-fi 
+    rstrnt-report-result $TEST WARN
+    rstrnt-abort -t recipe
+fi
 
 # verify  ACPI is enabled in the kernel
 msg=$(journalctl -b 0 -o short-monotonic | grep "ACPI: Interpreter enabled")
@@ -54,14 +56,14 @@ if [ $ret = 0 ] ; then
     mkdir -p /mnt/redhat/user/acpi/
     acpidump > /mnt/redhat/user/acpi/acpitable.log 2>&1
     ret=$?
-    rhts_submit_log -l /mnt/redhat/user/acpi/acpitable.log
+    rstrnt-report-log -l /mnt/redhat/user/acpi/acpitable.log
 fi
 
 echo "Test finished" | tee -a $OUTPUTFILE
 
 if [ $ret != 0 ] ; then
-    report_result $TEST FAIL $ret
+    rstrnt-report-result $TEST FAIL $ret
 else
     # all is well
-    report_result $TEST PASS 0
+    rstrnt-report-result $TEST PASS 0
 fi

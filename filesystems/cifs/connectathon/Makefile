@@ -60,7 +60,10 @@ clean:
 
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -77,6 +80,7 @@ $(METADATA): Makefile
 	@echo "Requires:     gcc bzip2 nfs-utils net-tools rusers" >> $(METADATA)
 	@echo "Requires:     libnsl2 libtirpc-devel" >> $(METADATA)
 	@echo "Requires:     beakerlib python3-lxml " >> $(METADATA)
+	@echo "repoRequires: cki_lib" >> $(METADATA)
 	@echo "License:      GPL v2"            >> $(METADATA)
 	@echo "Type:         Regression"        >> $(METADATA)
 	@echo "Type:         KernelTier1" >>$(METADATA)

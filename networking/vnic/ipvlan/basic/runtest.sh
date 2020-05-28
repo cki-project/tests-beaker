@@ -23,6 +23,7 @@ CDIR=$(dirname $FILE)
 RPATH=${RELATIVE_PATH:-"networking/vnic/ipvlan/basic"}
 
 # Include Beaker environment
+. ../../../../cki_lib/libcki.sh || exit 1
 source ${CDIR%/$RPATH}/networking/common/include.sh || exit 1
 
 # Functions
@@ -70,7 +71,7 @@ rlPhaseStartTest "multihost_netns"
 		rlRun "ip netns exec ns_s ip route add default dev ipvlan_s"
 		rlRun "ip netns exec ns_s ip -6 route add default dev ipvlan_s"
 
-		rhts-sync-block -s IPVLAN_MULTIHOST_CLIENT_READY $CLIENTS
+		rstrnt-sync-block -s IPVLAN_MULTIHOST_CLIENT_READY $CLIENTS
 		for flag in vepa private bridge
 		do
 			rlLog "mode l2 $flag"
@@ -89,7 +90,7 @@ rlPhaseStartTest "multihost_netns"
 			rlRun "ip netns exec ns_s netperf -6 -H 5010:$netid::172 -t SCTP_STREAM -l 1 -- -m 16k"
 		done
 
-		rhts-sync-set -s IPVLAN_MULTIHOST_MODE2_FINISH
+		rstrnt-sync-set -s IPVLAN_MULTIHOST_MODE2_FINISH
 
 		#rlRun "ip netns exec ns_s ip route add default dev ipvlan_s"
 		#rlRun "ip netns exec ns_s ip -6 route add default dev ipvlan_s"
@@ -100,7 +101,7 @@ rlPhaseStartTest "multihost_netns"
 		do
 			rlRun "ip netns exec ns_s ip link set ipvlan_s type ipvlan mode $mode"
 			rlRun "ip netns exec ns_s ip link set ipvlan_s type ipvlan mode $mode" "0-255"
-			rhts-sync-block -s IPVLAN_MULTIHOST_${mode}_READY $CLIENTS
+			rstrnt-sync-block -s IPVLAN_MULTIHOST_${mode}_READY $CLIENTS
 			for flag in vepa private bridge
 			do
 				rlLog "mode $mode $flag"
@@ -125,7 +126,7 @@ rlPhaseStartTest "multihost_netns"
 					rlRun "ip netns exec ns_s netperf -6 -H 5010:$netid::172 -t SCTP_STREAM -l 1 -- -m 16k"
 				done
 			done
-			rhts-sync-set -s IPVLAN_MULTIHOST_${mode}_FINISH
+			rstrnt-sync-set -s IPVLAN_MULTIHOST_${mode}_FINISH
 
 		done
 
@@ -146,8 +147,8 @@ rlPhaseStartTest "multihost_netns"
 		rlRun "ip route add 192.168.$netid.171 dev $TEST_IFACE"
 		rlRun "ip -6 route add 5010:$netid::171 dev $TEST_IFACE"
 
-		rhts-sync-set -s IPVLAN_MULTIHOST_CLIENT_READY
-		rhts-sync-block -s IPVLAN_MULTIHOST_MODE2_FINISH $SERVERS
+		rstrnt-sync-set -s IPVLAN_MULTIHOST_CLIENT_READY
+		rstrnt-sync-block -s IPVLAN_MULTIHOST_MODE2_FINISH $SERVERS
 		rlRun "ip route del 192.168.$netid.171 dev $TEST_IFACE"
 		rlRun "ip -6 route del 5010:$netid::171 dev $TEST_IFACE"
 
@@ -159,8 +160,8 @@ rlPhaseStartTest "multihost_netns"
 		for mode in l3 l3s
 		do
 			rlRun "ip netns exec ns_c ip link set ipvlan_c type ipvlan mode $mode"
-			rhts-sync-set -s IPVLAN_MULTIHOST_${mode}_READY
-			rhts-sync-block -s IPVLAN_MULTIHOST_${mode}_FINISH $SERVERS
+			rstrnt-sync-set -s IPVLAN_MULTIHOST_${mode}_READY
+			rstrnt-sync-block -s IPVLAN_MULTIHOST_${mode}_FINISH $SERVERS
 		done
 
 		rlRun "ip netns exec ns_c pkill netserver" "0-255"
@@ -620,8 +621,8 @@ then
 		ip netns exec test$i mdump -q -omdump_v4_${i}_10.log -s 224.9.10.10 12970 ipvlan$i &
 	done
 	rlRun "sleep 5"
-	rhts-sync-set -s IPVLAN_BASIC_MULTICAST_SERVER_V4_MDUMP_READY
-	rhts-sync-block -s IPVLAN_BASIC_MULTICAST_CLIENT_V4_MSEND_DONE $CLIENTS
+	rstrnt-sync-set -s IPVLAN_BASIC_MULTICAST_SERVER_V4_MDUMP_READY
+	rstrnt-sync-block -s IPVLAN_BASIC_MULTICAST_CLIENT_V4_MSEND_DONE $CLIENTS
 
 	rlRun "sleep 5"
 	if [ "`grep '0.000000% loss' mdump_v4*_1.log | wc -l`" -ne 100 ]
@@ -727,8 +728,8 @@ then
 		ip netns exec test$i mdump -q -f 6 -omdump_v6_${i}_10.log -s ff0e:1234::10 12970 ipvlan$i &
 	done
 	rlRun "sleep 5"
-	rhts-sync-set -s IPVLAN_BASIC_MULTICAST_SERVER_V6_MDUMP_READY
-	rhts-sync-block -s IPVLAN_BASIC_MULTICAST_CLIENT_V6_MSEND_DONE $CLIENTS
+	rstrnt-sync-set -s IPVLAN_BASIC_MULTICAST_SERVER_V6_MDUMP_READY
+	rstrnt-sync-block -s IPVLAN_BASIC_MULTICAST_CLIENT_V6_MSEND_DONE $CLIENTS
 	rlRun "sleep 5"
 
 	if [ "`grep '0.000000% loss' mdump_v6*_1.log | wc -l`" -ne 100 ]
@@ -804,7 +805,7 @@ then
 		IFACE_NAME=$TEST_IFACE
 		rlRun "dhclient -v $IFACE_NAME"
 	fi
-	rhts-sync-block -s IPVLAN_BASIC_MULTICAST_SERVER_V4_MDUMP_READY $SERVERS
+	rstrnt-sync-block -s IPVLAN_BASIC_MULTICAST_SERVER_V4_MDUMP_READY $SERVERS
 	rlRun "sleep 5"
 
 	port_num=12960
@@ -813,8 +814,8 @@ then
 		let port_num++
 		rlRun "msend -qq -1 224.9.10.$i $port_num 15 $IFACE_NAME"
 	done
-	rhts-sync-set -s IPVLAN_BASIC_MULTICAST_CLIENT_V4_MSEND_DONE
-	rhts-sync-block -s IPVLAN_BASIC_MULTICAST_SERVER_V6_MDUMP_READY $SERVERS
+	rstrnt-sync-set -s IPVLAN_BASIC_MULTICAST_CLIENT_V4_MSEND_DONE
+	rstrnt-sync-block -s IPVLAN_BASIC_MULTICAST_SERVER_V6_MDUMP_READY $SERVERS
 	rlRun "sleep 5"
 
 	port_num=12960
@@ -823,7 +824,7 @@ then
 		let port_num++
 		rlRun "msend -qq -f 6 -1 ff0e:1234::$i $port_num 15 $IFACE_NAME"
 	done
-	rhts-sync-set -s IPVLAN_BASIC_MULTICAST_CLIENT_V6_MSEND_DONE
+	rstrnt-sync-set -s IPVLAN_BASIC_MULTICAST_CLIENT_V6_MSEND_DONE
 
 else
 	rlRun "ip link add dummy1 type dummy"
@@ -1162,8 +1163,8 @@ then
 		rlRun "ip netns exec netns$i ip -6 route change default dev ipvlan$i || \
 			ip netns exec netns$i ip -6 route add default dev ipvlan$i"
 	done
-	rhts-sync-set -s IPVLAN_MAC_POLLUTION_SERVER_READY
-	rhts-sync-block -s IPVLAN_MAC_POLLUTION_CLIENT_DONE $CLIENTS
+	rstrnt-sync-set -s IPVLAN_MAC_POLLUTION_SERVER_READY
+	rstrnt-sync-block -s IPVLAN_MAC_POLLUTION_CLIENT_DONE $CLIENTS
 	rlRun "netns_clean.sh"
 	rlRun "modprobe -r ipvlan"
 elif i_am_client
@@ -1171,7 +1172,7 @@ then
 	rlRun "get_test_iface_and_addr"
 	rlRun "ip route add 1.1.1.0/24 dev $TEST_IFACE"
 	rlRun "ip -6 route add 1111::/64 dev $TEST_IFACE"
-	rhts-sync-block -s IPVLAN_MAC_POLLUTION_SERVER_READY $SERVERS
+	rstrnt-sync-block -s IPVLAN_MAC_POLLUTION_SERVER_READY $SERVERS
 	rlRun "ping 1.1.1.1 -c 2"
 	rlRun "ipvlan_mac=`ip neigh show | grep 1.1.1.1 | grep -o "lladdr [^ ]*" | awk '{print $2}'`"
 	for i in {2..10}
@@ -1188,7 +1189,7 @@ then
 		rlRun "ip -6 neigh show | grep \"1111::$i.*$ipvlan_mac\""
 		[ $? -ne 0 ] && rlRun -l "ip -6 neigh show"
 	done
-	rhts-sync-set -s IPVLAN_MAC_POLLUTION_CLIENT_DONE
+	rstrnt-sync-set -s IPVLAN_MAC_POLLUTION_CLIENT_DONE
 	rlRun "ip route del 1.1.1.0/24 dev $TEST_IFACE"
 	rlRun "ip -6 route del 1111::/64 dev $TEST_IFACE"
 else
@@ -1256,7 +1257,7 @@ then
 	done
 else
 	rlLog "not support"
-	rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+	rstrnt-report-result "$TEST" SKIP "$OUTPUTFILE"
 	exit 0
 fi
 

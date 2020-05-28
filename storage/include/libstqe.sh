@@ -20,7 +20,7 @@
 source $(dirname $(readlink -f $BASH_SOURCE))/../../cki_lib/libcki.sh
 
 STQE_GIT="https://gitlab.com/rh-kernel-stqe/python-stqe.git"
-STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"f1ddf69b"}
+STQE_STABLE_VERSION=${STQE_STABLE_VERSION:-"stable"}
 LIBSAN_STABLE_VERSION=${LIBSAN_STABLE_VERSION:-"0.3.0"}
 
 function stqe_get_fwroot
@@ -51,8 +51,11 @@ function stqe_init_fwroot
     for cmd in python python3 python2; do
         $cmd -V > /dev/null 2>&1 && python=$cmd && break
     done
-    [[ -n $python ]] || cki_skip_task "python not found"
-
+    if [[ -z $python ]]; then
+        cki_run_cmd_pos "yum install -y python36 python3-pip python3-setuptools" || \
+            cki_abort_task "fail python not found"
+        python="python3"
+    fi
     typeset pip_cmd=$([[ $python == python3 ]] && echo pip3 || echo pip)
     if [[ $fwbranch != "master" ]]; then
         if [[ -n $STQE_STABLE_VERSION ]]; then

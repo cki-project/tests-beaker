@@ -17,4 +17,12 @@
 #
 #Author: Guazhang <guazhang@redhat.com>
 
-rhts-run-simple-test vpd  "./main.sh"
+RESULT=PASS
+# Run main scsi vpd
+./main.sh
+
+res=$?
+if [ $res != 0 ]; then
+    RESULT=FAIL
+fi
+rstrnt-report-result "storage/scsi/vpd" $RESULT $res

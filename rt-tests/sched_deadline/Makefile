@@ -34,7 +34,10 @@ clean:
 	rm -f $(METADATA)
 
 # Include common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA):
 	touch $(METADATA)
@@ -46,5 +49,4 @@ $(METADATA):
 	@echo "Description:	Special deadline_test on rt kernel." >>$(METADATA)
 	@echo "Architectures:	x86_64" >>$(METADATA)
 	@echo "repoRequires:	rt-tests/include" >> $(METADATA)
-
-	rhts-lint $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)

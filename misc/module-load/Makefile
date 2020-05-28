@@ -38,7 +38,10 @@ clean:
 # Add them here:
 
 # Include Common Makefile
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 # Generate the testinfo.desc here:
 $(METADATA): Makefile
@@ -58,5 +61,6 @@ $(METADATA): Makefile
 	@echo "Requires:     kernel-utils"	>> $(METADATA)
 	@echo "Requires:     coreutils"		>> $(METADATA)
 	@echo "Requires:     @development-tools" >> $(METADATA)
+	@echo "RepoRequires: cki_lib"		>> $(METADATA)
 	@echo "License:      GPL" >> $(METADATA)
 	@echo "Owner:        Mike Gahagan <mgahagan@redhat.com>" >> $(METADATA)

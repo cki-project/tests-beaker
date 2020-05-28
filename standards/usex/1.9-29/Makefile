@@ -212,7 +212,10 @@ checkrpm:
 	rpm2cpio rh-tests-kernel*.rpm | cpio --extract --make-directories
 
 # Include a global make rules file
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	touch $(METADATA)
@@ -235,5 +238,6 @@ $(METADATA): Makefile
 	@echo "Requires:	xorg-x11-server-devel"	>> $(METADATA)
 	@echo "Requires:	kernel-headers" >> $(METADATA)
 	@echo "Requires:	glibc-static"	>> $(METADATA)
+	@echo "repoRequires:	cki_lib" >> $(METADATA)
 	@echo "License:		Red Hat Internal" >> $(METADATA)
 

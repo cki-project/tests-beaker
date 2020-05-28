@@ -136,16 +136,24 @@ RprtRslt ()
 {
     TEST=$1
     result=$2
+    knownissue_file=$3
+
+    logfile_run=$OUTPUTDIR/$TEST.run.log
+    logfile_fail=$OUTPUTDIR/$TEST.fail.log
+
+    # Always upload parsed test log for those failed test cases
+    GetFailureLog $logfile_run $knownissue_file > $logfile_fail
+    [ -s $logfile_fail ] && SubmitLog $logfile_fail
 
     # File the results in the database
     if [ "$result" = "PASS" ]; then
         # I want to see the succeeded running log as well
-        SubmitLog "$OUTPUTDIR/$TEST.run.log"
-        report_result $TEST $result
+        SubmitLog $logfile_run
+        rstrnt-report-result $TEST $result
     else
-        SubmitLog "$OUTPUTDIR/$TEST.run.log"
+        SubmitLog $logfile_run
         score=$(cat $OUTPUTDIR/$RUNTEST.log | grep "Total Failures:" |cut -d ' ' -f 3)
-        report_result $TEST $result $score
+        rstrnt-report-result $TEST $result $score
     fi
 }
 
@@ -153,7 +161,7 @@ SubmitLog ()
 {
     LOG=$1
 
-    rhts_submit_log -S $RESULT_SERVER -T $TESTID -l $LOG
+    rstrnt-report-log -S $RESULT_SERVER -T $TESTID -l $LOG
 }
 
 CleanUp ()
@@ -271,7 +279,8 @@ skip_testcase ()
 RunTest ()
 {
     RUNTEST=$1
-    OPTIONS=$2 # pass other options here, like "-b /dev/sda5 -B xfs"
+    KNOWNISSUE_FILE=$2
+    OPTIONS=$3 # pass other options here, like "-b /dev/sda5 -B xfs"
 
     ProtectHarnessFromOOM
 
@@ -327,10 +336,10 @@ RunTest ()
             if [ "$res" != "FAIL" ]; then
                 continue
             fi
-            RprtRslt $RUNTEST/$test $res $ret
+            RprtRslt $RUNTEST/$test $res $KNOWNISSUE_FILE
         done < $OUTPUTDIR/$RUNTEST.log
     fi
-    RprtRslt $RUNTEST $result_r
+    RprtRslt $RUNTEST $result_r $KNOWNISSUE_FILE
 
     # Restore AVC check
     if echo $RUNTEST | grep -q CGROUP; then
@@ -344,9 +353,18 @@ RunFiltTest ()
         rm -f $OUTPUTDIR/filtered_runtest.log
         rm -f $OUTPUTDIR/filtered_runtest.run.log
 
-        RunTest filtered_runtest "$OPTS"
+        RunTest filtered_runtest "" "$OPTS"
         return 0
     fi
 
     return 1
+}
+
+GetFailureLog ()
+{
+    local logfile=${1?"*** log file ***"}
+    local kifile=${2?"*** known issue file ***"}
+    local thisdir=$(dirname $(readlink -f $BASH_SOURCE))
+    local parser=$thisdir/ltp_log_parser.py
+    python3 $parser -f $kifile -F -t 0 $logfile
 }

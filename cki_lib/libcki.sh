@@ -8,7 +8,30 @@
 #       2) All global variables start with 'CKI_'.
 #
 
-source /usr/bin/rhts_environment.sh
+# Set CKI test environment
+if [ -z "$OUTPUTFILE" ]; then
+        export OUTPUTFILE=`mktemp /mnt/testarea/tmp.XXXXXX`
+fi
+
+if [ -z "$ARCH" ]; then
+        ARCH=$(uname -i)
+fi
+
+if [ -z "$FAMILY" ]; then
+        FAMILY=$(cat /etc/redhat-release | sed -e 's/\(.*\)release\s\([0-9]*\).*/\1\2/; s/\s//g')
+fi
+
+# Set well-known logname so users can easily find
+# current tasks log file.  This well-known file is also
+# used by the local watchdog to upload the log
+# of the current task.
+if [ -h /mnt/testarea/current.log ]; then
+        ln -sf $OUTPUTFILE /mnt/testarea/current.log
+else
+        ln -s $OUTPUTFILE /mnt/testarea/current.log
+fi
+
+# Include beaker library
 source /usr/share/beakerlib/beakerlib.sh
 
 CKI_RC_POS=0
@@ -46,11 +69,11 @@ function cki_abort_recipe()
 
     echo "❌ ${failure_message}"
     if [[ $failure_type == 'WARN' ]]; then
-        report_result ${TEST} WARN 99
+        rstrnt-report-result ${TEST} WARN 99
     else
-        report_result ${TEST} FAIL 1
+        rstrnt-report-result ${TEST} FAIL 1
     fi
-    rhts-abort -t recipe
+    rstrnt-abort -t recipe
     exit $CKI_STATUS_ABORTED
 }
 
@@ -68,7 +91,7 @@ function cki_skip_task()
     typeset reason="$*"
     [[ -z $reason ]] && reason="unknown reason"
     cki_log "Skipping current task: $reason"
-    rhts-report-result "$TEST" SKIP "$OUTPUTFILE"
+    rstrnt-report-result "$TEST" SKIP "$OUTPUTFILE"
     exit $CKI_STATUS_COMPLETED
 }
 
@@ -236,7 +259,7 @@ function cki_pd()
 function cki_debug
 {
     typeset -l s=$DEBUG
-    if [[ $s == @(yes|true) ]]; then
+    if [[ "$s" == "yes" || "$s" == "true" ]]; then
         export PS4='__DEBUG__: [$FUNCNAME@$BASH_SOURCE:$LINENO|$SECONDS]+ '
         set -x
     fi
@@ -250,7 +273,7 @@ function cki_get_yum_tool()
         echo /usr/bin/yum
     else
         echo "No tool to download kernel from a repo" >&2
-        rhts-abort -t recipe
+        rstrnt-abort -t recipe
         exit 0
     fi
 }

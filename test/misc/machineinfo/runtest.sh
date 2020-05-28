@@ -15,7 +15,7 @@
 #
 # Author: Artem Savkov <asavkov@redhat.com>
 
-. /usr/bin/rhts_environment.sh
+. ../../../cki_lib/libcki.sh || exit 1
 
 set +x
 
@@ -26,9 +26,9 @@ echo "arch: $(uname -m)" > ${MDESC}
 lshw -class cpu -short >> ${MDESC}
 lshw -json -sanitize -notime > ${DATAFILE}
 
-rhts_submit_log -l ${MDESC}
-rhts_submit_log -l ${DATAFILE}
-report_result $TEST PASS 0
+rstrnt-report-log -l ${MDESC}
+rstrnt-report-log -l ${DATAFILE}
+rstrnt-report-result $TEST PASS 0
 
 rm ${DATAFILE}
 exit 0

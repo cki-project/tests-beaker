@@ -10,4 +10,4 @@ destructive=no
 entry_point=make run
 dependencies=automake;autoconf;procmail;flex;bison;rsyslog;util-linux;rpm-build;gcc;wget;kernel-headers;redhat-lsb;bc;kernel-devel;libaio-devel;libcap-devel;libcgroup;strace
 softDependencies=numactl;numactl-devel;redhat-lsb;ntpdate;chrony
-repoRequires=distribution/ltp/include
+repoRequires=distribution/ltp/include;cki_lib

@@ -42,7 +42,10 @@ clean:
 	rm -f *~ $(BUILT_FILES)
 
 
-include /usr/share/rhts/lib/rhts-make.include
+# Common Variables
+TEST_DIR=/mnt/tests$(TEST)
+INSTALL_DIR=$(DEST)$(TEST_DIR)
+METADATA=testinfo.desc
 
 $(METADATA): Makefile
 	@echo "Owner:           Eva Mrakova <emrakova@redhat.com>" > $(METADATA)
@@ -53,6 +56,7 @@ $(METADATA): Makefile
 	@echo "Type:            Regression" >> $(METADATA)
 	@echo "RunFor:          redhat-rpm-config" >> $(METADATA)
 	@echo "Requires:        redhat-rpm-config kernel-rpm-macros rpm-build kernel-devel kernel-abi-whitelists gcc kernel-devel elfutils-libelf-devel" >> $(METADATA)
+	@echo "repoRequires:    cki_lib" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
 	@echo "License:         GPLv2+" >> $(METADATA)
 	@echo "Confidential:    no" >> $(METADATA)
@@ -60,5 +64,3 @@ $(METADATA): Makefile
 	@echo "Architectures:   x86_64 ppc64 ppc64le s390x" >> $(METADATA)
 	@echo "Bug:             1619235" >> $(METADATA)
 	@echo "Releases:        -RHEL4 -RHELClient5 -RHELServer5 -RHEL6" >> $(METADATA)
-
-	rhts-lint $(METADATA)

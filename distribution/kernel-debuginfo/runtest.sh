@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-. /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 YUM=$(command -v yum)
 if [ -z "$YUM" ]
@@ -11,17 +11,17 @@ fi
 
 function test_pass()
 {
-	report_result $TEST PASS 0
+	rstrnt-report-result $TEST PASS 0
 }
 
 function test_fail()
 {
-	report_result $TEST FAIL 1
+	rstrnt-report-result $TEST FAIL 1
 }
 
 function test_skip()
 {
-	report_result $TEST SKIP 0
+	rstrnt-report-result $TEST SKIP 0
 }
 
 function nvr_kernel_current()

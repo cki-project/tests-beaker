@@ -21,11 +21,11 @@ if [[ ${_DEBUG_MODE} == "yes" ]]; then
 	#
 	# XXX: Don't involve the test harness if debug mode is enabled which
 	#      is very helpful to manually run a single case without invoking
-	#      function report_result() provided by test harness
+	#      function rstrnt-report-result() provided by test harness
 	#
-	function report_result { echo "$@"; }
+	function rstrnt-report-result { echo "$@"; }
 else
-	source /usr/bin/rhts_environment.sh
+	source ../../cki_lib/libcki.sh
 fi
 
 NAME=$(basename $0)
@@ -85,13 +85,13 @@ function do_test
 
 	typeset -i ret=0
 	if [[ $result == "PASS" ]]; then
-		report_result "$TEST/tests/$test_case" PASS 0
+		rstrnt-report-result "$TEST/tests/$test_case" PASS 0
 		ret=0
 	elif [[ $result == "FAIL" ]]; then
-		report_result "$TEST/tests/$test_case" FAIL 1
+		rstrnt-report-result "$TEST/tests/$test_case" FAIL 1
 		ret=1
 	else
-		report_result "$TEST/tests/$test_case" WARN 2
+		rstrnt-report-result "$TEST/tests/$test_case" WARN 2
 		ret=2
 	fi
 
@@ -224,11 +224,11 @@ function get_test_cases_nvme
 		#testcases+=" nvme/005" modprobe/modprobe -r nvme-core will be failed
 		testcases+=" nvme/006"
 		testcases+=" nvme/007"
-		testcases+=" nvme/008"
+		uname -ri | grep -qE "4.18.0-.*ppc64le" || testcases+=" nvme/008"
 		testcases+=" nvme/009"
 		testcases+=" nvme/010"
 		uname -r | grep -Eq "5\.|4.18.0" || testcases+=" nvme/011"
-		testcases+=" nvme/012"
+		uname -r | grep -q "4.18.0-80" || testcases+=" nvme/012"
 		uname -r | grep -qE "5\.|4.18.0" || testcases+=" nvme/013"
 		testcases+=" nvme/014"
 		uname -r | grep -qE "5\.|4.18.0" || testcases+=" nvme/015"

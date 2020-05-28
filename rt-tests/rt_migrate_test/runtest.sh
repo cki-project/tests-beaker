@@ -10,9 +10,9 @@ function RprtRslt ()
 
     # File the results in the database
     if [ $result = "PASS" ]; then
-	    report_result $test_item $result 0
+	    rstrnt-report-result $test_item $result 0
     else
-        report_result $test_item $result 1
+        rstrnt-report-result $test_item $result 1
     fi
 }
 

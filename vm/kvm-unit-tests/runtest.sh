@@ -1,5 +1,5 @@
 #!/bin/bash
-. /usr/bin/rhts_environment.sh
+. ../../cki_lib/libcki.sh || exit 1
 
 export ACCEL=kvm
 unset ARCH
@@ -60,12 +60,12 @@ if (( $? == 0 )); then
         echo "Hardware supports virtualization, proceeding" | tee -a $OUTPUTFILE
     else
         echo "Skipping test, CPU doesn't support virtualization" | tee -a $OUTPUTFILE
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit
     fi
 else
     echo "Skipping test, test is only supported on x86_64, aarch64, ppc64 or s390x" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 
@@ -74,7 +74,7 @@ if [ "$cpus" -gt 1 ]; then
     echo "You have sufficient CPU's to run the test" | tee -a $OUTPUTFILE
 else
     echo "Skipping test, system requires > 1 CPU" | tee -a $OUTPUTFILE
-    rhts-report-result $TEST SKIP $OUTPUTFILE
+    rstrnt-report-result $TEST SKIP $OUTPUTFILE
     exit
 fi
 
@@ -104,8 +104,8 @@ if [[ $hwpf == "x86_64" ]]; then
     for opt in $KVM_OPTIONS_X86; do
         if [ ! -f "$KVM_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
-            report_result $TEST WARN
-            rhts-abort -t recipe
+            rstrnt-report-result $TEST WARN
+            rstrnt-abort -t recipe
         else
             echo "kernel option $opt is set" | tee -a $OUTPUTFILE
         fi
@@ -113,8 +113,8 @@ if [[ $hwpf == "x86_64" ]]; then
     for opt in $KVM_ARCH_OPTIONS_X86; do
         if [ ! -f "$KVM_ARCH_SYSFS/$opt" ]; then
             echo "kernel option $opt not set" | tee -a $OUTPUTFILE
-            report_result $TEST WARN
-            rhts-abort -t recipe
+            rstrnt-report-result $TEST WARN
+            rstrnt-abort -t recipe
         else
             echo "kernel option $opt is set" | tee -a $OUTPUTFILE
         fi
@@ -143,8 +143,8 @@ fi
 
 if [ -z "$QEMU" ]; then
     echo "Can't find qemu binary" | tee -a $OUTPUTFILE
-    report_result $TEST WARN
-    rhts-abort -t recipe
+    rstrnt-report-result $TEST WARN
+    rstrnt-abort -t recipe
 fi
 
 # if running on rhel8, use python3
@@ -161,8 +161,8 @@ cd kvm-unit-tests
 git checkout dc9841d08fa1796420a64ad5d5ef652de337809d
 if [ $? -ne 0 ]; then
     echo "Failed to clone and checkout commit from kvm-unit-tests" | tee -a $OUTPUTFILE
-    report_result $TEST WARN
-    rhts-abort -t recipe
+    rstrnt-report-result $TEST WARN
+    rstrnt-abort -t recipe
 fi
 
 # update unittests.cfg to exclude known failures
@@ -184,8 +184,40 @@ cat test.log | tee -a $OUTPUTFILE
 # check for any new failures
 grep FAIL test.log >> failures.txt
 
+# Run KVM Unit tests with Advanced Virt (qemu-4.0) if possible
+if dnf repolist --all | grep rhel8-advvirt; then
+    dnf module -y reset virt
+    dnf module -y --enablerepo=rhel8-advvirt enable virt:8.1
+    dnf update -y --enablerepo=rhel8-advvirt qemu-*
+
+    git clean -fdx
+    git reset --hard
+
+    cp ../x86_adv_unittests.cfg x86/unittests.cfg
+    cp ../aarch64_unittests.cfg arm/unittests.cfg
+    cp ../s390x_unittests.cfg s390x/unittests.cfg
+
+    # run the tests
+    if [[ $hwpf == "ppc64" || $hwpf == "ppc64le" ]]; then
+        ./configure --endian=little
+    else
+        ./configure
+    fi
+    make
+    ./run_tests.sh -v > testadv.log 2>&1
+    cat testadv.log | tee -a $OUTPUTFILE
+
+    # check for any new failures
+    grep FAIL testadv.log >> failures.txt
+
+    # cleanup Advanced VIRT repo and downgrade QEMU version
+    dnf module -y reset virt
+    dnf module -y enable virt
+    dnf downgrade -y qemu-*
+fi
+
 # submit logs to beaker
-which rhts-submit-log > /dev/null 2>&1
+which rstrnt-report-log > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     logs=$(ls logs/*.log)
     testlog="tests_run.log"
@@ -200,14 +232,14 @@ if [[ $? -eq 0 ]]; then
         printf "[END ${log} LOG]\n\n" >> ${testlog}
     done
     echo "Submitting the following log to beaker: ${testlog}"
-    rhts-submit-log -l ${testlog}
+    rstrnt-report-log -l ${testlog}
 fi
 
 # number of failures is our return code
 ret=$(wc -l failures.txt  | awk '{print $1}')
 if [ $ret -gt 0 ]; then
-        report_result "done" "FAIL" 1
+        rstrnt-report-result "done" "FAIL" 1
 else
-        report_result "done" "PASS" 0
+        rstrnt-report-result "done" "PASS" 0
 fi
 exit 0

@@ -17,7 +17,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-. /usr/bin/rhts-environment.sh || exit 1
+. ../../../cki_lib/libcki.sh || exit 1
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
 g_rc_any="0-255" # XXX: make sure rlRun supports any return code
@@ -98,7 +98,7 @@ function scsi_level(){
 
     if (( $flag == 0 )); then
         rlLog "Skipping test because test device not found"
-        rhts-report-result $TEST SKIP $OUTPUTFILE
+        rstrnt-report-result $TEST SKIP $OUTPUTFILE
         exit 0
     fi
 }
