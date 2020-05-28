@@ -9,8 +9,17 @@ function get_pkgs
     typeset pkgs=""
     typeset keyword=""
     for keyword in "dependencies" "softDependencies"; do
-        pkgs+=" $(egrep "^$keyword=" $metadata_file | \
-            awk -F'=' '{print $NF}' | tr ';' ' ')"
+        typeset kv=$(egrep "^$keyword=" $metadata_file)
+        [[ -z $kv ]] && continue
+
+        # convert ';' to ',' as a new var $keyword will be created via eval
+        kv=$(echo $kv | sed 's/;/,/g')
+        # strip comment starting with '#'
+        eval "$kv"
+
+        eval _pkgs=\$${keyword}
+        pkgs+=" $(echo $_pkgs | sed 's/,/ /g')"
+        unset _pkgs $keyword
     done
     echo $pkgs
 }

@@ -1,5 +1,5 @@
 [General]
-name=/kernel/networking/ipsec/ipsec_basic/ipsec_basic_netns
+name=networking/ipsec/ipsec_basic/ipsec_basic_netns
 owner=Xiumei Mu <xmu@redhat.com>
 description=ipsec compression test
 license=GPLv2
@@ -7,6 +7,6 @@ confidential=no
 destructive=no
 
 [restraint]
-entry_point=make run
-dependencies=socat;iproute
-repoRequires=networking/common;cki_lib
+entry_point=bash ./runtest.sh
+dependencies=iproute;socat
+repoRequires=cki_lib;networking/common

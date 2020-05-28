@@ -1,0 +1,13 @@
+[General]
+name=networking/tcp/tcp_keepalive
+owner=Xiumei Mu <xmu@redhat.com>
+description=Networking TCP keepalive test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=bc;bzip2;gcc;git;nmap;patch;rsync;socat;tcpdump;texinfo;traceroute;wget
+softDependencies=kernel-modules-extra
+repoRequires=cki_lib

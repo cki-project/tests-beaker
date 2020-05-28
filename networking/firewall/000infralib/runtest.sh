@@ -31,6 +31,7 @@
 # Include Beaker environment
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 
+export TEST="networking/firewall/000infralib"
 #
 # Select tool to manage package, which could be "yum" or "dnf"
 # Note global variable YUM will be used later

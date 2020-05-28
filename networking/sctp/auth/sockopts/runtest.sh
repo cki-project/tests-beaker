@@ -20,6 +20,8 @@
 . /usr/share/beakerlib/beakerlib.sh || exit 1
 . ./common/include.sh || exit 1
 
+export TEST="networking/sctp/auth/sockopts"
+
 rlJournalStart
 
 ########################## Setup ################################
@@ -36,7 +38,7 @@ rlPhaseStartSetup
     rlRun "lsmod | grep sctp || modprobe sctp" "0-255"
     rlRun "sysctl -w net.sctp.auth_enable=1" 0
     rlRun "sysctl -w net.sctp.addip_enable=1" 0
-    rlRun "./make_register_tests.sh test_cases.c test_sctp_sockopts.c" 0
+    rlRun "bash ./make_register_tests.sh test_cases.c test_sctp_sockopts.c" 0
     rlRun "gcc -I ./lib -o api_tests ./lib/sctp_utilities.c test_sctp_sockopts.c test_cases.c api_tests.c -lsctp" 0
 rlPhaseEnd
 

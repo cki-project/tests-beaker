@@ -41,6 +41,18 @@ if [[ $kernel_name =~ "rt" ]]; then
      $YUM install -y kernel-rt-modules-extra
 fi
 
+# Build binaries in test_tools in setup phase
+function setup
+{
+    typeset this_file=$(readlink -f $BASH_SOURCE)
+    typeset this_dir=$(dirname $this_file)
+    pushd $this_dir
+    cd $this_dir/test_tools && make
+    popd
+}
+
+setup
+
 PACKAGE="kernel"
 # Use random group address
 GROUP_ADDR[4]="239.$((${RANDOM}%254+1)).$((${RANDOM}%254+1)).$((${RANDOM}%254+1))"

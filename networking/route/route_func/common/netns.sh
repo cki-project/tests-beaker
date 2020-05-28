@@ -137,7 +137,9 @@ default_local_cleanup()
 	unset R_R_MAC1
 	unset R_R_MAC2
 
-	netns_clean.sh
+	typeset this_dir=$(dirname $(readlink -f $BASH_SOURCE))
+	typeset net_root="${this_dir%/networking/route/*}/networking"
+	bash $net_root/common/tools/netns_clean.sh
 }
 
 

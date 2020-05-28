@@ -1,5 +1,5 @@
-# vxlan basic test
-Basic test for vxlan: add and delete vxlan, run ping and netperf on vxlan device \
+# l2tp basic test
+Basic test for l2tp. \
 This test is supported in both single host and multi-host environment \
 Test Maintainer: [Jianlin Shi](mailto:jishi@redhat.com), and [Hangbin Liu](mailto:haliu@redhat.com)
 

@@ -25,6 +25,10 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+FILE=$(readlink -f $BASH_SOURCE)
+CDIR=$(dirname $FILE)
+NET_COMMON_ROOT="${CDIR%/networking/route/*}/networking/common"
+
 # Include internal libray
 . ../../../cki_lib/libcki.sh || exit 1
 . ../../common/include.sh || exit 1
@@ -32,7 +36,6 @@
 TEST_TYPE=${TEST_TYPE:-"netns"}
 ROUTE_MODE=${ROUTE_MODE:-"local"}
 . ./include.sh || exit 1
-
 
 # Parameters
 
@@ -45,7 +48,7 @@ TEST_TOPO=${TEST_TOPO:-"default"}
 
 rlJournalStart
 rlPhaseStartSetup
-	[ x"$TEST_TYPE" == x"netns" ] && netns_clean.sh
+	[[ $TEST_TYPE == "netns" ]] && bash $NET_COMMON_ROOT/tools/netns_clean.sh
 	# would fail sometimes
 	# only used in route_fuzz_test which would not run
 	#rlRun "which iperf || iperf_install"
