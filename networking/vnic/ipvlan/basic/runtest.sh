@@ -202,22 +202,9 @@ rlPhaseStartTest "local_netns"
 	rlRun "ip netns exec server ip route add 1.1.1.0/24 dev ipvlan_s"
 	rlRun "ip netns exec server ip -6 route add 1111::/64 dev ipvlan_s"
 
-	rlRun "ip netns exec server netserver -d"
 	rlRun "ip netns exec client ping 2.2.2.171 -c 5"
 	rlRun "ip netns exec client ping6 2222::171 -c 5"
-	rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t TCP_STREAM -l 2 -- -m 16k"
-	if ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 1
-	then
-		rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 2 -- -m 16k"
-	fi
-	rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t UDP_STREAM -l 2 -- -R 1"
 
-	rlRun "ip netns exec client netperf -6 -H 2222::171 -t TCP_STREAM -l 2 -- -m 16k"
-	if ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 1
-	then
-		rlRun "ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 2 -- -m 16k"
-	fi
-	rlRun "ip netns exec client netperf -6 -H 2222::171 -t UDP_STREAM -l 2 -- -R 1"
 
 	for mode in l2 l3s
 	do
@@ -230,26 +217,12 @@ rlPhaseStartTest "local_netns"
 			rlRun "ip netns exec client ping 2.2.2.171 -c 2"
 			waitbeforepass 30 "ip netns exec client ping6 2222::171 -c 1"
 			rlRun "ip netns exec client ping6 2222::171 -c 2"
-			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t TCP_STREAM -l 2 -- -m 16k"
-			# run only when netperf support sctp_stream
-			if ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 1
-			then
-				rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t SCTP_STREAM -l 2 -- -m 16k"
-			fi
-			rlRun "ip netns exec client netperf -4 -H 2.2.2.171 -t UDP_STREAM -l 2 -- -R 1"
 
-			rlRun "ip netns exec client netperf -6 -H 2222::171 -t TCP_STREAM -l 2 -- -m 16k"
-			if ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 1
-			then
-				rlRun "ip netns exec client netperf -6 -H 2222::171 -t SCTP_STREAM -l 2 -- -m 16k"
-			fi
-			rlRun "ip netns exec client netperf -6 -H 2222::171 -t UDP_STREAM -l 2 -- -R 1"
 		done
 
 	done
 
 	rlRun "ip netns exec client ip link set ipvlan_c netns 1"
-	rlRun "ip netns exec server pkill netserver" "0-255"
 	rlRun "ip netns del client"
 	rlRun "ip netns del server"
 	rlRun "ip link del ipvlan_c"
@@ -1273,7 +1246,6 @@ TEST_ITEMS=${TEST_ITEMS:-$TEST_ITEMS_ALL}
 rlJournalStart
 	rlPhaseStartSetup
 	rlRun "get_test_iface"
-	rlRun "netperf_install"
 	rlPhaseEnd
 
 if ip link add link $TEST_IFACE name ipvlan1 type ipvlan mode l3
