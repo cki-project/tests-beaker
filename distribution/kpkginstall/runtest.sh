@@ -61,7 +61,7 @@ function set_package_name()
 
   # If the pipeline provides the package name after the # sign in the URL, we
   # can use that here and be done really fast.
-  if [ ! -z "${KPKG_VAR_PACKAGE_NAME:-}" ]; then
+  if [ -n "${KPKG_VAR_PACKAGE_NAME:-}" ]; then
     PACKAGE_NAME=$KPKG_VAR_PACKAGE_NAME
     cki_print_success "Found package name in URL variables: ${PACKAGE_NAME}"
   fi
@@ -140,7 +140,7 @@ function targz_install()
   case ${ARCH} in
     ppc64|ppc64le)
       for xname in $(ls /boot/vmlinux-*${KVER}); do
-        zname=$(echo "${xname}" | sed "s/x-/z-/")
+        zname="${xname//x-/z-}"
         mv ${xname} ${zname}
       done
       ;;
@@ -312,7 +312,7 @@ function rpm_install()
     cki_print_success "Installed ${PACKAGE_NAME}-headers-${KVER} successfully"
   else
     cki_print_warning "No package kernel-headers-${KVER} found, trying without exact ${KVER}"
-    ALT_HEADERS=`ls ${PACKAGE_NAME}-headers* | grep -v src.rpm | head -1`
+    ALT_HEADERS=$(ls ${PACKAGE_NAME}-headers* | grep -v src.rpm | head -1)
     if $YUM install -y "${ALT_HEADERS}" > /dev/null; then
         cki_print_success "Installed ${ALT_HEADERS} successfully"
     else
