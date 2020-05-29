@@ -66,14 +66,6 @@ function set_package_name()
     cki_print_success "Found package name in URL variables: ${PACKAGE_NAME}"
   fi
 
-  # If we don't know the package name at this point, then we need to determine
-  # it from the repository itself.
-  # NOTE(mhayden): This is a little less reliable and should be removed in the
-  # future when all instance of KPKG_URL have package names specified.
-  if [ -z "${PACKAGE_NAME:-}" ]; then
-    get_package_name_from_repo
-  fi
-
   # Append "-debug" if we were asked to install the debug kernel.
   if [[ "${KPKG_VAR_DEBUG:no}" == "yes" ]]; then
     cki_print_info "Debug kernel was requested -- appending -debug to package name"
@@ -83,52 +75,6 @@ function set_package_name()
   # Write the PACKAGE_NAME to a file so we have it after reboot.
   echo -n "${PACKAGE_NAME}" > /kpkginstall/KPKG_PACKAGE_NAME
   cki_print_success "Package name is set: ${PACKAGE_NAME} (cached to disk)"
-}
-
-function get_package_name_from_repo()
-{
-  # Detemine the package name based on the packages found in the RPM
-  # repository.
-  # NOTE(mhayden): This is a little less reliable and should be removed in the
-  # future when all instance of KPKG_URL have package names specified.
-
-  if [[ "${KPKG_URL}" =~ ^[^/]+/[^/]+$ ]] ; then
-    # COPR
-    REPO_NAME=${KPKG_URL/\//-}
-  else
-    # Normal RPM repo we create
-    REPO_NAME='kernel-cki'
-  fi
-
-  ALL_PACKAGES=$(${YUM} -q --disablerepo="*" --enablerepo="${REPO_NAME}" list "${ALL}" --showduplicates | tr "\n" "#" | sed -e 's/# / /g' | tr "#" "\n" | grep "^kernel.*\.$ARCH.*${REPO_NAME}")
-
-  # An empty result for ALL_PACKAGES likely means that the repo has been
-  # deleted from GitLab's artifact storage.
-  if [ -z "${ALL_PACKAGES}" ]; then
-    cat << EOF
-*******************************************************************************
-*******************************************************************************
-** 🔥 No packages were found on the RPM repository provided for this test.   **
-** This usually happens when the artifacts for a test job are no             **
-** longer available.                                                         **
-**                                                                           **
-** For more details, email cki-project@redhat.com.                           **
-*******************************************************************************
-*******************************************************************************
-EOF
-    cki_abort_recipe "RPM repository is unavailable" FAIL
-  fi
-
-  for possible_name in "kernel-rt" ; do
-    if echo "$ALL_PACKAGES" | grep $possible_name ; then
-      PACKAGE_NAME=$possible_name
-      cki_print_success "Found package name in repository: ${PACKAGE_NAME}"
-      break
-    fi
-  done
-  if [[ -z $PACKAGE_NAME ]] ; then
-      PACKAGE_NAME=kernel
-  fi
 }
 
 function get_kpkg_ver()
