@@ -32,6 +32,7 @@
 . ./common/service.sh || exit 1
 . ./common/install.sh || exit 1
 
+export TEST="networking/route/pmtu"
 YUM=$(cki_get_yum_tool)
 
 kernel_name=$(uname -r)

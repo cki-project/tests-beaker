@@ -2,6 +2,7 @@
 
 . ../../../cki_lib/libcki.sh || exit 1
 
+export TEST="networking/driver/sanity"
 COUNT=0
 
 #

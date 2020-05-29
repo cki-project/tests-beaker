@@ -1,0 +1,12 @@
+[General]
+name=networking/bridge/sanity_check
+owner=Fei Liu <feliu@redhat.com>
+description=Networking bridge sanity test
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+softDependencies=bridge-utils
+repoRequires=cki_lib;networking/common;networking/bridge/common

@@ -1,0 +1,13 @@
+[General]
+name=networking/route/pmtu
+owner=Jianlin Shi <jishi@redhat.com>
+description=Networking pmtu tests 
+license=GPLv2
+confidential=no
+destructive=no
+
+[restraint]
+entry_point=bash ./runtest.sh
+dependencies=bc;bind-utils;bzip2;ethtool;expect;gcc;git;iproute;libteam;libtool;nc;net-tools;nmap;nmap-ncat;patch;rsync;socat;tcpdump;teamd;texinfo;traceroute;wget
+softDependencies=bridge-utils;pexpect;python3-pexpect
+repoRequires=cki_lib;networking/common

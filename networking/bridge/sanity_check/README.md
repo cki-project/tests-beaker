@@ -3,12 +3,14 @@ This suite provides bridge sanity testing.
 Test Maintainer: [Fei Liu](mailto:feliu@redhat.com)
 
 ## How to run it
+Please refer to the top-level README.md for common dependencies.
 
-### Dependencies
-Please refer to the top-level README.md for common dependencies. Test-specific
-dependencies will automatically be installed when executing 'make run'.
+### Install dependencies
+```bash
+root# bash ../../../cki_bin/pkgs_install.sh metadata
+```
 
 ### Execute the test
 ```bash
-$ make run
+bash ./runtest.sh
 ```

@@ -1,13 +1,12 @@
 [General]
-name=networking/tunnel/gre/basic
+name=networking/tunnel/l2tp/basic
 owner=Jianlin Shi<jishi@redhat.com>
-description=Tunnel GRE basic test
+description=l2tp basic test
 license=GPLv2
 confidential=no
 destructive=no
 
 [restraint]
 entry_point=bash ./runtest.sh
-dependencies=bzip2;gcc;git;net-tools;patch;socat;tcpdump;wget
-softDependencies=kernel-modules-extra
+dependencies=net-tools
 repoRequires=cki_lib;networking/common;networking/tunnel/common

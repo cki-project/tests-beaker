@@ -30,6 +30,11 @@
 . ../../../../cki_lib/libcki.sh || exit 1
 . ../../../common/include.sh
 
+FILE=$(readlink -f $BASH_SOURCE)
+CDIR=$(dirname $FILE)
+NET_COMMON_ROOT="${CDIR%/networking/ipsec/*}/networking/common"
+export TEST="networking/ipsec/ipsec_basic/ipsec_basic_netns"
+
 ipsec_stat(){
 	local flow_proto=$1
 	local when=$2
@@ -168,7 +173,7 @@ rlJournalStart
 		[ $KMEMLEAK == "enable" ] && rlRun "cat /sys/kernel/debug/kmemleak > kmemleak.before"
 		THRESHOLD=${THRESHOLD:-"10"}
 		SUB_PARAM=${SUB_PARAM:-"-p esp -e aes -m tunnel -s '10 65450'"}
-		rlRun "source ipsec-parameter-setting.sh $SUB_PARAM"
+		rlRun "source $CDIR/ipsec-parameter-setting.sh $SUB_PARAM"
 		uname -r | grep el6 && {
 			rlLog "For el6, Maximum data of ping6 is smaller than that on el7(due to sendbuf size),not test max data for el6"
 			rlRun "IPSEC_SIZE_ARRAY='10 10000'"
@@ -177,7 +182,7 @@ rlJournalStart
 		[ $TEST_VER -eq 4 ] && ping="ping" || ping="ping6"
 		rlRun "spi1='0x$SPI'"
 		rlRun "spi2='0x$(( $SPI + 1 ))'"
-		rlRun "source netns_1_net.sh"
+		rlRun "source $NET_COMMON_ROOT/tools/netns_1_net.sh"
 		rlRun "$HA ip xfrm state add src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]} spi $spi1 $PROTO $ALG mode $IPSEC_MODE sel src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]}"
 		rlRun "$HA ip xfrm state add src ${HB_IP[$TEST_VER]} dst ${HA_IP[$TEST_VER]} spi $spi2 $PROTO $ALG mode $IPSEC_MODE sel src ${HB_IP[$TEST_VER]} dst ${HA_IP[$TEST_VER]}"
 		rlRun "$HA ip xfrm policy add dir out src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]} tmpl src ${HA_IP[$TEST_VER]} dst ${HB_IP[$TEST_VER]} $PROTO mode $IPSEC_MODE"
@@ -198,7 +203,7 @@ rlJournalStart
 	rlPhaseEnd
 
 	rlPhaseStartCleanup
-		rlRun "netns_clean.sh"
+		rlRun "bash $NET_COMMON_ROOT/tools/netns_clean.sh"
 		rlFileSubmit $PERF_RESULTS
 		if [ $KMEMLEAK == "enable" ];then
 			rlRun "sleep 180" && rlRun "echo scan > /sys/kernel/debug/kmemleak"

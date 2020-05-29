@@ -1,57 +1,22 @@
-This test is used for socket api fuzz testing.
+# networking/socket/fuzz
+This suite provides socket api fuzz testing.
+Test Maintainer: [Hangbin Liu](mailto:haliu@redhat.com)
 
-Note:
+## How to run it
+Please refer to the top-level README.md for common dependencies.
 
-Not support RHEL5 yet.
+### Install dependencies
+```bash
+root# bash ../../../cki_bin/pkgs_install.sh metadata
+```
 
-How to test:
+### Execute the test
+```bash
+bash ./runtest.sh
+```
 
-We will create a socket randomly. If create success and in our testing type.
-Then use it and run related tests.
-
-pseudo-code:
-
-int main(int argc, char **argv)
-{
-	int sockfd, family, type;
-
-	sockfd = create_socket();
-
-	switch(tpye) {
-		case TCP:
-			TCP_test(sockfd);
-		case UDP:
-			UDP_test(sockfd);
-		default:
-			do_nothing;
-	}
-}
-
-int udp_test()
-{
-	if ( udp_server == 0 ) {
-		start_udp_server(sockfd);
-	} else if ( udp_client < 10 ) {
-		start_udp_client(sockfd);
-	}
-}
-
-int start_udp_server(int sockfd)
-{
-	if ( fork() != 0 )
-		return 0;
-
-	start_set_options(sockfd);
-
-	for ( ; ; ) {
-		recvmsg();
-		sendto();
-	}
-}
-
-TODO:
-
-1) Add IGMP test
-2) Update setopt.c
-
-Know Issues:
+## TODO
+1. Add IGMP support
+1. Add SCTP support
+1. Add IPv6 support
+1. Let server/client close socket randomly

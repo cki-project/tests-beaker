@@ -268,10 +268,6 @@ then
 	[ "$AVC_CHECK" = yes ] && enable_avc_check || disable_avc_check
 else
 	{
-	# make sure all required packages are installed
-	make testinfo.desc
-	packages=`awk -F: '/Requires:/ {print $2}' testinfo.desc`
-	yum install -y $packages --skip-broken
 	yum info kernel-modules-extra && yum install kernel-modules-extra -y --skip-broken
 
 	# ssh to switch would fail with error "no matching key exchange method found. Their offer: diffie-hellman-group1-sha1" on rhel8

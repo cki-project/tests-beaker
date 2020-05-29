@@ -71,6 +71,8 @@ rlJournalStart
        rlRun "interval=1" 0
        rlRun "maxpkt=10" 0
        rlRun "port=7811"
+       # build keepalive
+       rlRun "gcc -g -Wall -o keepalive keepalive.c"
     rlPhaseEnd
 
     rlPhaseStartTest "host"
@@ -94,7 +96,7 @@ rlJournalStart
 
     rlPhaseStartTest "netns"
         rlRun "ip netns exec netns_ka tcpdump -nn -i lo port $port -w tcpdump.netns.pcap &" 0
-        sleep 5 
+        sleep 5
         rlRun "ip netns exec netns_ka ./keepalive 127.0.0.1 $port $idle $interval $maxpkt &" 0
         rlRun "sleep $((15 + $idle + $interval * $maxpkt)) " 0 # should be > $idle + $interval * $maxpkt
         rlRun "childpid=`pgrep keepalive | tail -n1`" 0
