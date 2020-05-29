@@ -52,9 +52,9 @@ function set_package_name()
   # packages we don't want to match will match!
   # Please someone come up with a better solution how to determine the package name...
 
-  # Recover the saved package name from /tmp/KPKG_PACKAGE_NAME if it exists.
-  if [ -f "/tmp/kpkginstall/KPKG_PACKAGE_NAME" ]; then
-    PACKAGE_NAME=$(cat /tmp/kpkginstall/KPKG_PACKAGE_NAME)
+  # Recover the saved package name from KPKG_PACKAGE_NAME if it exists.
+  if [ -f "/kpkginstall/KPKG_PACKAGE_NAME" ]; then
+    PACKAGE_NAME=$(cat /kpkginstall/KPKG_PACKAGE_NAME)
     cki_print_success "Found cached package name on disk: ${PACKAGE_NAME}"
     return
   fi
@@ -80,8 +80,8 @@ function set_package_name()
     PACKAGE_NAME=${PACKAGE_NAME}-debug
   fi
 
-  # Write the PACKAGE_NAME to a file in /tmp so we have it after reboot.
-  echo -n "${PACKAGE_NAME}" > /tmp/kpkginstall/KPKG_PACKAGE_NAME
+  # Write the PACKAGE_NAME to a file so we have it after reboot.
+  echo -n "${PACKAGE_NAME}" > /kpkginstall/KPKG_PACKAGE_NAME
   cki_print_success "Package name is set: ${PACKAGE_NAME} (cached to disk)"
 }
 
@@ -133,9 +133,9 @@ EOF
 
 function get_kpkg_ver()
 {
-  # Recover the saved package name from /tmp/KPKG_KVER if it exists.
-  if [ -f "/tmp/kpkginstall/KPKG_KVER" ]; then
-    KVER=$(cat /tmp/kpkginstall/KPKG_KVER)
+  # Recover the saved package name from KPKG_KVER if it exists.
+  if [ -f "/kpkginstall/KPKG_KVER" ]; then
+    KVER=$(cat /kpkginstall/KPKG_KVER)
     cki_print_success "Found kernel version string in cache on disk: ${KVER}"
     return
   fi
@@ -161,8 +161,8 @@ function get_kpkg_ver()
     )
   fi
 
-  # Write the KVER to a file in /tmp so we have it after reboot.
-  echo -n "${KVER}" > /tmp/kpkginstall/KPKG_KVER
+  # Write the KVER to a file so we have it after reboot.
+  echo -n "${KVER}" > /kpkginstall/KPKG_KVER
 }
 
 function targz_install()
@@ -396,12 +396,10 @@ function rpm_install()
 
 if [ ${REBOOTCOUNT} -eq 0 ]; then
 
-  # If we haven't rebooted yet, then we shouldn't have the temporary directory
-  # present on the system.
-  rm -rfv /tmp/kpkginstall
-
+  # If we haven't rebooted yet, then we shouldn't have the directory present on the system.
+  rm -rfv /kpkginstall
   # Make a directory to hold small bits of information for the test.
-  mkdir -p /tmp/kpkginstall
+  mkdir -p /kpkginstall
 
   # If the KPKG_URL contains a pound sign, then we have variables on the end
   # which need to be removed and parsed.
@@ -412,7 +410,7 @@ if [ ${REBOOTCOUNT} -eq 0 ]; then
   # If we are installing a debug kernel, make a reminder for us to check for
   # a debug kernel after the reboot
   if [[ "${KPKG_VAR_DEBUG:no}" == "yes" ]]; then
-    echo "yes" > /tmp/kpkginstall/KPKG_VAR_DEBUG
+    echo "yes" > /kpkginstall/KPKG_VAR_DEBUG
   fi
 
   if [ -z "${KPKG_URL}" ]; then
@@ -463,7 +461,7 @@ else
   fi
 
   # Make a list of kernel versions we expect to see after reboot.
-  if [ -f /tmp/kpkginstall/KPKG_VAR_DEBUG ]; then
+  if [ -f /kpkginstall/KPKG_VAR_DEBUG ]; then
     valid_kernel_versions=(
       "${KVER}.debug"           # RHEL 7 style debug kernels
       "${KVER}+debug"           # RHEL 8 style debug kernels
@@ -498,4 +496,7 @@ else
   else
     rstrnt-report-result ${TEST}/reboot PASS 0
   fi
+
+  # Clean up temporary files
+  rm -rfv /kpkginstall
 fi
